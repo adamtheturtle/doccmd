@@ -24,19 +24,26 @@ def test_help(file_regression: FileRegressionFixture) -> None:
 
 
 def test_run_command() -> None:
-    """Test running a command."""
+    """It is possible to run a command against a code block in a document."""
+
+
+def test_line_numbers() -> None:
+    """Files are padded."""
 
 
 def test_multiple_code_blocks() -> None:
-    """Test running a command against multiple code blocks."""
+    """
+    It is possible to run a command against multiple code blocks in a
+    document.
+    """
 
 
 def test_language_filters() -> None:
-    """Test running a command against code blocks for a specific language."""
+    """Languages not specified are not run."""
 
 
 def test_run_command_no_pad_file() -> None:
-    """Test running a command without padding the file."""
+    """It is possible to not pad the file."""
 
 
 def test_multiple_files() -> None:

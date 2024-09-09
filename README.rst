@@ -15,6 +15,7 @@ TODO:
 * GitHub - enable auto merge (including required builds)
 * Add automated version command, like VWS CLI
 * Verbose mode... "Running command "X" against README.rst example from line ..."
+* Allow multiple languages (minimum 1 given)
 
 .. |Build Status| image:: https://github.com/adamtheturtle/docrun/actions/workflows/ci.yml/badge.svg?branch=main
    :target: https://github.com/adamtheturtle/docrun/actions
