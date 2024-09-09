@@ -11,3 +11,4 @@ TODO:
 * Release like VWS CLI
 * GitHub - enable auto merge (including required builds)
 * Add automated version command, like VWS CLI
+* Verbose mode... "Running command "X" against README.rst example from line ..."
