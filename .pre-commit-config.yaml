@@ -116,7 +116,7 @@ repos:
 
     -   id: pylint
         name: pylint
-        entry: python -m pylint *.py src/ tests/
+        entry: python -m pylint src/ tests/
         language: system
         stages: [manual]
         pass_filenames: false
