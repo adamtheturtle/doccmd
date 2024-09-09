@@ -3,7 +3,6 @@ docrun
 
 TODO:
 
-* Add CLI
 * Add tests
 * Add README (including badges, meaning get codecov to work)
 * Add documentation (automated, and link to it, and add pre-commits for Sphinx stuff, update urls.Source)
@@ -11,3 +10,4 @@ TODO:
 * Add shortcuts
 * Release like VWS CLI
 * GitHub - enable auto merge (including required builds)
+* Add automated version command, like VWS CLI
