@@ -16,6 +16,7 @@ TODO:
 * Add automated version command, like VWS CLI
 * Verbose mode... "Running command "X" against README.rst example from line ..."
 * Allow multiple languages (minimum 1 given)
+* Exit with the exit code of the tool
 
 .. |Build Status| image:: https://github.com/adamtheturtle/docrun/actions/workflows/ci.yml/badge.svg?branch=main
    :target: https://github.com/adamtheturtle/docrun/actions

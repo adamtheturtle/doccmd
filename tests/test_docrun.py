@@ -1,5 +1,7 @@
 """Tests for `docrun`."""
 
+from pathlib import Path
+
 from click.testing import CliRunner
 from pytest_regressions.file_regression import FileRegressionFixture
 
@@ -23,8 +25,16 @@ def test_help(file_regression: FileRegressionFixture) -> None:
     file_regression.check(contents=result.output)
 
 
-def test_run_command() -> None:
+def test_run_command(tmp_path: Path) -> None:
     """It is possible to run a command against a code block in a document."""
+    rst_file = tmp_path / "example.rst"
+    content = """
+    .. code-block:: python
+
+        x = 2 + 2
+        assert x == 4
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
 
 
 def test_line_numbers() -> None:
