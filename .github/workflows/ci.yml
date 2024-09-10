@@ -1,0 +1,57 @@
+---
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    # Run at 1:00 every day
+    - cron: '0 1 * * *'
+
+jobs:
+  build:
+
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+        platform: [ubuntu-latest]
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: "Set up Python"
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # We do not use the cache action as uv is faster than the cache action.
+      - name: "Install dependencies"
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          uv pip install --system --upgrade --editable .[dev]
+
+      - name: "Lint"
+        run: |
+          pre-commit run --all-files --hook-stage commit --verbose
+          pre-commit run --all-files --hook-stage push --verbose
+          pre-commit run --all-files --hook-stage manual --verbose
+
+      - name: "Run tests"
+        run: |
+          # We run tests against "." and not the tests directory as we test the README
+          # and documentation.
+          pytest -s -vvv --cov-fail-under 100 --cov=src/ --cov=tests . --cov-report=xml
+
+      - name: "Upload coverage to Codecov"
+        uses: "codecov/codecov-action@v4"
+        with:
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - uses: pre-commit-ci/lite-action@v1.0.2
+        if: always()
