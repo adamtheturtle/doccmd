@@ -3,7 +3,7 @@ build-backend = "setuptools.build_meta"
 requires = [
     "pip",
     "setuptools",
-    "setuptools-scm[toml]>=7.1",
+    "setuptools-scm[toml]>=8.1",
     "wheel",
 ]
 
@@ -85,6 +85,11 @@ sybil_extras = [
 universal = true
 
 [tool.setuptools_scm]
+
+# We write the version to a file so that we can import it.
+# We choose a ``.py`` file so that we can read it without
+# worrying about including the file in MANIFEST.in.
+write_to = "src/doccmd/_setuptools_scm_version.py"
 
 [tool.ruff]
 line-length = 79
@@ -264,6 +269,7 @@ ignore = [
     "tests",
     "tests-pylintrc",
     "tests/**",
+    "src/*/_setuptools_scm_version.py",
 ]
 
 [tool.deptry]
@@ -283,6 +289,9 @@ log_cli = true
 [tool.coverage.run]
 
 branch = true
+omit = [
+    'src/*/_setuptools_scm_version.py',
+]
 
 [tool.coverage.report]
 exclude_also = [
