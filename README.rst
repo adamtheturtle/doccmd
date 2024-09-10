@@ -5,7 +5,6 @@ doccmd
 
 TODO:
 
-* Add tests
 * Add README
 * Add documentation (automated, and link to it, and add pre-commits for Sphinx stuff, update urls.Source)
 * Add shortcuts (e.g. -l for --language)
