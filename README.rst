@@ -14,7 +14,6 @@ TODO:
 * Verbose mode... "Running command "X" against README.rst example from line ..."
 * Allow multiple languages (minimum 1 given)
 * Exit with the exit code of the tool
-* Probably not needed to echo the command and output
 
 .. |Build Status| image:: https://github.com/adamtheturtle/doccmd/actions/workflows/ci.yml/badge.svg?branch=main
    :target: https://github.com/adamtheturtle/doccmd/actions
