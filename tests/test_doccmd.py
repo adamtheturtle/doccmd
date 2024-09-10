@@ -406,6 +406,25 @@ def test_file_extension_unknown_language(tmp_path: Path) -> None:
     The file extension of the temporary file is txt for any unknown
     language.
     """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    content = """\
+    .. code-block:: unknown
+
+        x = 2 + 2
+        assert x == 4
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = ["--language", "unknown", "--command", "echo", str(rst_file)]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    output = result.stdout
+    output_path = Path(output.strip())
+    assert output_path.suffix == ".txt"
 
 
 def test_file_given_multiple_times(tmp_path: Path) -> None:
