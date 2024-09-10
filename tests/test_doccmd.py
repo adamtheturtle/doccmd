@@ -403,7 +403,7 @@ def test_file_extension(
 
 def test_file_extension_unknown_language(tmp_path: Path) -> None:
     """
-    The file extension of the temporary file is txt for any unknown
+    The file extension of the temporary file is `.txt` for any unknown
     language.
     """
     runner = CliRunner(mix_stderr=False)
