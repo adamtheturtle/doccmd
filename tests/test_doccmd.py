@@ -198,38 +198,84 @@ def test_run_command_no_pad_file(tmp_path: Path) -> None:
     assert result.stderr == ""
 
 
-def test_multiple_files() -> None:
+def test_multiple_files(tmp_path: Path) -> None:
     """It is possible to run a command against multiple files."""
+    runner = CliRunner(mix_stderr=False)
+    rst_file1 = tmp_path / "example1.rst"
+    rst_file2 = tmp_path / "example2.rst"
+    content1 = """\
+    .. code-block:: python
+
+        x = 2 + 2
+        assert x == 4
+    """
+    content2 = """\
+    .. code-block:: python
+
+        y = 3 + 3
+        assert y == 6
+    """
+    rst_file1.write_text(data=content1, encoding="utf-8")
+    rst_file2.write_text(data=content2, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        str(rst_file1),
+        str(rst_file2),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    expected_output = textwrap.dedent(
+        text="""\
 
 
-def test_multiple_files_multiple_types() -> None:
+        x = 2 + 2
+        assert x == 4
+
+
+        y = 3 + 3
+        assert y == 6
+        """,
+    )
+
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
+def test_multiple_files_multiple_types(tmp_path: Path) -> None:
     """
     It is possible to run a command against multiple files of multiple
     types (Markdown and rST).
     """
 
 
-def test_modify_file() -> None:
+def test_modify_file(tmp_path: Path) -> None:
     """Commands can modify files."""
 
 
-def test_error_code() -> None:
+def test_error_code(tmp_path: Path) -> None:
     """The error code of the first failure is propagated."""
 
 
-def test_file_extension() -> None:
+def test_file_extension(tmp_path: Path) -> None:
     """
     The file extension of the temporary file is appropriate for the
     language.
     """
 
 
-def test_file_extension_unknown_language() -> None:
+def test_file_extension_unknown_language(tmp_path: Path) -> None:
     """
     The file extension of the temporary file is txt for any unknown
     language.
     """
 
 
-def test_file_given_multiple_times() -> None:
+def test_file_given_multiple_times(tmp_path: Path) -> None:
     """No error is shown when a file is given multiple times."""
