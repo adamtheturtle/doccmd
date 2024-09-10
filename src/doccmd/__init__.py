@@ -71,6 +71,7 @@ def _run_args_against_docs(
 @click.command()
 @click.option(
     "language",
+    "-l",
     "--language",
     type=str,
     required=True,

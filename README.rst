@@ -35,7 +35,6 @@ Usage example
 TODO:
 
 * Add documentation (automated, and link to it, and add pre-commits for Sphinx stuff, update urls.Source)
-* Add shortcuts (e.g. -l for --language)
 * Release like VWS CLI
 * Add automated version command, like VWS CLI
 * Verbose mode... "Running command "X" against README.rst example from line ..."
