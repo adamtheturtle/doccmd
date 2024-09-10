@@ -302,6 +302,37 @@ def test_multiple_files_multiple_types(tmp_path: Path) -> None:
 
 def test_modify_file(tmp_path: Path) -> None:
     """Commands can modify files."""
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    content = """\
+    .. code-block:: python
+
+        a = 1
+        b = 1
+        c = 1
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        "truncate -s 9",
+        str(rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    modified_content = rst_file.read_text(encoding="utf-8")
+    expected_modified_content = """\
+    .. code-block:: python
+
+        a = 1
+        b
+    """
+    assert modified_content == expected_modified_content
 
 
 def test_error_code(tmp_path: Path) -> None:
