@@ -5,7 +5,7 @@ Usage: main [OPTIONS] [FILE_PATHS]...
   This works with Markdown and reStructuredText files.
 
 Options:
-  --language TEXT             Run `command` against code blocks for this
+  -l, --language TEXT         Run `command` against code blocks for this
                               language.  [required]
   --command TEXT              [required]
   --pad-file / --no-pad-file  Run the command against a temporary file padded
