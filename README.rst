@@ -7,7 +7,6 @@ TODO:
 
 * Add tests
 * Add README
-* Get codecov working
 * Add documentation (automated, and link to it, and add pre-commits for Sphinx stuff, update urls.Source)
 * Set up PyPI for release
 * Add shortcuts
