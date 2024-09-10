@@ -4,6 +4,7 @@ import sys
 import textwrap
 from pathlib import Path
 
+import pytest
 from click.testing import CliRunner
 from pytest_regressions.file_regression import FileRegressionFixture
 
@@ -363,11 +364,41 @@ def test_exit_code(tmp_path: Path) -> None:
     assert result.exit_code == exit_code
 
 
-def test_file_extension(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    argnames=["language", "expected_extension"],
+    argvalues=[
+        ("python", ".py"),
+        ("javascript", ".js"),
+    ],
+)
+def test_file_extension(
+    tmp_path: Path,
+    language: str,
+    expected_extension: str,
+) -> None:
     """
     The file extension of the temporary file is appropriate for the
     language.
     """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    content = f"""\
+    .. code-block:: {language}
+
+        x = 2 + 2
+        assert x == 4
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = ["--language", language, "--command", "echo", str(rst_file)]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    output = result.stdout
+    output_path = Path(output.strip())
+    assert output_path.suffix == expected_extension
 
 
 def test_file_extension_unknown_language(tmp_path: Path) -> None:
