@@ -6,6 +6,7 @@ docrun
 TODO:
 
 * Add tests
+* Is the padding one too much?
 * Add README
 * Get codecov working
 * Add documentation (automated, and link to it, and add pre-commits for Sphinx stuff, update urls.Source)
@@ -17,6 +18,8 @@ TODO:
 * Verbose mode... "Running command "X" against README.rst example from line ..."
 * Allow multiple languages (minimum 1 given)
 * Exit with the exit code of the tool
+* Use CalledProcessError not ValueError
+* Probably not needed to echo the command and output
 
 .. |Build Status| image:: https://github.com/adamtheturtle/docrun/actions/workflows/ci.yml/badge.svg?branch=main
    :target: https://github.com/adamtheturtle/docrun/actions
