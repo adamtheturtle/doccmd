@@ -1,5 +1,6 @@
 """Tests for `doccmd`."""
 
+import sys
 import textwrap
 from pathlib import Path
 
@@ -335,8 +336,31 @@ def test_modify_file(tmp_path: Path) -> None:
     assert modified_content == expected_modified_content
 
 
-def test_error_code(tmp_path: Path) -> None:
+def test_exit_code(tmp_path: Path) -> None:
     """The exit code of the first failure is propagated."""
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    exit_code = 25
+    content = f"""\
+    .. code-block:: python
+
+        import sys
+        sys.exit({exit_code})
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        sys.executable,
+        str(rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == exit_code
 
 
 def test_file_extension(tmp_path: Path) -> None:
