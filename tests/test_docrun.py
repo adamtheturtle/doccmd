@@ -1,5 +1,6 @@
 """Tests for `docrun`."""
 
+import textwrap
 from pathlib import Path
 
 from click.testing import CliRunner
@@ -14,7 +15,7 @@ def test_help(file_regression: FileRegressionFixture) -> None:
     This help text is defined in files.
     To update these files, run ``pytest`` with the ``--regen-all`` flag.
     """
-    runner = CliRunner()
+    runner = CliRunner(mix_stderr=False)
     arguments = ["--help"]
     result = runner.invoke(
         cli=main,
@@ -27,6 +28,7 @@ def test_help(file_regression: FileRegressionFixture) -> None:
 
 def test_run_command(tmp_path: Path) -> None:
     """It is possible to run a command against a code block in a document."""
+    runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
     content = """
     .. code-block:: python
@@ -35,6 +37,29 @@ def test_run_command(tmp_path: Path) -> None:
         assert x == 4
     """
     rst_file.write_text(data=content, encoding="utf-8")
+    arguments = ["--language", "python", "--command", "cat", str(rst_file)]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    expected_output = textwrap.dedent(
+        text="""\
+
+
+
+        x = 2 + 2
+        assert x == 4
+        """,
+    )
+
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
+def test_file_does_not_exist() -> None:
+    """An error is shown when a file does not exist."""
 
 
 def test_line_numbers() -> None:
@@ -68,16 +93,16 @@ def test_modify_file() -> None:
     """Test modifying a file."""
 
 
-def test_error() -> None:
+def test_error_code() -> None:
     """Test an error."""
 
 
-def test_file_ending() -> None:
-    """Test that the file ending is correct."""
+def test_file_extension() -> None:
+    """Test that the file extension is correct."""
 
 
-def test_file_ending_unknown_language() -> None:
-    """Test that the file ending is correct for an unknown language."""
+def test_file_extension_unknown_language() -> None:
+    """Test that the file extension is correct for an unknown language."""
 
 
 def test_file_given_twice() -> None:
