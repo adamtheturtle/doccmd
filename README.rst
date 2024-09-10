@@ -8,9 +8,8 @@ TODO:
 * Add tests
 * Add README
 * Add documentation (automated, and link to it, and add pre-commits for Sphinx stuff, update urls.Source)
-* Add shortcuts
+* Add shortcuts (e.g. -l for --language)
 * Release like VWS CLI
-* GitHub - enable auto merge (including required builds)
 * Add automated version command, like VWS CLI
 * Verbose mode... "Running command "X" against README.rst example from line ..."
 * Allow multiple languages (minimum 1 given)
