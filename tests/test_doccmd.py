@@ -253,6 +253,51 @@ def test_multiple_files_multiple_types(tmp_path: Path) -> None:
     It is possible to run a command against multiple files of multiple
     types (Markdown and rST).
     """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    md_file = tmp_path / "example.md"
+    rst_content = """\
+    .. code-block:: python
+
+        x = 2 + 2
+        assert x == 4
+    """
+    md_content = """\
+    ```python
+    y = 3 + 3
+    assert y == 6
+    ```
+    """
+    rst_file.write_text(data=rst_content, encoding="utf-8")
+    md_file.write_text(data=md_content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        str(rst_file),
+        str(md_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    expected_output = textwrap.dedent(
+        text="""\
+
+
+        x = 2 + 2
+        assert x == 4
+
+        y = 3 + 3
+        assert y == 6
+        """,
+    )
+
+    assert result.stdout == expected_output
+    assert result.stderr == ""
 
 
 def test_modify_file(tmp_path: Path) -> None:
@@ -260,7 +305,7 @@ def test_modify_file(tmp_path: Path) -> None:
 
 
 def test_error_code(tmp_path: Path) -> None:
-    """The error code of the first failure is propagated."""
+    """The exit code of the first failure is propagated."""
 
 
 def test_file_extension(tmp_path: Path) -> None:
