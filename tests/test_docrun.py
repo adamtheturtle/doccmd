@@ -199,28 +199,37 @@ def test_run_command_no_pad_file(tmp_path: Path) -> None:
 
 
 def test_multiple_files() -> None:
-    """Test running a command against multiple files."""
+    """It is possible to run a command against multiple files."""
 
 
 def test_multiple_files_multiple_types() -> None:
-    """Test running a command against multiple files."""
+    """
+    It is possible to run a command against multiple files of multiple
+    types (Markdown and rST).
+    """
 
 
 def test_modify_file() -> None:
-    """Test modifying a file."""
+    """Commands can modify files."""
 
 
 def test_error_code() -> None:
-    """Test an error."""
+    """The error code of the first failure is propagated."""
 
 
 def test_file_extension() -> None:
-    """Test that the file extension is correct."""
+    """
+    The file extension of the temporary file is appropriate for the
+    language.
+    """
 
 
 def test_file_extension_unknown_language() -> None:
-    """Test that the file extension is correct for an unknown language."""
+    """
+    The file extension of the temporary file is txt for any unknown
+    language.
+    """
 
 
-def test_file_given_twice() -> None:
-    """Test that a file is not given twice."""
+def test_file_given_multiple_times() -> None:
+    """No error is shown when a file is given multiple times."""
