@@ -1,12 +1,11 @@
-"""Tests for `docrun`."""
+"""Tests for `doccmd`."""
 
 import textwrap
 from pathlib import Path
 
 from click.testing import CliRunner
+from doccmd import main
 from pytest_regressions.file_regression import FileRegressionFixture
-
-from docrun import main
 
 
 def test_help(file_regression: FileRegressionFixture) -> None:

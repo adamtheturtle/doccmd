@@ -1,1 +1,1 @@
-"""Tests for `docrun`."""
+"""Tests for `doccmd`."""

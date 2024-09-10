@@ -69,7 +69,7 @@ repos:
     -   id: mypy-docs
         name: mypy-docs
         stages: [push]
-        entry: docrun --language=python --command="mypy"
+        entry: doccmd --language=python --command="mypy"
         language: system
         types_or: [markdown, rst]
 
@@ -91,7 +91,7 @@ repos:
     -   id: pyright-docs
         name: pyright-docs
         stages: [push]
-        entry: docrun --language=python --command="pyright"
+        entry: doccmd --language=python --command="pyright"
         language: system
         types_or: [markdown, rst]
 
@@ -123,7 +123,7 @@ repos:
 
     -   id: pylint-docs
         name: pylint-docs
-        entry: docrun --language=python --command="pylint"
+        entry: doccmd --language=python --command="pylint"
         language: system
         stages: [manual]
         types_or: [markdown, rst]
@@ -136,7 +136,7 @@ repos:
 
     -   id: ruff-check-docs
         name: Ruff check docs
-        entry: docrun --language=python --command="ruff check"
+        entry: doccmd --language=python --command="ruff check"
         language: system
         types_or: [markdown, rst]
 
@@ -148,7 +148,7 @@ repos:
 
     -   id: ruff-format-diff-docs
         name: Ruff format diff docs
-        entry: docrun --language=python --no-pad-file --command="ruff format --diff"
+        entry: doccmd --language=python --no-pad-file --command="ruff format --diff"
         language: system
         types_or: [markdown, rst]
 
@@ -160,7 +160,7 @@ repos:
 
     -   id: ruff-check-fix-docs
         name: Ruff check fix docs
-        entry: docrun --language=python --command="ruff check --fix"
+        entry: doccmd --language=python --command="ruff check --fix"
         language: system
         types_or: [markdown, rst]
 
@@ -172,7 +172,7 @@ repos:
 
     -   id: ruff-format-fix-docs
         name: Ruff format docs
-        entry: docrun --language=python --no-pad-file --command="ruff format"
+        entry: doccmd --language=python --no-pad-file --command="ruff format"
         language: system
         types_or: [markdown, rst]
 
@@ -190,7 +190,7 @@ repos:
 
     -   id: interrogate-docs
         name: interrogate docs
-        entry: docrun --language=python --command="interrogate"
+        entry: doccmd --language=python --command="interrogate"
         language: system
         types_or: [markdown, rst]
 

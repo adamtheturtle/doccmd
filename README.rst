@@ -1,6 +1,6 @@
 |Build Status| |codecov| |PyPI| |Documentation Status|
 
-docrun
+doccmd
 ======
 
 TODO:
@@ -18,12 +18,12 @@ TODO:
 * Exit with the exit code of the tool
 * Probably not needed to echo the command and output
 
-.. |Build Status| image:: https://github.com/adamtheturtle/docrun/actions/workflows/ci.yml/badge.svg?branch=main
-   :target: https://github.com/adamtheturtle/docrun/actions
-.. |codecov| image:: https://codecov.io/gh/adamtheturtle/docrun/branch/main/graph/badge.svg
-   :target: https://codecov.io/gh/adamtheturtle/docrun
-.. |PyPI| image:: https://badge.fury.io/py/docrun.svg
-   :target: https://badge.fury.io/py/docrun
-.. |Documentation Status| image:: https://readthedocs.org/projects/docrun/badge/?version=latest
-   :target: https://docrun.readthedocs.io/en/latest/?badge=latest
+.. |Build Status| image:: https://github.com/adamtheturtle/doccmd/actions/workflows/ci.yml/badge.svg?branch=main
+   :target: https://github.com/adamtheturtle/doccmd/actions
+.. |codecov| image:: https://codecov.io/gh/adamtheturtle/doccmd/branch/main/graph/badge.svg
+   :target: https://codecov.io/gh/adamtheturtle/doccmd
+.. |PyPI| image:: https://badge.fury.io/py/doccmd.svg
+   :target: https://badge.fury.io/py/doccmd
+.. |Documentation Status| image:: https://readthedocs.org/projects/doccmd/badge/?version=latest
+   :target: https://doccmd.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
