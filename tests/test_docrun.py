@@ -126,8 +126,40 @@ def test_multiple_code_blocks(tmp_path: Path) -> None:
     assert result.stderr == ""
 
 
-def test_language_filters() -> None:
+def test_language_filters(tmp_path: Path) -> None:
     """Languages not specified are not run."""
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    content = """\
+    .. code-block:: python
+
+        x = 2 + 2
+        assert x == 4
+
+    .. code-block:: javascript
+
+        var y = 3 + 3;
+        console.assert(y === 6);
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = ["--language", "python", "--command", "cat", str(rst_file)]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    expected_output = textwrap.dedent(
+        text="""\
+
+
+        x = 2 + 2
+        assert x == 4
+        """,
+    )
+
+    assert result.stdout == expected_output
+    assert result.stderr == ""
 
 
 def test_run_command_no_pad_file() -> None:

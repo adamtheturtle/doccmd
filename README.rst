@@ -17,7 +17,7 @@ TODO:
 * Verbose mode... "Running command "X" against README.rst example from line ..."
 * Allow multiple languages (minimum 1 given)
 * Exit with the exit code of the tool
-* Use CalledProcessError not ValueError
+* Use CalledProcessError not ValueError - update here to use downstream change
 * Probably not needed to echo the command and output
 
 .. |Build Status| image:: https://github.com/adamtheturtle/docrun/actions/workflows/ci.yml/badge.svg?branch=main
