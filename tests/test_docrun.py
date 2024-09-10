@@ -30,7 +30,7 @@ def test_run_command(tmp_path: Path) -> None:
     """It is possible to run a command against a code block in a document."""
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
-    content = """
+    content = """\
     .. code-block:: python
 
         x = 2 + 2
@@ -45,8 +45,9 @@ def test_run_command(tmp_path: Path) -> None:
     )
     assert result.exit_code == 0
     expected_output = textwrap.dedent(
+        # The file is padded so that any error messages relate to the correct
+        # line number in the original file.
         text="""\
-
 
 
         x = 2 + 2
@@ -77,15 +78,52 @@ def test_file_does_not_exist() -> None:
     assert "Path 'non_existent_file.rst' does not exist" in result.stderr
 
 
-def test_line_numbers() -> None:
-    """Files are padded."""
-
-
-def test_multiple_code_blocks() -> None:
+def test_multiple_code_blocks(tmp_path: Path) -> None:
     """
     It is possible to run a command against multiple code blocks in a
     document.
     """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    content = """\
+    .. code-block:: python
+
+        x = 2 + 2
+        assert x == 4
+
+    .. code-block:: python
+
+        y = 3 + 3
+        assert y == 6
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = ["--language", "python", "--command", "cat", str(rst_file)]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    expected_output = textwrap.dedent(
+        text="""\
+
+
+        x = 2 + 2
+        assert x == 4
+
+
+
+
+
+
+
+        y = 3 + 3
+        assert y == 6
+        """,
+    )
+
+    assert result.stdout == expected_output
+    assert result.stderr == ""
 
 
 def test_language_filters() -> None:

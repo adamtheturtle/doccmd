@@ -6,7 +6,6 @@ docrun
 TODO:
 
 * Add tests
-* Is the padding one too much?
 * Add README
 * Get codecov working
 * Add documentation (automated, and link to it, and add pre-commits for Sphinx stuff, update urls.Source)
