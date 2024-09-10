@@ -60,6 +60,21 @@ def test_run_command(tmp_path: Path) -> None:
 
 def test_file_does_not_exist() -> None:
     """An error is shown when a file does not exist."""
+    runner = CliRunner(mix_stderr=False)
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        "non_existent_file.rst",
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code != 0
+    assert "Path 'non_existent_file.rst' does not exist" in result.stderr
 
 
 def test_line_numbers() -> None:
