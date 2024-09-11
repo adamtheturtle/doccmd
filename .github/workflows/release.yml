@@ -97,3 +97,48 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           verbose: true
+
+      # We have a race condition.
+      # In particular, we push to PyPI and then immediately try to install
+      # the pushed version.
+      # Here, we give PyPI time to propagate the package.
+      - name: Install doccmd from PyPI
+        uses: nick-fields/retry@v3
+        env:
+          NEXT_VERSION: ${{ steps.calver.outputs.release }}
+        with:
+          timeout_seconds: 10
+          max_attempts: 20
+          command: pip install doccmd==${{ env.NEXT_VERSION }}
+
+      - name: Create a Homebrew recipe
+        id: homebrew-create
+        env:
+          FILENAME: doccmd.rb
+        run: |
+          poet --formula doccmd > ${{ env.FILENAME }}
+          echo "HOMEBREW_RECIPE_FILE=${{ env.FILENAME }}" >> "$GITHUB_OUTPUT"
+
+      - name: "Update Homebrew description"
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          find: "desc \"Shiny new formula\""
+          replace:  "desc \"CLI for Vuforia Web Services\""
+          include: ${{ steps.homebrew-create.outputs.HOMEBREW_RECIPE_FILE }}
+          regex: false
+
+      - name: Push Homebrew Recipe
+        uses: dmnemec/copy_file_to_another_repo_action@main
+        env:
+          # See https://github.com/marketplace/actions/github-action-to-push-subdirectories-to-another-repo#usage
+          # for how to get this token.
+          # I do not yet know how to set this up to work with a
+          # "Fine-grained personal access token", only a "Token (classic)" with "repo" settings.
+          API_TOKEN_GITHUB: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}
+        with:
+          destination_branch: master
+          source_file: ${{ steps.homebrew-create.outputs.HOMEBREW_RECIPE_FILE }}
+          destination_repo: 'VWS-Python/homebrew-vws'
+          user_email: 'adamdangoor@gmail.com'
+          user_name: 'adamtheturtle'
+          commit_message: 'Bump CLI Homebrew recipe'

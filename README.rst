@@ -20,6 +20,18 @@ Requires Python 3.11+.
 
    pip install doccmd
 
+With Homebrew (macOS, Linux, WSL)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Requires `Homebrew`_.
+
+.. code:: sh
+
+   brew tap adamtheturtle/doccmd
+   brew install doccmd
+
+.. _Homebrew: https://docs.brew.sh/Installation
+
 Usage example
 -------------
 
@@ -38,6 +50,7 @@ TODO:
 * Release Homebrew
 * Release pre-commit hook
 * Verbose mode... "Running command "X" against README.rst example from line ..."
+* Allow multiple languages (e.g. shellcheck versus shell, sh, bash)
 
 .. |Build Status| image:: https://github.com/adamtheturtle/doccmd/actions/workflows/ci.yml/badge.svg?branch=main
    :target: https://github.com/adamtheturtle/doccmd/actions
