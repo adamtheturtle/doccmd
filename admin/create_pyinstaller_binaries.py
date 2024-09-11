@@ -6,7 +6,10 @@ import subprocess
 import sys
 from pathlib import Path
 
+from beartype import beartype
 
+
+@beartype
 def remove_existing_files(scripts: set[Path]) -> None:
     """Remove files created when building binaries.
 
@@ -27,6 +30,7 @@ def remove_existing_files(scripts: set[Path]) -> None:
             path.unlink()
 
 
+@beartype
 def create_binary(script: Path) -> None:
     """Use PyInstaller to create a binary from a script.
 
@@ -44,6 +48,7 @@ def create_binary(script: Path) -> None:
     subprocess.check_output(args=pyinstaller_command)
 
 
+@beartype
 def create_binaries() -> None:
     """Make PyInstaller binaries for the platform that this is being run on.
 

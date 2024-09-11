@@ -36,6 +36,12 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      # We do not use the cache action as uv is faster than the cache action.
+      - name: "Install dependencies"
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          uv pip install --system --upgrade --editable .[dev]
+
       - name: "Calver calculate version"
         uses: StephaneBour/actions-calver@master
         id: calver
