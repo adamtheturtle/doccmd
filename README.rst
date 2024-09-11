@@ -82,6 +82,11 @@ TODO:
 * Document https://sybil.readthedocs.io/en/latest/rest.html#skipping-examples on docrun, and make it work
 * https://github.com/simplistix/sybil/blob/master/sybil/parsers/rest/codeblock.py add .. code (not just code block), and same for MyST where it is even more popular
 
+Full documentation
+------------------
+
+See the `full documentation <https://doccmd.readthedocs.io/en/latest>`__.
+
 .. |Build Status| image:: https://github.com/adamtheturtle/doccmd/actions/workflows/ci.yml/badge.svg?branch=main
    :target: https://github.com/adamtheturtle/doccmd/actions
 .. |codecov| image:: https://codecov.io/gh/adamtheturtle/doccmd/branch/main/graph/badge.svg

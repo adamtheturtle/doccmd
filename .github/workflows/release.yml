@@ -144,7 +144,7 @@ jobs:
         with:
           destination_branch: master
           source_file: ${{ steps.homebrew-create.outputs.HOMEBREW_RECIPE_FILE }}
-          destination_repo: 'VWS-Python/homebrew-vws'
+          destination_repo: 'adamtheturtle/homebrew-doccmd'
           user_email: 'adamdangoor@gmail.com'
           user_name: 'adamtheturtle'
           commit_message: 'Bump CLI Homebrew recipe'
