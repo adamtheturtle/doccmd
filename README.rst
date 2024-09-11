@@ -38,6 +38,7 @@ TODO:
 * Release Homebrew
 * Release pre-commit hook
 * Verbose mode... "Running command "X" against README.rst example from line ..."
+* Allow multiple languages (e.g. shellcheck versus shell, sh, bash)
 
 .. |Build Status| image:: https://github.com/adamtheturtle/doccmd/actions/workflows/ci.yml/badge.svg?branch=main
    :target: https://github.com/adamtheturtle/doccmd/actions
