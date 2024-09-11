@@ -266,6 +266,10 @@ ignore = [
     "CONTRIBUTING.rst",
     "LICENSE",
     "Makefile",
+    "admin",
+    "admin/**",
+    "bin",
+    "bin/*",
     "ci",
     "ci/**",
     "codecov.yaml",
@@ -276,10 +280,10 @@ ignore = [
     "lint.mk",
     "readthedocs.yaml",
     "spelling_private_dict.txt",
+    "src/*/_setuptools_scm_version.py",
     "tests",
     "tests-pylintrc",
     "tests/**",
-    "src/*/_setuptools_scm_version.py",
 ]
 
 [tool.deptry]
