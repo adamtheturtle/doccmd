@@ -111,3 +111,6 @@ venv.bak/
 
 # setuptools_scm
 src/*/_setuptools_scm_version.txt
+src/*/_setuptools_scm_version.py
+
+*.DS_Store

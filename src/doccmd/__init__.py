@@ -4,6 +4,7 @@ import shlex
 import subprocess
 import sys
 from collections.abc import Iterable, Sequence
+from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 
 import click
@@ -14,7 +15,16 @@ from sybil.parsers.markdown import CodeBlockParser as MarkdownCodeBlockParser
 from sybil.parsers.rest import CodeBlockParser as RestCodeBlockParser
 from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
 
+try:
+    __version__ = version(__name__)
+except PackageNotFoundError:  # pragma: no cover
+    # When pkg_resources and git tags are not available,
+    # for example in a PyInstaller binary,
+    # we write the file ``_setuptools_scm_version.py`` on ``pip install``.
+    from ._setuptools_scm_version import __version__
 
+
+@beartype
 def _map_languages_to_suffix() -> dict[str, str]:
     """
     Map programming languages to their corresponding file extension.
@@ -96,6 +106,7 @@ def _run_args_against_docs(
     type=click.Path(exists=True, path_type=Path),
     nargs=-1,
 )
+@click.version_option(version=__version__)
 def main(
     language: str,
     command: str,

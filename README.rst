@@ -36,7 +36,6 @@ TODO:
 
 * Add documentation (automated, and link to it, and add pre-commits for Sphinx stuff, update urls.Source)
 * Release like VWS CLI
-* Add automated version command, like VWS CLI
 * Verbose mode... "Running command "X" against README.rst example from line ..."
 
 .. |Build Status| image:: https://github.com/adamtheturtle/doccmd/actions/workflows/ci.yml/badge.svg?branch=main

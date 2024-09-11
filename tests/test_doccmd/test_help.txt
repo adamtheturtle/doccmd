@@ -14,4 +14,5 @@ Options:
                               in the document. Use --no-pad-file for formatters
                               - they generally need to look at the file without
                               padding.  [default: pad-file]
+  --version                   Show the version and exit.
   --help                      Show this message and exit.

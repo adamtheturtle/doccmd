@@ -3,7 +3,7 @@ build-backend = "setuptools.build_meta"
 requires = [
     "pip",
     "setuptools",
-    "setuptools-scm[toml]>=7.1",
+    "setuptools-scm[toml]>=8.1",
     "wheel",
 ]
 
@@ -86,6 +86,11 @@ universal = true
 
 [tool.setuptools_scm]
 
+# We write the version to a file so that we can import it.
+# We choose a ``.py`` file so that we can read it without
+# worrying about including the file in MANIFEST.in.
+write_to = "src/doccmd/_setuptools_scm_version.py"
+
 [tool.ruff]
 line-length = 79
 
@@ -162,6 +167,10 @@ load-plugins = [
 # Allow loading of arbitrary C extensions. Extensions are imported into the
 # active Python interpreter and may run arbitrary code.
 unsafe-load-any-extension = false
+
+ignore = [
+    '_setuptools_scm_version.py',
+]
 
 [tool.pylint.'MESSAGES CONTROL']
 
@@ -264,6 +273,7 @@ ignore = [
     "tests",
     "tests-pylintrc",
     "tests/**",
+    "src/*/_setuptools_scm_version.py",
 ]
 
 [tool.deptry]
@@ -283,6 +293,9 @@ log_cli = true
 [tool.coverage.run]
 
 branch = true
+omit = [
+    'src/*/_setuptools_scm_version.py',
+]
 
 [tool.coverage.report]
 exclude_also = [
@@ -302,6 +315,9 @@ typeCheckingMode = "strict"
 fail-under = 100
 omit-covered-files = true
 verbose = 2
+exclude = [
+    "src/*/_setuptools_scm_version.py",
+]
 
 [tool.doc8]
 
