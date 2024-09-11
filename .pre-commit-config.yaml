@@ -6,24 +6,31 @@ ci:
     # We therefore cannot use those dependencies in pre-commit CI.
     skip:
         - actionlint
-        - mypy
         - check-manifest
-        - pyright
-        - vulture
-        - pyroma
         - deptry
-        - pylint
-        - ruff-check
-        - ruff-format-diff
-        - ruff-check-fix
-        - ruff-format-fix
         - doc8
+        - docs
         - interrogate
+        - interrogate-docs
+        - linkcheck
+        - mypy
+        - mypy-docs
+        - pylint
         - pyproject-fmt-check
         - pyproject-fmt-fix
-        - linkcheck
+        - pyright
+        - pyright-docs
+        - pyroma
+        - ruff-check
+        - ruff-check-docs
+        - ruff-check-fix
+        - ruff-check-fix-docs
+        - ruff-format-diff
+        - ruff-format-diff-docs
+        - ruff-format-fix
+        - ruff-format-fix-docs
         - spelling
-        - docs
+        - vulture
 
 default_install_hook_types: [pre-commit, pre-push, commit-msg]
 repos:
