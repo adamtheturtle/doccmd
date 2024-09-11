@@ -25,7 +25,7 @@ With Homebrew (macOS, Linux, WSL)
 
 Requires `Homebrew`_.
 
-.. code:: sh
+.. code-block:: shell
 
    brew tap adamtheturtle/doccmd
    brew install doccmd
