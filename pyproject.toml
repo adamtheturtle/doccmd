@@ -168,6 +168,10 @@ load-plugins = [
 # active Python interpreter and may run arbitrary code.
 unsafe-load-any-extension = false
 
+ignore = [
+    '_setuptools_scm_version.py',
+]
+
 [tool.pylint.'MESSAGES CONTROL']
 
 # Enable the message, report, category or checker with the given id(s). You can
@@ -311,6 +315,9 @@ typeCheckingMode = "strict"
 fail-under = 100
 omit-covered-files = true
 verbose = 2
+exclude = [
+    "src/*/_setuptools_scm_version.py",
+]
 
 [tool.doc8]
 
