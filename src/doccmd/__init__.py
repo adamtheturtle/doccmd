@@ -87,7 +87,7 @@ def _run_args_against_docs(
     required=True,
     help="Run `command` against code blocks for this language.",
 )
-@click.option("command", "--command", type=str, required=True)
+@click.option("command", "-c", "--command", type=str, required=True)
 @click.option(
     "--pad-file/--no-pad-file",
     is_flag=True,
