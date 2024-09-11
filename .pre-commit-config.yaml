@@ -24,7 +24,6 @@ ci:
         - linkcheck
         - spelling
         - docs
-        - pyright-verifytypes
 
 default_install_hook_types: [pre-commit, pre-push, commit-msg]
 repos:
