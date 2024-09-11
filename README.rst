@@ -47,11 +47,8 @@ Usage example
 TODO:
 
 * Add documentation (automated, and link to it, and add pre-commits for Sphinx stuff, update urls.Source)
-* Release Homebrew
 * Release pre-commit hook
 * Verbose mode... "Running command "X" against README.rst example from line ..."
-* Allow multiple languages (e.g. shellcheck versus shell, sh, bash)
-* Add license (also to sybil-extras)
 
 .. |Build Status| image:: https://github.com/adamtheturtle/doccmd/actions/workflows/ci.yml/badge.svg?branch=main
    :target: https://github.com/adamtheturtle/doccmd/actions
