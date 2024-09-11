@@ -20,6 +20,18 @@ Requires Python 3.11+.
 
    pip install doccmd
 
+With Homebrew (macOS, Linux, WSL)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Requires `Homebrew`_.
+
+.. code:: sh
+
+   brew tap adamtheturtle/doccmd
+   brew install doccmd
+
+.. _Homebrew: https://docs.brew.sh/Installation
+
 Usage example
 -------------
 
