@@ -142,7 +142,7 @@ jobs:
           # "Fine-grained personal access token", only a "Token (classic)" with "repo" settings.
           API_TOKEN_GITHUB: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}
         with:
-          destination_branch: master
+          destination_branch: main
           source_file: ${{ steps.homebrew-create.outputs.HOMEBREW_RECIPE_FILE }}
           destination_repo: 'adamtheturtle/homebrew-doccmd'
           user_email: 'adamdangoor@gmail.com'
