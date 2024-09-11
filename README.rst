@@ -76,13 +76,6 @@ What does it work on?
 
 * Want more? Open an issue!
 
-TODO:
-
-* Release pre-commit hook
-* Verbose mode... "Running command "X" against README.rst example from line ..."
-* Option to not delete file
-* Document https://sybil.readthedocs.io/en/latest/rest.html#skipping-examples on docrun, and make it work
-
 Full documentation
 ------------------
 
