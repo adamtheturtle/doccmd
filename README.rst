@@ -44,6 +44,9 @@ Usage example
    # This will modify the README.md file in place
    $ doccmd --language=go --command="gofmt -w" README.md
 
+   # or type less...
+   $ doccmd -l python -c mypy README.md CHANGELOG.rst
+
 What does it work on?
 ---------------------
 
@@ -79,7 +82,6 @@ TODO:
 * Verbose mode... "Running command "X" against README.rst example from line ..."
 * Option to not delete file
 * Document https://sybil.readthedocs.io/en/latest/rest.html#skipping-examples on docrun, and make it work
-* https://github.com/simplistix/sybil/blob/master/sybil/parsers/rest/codeblock.py add .. code (not just code block), and same for MyST where it is even more popular
 
 Full documentation
 ------------------
