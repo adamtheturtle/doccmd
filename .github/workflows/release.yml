@@ -69,6 +69,10 @@ jobs:
           tag_prefix: ""
           commit_sha: ${{ steps.commit.outputs.commit_hash }}
 
+      - name: Create Linux binaries
+        run: |
+          PYTHONPATH=. python admin/release.py
+
       - name: Create a GitHub release
         uses: ncipollo/release-action@v1
         with:
