@@ -7,6 +7,7 @@ cli
 dockerfile
 dockerfiles
 dulwich
+formatters
 gzip
 homebrew
 linter
@@ -22,6 +23,7 @@ pre
 pyperclip
 pyright
 pytest
+reStructuredText
 reco
 typeshed
 ubuntu
