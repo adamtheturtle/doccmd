@@ -11,7 +11,7 @@ import click
 from beartype import beartype
 from pygments.lexers import get_all_lexers
 from sybil import Sybil
-from sybil.parsers.markdown import CodeBlockParser as MarkdownCodeBlockParser
+from sybil.parsers.myst import CodeBlockParser as MystCodeBlockParser
 from sybil.parsers.rest import CodeBlockParser as RestCodeBlockParser
 from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
 
@@ -64,11 +64,11 @@ def _run_args_against_docs(
     )
 
     rest_parser = RestCodeBlockParser(language=language, evaluator=evaluator)
-    markdown_parser = MarkdownCodeBlockParser(
+    myst_parser = MystCodeBlockParser(
         language=language,
         evaluator=evaluator,
     )
-    sybil = Sybil(parsers=[rest_parser, markdown_parser])
+    sybil = Sybil(parsers=[rest_parser, myst_parser])
     document = sybil.parse(path=file_path)
     for example in document:
         try:

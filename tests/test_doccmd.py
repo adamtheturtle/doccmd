@@ -269,6 +269,13 @@ def test_multiple_files_multiple_types(tmp_path: Path) -> None:
     y = 3 + 3
     assert y == 6
     ```
+
+    # MyST syntax
+
+    ```{code-block} python
+    z = 4 + 4
+    assert z == 8
+    ```
     """
     rst_file.write_text(data=rst_content, encoding="utf-8")
     md_file.write_text(data=md_content, encoding="utf-8")
@@ -295,6 +302,16 @@ def test_multiple_files_multiple_types(tmp_path: Path) -> None:
 
         y = 3 + 3
         assert y == 6
+
+
+
+
+
+
+
+
+        z = 4 + 4
+        assert z == 8
         """,
     )
 
