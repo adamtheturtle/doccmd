@@ -75,12 +75,16 @@ What does it work on?
 
 TODO:
 
-* Add documentation (automated, and link to it, and add pre-commits for Sphinx stuff, update urls.Source)
 * Release pre-commit hook
 * Verbose mode... "Running command "X" against README.rst example from line ..."
 * Option to not delete file
 * Document https://sybil.readthedocs.io/en/latest/rest.html#skipping-examples on docrun, and make it work
 * https://github.com/simplistix/sybil/blob/master/sybil/parsers/rest/codeblock.py add .. code (not just code block), and same for MyST where it is even more popular
+
+Full documentation
+------------------
+
+See the `full documentation <https://doccmd.readthedocs.io/en/latest>`__.
 
 .. |Build Status| image:: https://github.com/adamtheturtle/doccmd/actions/workflows/ci.yml/badge.svg?branch=main
    :target: https://github.com/adamtheturtle/doccmd/actions

@@ -6,25 +6,31 @@ ci:
     # We therefore cannot use those dependencies in pre-commit CI.
     skip:
         - actionlint
-        - mypy
         - check-manifest
-        - pyright
-        - vulture
-        - pyroma
         - deptry
-        - pylint
-        - ruff-check
-        - ruff-format-diff
-        - ruff-check-fix
-        - ruff-format-fix
         - doc8
+        - docs
         - interrogate
+        - interrogate-docs
+        - linkcheck
+        - mypy
+        - mypy-docs
+        - pylint
         - pyproject-fmt-check
         - pyproject-fmt-fix
-        - linkcheck
+        - pyright
+        - pyright-docs
+        - pyroma
+        - ruff-check
+        - ruff-check-docs
+        - ruff-check-fix
+        - ruff-check-fix-docs
+        - ruff-format-diff
+        - ruff-format-diff-docs
+        - ruff-format-fix
+        - ruff-format-fix-docs
         - spelling
-        - docs
-        - pyright-verifytypes
+        - vulture
 
 default_install_hook_types: [pre-commit, pre-push, commit-msg]
 repos:
@@ -208,3 +214,26 @@ repos:
         language: system
         types_or: [toml]
         files: pyproject.toml
+
+    -   id: linkcheck
+        name: linkcheck
+        entry: make -C docs/ linkcheck SPHINXOPTS=-W
+        language: system
+        types_or: [rst]
+        stages: [manual]
+        pass_filenames: false
+
+    -   id: spelling
+        name: spelling
+        entry: make -C docs/ spelling SPHINXOPTS=-W
+        language: system
+        types_or: [rst]
+        stages: [manual]
+        pass_filenames: false
+
+    -   id: docs
+        name: Build Documentation
+        entry: make docs
+        language: system
+        stages: [manual]
+        pass_filenames: false

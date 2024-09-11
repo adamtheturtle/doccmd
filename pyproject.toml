@@ -64,6 +64,12 @@ optional-dependencies.dev = [
     "pytest-regressions==2.5.0",
     "pyyaml==6.0.2",
     "ruff==0.6.4",
+    "sphinx==8.0.2",
+    "sphinx-click==6.0.0",
+    "sphinx-copybutton==0.5.2",
+    "sphinx-inline-tabs==2023.4.21",
+    "sphinx-substitution-extensions==2024.8.6",
+    "sphinxcontrib-spelling==8",
     "types-docker==7.1.0.20240827",
     "types-pygments==2.18.0.20240506",
     "vulture==2.11",
@@ -71,7 +77,7 @@ optional-dependencies.dev = [
 optional-dependencies.packaging = [
     "pyinstaller==6.10.0",
 ]
-urls.Source = "https://github.com/adamtheturtle/doccmd"
+urls.Source = "https://doccmd.readthedocs.io/en/latest/"
 scripts.doccmd = "doccmd:main"
 
 [tool.setuptools]
