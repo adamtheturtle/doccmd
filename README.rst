@@ -75,7 +75,7 @@ What does it work on?
 
 TODO:
 
-* Add documentation (automated, and link to it, and add pre-commits for Sphinx stuff, update urls.Source)
+* Add documentation (automated, and add pre-commits for Sphinx stuff)
 * Release pre-commit hook
 * Verbose mode... "Running command "X" against README.rst example from line ..."
 * Option to not delete file
