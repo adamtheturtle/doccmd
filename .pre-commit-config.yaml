@@ -208,3 +208,26 @@ repos:
         language: system
         types_or: [toml]
         files: pyproject.toml
+
+    -   id: linkcheck
+        name: linkcheck
+        entry: make -C docs/ linkcheck SPHINXOPTS=-W
+        language: system
+        types_or: [rst]
+        stages: [manual]
+        pass_filenames: false
+
+    -   id: spelling
+        name: spelling
+        entry: make -C docs/ spelling SPHINXOPTS=-W
+        language: system
+        types_or: [rst]
+        stages: [manual]
+        pass_filenames: false
+
+    -   id: docs
+        name: Build Documentation
+        entry: make docs
+        language: system
+        stages: [manual]
+        pass_filenames: false
