@@ -116,7 +116,7 @@ repos:
 
     -   id: pylint
         name: pylint
-        entry: python -m pylint src/ tests/
+        entry: python -m pylint src/ tests/ admin/
         language: system
         stages: [manual]
         pass_filenames: false
@@ -187,6 +187,7 @@ repos:
         entry: python -m interrogate
         language: system
         types_or: [python]
+        exclude_types: [executable]
 
     -   id: interrogate-docs
         name: interrogate docs

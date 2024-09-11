@@ -69,15 +69,21 @@ jobs:
           tag_prefix: ""
           commit_sha: ${{ steps.commit.outputs.commit_hash }}
 
+      - name: Create Linux binaries
+        run: |
+          PYTHONPATH=. python admin/release.py
+
       - name: Create a GitHub release
         uses: ncipollo/release-action@v1
         with:
+          artifacts: "dist/*"
           tag: ${{ steps.tag_version.outputs.new_tag }}
           name: Release ${{ steps.tag_version.outputs.new_tag }}
           body: ${{ steps.tag_version.outputs.changelog }}
 
       - name: Build a binary wheel and a source tarball
         run: |
+          sudo rm -rf dist/ build/
           # Checkout the latest tag - the one we just created.
           git fetch --tags
           git checkout "$(git describe --tags "$(git rev-list --tags --max-count=1)")"
