@@ -52,6 +52,7 @@ def _run_args_against_docs(
     language: str,
     *,
     pad_file: bool,
+    verbose: bool,
 ) -> None:
     """Run commands on the given file."""
     language_to_suffix = _map_languages_to_suffix()
@@ -71,6 +72,16 @@ def _run_args_against_docs(
     sybil = Sybil(parsers=[rest_parser, myst_parser])
     document = sybil.parse(path=file_path)
     for example in document.examples():
+        if verbose:
+            command_str = shlex.join(
+                split_command=[str(item) for item in args],
+            )
+            message = (
+                f"Running '{command_str}' on code block at "
+                f"{file_path} line {example.line}"
+            )
+            styled_message = click.style(text=message, fg="yellow")
+            click.echo(message=styled_message)
         try:
             example.evaluate()
         except subprocess.CalledProcessError as exc:
@@ -107,12 +118,20 @@ def _run_args_against_docs(
     nargs=-1,
 )
 @click.version_option(version=__version__)
+@click.option(
+    "--verbose",
+    "-v",
+    is_flag=True,
+    default=False,
+    help="Enable verbose output.",
+)
 def main(
     language: str,
     command: str,
     file_paths: Iterable[Path],
     *,
     pad_file: bool,
+    verbose: bool,
 ) -> None:
     """
     Run commands against code blocks in the given documentation files.
@@ -126,4 +145,5 @@ def main(
             file_path=file_path,
             language=language,
             pad_file=pad_file,
+            verbose=verbose,
         )
