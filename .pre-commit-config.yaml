@@ -78,7 +78,7 @@ repos:
         stages: [push]
         entry: doccmd --language=python --command="mypy"
         language: system
-        types_or: [markdown, rst]
+        types_or: [markdown, rst, python, toml]
 
     -   id: check-manifest
         name: check-manifest
@@ -100,7 +100,7 @@ repos:
         stages: [push]
         entry: doccmd --language=python --command="pyright"
         language: system
-        types_or: [markdown, rst]
+        types_or: [markdown, rst, python, toml]
 
     -   id: vulture
         name: vulture
