@@ -52,10 +52,15 @@ def _run_args_against_docs(
     language: str,
     *,
     pad_file: bool,
+    verbose: bool,
 ) -> None:
     """Run commands on the given file."""
     language_to_suffix = _map_languages_to_suffix()
     suffix = language_to_suffix.get(language.lower(), ".txt")
+    if verbose:
+        click.echo(
+            message=f"Running command {args} on {file_path} for {language}.",
+        )
     evaluator = ShellCommandEvaluator(
         args=args,
         tempfile_suffix=suffix,
@@ -107,12 +112,19 @@ def _run_args_against_docs(
     nargs=-1,
 )
 @click.version_option(version=__version__)
+@click.option(
+    "--verbose",
+    is_flag=True,
+    default=False,
+    help="Enable verbose output.",
+)
 def main(
     language: str,
     command: str,
     file_paths: Iterable[Path],
     *,
     pad_file: bool,
+    verbose: bool,
 ) -> None:
     """
     Run commands against code blocks in the given documentation files.
@@ -126,4 +138,5 @@ def main(
             file_path=file_path,
             language=language,
             pad_file=pad_file,
+            verbose=verbose,
         )
