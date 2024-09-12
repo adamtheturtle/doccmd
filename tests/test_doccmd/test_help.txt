@@ -15,4 +15,5 @@ Options:
                               - they generally need to look at the file without
                               padding.  [default: pad-file]
   --version                   Show the version and exit.
+  -v, --verbose               Enable verbose output.
   --help                      Show this message and exit.

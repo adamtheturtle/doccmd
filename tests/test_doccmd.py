@@ -504,9 +504,12 @@ def test_verbose(tmp_path: Path) -> None:
     )
     assert result.exit_code == 0
     expected_output = textwrap.dedent(
-        text="""\
-        Running command: cat
-        File: example.rst
+        text=f"""\
+        Running 'cat' on code block at {rst_file} line 1
+
+
+        x = 2 + 2
+        assert x == 4
         """,
     )
     assert result.stdout == expected_output

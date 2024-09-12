@@ -57,10 +57,6 @@ def _run_args_against_docs(
     """Run commands on the given file."""
     language_to_suffix = _map_languages_to_suffix()
     suffix = language_to_suffix.get(language.lower(), ".txt")
-    if verbose:
-        click.echo(
-            message=f"Running command {args} on {file_path} for {language}.",
-        )
     evaluator = ShellCommandEvaluator(
         args=args,
         tempfile_suffix=suffix,
@@ -76,6 +72,16 @@ def _run_args_against_docs(
     sybil = Sybil(parsers=[rest_parser, myst_parser])
     document = sybil.parse(path=file_path)
     for example in document.examples():
+        if verbose:
+            command_str = shlex.join(
+                split_command=[str(item) for item in args],
+            )
+            message = (
+                f"Running '{command_str}' on code block at "
+                f"{file_path} line {example.line}"
+            )
+            styled_message = click.style(text=message, fg="yellow")
+            click.echo(message=styled_message)
         try:
             example.evaluate()
         except subprocess.CalledProcessError as exc:
@@ -114,6 +120,7 @@ def _run_args_against_docs(
 @click.version_option(version=__version__)
 @click.option(
     "--verbose",
+    "-v",
     is_flag=True,
     default=False,
     help="Enable verbose output.",
