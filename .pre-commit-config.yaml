@@ -133,7 +133,7 @@ repos:
         entry: doccmd --language=python --command="pylint"
         language: system
         stages: [manual]
-        types_or: [markdown, rst]
+        types_or: [markdown, rst, python, toml]
 
     -   id: ruff-check
         name: Ruff check
