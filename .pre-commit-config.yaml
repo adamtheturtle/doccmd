@@ -20,6 +20,7 @@ ci:
         - pyproject-fmt-fix
         - pyright
         - pyright-docs
+        - pyright-verifytypes
         - pyroma
         - ruff-check
         - ruff-check-docs
@@ -237,3 +238,11 @@ repos:
         language: system
         stages: [manual]
         pass_filenames: false
+
+    -   id: pyright-verifytypes
+        name: pyright-verifytypes
+        stages: [push]
+        entry: python -m pyright --verifytypes doccmd
+        language: system
+        pass_filenames: false
+        types_or: [python]

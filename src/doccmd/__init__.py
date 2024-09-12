@@ -70,7 +70,7 @@ def _run_args_against_docs(
     )
     sybil = Sybil(parsers=[rest_parser, myst_parser])
     document = sybil.parse(path=file_path)
-    for example in document:
+    for example in document.examples():
         try:
             example.evaluate()
         except subprocess.CalledProcessError as exc:

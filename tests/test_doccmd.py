@@ -261,20 +261,23 @@ def test_multiple_files_multiple_types(tmp_path: Path) -> None:
     rst_content = """\
     .. code-block:: python
 
-        x = 2 + 2
-        assert x == 4
+       print("In reStructuredText code-block")
+
+    .. code:: python
+
+       print("In reStructuredText code")
     """
     md_content = """\
     ```python
-    y = 3 + 3
-    assert y == 6
+    print("In simple markdown code block")
     ```
 
-    # MyST syntax
-
     ```{code-block} python
-    z = 4 + 4
-    assert z == 8
+    print("In MyST code-block")
+    ```
+
+    ```{code} python
+    print("In MyST code")
     ```
     """
     rst_file.write_text(data=rst_content, encoding="utf-8")
@@ -284,6 +287,7 @@ def test_multiple_files_multiple_types(tmp_path: Path) -> None:
         "python",
         "--command",
         "cat",
+        "--no-pad-file",
         str(rst_file),
         str(md_file),
     ]
@@ -295,23 +299,11 @@ def test_multiple_files_multiple_types(tmp_path: Path) -> None:
     assert result.exit_code == 0
     expected_output = textwrap.dedent(
         text="""\
-
-
-        x = 2 + 2
-        assert x == 4
-
-        y = 3 + 3
-        assert y == 6
-
-
-
-
-
-
-
-
-        z = 4 + 4
-        assert z == 8
+        print("In reStructuredText code-block")
+        print("In reStructuredText code")
+        print("In simple markdown code block")
+        print("In MyST code-block")
+        print("In MyST code")
         """,
     )
 
