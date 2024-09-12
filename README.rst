@@ -58,6 +58,10 @@ What does it work on?
 
       echo "Hello, world!"
 
+   .. code:: shell
+
+      echo "Or this Hello, world!"
+
 * Markdown (`.md`)
 
 .. code-block:: markdown
@@ -72,6 +76,10 @@ What does it work on?
 
    ```{code-block} shell
    echo "Hello, world!"
+   ```
+
+   ```{code} shell
+   echo "Or this Hello, world!"
    ```
 
 * Want more? Open an issue!

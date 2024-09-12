@@ -38,7 +38,7 @@ dependencies = [
     "beartype",
     "click",
     "pygments",
-    "sybil",
+    "sybil>=7.0.0",
     "sybil-extras",
 ]
 optional-dependencies.dev = [
