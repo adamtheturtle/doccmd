@@ -103,7 +103,7 @@ def _run_args_against_docs(
 
 
 @beartype
-@click.command()
+@click.command(name="doccmd")
 @click.option(
     "language",
     "-l",
