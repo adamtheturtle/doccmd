@@ -50,14 +50,20 @@ def _run_args_against_docs(
     file_path: Path,
     args: Sequence[str | Path],
     language: str,
+    file_suffix: str | None,
     *,
     pad_file: bool,
     verbose: bool,
 ) -> None:
     """Run commands on the given file."""
-    language_to_suffix = _map_languages_to_suffix()
-    suffix = language_to_suffix.get(language.lower(), ".txt")
-    suffixes = [suffix]
+    if file_suffix is None:
+        language_to_suffix = _map_languages_to_suffix()
+        file_suffix = language_to_suffix.get(language.lower(), ".txt")
+
+    if not file_suffix.startswith("."):
+        file_suffix = f".{file_suffix}"
+
+    suffixes = [file_suffix]
     evaluator = ShellCommandEvaluator(
         args=args,
         tempfile_suffixes=suffixes,
@@ -101,6 +107,17 @@ def _run_args_against_docs(
 )
 @click.option("command", "-c", "--command", type=str, required=True)
 @click.option(
+    "file_suffix",
+    "--file-suffix",
+    type=str,
+    required=False,
+    help=(
+        "The file extension to give to the temporary file made from the code "
+        "block. By default, the file extension is inferred from the language, "
+        "or it is '.txt' if the language is not recognized."
+    ),
+)
+@click.option(
     "--pad-file/--no-pad-file",
     is_flag=True,
     default=True,
@@ -130,6 +147,7 @@ def main(
     language: str,
     command: str,
     file_paths: Iterable[Path],
+    file_suffix: str | None,
     *,
     pad_file: bool,
     verbose: bool,
@@ -147,4 +165,5 @@ def main(
             language=language,
             pad_file=pad_file,
             verbose=verbose,
+            file_suffix=file_suffix,
         )
