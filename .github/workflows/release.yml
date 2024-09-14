@@ -45,6 +45,7 @@ jobs:
       - name: Get current version
         id: get_current_version
         run: |
+          git fetch --tags
           version="$(git describe --tags --abbrev=0)"
           echo "version=${version}" >> "$GITHUB_OUTPUT"
 
