@@ -51,7 +51,7 @@ def _run_args_against_docs(
     args: Sequence[str | Path],
     language: str,
     file_suffix: str | None,
-    file_secondary_suffix: str,
+    file_name_prefix: str | None,
     *,
     pad_file: bool,
     verbose: bool,
@@ -64,15 +64,13 @@ def _run_args_against_docs(
     if not file_suffix.startswith("."):
         file_suffix = f".{file_suffix}"
 
-    if not file_secondary_suffix.startswith("."):
-        file_secondary_suffix = f".{file_secondary_suffix}"
-
-    suffixes = (file_secondary_suffix, file_suffix)
+    suffixes = (file_suffix,)
     evaluator = ShellCommandEvaluator(
         args=args,
         tempfile_suffixes=suffixes,
         pad_file=pad_file,
         write_to_file=True,
+        tempfile_name_prefix=file_name_prefix or "",
     )
 
     rest_parser = RestCodeBlockParser(language=language, evaluator=evaluator)
@@ -122,17 +120,16 @@ def _run_args_against_docs(
     ),
 )
 @click.option(
-    "file_secondary_suffix",
-    "--file-secondary-suffix",
+    "file_name_prefix",
+    "--file-name-prefix",
     type=str,
-    required=True,
-    default=".doccmd",
+    default="doccmd",
     show_default=True,
+    required=True,
     help=(
-        "The 'secondary suffix' to give to the temporary file made "
-        "from the code block. "
-        "With the default value '.doccmd', the temporary file will have "
-        "a name which ends with, e.g. '.doccmd.py' for Python code blocks."
+        "The prefix to give to the temporary file made from the code block. "
+        "This is useful for distinguishing files created by this tool "
+        "from other files, e.g. for ignoring in linter configurations."
     ),
 )
 @click.option(
@@ -166,7 +163,7 @@ def main(
     command: str,
     file_paths: Iterable[Path],
     file_suffix: str | None,
-    file_secondary_suffix: str,
+    file_name_prefix: str | None,
     *,
     pad_file: bool,
     verbose: bool,
@@ -185,5 +182,5 @@ def main(
             pad_file=pad_file,
             verbose=verbose,
             file_suffix=file_suffix,
-            file_secondary_suffix=file_secondary_suffix,
+            file_name_prefix=file_name_prefix,
         )

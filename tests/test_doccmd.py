@@ -439,15 +439,11 @@ def test_given_file_extension(tmp_path: Path, extension: str) -> None:
     assert result.exit_code == 0
     output = result.stdout
     output_path = Path(output.strip())
-    assert output_path.suffixes == [".doccmd", ".foobar"]
+    assert output_path.suffixes == [".foobar"]
 
 
-@pytest.mark.parametrize(
-    argnames="secondary_suffix",
-    argvalues=["foobar", ".foobar"],
-)
-def test_given_secondary_suffix(tmp_path: Path, secondary_suffix: str) -> None:
-    """It is possible to specify the penultimate file extension."""
+def test_given_prefix(tmp_path: Path) -> None:
+    """It is possible to specify a prefix for the temporary file."""
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
     content = """\
@@ -460,8 +456,8 @@ def test_given_secondary_suffix(tmp_path: Path, secondary_suffix: str) -> None:
     arguments = [
         "--language",
         "python",
-        "--file-secondary-suffix",
-        secondary_suffix,
+        "--file-name-prefix",
+        "myprefix",
         "--command",
         "echo",
         str(rst_file),
@@ -474,7 +470,7 @@ def test_given_secondary_suffix(tmp_path: Path, secondary_suffix: str) -> None:
     assert result.exit_code == 0
     output = result.stdout
     output_path = Path(output.strip())
-    assert output_path.suffixes == [".foobar", ".py"]
+    assert output_path.name.startswith("myprefix_")
 
 
 def test_file_extension_unknown_language(tmp_path: Path) -> None:
