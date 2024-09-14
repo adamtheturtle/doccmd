@@ -173,3 +173,4 @@ jobs:
         with:
           commit_message: Replace version in README
           branch: main
+          file_pattern: README.rst
