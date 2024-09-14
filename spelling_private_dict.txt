@@ -19,13 +19,13 @@ macOS
 metadata
 noqa
 pragma
-pragma
 pre
 pyperclip
 pyright
 pytest
 reStructuredText
 reco
+txt
 typeshed
 ubuntu
 versioned

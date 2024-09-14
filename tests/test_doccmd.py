@@ -410,6 +410,38 @@ def test_file_extension(
     assert output_path.suffix == expected_extension
 
 
+@pytest.mark.parametrize(argnames="extension", argvalues=["foobar", ".foobar"])
+def test_given_file_extension(tmp_path: Path, extension: str) -> None:
+    """It is possible to specify the file extension."""
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    content = """\
+    .. code-block:: python
+
+        x = 2 + 2
+        assert x == 4
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--file-suffix",
+        extension,
+        "--command",
+        "echo",
+        str(rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    output = result.stdout
+    output_path = Path(output.strip())
+    assert output_path.suffix == ".foobar"
+
+
 def test_file_extension_unknown_language(tmp_path: Path) -> None:
     """
     The file extension of the temporary file is `.txt` for any unknown
