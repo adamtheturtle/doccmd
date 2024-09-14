@@ -576,3 +576,35 @@ def test_verbose(tmp_path: Path) -> None:
         """,
     )
     assert result.stdout == expected_output
+
+
+def test_lowercase_file_name(tmp_path: Path) -> None:
+    """It is possible to convert the file name to lowercase."""
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "Example.RST"
+    content = """\
+    .. code-block:: python
+
+        x = 2 + 2
+        assert x == 4
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--file-name-prefix",
+        "UPPERCASE_PREFIX",
+        "--command",
+        "echo",
+        "--lowercase-file-name",
+        str(rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    output = result.stdout
+    output_path = Path(output.strip())
+    assert output_path.name.startswith("UPPERCASE_PREFIX_example_rst")
