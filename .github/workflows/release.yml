@@ -46,7 +46,7 @@ jobs:
         id: get_current_version
         run: |
           version="$(git describe --tags --abbrev=0)"
-          echo "version=${version}" >> $GITHUB_OUTPUT
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
 
       - name: "Calver calculate version"
         uses: StephaneBour/actions-calver@master
