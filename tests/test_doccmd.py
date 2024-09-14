@@ -439,7 +439,42 @@ def test_given_file_extension(tmp_path: Path, extension: str) -> None:
     assert result.exit_code == 0
     output = result.stdout
     output_path = Path(output.strip())
-    assert output_path.suffix == ".foobar"
+    assert output_path.suffixes == [".doccmd", ".foobar"]
+
+
+@pytest.mark.parametrize(
+    argnames="secondary_suffix",
+    argvalues=["foobar", ".foobar"],
+)
+def test_given_secondary_suffix(tmp_path: Path, secondary_suffix: str) -> None:
+    """It is possible to specify the penultimate file extension."""
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    content = """\
+    .. code-block:: python
+
+        x = 2 + 2
+        assert x == 4
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--file-secondary-suffix",
+        secondary_suffix,
+        "--command",
+        "echo",
+        str(rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    output = result.stdout
+    output_path = Path(output.strip())
+    assert output_path.suffixes == [".foobar", ".py"]
 
 
 def test_file_extension_unknown_language(tmp_path: Path) -> None:
