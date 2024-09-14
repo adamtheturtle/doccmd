@@ -77,7 +77,7 @@ def test_file_does_not_exist() -> None:
         catch_exceptions=False,
     )
     assert result.exit_code != 0
-    assert "Path 'non_existent_file.rst' does not exist" in result.stderr
+    assert "File 'non_existent_file.rst' does not exist" in result.stderr
 
 
 def test_multiple_code_blocks(tmp_path: Path) -> None:
@@ -608,3 +608,34 @@ def test_lowercase_file_name(tmp_path: Path) -> None:
     output = result.stdout
     output_path = Path(output.strip())
     assert output_path.name.startswith("UPPERCASE_PREFIX_example_rst")
+
+
+def test_directory_passed_in(tmp_path: Path) -> None:
+    """An error is shown when a directory is passed in instead of a file."""
+    runner = CliRunner(mix_stderr=False)
+    directory = tmp_path / "example_dir"
+    directory.mkdir()
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        str(directory),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code != 0
+    expected_stderr = textwrap.dedent(
+        text=(
+            f"""\
+            Usage: main [OPTIONS] [FILE_PATHS]...
+            Try 'main --help' for help.
+
+            Error: Invalid value for '[FILE_PATHS]...': File '{directory}' is a directory.
+            """  # noqa: E501
+        ),
+    )
+    assert result.stderr == expected_stderr
