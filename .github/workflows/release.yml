@@ -42,6 +42,12 @@ jobs:
           curl -LsSf https://astral.sh/uv/install.sh | sh
           uv pip install --system --upgrade --editable .[dev]
 
+      - name: Get current version
+        id: get_current_version
+        run: |
+          version="$(git describe --tags --abbrev=0)"
+          echo "version=${version}" >> $GITHUB_OUTPUT
+
       - name: "Calver calculate version"
         uses: StephaneBour/actions-calver@master
         id: calver
@@ -148,3 +154,18 @@ jobs:
           user_email: 'adamdangoor@gmail.com'
           user_name: 'adamtheturtle'
           commit_message: 'Bump CLI Homebrew recipe'
+
+      - name: "Update README versions"
+        uses: jacobtomlinson/gha-find-replace@v3
+        env:
+          NEXT_VERSION: ${{ steps.calver.outputs.release }}
+        with:
+          find: ${{ steps.get_current_version.outputs.version }}
+          replace: ${{ env.NEXT_VERSION }}
+          include: "README.rst"
+          regex: false
+
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        id: commit-readme
+        with:
+          commit_message: Bump CHANGELOG
