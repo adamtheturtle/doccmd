@@ -57,9 +57,10 @@ def _run_args_against_docs(
     """Run commands on the given file."""
     language_to_suffix = _map_languages_to_suffix()
     suffix = language_to_suffix.get(language.lower(), ".txt")
+    suffixes = [suffix]
     evaluator = ShellCommandEvaluator(
         args=args,
-        tempfile_suffix=suffix,
+        tempfile_suffixes=suffixes,
         pad_file=pad_file,
         write_to_file=True,
     )
