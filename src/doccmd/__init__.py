@@ -165,7 +165,7 @@ def _run_args_against_docs(
 )
 @click.argument(
     "file_paths",
-    type=click.Path(exists=True, path_type=Path),
+    type=click.Path(exists=True, path_type=Path, dir_okay=False),
     nargs=-1,
 )
 @click.version_option(version=__version__)
