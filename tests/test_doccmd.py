@@ -631,8 +631,8 @@ def test_directory_passed_in(tmp_path: Path) -> None:
     expected_stderr = textwrap.dedent(
         text=(
             f"""\
-            Usage: main [OPTIONS] [FILE_PATHS]...
-            Try 'main --help' for help.
+            Usage: doccmd [OPTIONS] [FILE_PATHS]...
+            Try 'doccmd --help' for help.
 
             Error: Invalid value for '[FILE_PATHS]...': File '{directory}' is a directory.
             """  # noqa: E501
