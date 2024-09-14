@@ -30,6 +30,9 @@ jobs:
           # See
           # https://github.com/stefanzweifel/git-auto-commit-action?tab=readme-ov-file#push-to-protected-branches
           token: ${{ secrets.RELEASE_PAT }}
+          # Fetch all history including tags.
+          # Needed to find the latest tag.
+          fetch-depth: 0
 
       - name: "Set up Python"
         uses: actions/setup-python@v5
@@ -45,7 +48,6 @@ jobs:
       - name: Get current version
         id: get_current_version
         run: |
-          git fetch --tags
           version="$(git describe --tags --abbrev=0)"
           echo "version=${version}" >> "$GITHUB_OUTPUT"
 
