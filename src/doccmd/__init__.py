@@ -51,6 +51,7 @@ def _run_args_against_docs(
     args: Sequence[str | Path],
     language: str,
     file_suffix: str | None,
+    file_secondary_suffix: str,
     *,
     pad_file: bool,
     verbose: bool,
@@ -63,7 +64,10 @@ def _run_args_against_docs(
     if not file_suffix.startswith("."):
         file_suffix = f".{file_suffix}"
 
-    suffixes = [file_suffix]
+    if not file_secondary_suffix.startswith("."):
+        file_secondary_suffix = f".{file_secondary_suffix}"
+
+    suffixes = (file_secondary_suffix, file_suffix)
     evaluator = ShellCommandEvaluator(
         args=args,
         tempfile_suffixes=suffixes,
@@ -118,6 +122,20 @@ def _run_args_against_docs(
     ),
 )
 @click.option(
+    "file_secondary_suffix",
+    "--file-secondary-suffix",
+    type=str,
+    required=True,
+    default=".doccmd",
+    show_default=True,
+    help=(
+        "The 'secondary suffix' to give to the temporary file made "
+        "from the code block. "
+        "With the default value '.doccmd', the temporary file will have "
+        "a name which ends with, e.g. '.doccmd.py' for Python code blocks."
+    ),
+)
+@click.option(
     "--pad-file/--no-pad-file",
     is_flag=True,
     default=True,
@@ -148,6 +166,7 @@ def main(
     command: str,
     file_paths: Iterable[Path],
     file_suffix: str | None,
+    file_secondary_suffix: str,
     *,
     pad_file: bool,
     verbose: bool,
@@ -166,4 +185,5 @@ def main(
             pad_file=pad_file,
             verbose=verbose,
             file_suffix=file_suffix,
+            file_secondary_suffix=file_secondary_suffix,
         )

@@ -4,6 +4,7 @@ args
 beartype
 changelog
 cli
+doccmd
 dockerfile
 dockerfiles
 dulwich
@@ -20,6 +21,7 @@ metadata
 noqa
 pragma
 pre
+py
 pyperclip
 pyright
 pytest
