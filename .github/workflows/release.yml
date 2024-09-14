@@ -172,3 +172,4 @@ jobs:
         id: commit-readme
         with:
           commit_message: Replace version in README
+          branch: main
