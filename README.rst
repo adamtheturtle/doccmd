@@ -37,7 +37,7 @@ Pre-built Linux binaries
 
 .. code-block:: console
 
-   $ curl --fail -L https://github.com/adamtheturtle/doccmd/releases/download/2024.09.14.2/doccmd -o /usr/local/bin/doccmd && \
+   $ curl --fail -L https://github.com/adamtheturtle/doccmd/releases/download/2024.09.14.3/doccmd -o /usr/local/bin/doccmd && \
    $ chmod +x /usr/local/bin/doccmd
 
 Using ``doccmd`` as a pre-commit hook
@@ -48,7 +48,7 @@ To run ``doccmd`` with `pre-commit`_, add hooks like the following to your ``.pr
 .. code-block:: yaml
 
    -   repo: https://github.com/adamtheturtle/doccmd-pre-commit
-       rev: v2024.09.14.2
+       rev: v2024.09.14.3
        hooks:
        -   id: doccmd
            args: ["--language", "shell", "--command", "shellcheck --shell=bash"]
