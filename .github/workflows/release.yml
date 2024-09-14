@@ -171,4 +171,4 @@ jobs:
       - uses: stefanzweifel/git-auto-commit-action@v5
         id: commit-readme
         with:
-          commit_message: Bump CHANGELOG
+          commit_message: Replace version in README
