@@ -32,6 +32,14 @@ Requires `Homebrew`_.
 
 .. _Homebrew: https://docs.brew.sh/Installation
 
+Pre-built Linux binaries
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: console
+
+   $ curl --fail -L https://github.com/adamtheturtle/doccmd/releases/download/2024.9.11.5/doccmd -o /usr/local/bin/doccmd && \
+   $ chmod +x /usr/local/bin/doccmd
+
 Using ``doccmd`` as a pre-commit hook
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
