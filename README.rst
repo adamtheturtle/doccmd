@@ -14,7 +14,7 @@ Installation
 With `pip`
 ^^^^^^^^^^
 
-Requires Python 3.11+.
+Requires Python 3.10+.
 
 .. code-block:: shell
 
