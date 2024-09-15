@@ -35,214 +35,214 @@ ci:
 
 default_install_hook_types: [pre-commit, pre-push, commit-msg]
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
-    hooks:
-    -   id: check-added-large-files
-    -   id: check-case-conflict
-    -   id: check-executables-have-shebangs
-    -   id: check-merge-conflict
-    -   id: check-shebang-scripts-are-executable
-    -   id: check-symlinks
-    -   id: check-toml
-    -   id: check-vcs-permalinks
-    -   id: check-yaml
-    -   id: end-of-file-fixer
-    -   id: file-contents-sorter
-        files: spelling_private_dict\.txt$
-    -   id: trailing-whitespace
--   repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: v0.10.0.1
-    hooks:
-    -   id: shellcheck
-        args: ["--shell", "bash"]
--   repo: local
-    hooks:
-    -   id: actionlint
-        name: actionlint
-        entry: actionlint
-        language: system
-        pass_filenames: false
-        types_or: [yaml]
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.6.0
+  hooks:
+    - id: check-added-large-files
+    - id: check-case-conflict
+    - id: check-executables-have-shebangs
+    - id: check-merge-conflict
+    - id: check-shebang-scripts-are-executable
+    - id: check-symlinks
+    - id: check-toml
+    - id: check-vcs-permalinks
+    - id: check-yaml
+    - id: end-of-file-fixer
+    - id: file-contents-sorter
+      files: spelling_private_dict\.txt$
+    - id: trailing-whitespace
+- repo: https://github.com/shellcheck-py/shellcheck-py
+  rev: v0.10.0.1
+  hooks:
+    - id: shellcheck
+      args: ["--shell", "bash"]
+- repo: local
+  hooks:
+    - id: actionlint
+      name: actionlint
+      entry: actionlint
+      language: system
+      pass_filenames: false
+      types_or: [yaml]
 
-    -   id: mypy
-        name: mypy
-        stages: [push]
-        entry: python -m mypy .
-        language: system
-        types_or: [python, toml]
-        pass_filenames: false
+    - id: mypy
+      name: mypy
+      stages: [push]
+      entry: python -m mypy .
+      language: system
+      types_or: [python, toml]
+      pass_filenames: false
 
-    -   id: mypy-docs
-        name: mypy-docs
-        stages: [push]
-        entry: doccmd --language=python --command="mypy"
-        language: system
-        types_or: [markdown, rst, python, toml]
+    - id: mypy-docs
+      name: mypy-docs
+      stages: [push]
+      entry: doccmd --language=python --command="mypy"
+      language: system
+      types_or: [markdown, rst, python, toml]
 
-    -   id: check-manifest
-        name: check-manifest
-        stages: [push]
-        entry: python -m check_manifest .
-        language: system
-        pass_filenames: false
+    - id: check-manifest
+      name: check-manifest
+      stages: [push]
+      entry: python -m check_manifest .
+      language: system
+      pass_filenames: false
 
-    -   id: pyright
-        name: pyright
-        stages: [push]
-        entry: python -m pyright .
-        language: system
-        types_or: [python, toml]
-        pass_filenames: false
+    - id: pyright
+      name: pyright
+      stages: [push]
+      entry: python -m pyright .
+      language: system
+      types_or: [python, toml]
+      pass_filenames: false
 
-    -   id: pyright-docs
-        name: pyright-docs
-        stages: [push]
-        entry: doccmd --language=python --command="pyright"
-        language: system
-        types_or: [markdown, rst, python, toml]
+    - id: pyright-docs
+      name: pyright-docs
+      stages: [push]
+      entry: doccmd --language=python --command="pyright"
+      language: system
+      types_or: [markdown, rst, python, toml]
 
-    -   id: vulture
-        name: vulture
-        entry: python -m vulture --min-confidence 100 --exclude .eggs
-        language: system
-        types_or: [python]
+    - id: vulture
+      name: vulture
+      entry: python -m vulture --min-confidence 100 --exclude .eggs
+      language: system
+      types_or: [python]
 
-    -   id: pyroma
-        name: pyroma
-        entry: python -m pyroma --min 10 .
-        language: system
-        pass_filenames: false
-        types_or: [toml]
+    - id: pyroma
+      name: pyroma
+      entry: python -m pyroma --min 10 .
+      language: system
+      pass_filenames: false
+      types_or: [toml]
 
-    -   id: deptry
-        name: deptry
-        entry: python -m deptry src/
-        language: system
-        pass_filenames: false
+    - id: deptry
+      name: deptry
+      entry: python -m deptry src/
+      language: system
+      pass_filenames: false
 
-    -   id: pylint
-        name: pylint
-        entry: python -m pylint src/ tests/ admin/
-        language: system
-        stages: [manual]
-        pass_filenames: false
+    - id: pylint
+      name: pylint
+      entry: python -m pylint src/ tests/ admin/
+      language: system
+      stages: [manual]
+      pass_filenames: false
 
-    -   id: pylint-docs
-        name: pylint-docs
-        entry: doccmd --language=python --command="pylint"
-        language: system
-        stages: [manual]
-        types_or: [markdown, rst, python, toml]
+    - id: pylint-docs
+      name: pylint-docs
+      entry: doccmd --language=python --command="pylint"
+      language: system
+      stages: [manual]
+      types_or: [markdown, rst, python, toml]
 
-    -   id: ruff-check
-        name: Ruff check
-        entry: python -m ruff check
-        language: system
-        types_or: [python]
+    - id: ruff-check
+      name: Ruff check
+      entry: python -m ruff check
+      language: system
+      types_or: [python]
 
-    -   id: ruff-check-docs
-        name: Ruff check docs
-        entry: doccmd --language=python --command="ruff check"
-        language: system
-        types_or: [markdown, rst]
+    - id: ruff-check-docs
+      name: Ruff check docs
+      entry: doccmd --language=python --command="ruff check"
+      language: system
+      types_or: [markdown, rst]
 
-    -   id: ruff-format-diff
-        name: Ruff format diff
-        entry: python -m ruff format --diff
-        language: system
-        types_or: [python]
+    - id: ruff-format-diff
+      name: Ruff format diff
+      entry: python -m ruff format --diff
+      language: system
+      types_or: [python]
 
-    -   id: ruff-format-diff-docs
-        name: Ruff format diff docs
-        entry: doccmd --language=python --no-pad-file --command="ruff format --diff"
-        language: system
-        types_or: [markdown, rst]
+    - id: ruff-format-diff-docs
+      name: Ruff format diff docs
+      entry: doccmd --language=python --no-pad-file --command="ruff format --diff"
+      language: system
+      types_or: [markdown, rst]
 
-    -   id: ruff-check-fix
-        name: Ruff check fix
-        entry: python -m ruff check --fix
-        language: system
-        types_or: [python]
+    - id: ruff-check-fix
+      name: Ruff check fix
+      entry: python -m ruff check --fix
+      language: system
+      types_or: [python]
 
-    -   id: ruff-check-fix-docs
-        name: Ruff check fix docs
-        entry: doccmd --language=python --command="ruff check --fix"
-        language: system
-        types_or: [markdown, rst]
+    - id: ruff-check-fix-docs
+      name: Ruff check fix docs
+      entry: doccmd --language=python --command="ruff check --fix"
+      language: system
+      types_or: [markdown, rst]
 
-    -   id: ruff-format-fix
-        name: Ruff format
-        entry: python -m ruff format
-        language: system
-        types_or: [python]
+    - id: ruff-format-fix
+      name: Ruff format
+      entry: python -m ruff format
+      language: system
+      types_or: [python]
 
-    -   id: ruff-format-fix-docs
-        name: Ruff format docs
-        entry: doccmd --language=python --no-pad-file --command="ruff format"
-        language: system
-        types_or: [markdown, rst]
+    - id: ruff-format-fix-docs
+      name: Ruff format docs
+      entry: doccmd --language=python --no-pad-file --command="ruff format"
+      language: system
+      types_or: [markdown, rst]
 
-    -   id: doc8
-        name: doc8
-        entry: python -m doc8
-        language: system
-        types_or: [rst]
+    - id: doc8
+      name: doc8
+      entry: python -m doc8
+      language: system
+      types_or: [rst]
 
-    -   id: interrogate
-        name: interrogate
-        entry: python -m interrogate
-        language: system
-        types_or: [python]
-        exclude_types: [executable]
+    - id: interrogate
+      name: interrogate
+      entry: python -m interrogate
+      language: system
+      types_or: [python]
+      exclude_types: [executable]
 
-    -   id: interrogate-docs
-        name: interrogate docs
-        entry: doccmd --language=python --command="interrogate"
-        language: system
-        types_or: [markdown, rst]
+    - id: interrogate-docs
+      name: interrogate docs
+      entry: doccmd --language=python --command="interrogate"
+      language: system
+      types_or: [markdown, rst]
 
-    -   id: pyproject-fmt-check
-        name: pyproject-fmt check
-        entry: pyproject-fmt --check
-        language: system
-        types_or: [toml]
-        files: pyproject.toml
+    - id: pyproject-fmt-check
+      name: pyproject-fmt check
+      entry: pyproject-fmt --check
+      language: system
+      types_or: [toml]
+      files: pyproject.toml
 
-    -   id: pyproject-fmt-fix
-        name: pyproject-fmt
-        entry: pyproject-fmt
-        language: system
-        types_or: [toml]
-        files: pyproject.toml
+    - id: pyproject-fmt-fix
+      name: pyproject-fmt
+      entry: pyproject-fmt
+      language: system
+      types_or: [toml]
+      files: pyproject.toml
 
-    -   id: linkcheck
-        name: linkcheck
-        entry: make -C docs/ linkcheck SPHINXOPTS=-W
-        language: system
-        types_or: [rst]
-        stages: [manual]
-        pass_filenames: false
+    - id: linkcheck
+      name: linkcheck
+      entry: make -C docs/ linkcheck SPHINXOPTS=-W
+      language: system
+      types_or: [rst]
+      stages: [manual]
+      pass_filenames: false
 
-    -   id: spelling
-        name: spelling
-        entry: make -C docs/ spelling SPHINXOPTS=-W
-        language: system
-        types_or: [rst]
-        stages: [manual]
-        pass_filenames: false
+    - id: spelling
+      name: spelling
+      entry: make -C docs/ spelling SPHINXOPTS=-W
+      language: system
+      types_or: [rst]
+      stages: [manual]
+      pass_filenames: false
 
-    -   id: docs
-        name: Build Documentation
-        entry: make docs
-        language: system
-        stages: [manual]
-        pass_filenames: false
+    - id: docs
+      name: Build Documentation
+      entry: make docs
+      language: system
+      stages: [manual]
+      pass_filenames: false
 
-    -   id: pyright-verifytypes
-        name: pyright-verifytypes
-        stages: [push]
-        entry: python -m pyright --verifytypes doccmd
-        language: system
-        pass_filenames: false
-        types_or: [python]
+    - id: pyright-verifytypes
+      name: pyright-verifytypes
+      stages: [push]
+      entry: python -m pyright --verifytypes doccmd
+      language: system
+      pass_filenames: false
+      types_or: [python]
