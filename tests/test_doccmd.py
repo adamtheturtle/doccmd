@@ -1,5 +1,6 @@
 """Tests for `doccmd`."""
 
+import subprocess
 import sys
 import textwrap
 from pathlib import Path
@@ -607,3 +608,14 @@ def test_directory_passed_in(tmp_path: Path) -> None:
         ),
     )
     assert result.stderr == expected_stderr
+
+
+def test_main_entry_point() -> None:
+    """It is possible to run the main entry point."""
+    result = subprocess.run(
+        args=["python", "-m", "doccmd"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert "Usage:" in result.stderr
