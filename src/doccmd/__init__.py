@@ -53,7 +53,6 @@ def _run_args_against_docs(
     file_suffix: str | None,
     file_name_prefix: str | None,
     *,
-    lowercase_file_name: bool,
     pad_file: bool,
     verbose: bool,
 ) -> None:
@@ -67,15 +66,12 @@ def _run_args_against_docs(
 
     suffixes = (file_suffix,)
 
-    name_transform = str.lower if lowercase_file_name else None
-
     evaluator = ShellCommandEvaluator(
         args=args,
         tempfile_suffixes=suffixes,
         pad_file=pad_file,
         write_to_file=True,
         tempfile_name_prefix=file_name_prefix or "",
-        tempfile_name_transform=name_transform,
     )
 
     rest_parser = RestCodeBlockParser(language=language, evaluator=evaluator)
@@ -138,19 +134,6 @@ def _run_args_against_docs(
     ),
 )
 @click.option(
-    "lowercase_file_name",
-    "--lowercase-file-name/--no-lowercase-file-name",
-    is_flag=True,
-    default=False,
-    show_default=True,
-    help=(
-        "Whether to lowercase the name of the temporary file made from the "
-        "code block. "
-        "This is useful e.g. for Python tools which expect a lowercase file "
-        "name."
-    ),
-)
-@click.option(
     "--pad-file/--no-pad-file",
     is_flag=True,
     default=True,
@@ -183,7 +166,6 @@ def main(
     file_suffix: str | None,
     file_name_prefix: str | None,
     *,
-    lowercase_file_name: bool,
     pad_file: bool,
     verbose: bool,
 ) -> None:
@@ -202,5 +184,4 @@ def main(
             verbose=verbose,
             file_suffix=file_suffix,
             file_name_prefix=file_name_prefix,
-            lowercase_file_name=lowercase_file_name,
         )
