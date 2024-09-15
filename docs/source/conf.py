@@ -20,7 +20,7 @@ templates_path = ["_templates"]
 source_suffix = ".rst"
 master_doc = "index"
 
-year = datetime.datetime.now(tz=datetime.UTC).year
+year = datetime.datetime.now(tz=datetime.timezone.utc).year
 project_copyright = f"{year}, {author}"
 
 # Exclude the prompt from copied code with sphinx_copybutton.
