@@ -316,6 +316,7 @@ log_cli = true
 branch = true
 omit = [
     'src/*/_setuptools_scm_version.py',
+    'src/doccmd/__main__.py',
 ]
 
 [tool.coverage.report]
