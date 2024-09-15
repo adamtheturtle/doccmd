@@ -29,6 +29,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Configure Git
+        run: |
+          git config --global core.autocrlf false
+
       # We do not use the cache action as uv is faster than the cache action.
       - name: "Install dependencies"
         run: |
