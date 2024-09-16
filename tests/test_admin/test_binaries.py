@@ -1,10 +1,12 @@
 """Tests for creating binaries."""
 
 import logging
+import sys
 from pathlib import Path
 
 import docker
 import pytest
+from docker.errors import ImageNotFound
 from docker.types import Mount
 
 from admin.binaries import make_linux_binaries
@@ -44,11 +46,21 @@ def test_linux_binaries(request: pytest.FixtureRequest) -> None:
     repository = "python"
     tag = "3.12"
     platform = "linux/amd64"
-    image = client.images.pull(
-        repository=repository,
-        tag=tag,
-        platform=platform,
-    )
+    try:
+        image = client.images.pull(
+            repository=repository,
+            tag=tag,
+            platform=platform,
+        )
+    except ImageNotFound:  # pragma: no cover
+        assert sys.platform == "win32"
+        pytest.skip(
+            reason=(
+                "GitHub Actions does not support running Linux containers on "
+                "Windows. "
+                "See https://github.com/actions/runner-images/issues/1143."
+            ),
+        )
 
     for remote_path in remote_paths:
         cmd_in_container = [
