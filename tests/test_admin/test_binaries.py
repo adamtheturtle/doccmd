@@ -43,7 +43,12 @@ def test_linux_binaries(request: pytest.FixtureRequest) -> None:
     # which have LANG and LC_ALL unset.
     repository = "python"
     tag = "3.12"
-    image = client.images.pull(repository=repository, tag=tag)
+    platform = "linux/amd64"
+    image = client.images.pull(
+        repository=repository,
+        tag=tag,
+        platform=platform,
+    )
 
     for remote_path in remote_paths:
         cmd_in_container = [
@@ -65,7 +70,7 @@ def test_linux_binaries(request: pytest.FixtureRequest) -> None:
             mounts=mounts,
             command=command,
             detach=True,
-            platform="linux/amd64",
+            platform=platform,
         )
 
         for line in container.logs(stream=True):
