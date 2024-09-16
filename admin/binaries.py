@@ -38,7 +38,12 @@ def make_linux_binaries(repo_root: Path) -> None:
 
     repository = "python"
     tag = "3.12"
-    image = client.images.pull(repository=repository, tag=tag)
+    platform = "linux/amd64"
+    image = client.images.pull(
+        repository=repository,
+        tag=tag,
+        platform=platform,
+    )
     container = client.containers.run(
         image=image,
         mounts=[code_mount],
@@ -46,6 +51,7 @@ def make_linux_binaries(repo_root: Path) -> None:
         working_dir=code_mount["Target"],
         remove=True,
         detach=True,
+        platform=platform,
     )
 
     for line in container.logs(stream=True):
