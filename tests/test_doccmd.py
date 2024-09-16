@@ -348,7 +348,7 @@ def test_modify_file(tmp_path: Path) -> None:
         "--language",
         "python",
         "--command",
-        f"{modify_code_file}",
+        f"{modify_code_file.as_posix()}",
         str(rst_file),
     ]
     result = runner.invoke(
