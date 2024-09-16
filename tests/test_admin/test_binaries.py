@@ -6,7 +6,6 @@ from pathlib import Path
 
 import docker
 import pytest
-from docker.errors import ImageNotFound
 from docker.types import Mount
 
 from admin.binaries import make_linux_binaries
@@ -14,6 +13,14 @@ from admin.binaries import make_linux_binaries
 LOGGER = logging.getLogger(name=__name__)
 
 
+@pytest.mark.skipif(
+    condition=sys.platform == "win32",
+    reason=(
+        "GitHub Actions does not support running Linux containers on "
+        "Windows. "
+        "See https://github.com/actions/runner-images/issues/1143."
+    ),
+)
 def test_linux_binaries(request: pytest.FixtureRequest) -> None:
     """``make_linux_binaries`` creates a binary which can be run on Linux."""
     repo_root = request.config.rootpath.absolute()
@@ -46,21 +53,11 @@ def test_linux_binaries(request: pytest.FixtureRequest) -> None:
     repository = "python"
     tag = "3.12"
     platform = "linux/amd64"
-    try:
-        image = client.images.pull(
-            repository=repository,
-            tag=tag,
-            platform=platform,
-        )
-    except ImageNotFound:  # pragma: no cover
-        assert sys.platform == "win32"
-        pytest.skip(
-            reason=(
-                "GitHub Actions does not support running Linux containers on "
-                "Windows. "
-                "See https://github.com/actions/runner-images/issues/1143."
-            ),
-        )
+    image = client.images.pull(
+        repository=repository,
+        tag=tag,
+        platform=platform,
+    )
 
     for remote_path in remote_paths:
         cmd_in_container = [
