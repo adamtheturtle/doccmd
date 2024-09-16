@@ -336,7 +336,7 @@ def test_modify_file(tmp_path: Path) -> None:
         args=arguments,
         catch_exceptions=False,
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 0, (result.stdout, result.stderr)
     modified_content = rst_file.read_text(encoding="utf-8")
     expected_modified_content = """\
     .. code-block:: python
