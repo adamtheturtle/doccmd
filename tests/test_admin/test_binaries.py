@@ -65,6 +65,7 @@ def test_linux_binaries(request: pytest.FixtureRequest) -> None:
             mounts=mounts,
             command=command,
             detach=True,
+            platform="linux/amd64",
         )
 
         for line in container.logs(stream=True):

@@ -47,6 +47,7 @@ def make_linux_binaries(repo_root: Path) -> None:
         working_dir=code_mount["Target"],
         remove=True,
         detach=True,
+        platform="linux/amd64",
     )
 
     for line in container.logs(stream=True):
