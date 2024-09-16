@@ -1,6 +1,7 @@
 """Create binaries for the CLIs."""
 
 import logging
+import uuid
 from pathlib import Path
 
 import docker
@@ -23,7 +24,7 @@ def make_linux_binaries(repo_root: Path) -> None:
 
     code_mount = Mount(
         source=str(repo_root.absolute()),
-        target="/mount_target",
+        target="/" + uuid.uuid4().hex,
         type="bind",
     )
 
