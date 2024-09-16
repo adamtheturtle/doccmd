@@ -1,6 +1,5 @@
 """Tests for `doccmd`."""
 
-import stat
 import subprocess
 import sys
 import textwrap
@@ -337,18 +336,11 @@ def test_modify_file(tmp_path: Path) -> None:
     )
     modify_code_file = tmp_path / "modify_code.py"
     modify_code_file.write_text(data=modify_code_script, encoding="utf-8")
-    modify_code_permissions = modify_code_file.stat().st_mode
-    modify_code_file.chmod(
-        mode=modify_code_permissions
-        | stat.S_IXUSR
-        | stat.S_IXGRP
-        | stat.S_IXOTH
-    )
     arguments = [
         "--language",
         "python",
         "--command",
-        f"{modify_code_file.as_posix()}",
+        f"python {modify_code_file.as_posix()}",
         str(rst_file),
     ]
     result = runner.invoke(
