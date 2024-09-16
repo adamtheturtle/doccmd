@@ -331,6 +331,7 @@ def test_modify_file(tmp_path: Path) -> None:
         "truncate -s 9",
         str(rst_file),
     ]
+    breakpoint()
     result = runner.invoke(
         cli=main,
         args=arguments,

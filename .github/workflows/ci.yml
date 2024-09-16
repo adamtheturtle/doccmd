@@ -17,7 +17,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ["3.10", "3.11", "3.12"]
+        python-version: ["3.10"] #, "3.11", "3.12"]
         platform: ["ubuntu-latest", "windows-latest"]
 
     runs-on: ${{ matrix.platform }}
@@ -39,11 +39,15 @@ jobs:
           curl -LsSf https://astral.sh/uv/install.sh | sh
           uv pip install --system --upgrade --editable .[dev]
 
-      - name: "Lint"
-        run: |
-          pre-commit run --all-files --hook-stage commit --verbose
-          pre-commit run --all-files --hook-stage push --verbose
-          pre-commit run --all-files --hook-stage manual --verbose
+      # - name: "Lint"
+      #   run: |
+      #     pre-commit run --all-files --hook-stage commit --verbose
+      #     pre-commit run --all-files --hook-stage push --verbose
+      #     pre-commit run --all-files --hook-stage manual --verbose
+
+      - uses: actions/checkout@v4
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
 
       - name: "Run tests"
         run: |
@@ -51,11 +55,11 @@ jobs:
           # and documentation.
           pytest -s -vvv --cov-fail-under=100 --cov=src/ --cov=tests . --cov-report=xml
 
-      - name: "Upload coverage to Codecov"
-        uses: "codecov/codecov-action@v4"
-        with:
-          fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
+      # - name: "Upload coverage to Codecov"
+      #   uses: "codecov/codecov-action@v4"
+      #   with:
+      #     fail_ci_if_error: true
+      #     token: ${{ secrets.CODECOV_TOKEN }}
 
-      - uses: pre-commit-ci/lite-action@v1.0.3
-        if: runner.os != 'Windows'
+      # - uses: pre-commit-ci/lite-action@v1.0.3
+      #   if: runner.os != 'Windows'
