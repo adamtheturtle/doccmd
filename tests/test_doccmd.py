@@ -324,11 +324,23 @@ def test_modify_file(tmp_path: Path) -> None:
         c = 1
     """
     rst_file.write_text(data=content, encoding="utf-8")
+    modify_code_script = textwrap.dedent(
+        """\
+        #!/usr/bin/env python
+
+        import sys
+
+        with open(sys.argv[1], "w") as file:
+            file.write("foobar")
+        """
+    )
+    modify_code_file = tmp_path / "modify_code.py"
+    modify_code_file.write_text(data=modify_code_script, encoding="utf-8")
     arguments = [
         "--language",
         "python",
         "--command",
-        "truncate -s 9",
+        f"python {modify_code_file.as_posix()}",
         str(rst_file),
     ]
     result = runner.invoke(
@@ -336,13 +348,12 @@ def test_modify_file(tmp_path: Path) -> None:
         args=arguments,
         catch_exceptions=False,
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 0, (result.stdout, result.stderr)
     modified_content = rst_file.read_text(encoding="utf-8")
     expected_modified_content = """\
     .. code-block:: python
 
-        a = 1
-        b
+        foobar
     """
     assert modified_content == expected_modified_content
 
@@ -363,7 +374,7 @@ def test_exit_code(tmp_path: Path) -> None:
         "--language",
         "python",
         "--command",
-        sys.executable,
+        Path(sys.executable).as_posix(),
         str(rst_file),
     ]
     result = runner.invoke(

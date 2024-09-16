@@ -352,3 +352,6 @@ ignore_path = [
     "./src/*.egg-info/",
     "./src/*/_setuptools_scm_version.txt",
 ]
+
+# See https://github.com/PyCQA/doc8/issues/78
+ignore = [ "D004" ]

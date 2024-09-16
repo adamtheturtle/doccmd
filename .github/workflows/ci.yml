@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.10", "3.11", "3.12"]
-        platform: [ubuntu-latest]
+        platform: ["ubuntu-latest", "windows-latest"]
 
     runs-on: ${{ matrix.platform }}
 
@@ -28,6 +28,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+
+      - name: Configure Git
+        run: |
+          git config --global core.autocrlf false
 
       # We do not use the cache action as uv is faster than the cache action.
       - name: "Install dependencies"
@@ -41,17 +45,28 @@ jobs:
           pre-commit run --all-files --hook-stage push --verbose
           pre-commit run --all-files --hook-stage manual --verbose
 
-      - name: "Run tests"
+      # We require a lower coverage for Windows as we do not
+      # create binaries on Windows.
+      - name: "Run tests Windows"
         run: |
           # We run tests against "." and not the tests directory as we test the README
           # and documentation.
-          pytest -s -vvv --cov-fail-under 100 --cov=src/ --cov=tests . --cov-report=xml
+          pytest -s -vvv --cov-fail-under=60 --cov=src/ --cov=tests . --cov-report=xml
+        if: runner.os == 'Windows'
+
+      - name: "Run tests not-Windows"
+        run: |
+          # We run tests against "." and not the tests directory as we test the README
+          # and documentation.
+          pytest -s -vvv --cov-fail-under=100 --cov=src/ --cov=tests . --cov-report=xml
+        if: runner.os != 'Windows'
 
       - name: "Upload coverage to Codecov"
         uses: "codecov/codecov-action@v4"
         with:
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
+        if: runner.os != 'Windows'
 
       - uses: pre-commit-ci/lite-action@v1.0.3
-        if: always()
+        if: runner.os != 'Windows'
