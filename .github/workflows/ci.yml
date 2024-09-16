@@ -45,11 +45,6 @@ jobs:
           pre-commit run --all-files --hook-stage push --verbose
           pre-commit run --all-files --hook-stage manual --verbose
 
-      - name: "Set coverage fail under environment variable"
-        id: set_coverage_fail_under
-        run: |
-          export COVERAGE_FAIL_UNDER=100
-
       # We require a lower coverage for Windows as we do not
       # create binaries on Windows.
       - name: "Run tests Windows"
