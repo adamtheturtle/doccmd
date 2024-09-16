@@ -1,5 +1,6 @@
 """Tests for `doccmd`."""
 
+import stat
 import subprocess
 import sys
 import textwrap
@@ -324,26 +325,43 @@ def test_modify_file(tmp_path: Path) -> None:
         c = 1
     """
     rst_file.write_text(data=content, encoding="utf-8")
+    modify_code_script = textwrap.dedent(
+        """\
+        #!/usr/bin/env python
+
+        import sys
+
+        with open(sys.argv[1], "w") as file:
+            file.write("foobar")
+        """
+    )
+    modify_code_file = tmp_path / "modify_code.py"
+    modify_code_file.write_text(data=modify_code_script, encoding="utf-8")
+    modify_code_permissions = modify_code_file.stat().st_mode
+    modify_code_file.chmod(
+        mode=modify_code_permissions
+        | stat.S_IXUSR
+        | stat.S_IXGRP
+        | stat.S_IXOTH
+    )
     arguments = [
         "--language",
         "python",
         "--command",
-        "truncate -s 9",
+        f"{modify_code_file}",
         str(rst_file),
     ]
-    breakpoint()
     result = runner.invoke(
         cli=main,
         args=arguments,
         catch_exceptions=False,
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 0, (result.stdout, result.stderr)
     modified_content = rst_file.read_text(encoding="utf-8")
     expected_modified_content = """\
     .. code-block:: python
 
-        a = 1
-        b
+        foobar
     """
     assert modified_content == expected_modified_content
 
