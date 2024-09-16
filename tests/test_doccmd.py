@@ -363,7 +363,7 @@ def test_exit_code(tmp_path: Path) -> None:
         "--language",
         "python",
         "--command",
-        sys.executable,
+        Path(sys.executable).as_posix(),
         str(rst_file),
     ]
     result = runner.invoke(
