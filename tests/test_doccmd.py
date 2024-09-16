@@ -320,15 +320,15 @@ def test_modify_file(tmp_path: Path) -> None:
     .. code-block:: python
 
         a = 1
-        b = 1
-        c = 1
     """
     rst_file.write_text(data=content, encoding="utf-8")
+    file_with_new_content = tmp_path / "new_content.rst"
+    file_with_new_content.write_text(data="foobar", encoding="utf-8")
     arguments = [
         "--language",
         "python",
         "--command",
-        "truncate -s 9",
+        f"cp {file_with_new_content}",
         str(rst_file),
     ]
     result = runner.invoke(
@@ -341,8 +341,7 @@ def test_modify_file(tmp_path: Path) -> None:
     expected_modified_content = """\
     .. code-block:: python
 
-        a = 1
-        b
+        foobar
     """
     assert modified_content == expected_modified_content
 
