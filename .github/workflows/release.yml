@@ -62,11 +62,9 @@ jobs:
 
       - name: "Update changelog"
         uses: jacobtomlinson/gha-find-replace@v3
-        env:
-          NEXT_VERSION: ${{ steps.calver.outputs.release }}
         with:
           find: "Next\n----"
-          replace: "Next\n----\n\n${{ env.NEXT_VERSION }}\n------------"
+          replace: "Next\n----\n\n${{ steps.calver.outputs.release }}\n------------"
           include: "CHANGELOG.rst"
           regex: false
 
@@ -120,12 +118,10 @@ jobs:
       # Here, we give PyPI time to propagate the package.
       - name: Install doccmd from PyPI
         uses: nick-fields/retry@v3
-        env:
-          NEXT_VERSION: ${{ steps.calver.outputs.release }}
         with:
           timeout_seconds: 10
           max_attempts: 20
-          command: pip install doccmd==${{ env.NEXT_VERSION }}
+          command: pip install doccmd==${{ steps.calver.outputs.release }}
 
       - name: Create a Homebrew recipe
         id: homebrew-create
@@ -161,11 +157,9 @@ jobs:
 
       - name: "Update README versions"
         uses: jacobtomlinson/gha-find-replace@v3
-        env:
-          NEXT_VERSION: ${{ steps.calver.outputs.release }}
         with:
           find: ${{ steps.get_current_version.outputs.version }}
-          replace: ${{ env.NEXT_VERSION }}
+          replace: ${{ steps.calver.outputs.release }}
           include: "README.rst"
           regex: false
 
