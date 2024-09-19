@@ -100,6 +100,7 @@ jobs:
           sudo rm -rf dist/ build/
           # Checkout the latest tag - the one we just created.
           git fetch --tags
+          git fetch --tags
           git checkout ${{ steps.tag_version.outputs.new_tag }}
           python -m pip install build check-wheel-contents
           python -m build --sdist --wheel --outdir dist/ .
