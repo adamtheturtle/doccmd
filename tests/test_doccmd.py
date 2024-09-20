@@ -658,7 +658,42 @@ def test_command_not_found(tmp_path: Path) -> None:
         args=arguments,
         catch_exceptions=False,
     )
-    # 127 is commonly used to indicate that the command was not found.
-    expected_exit_code = 127
-    assert result.exit_code == expected_exit_code
-    assert f"Command '{non_existent_command}' not found" in result.stderr
+    assert result.exit_code != 0
+    expected_error = f"Error running command '{non_existent_command}':"
+    assert result.stderr.startswith(expected_error)
+
+
+def test_not_executable(tmp_path: Path) -> None:
+    """An error is shown when the command is a non-executable file."""
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    not_executable_command = tmp_path / "non_executable"
+    not_executable_command.touch()
+    not_executable_command_with_args = (
+        f"{not_executable_command.as_posix()} --help"
+    )
+    content = """\
+    .. code-block:: python
+
+        x = 2 + 2
+        assert x == 4
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        not_executable_command_with_args,
+        str(rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code != 0
+    expected_error = "Error running command:"
+    expected_error = (
+        f"Error running command '{not_executable_command.as_posix()}':"
+    )
+    assert result.stderr.startswith(expected_error)
