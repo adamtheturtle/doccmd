@@ -670,7 +670,9 @@ def test_not_executable(tmp_path: Path) -> None:
     rst_file = tmp_path / "example.rst"
     not_executable_command = tmp_path / "non_executable"
     not_executable_command.touch()
-    not_executable_command_with_args = f"{not_executable_command} --help"
+    not_executable_command_with_args = (
+        f"{not_executable_command.as_posix()} --help"
+    )
     content = """\
     .. code-block:: python
 
