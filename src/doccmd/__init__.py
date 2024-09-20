@@ -96,20 +96,13 @@ def _run_args_against_docs(
             example.evaluate()
         except subprocess.CalledProcessError as exc:
             sys.exit(exc.returncode)
-        except FileNotFoundError:
-            styled_not_found_message = click.style(
-                text=f"Command '{args[0]}' not found",
-                fg="red",
-            )
-            click.echo(message=styled_not_found_message, err=True)
-            sys.exit(127)
-        except OSError:
+        except OSError as exc:
             styled_permission_message = click.style(
-                text=f"Permission denied running '{args[0]}'",
+                text=f"Error running command: {exc}",
                 fg="red",
             )
             click.echo(message=styled_permission_message, err=True)
-            sys.exit(126)
+            sys.exit(exc.errno)
 
 
 @beartype

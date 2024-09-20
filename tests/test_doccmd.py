@@ -658,10 +658,10 @@ def test_command_not_found(tmp_path: Path) -> None:
         args=arguments,
         catch_exceptions=False,
     )
-    # 127 is commonly used to indicate that the command was not found.
-    expected_exit_code = 127
-    assert result.exit_code == expected_exit_code
-    assert f"Command '{non_existent_command}' not found" in result.stderr
+    assert result.exit_code != 0
+    expected_error = "Error running command:"
+    assert result.stderr.startswith(expected_error)
+    assert str(non_existent_command) in result.stderr
 
 
 def test_not_executable(tmp_path: Path) -> None:
@@ -692,10 +692,7 @@ def test_not_executable(tmp_path: Path) -> None:
         args=arguments,
         catch_exceptions=False,
     )
-    # 126 is commonly used to indicate permission errors.
-    expected_exit_code = 126
-    assert result.exit_code == expected_exit_code
-    assert (
-        f"Permission denied running '{not_executable_command}'"
-        in result.stderr
-    )
+    assert result.exit_code != 0
+    expected_error = "Error running command:"
+    assert result.stderr.startswith(expected_error)
+    assert str(not_executable_command) in result.stderr
