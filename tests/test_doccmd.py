@@ -3,6 +3,7 @@
 import subprocess
 import sys
 import textwrap
+import uuid
 from pathlib import Path
 
 import pytest
@@ -630,3 +631,34 @@ def test_main_entry_point() -> None:
         check=False,
     )
     assert "Usage:" in result.stderr
+
+
+def test_command_not_found(tmp_path: Path) -> None:
+    """An error is shown when the command is not found."""
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    non_existent_command = uuid.uuid4().hex
+    non_existent_command_with_args = f"{non_existent_command} --help"
+    content = """\
+    .. code-block:: python
+
+        x = 2 + 2
+        assert x == 4
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        non_existent_command_with_args,
+        str(rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    # 127 is commonly used to indicate that the command was not found.
+    expected_exit_code = 127
+    assert result.exit_code == expected_exit_code
+    assert f"Command '{non_existent_command}' not found" in result.stderr
