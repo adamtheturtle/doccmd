@@ -59,7 +59,7 @@ optional-dependencies.dev = [
     "pydocstyle==6.3",
     "pyenchant==3.2.2",
     "pygments==2.18.0",
-    "pylint==3.2.7",
+    "pylint==3.3.0",
     "pyproject-fmt==2.2.4",
     "pyright==1.1.381",
     "pyroma==4.2",
