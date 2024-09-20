@@ -6,7 +6,8 @@ Usage: doccmd [OPTIONS] [FILE_PATHS]...
 
 Options:
   -l, --language TEXT         Run `command` against code blocks for this
-                              language.  [required]
+                              language. Give multiple times for multiple
+                              languages.  [required]
   -c, --command TEXT          [required]
   --file-suffix TEXT          The file extension to give to the temporary file
                               made from the code block. By default, the file

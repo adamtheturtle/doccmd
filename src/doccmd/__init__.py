@@ -108,12 +108,16 @@ def _run_args_against_docs(
 @beartype
 @click.command(name="doccmd")
 @click.option(
-    "language",
+    "languages",
     "-l",
     "--language",
     type=str,
     required=True,
-    help="Run `command` against code blocks for this language.",
+    help=(
+        "Run `command` against code blocks for this language. "
+        "Give multiple times for multiple languages."
+    ),
+    multiple=True,
 )
 @click.option("command", "-c", "--command", type=str, required=True)
 @click.option(
@@ -167,12 +171,12 @@ def _run_args_against_docs(
     help="Enable verbose output.",
 )
 def main(
-    language: str,
+    *,
+    languages: Iterable[str],
     command: str,
     file_paths: Iterable[Path],
     file_suffix: str | None,
     file_name_prefix: str | None,
-    *,
     pad_file: bool,
     verbose: bool,
 ) -> None:
@@ -183,12 +187,13 @@ def main(
     """
     args = shlex.split(s=command)
     for file_path in file_paths:
-        _run_args_against_docs(
-            args=args,
-            file_path=file_path,
-            language=language,
-            pad_file=pad_file,
-            verbose=verbose,
-            file_suffix=file_suffix,
-            file_name_prefix=file_name_prefix,
-        )
+        for language in languages:
+            _run_args_against_docs(
+                args=args,
+                file_path=file_path,
+                language=language,
+                pad_file=pad_file,
+                verbose=verbose,
+                file_suffix=file_suffix,
+                file_name_prefix=file_name_prefix,
+            )
