@@ -1,7 +1,8 @@
 |project|
 =========
 
-A command line tool for running commands against documentation files.
+A command line tool for running commands against code blocks in documentation files.
+This allows you to run linters, formatters, and other tools against the code blocks in your documentation files.
 
 .. include:: install.rst
 
@@ -44,6 +45,8 @@ It does this by adding padding to the code blocks before running the command.
 
 Some tools do not work well with this padding, and you can choose to obscure the line numbers in order to give the tool the original code block's content without padding, by using the ``--no-pad-file`` flag.
 
+.. include:: file-names-and-linter-ignores.rst
+
 Reference
 ---------
 
@@ -53,6 +56,7 @@ Reference
    install
    usage-example
    commands
+   file-names-and-linter-ignores
    contributing
    release-process
    changelog

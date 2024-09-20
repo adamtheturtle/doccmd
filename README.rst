@@ -3,7 +3,8 @@
 doccmd
 ======
 
-A command line tool for running commands against documentation files.
+A command line tool for running commands against code blocks in documentation files.
+This allows you to run linters, formatters, and other tools against the code blocks in your documentation files.
 
 .. contents::
    :local:
@@ -115,6 +116,26 @@ Running linters with ``doccmd`` gives you errors and warnings with line numbers 
 It does this by adding padding to the code blocks before running the command.
 
 Some tools do not work well with this padding, and you can choose to obscure the line numbers in order to give the tool the original code block's content without padding, by using the ``--no-pad-file`` flag.
+
+File names and linter ignores
+-----------------------------
+
+``doccmd`` creates temporary files for each code block in the documentation file.
+These files are created in the same directory as the documentation file, and are named with the documentation file name and the line number of the code block.
+Files are created with a prefix set to the given ``--file-name-prefix`` argument (default ``doccmd``).
+
+You can use this information to ignore files in your linter configuration.
+
+For example, to ignore a rule in all files created by ``doccmd`` in a ``ruff`` configuration in ``pyproject.toml``:
+
+.. code-block:: toml
+
+   [tool.ruff]
+
+   lint.per-file-ignores."doccmd_*.py" = [
+      # Allow hardcoded secrets in documentation.
+      "S105",
+   ]
 
 Full documentation
 ------------------
