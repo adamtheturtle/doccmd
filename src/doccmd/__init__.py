@@ -103,6 +103,13 @@ def _run_args_against_docs(
             )
             click.echo(message=styled_not_found_message, err=True)
             sys.exit(127)
+        except PermissionError:
+            styled_permission_message = click.style(
+                text=f"Permission denied running '{args[0]}'",
+                fg="red",
+            )
+            click.echo(message=styled_permission_message, err=True)
+            sys.exit(126)
 
 
 @beartype
