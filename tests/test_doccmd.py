@@ -697,3 +697,51 @@ def test_not_executable(tmp_path: Path) -> None:
         f"Error running command '{not_executable_command.as_posix()}':"
     )
     assert result.stderr.startswith(expected_error)
+
+
+def test_multiple_languages(tmp_path: Path) -> None:
+    """
+    It is possible to run a command against multiple code blocks in a
+    document with different languages.
+    """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    content = """\
+    .. code-block:: python
+
+        x = 2 + 2
+        assert x == 4
+
+    .. code-block:: javascript
+
+        var y = 3 + 3;
+        console.assert(y === 6);
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--no-pad-file",
+        "--language",
+        "python",
+        "--language",
+        "javascript",
+        "--command",
+        "cat",
+        str(rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    expected_output = textwrap.dedent(
+        text="""\
+        x = 2 + 2
+        assert x == 4
+        var y = 3 + 3;
+        console.assert(y === 6);
+        """,
+    )
+
+    assert result.stdout == expected_output
+    assert result.stderr == ""
