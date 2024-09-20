@@ -659,9 +659,8 @@ def test_command_not_found(tmp_path: Path) -> None:
         catch_exceptions=False,
     )
     assert result.exit_code != 0
-    expected_error = "Error running command:"
+    expected_error = f"Error running command '{non_existent_command}':"
     assert result.stderr.startswith(expected_error)
-    assert str(non_existent_command) in result.stderr
 
 
 def test_not_executable(tmp_path: Path) -> None:
@@ -694,5 +693,7 @@ def test_not_executable(tmp_path: Path) -> None:
     )
     assert result.exit_code != 0
     expected_error = "Error running command:"
+    expected_error = (
+        f"Error running command '{not_executable_command.as_posix()}':"
+    )
     assert result.stderr.startswith(expected_error)
-    assert str(not_executable_command) in result.stderr

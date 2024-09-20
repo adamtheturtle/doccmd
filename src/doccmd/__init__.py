@@ -98,7 +98,7 @@ def _run_args_against_docs(
             sys.exit(exc.returncode)
         except OSError as exc:
             styled_permission_message = click.style(
-                text=f"Error running command: {exc}",
+                text=f"Error running command '{args[0]}': {exc}",
                 fg="red",
             )
             click.echo(message=styled_permission_message, err=True)
