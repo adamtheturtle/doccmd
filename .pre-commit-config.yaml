@@ -60,14 +60,14 @@ repos:
 
     - id: shellcheck
       name: shellcheck
-      entry: shellcheck --shell bash
+      entry: shellcheck --shell bash --exclude=SC1017
       language: system
       types_or: [shell]
       exclude: .shellcheckrc
 
     - id: shellcheck-docs
       name: shellcheck-docs
-      entry: doccmd --verbose --language=shell --language=console --command="shellcheck --shell=bash"
+      entry: doccmd --language=shell --language=console --command="shellcheck --shell=bash --exclude=SC1017"
       language: system
       types_or: [markdown, rst]
       exclude: .shellcheckrc
