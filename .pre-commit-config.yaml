@@ -25,6 +25,8 @@ ci:
         - ruff-check-fix-docs
         - ruff-format-fix
         - ruff-format-fix-docs
+        - shellcheck
+        - shellcheck-docs
         - spelling
         - vulture
         - vulture-docs
