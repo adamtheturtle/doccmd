@@ -70,6 +70,7 @@ repos:
       entry: doccmd --language=shell --language=console --command="shellcheck --shell=bash"
       language: system
       types_or: [markdown, rst]
+      exclude: .shellcheckrc
 
     - id: mypy
       name: mypy
