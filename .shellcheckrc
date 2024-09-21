@@ -1,3 +1,2 @@
-# shellcheck disable=SC1017
 # Avoid concerns about Windows line endings - we run on Windows and Unix
-disable=SC1017  # shellcheck disable=SC1017
+disable=SC1017

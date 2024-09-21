@@ -63,6 +63,7 @@ repos:
       entry: shellcheck --shell bash
       language: system
       types_or: [shell]
+      exclude: .shellcheckrc
 
     - id: shellcheck-docs
       name: shellcheck-docs
