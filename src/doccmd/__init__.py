@@ -152,7 +152,7 @@ def _run_args_against_docs(
     type=str,
     default=None,
     show_default=True,
-    required=True,
+    required=False,
     help=(
         "The marker used to identify code blocks to be skipped. "
         "By default, code blocks which come just after a comment matching "
