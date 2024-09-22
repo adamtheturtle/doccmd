@@ -13,6 +13,7 @@ from pygments.lexers import get_all_lexers
 from sybil import Sybil
 from sybil.parsers.myst import CodeBlockParser as MystCodeBlockParser
 from sybil.parsers.rest import CodeBlockParser as RestCodeBlockParser
+from sybil.parsers.rest import SkipParser as RestSkipParser
 from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
 
 try:
@@ -75,11 +76,12 @@ def _run_args_against_docs(
     )
 
     rest_parser = RestCodeBlockParser(language=language, evaluator=evaluator)
+    rest_skip_parser = RestSkipParser()
     myst_parser = MystCodeBlockParser(
         language=language,
         evaluator=evaluator,
     )
-    sybil = Sybil(parsers=[rest_parser, myst_parser])
+    sybil = Sybil(parsers=[rest_parser, myst_parser, rest_skip_parser])
     document = sybil.parse(path=file_path)
     for example in document.examples():
         if verbose:
@@ -142,6 +144,28 @@ def _run_args_against_docs(
         "The prefix to give to the temporary file made from the code block. "
         "This is useful for distinguishing files created by this tool "
         "from other files, e.g. for ignoring in linter configurations."
+    ),
+)
+@click.option(
+    "skip_marker",
+    "--skip-marker",
+    type=str,
+    default=None,
+    show_default=True,
+    required=True,
+    help=(
+        "The marker used to identify code blocks to be skipped. "
+        "By default, code blocks which come just after a comment matching "
+        "'skip doccmd: next' are skipped (e.g. "
+        "`.. skip doccmd` in rST, "
+        "`<!--- skip doccmd: next -->` in Markdown, or "
+        "`% skip doccmd: next` in MyST). "
+        "When using this option, those comments will be ignored, and "
+        "instead, only code blocks which come just after a comment "
+        "including the given marker are ignored. "
+        "For example, if the given marker is 'type-check', "
+        "only code blocks which come just after a comment matching "
+        "'skip doccmd[type-check]: next' are skipped."
     ),
 )
 @click.option(

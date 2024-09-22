@@ -747,24 +747,36 @@ def test_multiple_languages(tmp_path: Path) -> None:
     assert result.stderr == ""
 
 
-def test_skip(tmp_path: Path) -> None:
-    """It is possible to skip code blocks by adding a marker before them."""
+def test_default_skip_rst(tmp_path: Path) -> None:
+    """
+    By default, the next code block after a 'doccmd skip: next' comment
+    in a rST document is not run.
+    """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
-    content = """\
+    skip_marker = uuid.uuid4().hex
+    content = f"""\
     .. code-block:: python
 
        block_1
 
+    .. {skip_marker}: next
+
     .. code-block:: python
 
         block_2
+
+    .. code-block:: python
+
+        block_3
     """
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--no-pad-file",
         "--language",
         "python",
+        "--skip-marker",
+        skip_marker,
         "--command",
         "cat",
         str(rst_file),
@@ -777,12 +789,38 @@ def test_skip(tmp_path: Path) -> None:
     assert result.exit_code == 0
     expected_output = textwrap.dedent(
         text="""\
-
-
-        x = 2 + 2
-        assert x == 4
+        block_1
         """,
     )
 
     assert result.stdout == expected_output
     assert result.stderr == ""
+
+
+def test_custom_skip_markers_rst() -> None:
+    """
+    The next code block after a custom skip marker comment in a rST document is
+    not run.
+    """
+
+
+def test_default_skip_myst() -> None:
+    """
+    By default, the next code block after a 'doccmd skip: next' comment
+    in a MyST document is not run.
+    """
+
+
+def test_custom_skip_markers_myst() -> None:
+    """
+    The next code block after a custom skip marker comment in a MyST document
+    is not run.
+    """
+
+
+def test_multiple_skip_markers() -> None:
+    """All given skip markers are respected."""
+
+
+def test_skip_start_end() -> None:
+    """Skip start and end markers are respected."""
