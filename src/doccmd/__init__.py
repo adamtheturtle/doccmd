@@ -13,8 +13,13 @@ from pygments.lexers import get_all_lexers
 from sybil import Sybil
 from sybil.parsers.myst import CodeBlockParser as MystCodeBlockParser
 from sybil.parsers.rest import CodeBlockParser as RestCodeBlockParser
-from sybil.parsers.rest import SkipParser as RestSkipParser
 from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
+from sybil_extras.parsers.myst.custom_directive_skip import (
+    CustomDirectiveSkipParser as MystCustomDirectiveSkipParser,
+)
+from sybil_extras.parsers.rest.custom_directive_skip import (
+    CustomDirectiveSkipParser as RestCustomDirectiveSkipParser,
+)
 
 try:
     __version__ = version(__name__)
@@ -48,14 +53,15 @@ def _map_languages_to_suffix() -> dict[str, str]:
 
 @beartype
 def _run_args_against_docs(
+    *,
     file_path: Path,
     args: Sequence[str | Path],
     language: str,
     file_suffix: str | None,
     file_name_prefix: str | None,
-    *,
     pad_file: bool,
     verbose: bool,
+    skip_marker: str | None,
 ) -> None:
     """Run commands on the given file."""
     if file_suffix is None:
@@ -75,13 +81,23 @@ def _run_args_against_docs(
         tempfile_name_prefix=file_name_prefix or "",
     )
 
+    if skip_marker is None:
+        skip_directive = "skip doccmd"
+    else:
+        skip_directive = f"skip doccmd[{skip_marker}]"
+
+    rest_skip_parser = RestCustomDirectiveSkipParser(directive=skip_directive)
+    myst_skip_parser = MystCustomDirectiveSkipParser(directive=skip_directive)
+
     rest_parser = RestCodeBlockParser(language=language, evaluator=evaluator)
-    rest_skip_parser = RestSkipParser()
     myst_parser = MystCodeBlockParser(
         language=language,
         evaluator=evaluator,
     )
-    sybil = Sybil(parsers=[rest_parser, myst_parser, rest_skip_parser])
+    skip_parsers = [rest_skip_parser, myst_skip_parser]
+    code_block_parsers = [rest_parser, myst_parser]
+    parsers = code_block_parsers + skip_parsers
+    sybil = Sybil(parsers=parsers)
     document = sybil.parse(path=file_path)
     for example in document.examples():
         if verbose:
@@ -203,6 +219,7 @@ def main(
     file_name_prefix: str | None,
     pad_file: bool,
     verbose: bool,
+    skip_marker: str | None,
 ) -> None:
     """
     Run commands against code blocks in the given documentation files.
@@ -220,4 +237,5 @@ def main(
                 verbose=verbose,
                 file_suffix=file_suffix,
                 file_name_prefix=file_name_prefix,
+                skip_marker=skip_marker,
             )

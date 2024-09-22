@@ -760,7 +760,7 @@ def test_default_skip_rst(tmp_path: Path) -> None:
 
        block_1
 
-    .. {skip_marker}: next
+    .. skip doccmd[{skip_marker}]: next
 
     .. code-block:: python
 
@@ -790,6 +790,7 @@ def test_default_skip_rst(tmp_path: Path) -> None:
     expected_output = textwrap.dedent(
         text="""\
         block_1
+        block_3
         """,
     )
 
