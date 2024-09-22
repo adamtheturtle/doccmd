@@ -84,7 +84,7 @@ def _run_args_against_docs(
     if skip_marker is None:
         skip_directive = "skip doccmd"
     else:
-        skip_directive = f"skip doccmd[{skip_marker}]"
+        skip_directive = rf"skip doccmd\[{skip_marker}\]"
 
     rest_skip_parser = RestCustomDirectiveSkipParser(directive=skip_directive)
     myst_skip_parser = MystCustomDirectiveSkipParser(directive=skip_directive)
