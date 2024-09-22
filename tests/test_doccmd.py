@@ -745,3 +745,44 @@ def test_multiple_languages(tmp_path: Path) -> None:
 
     assert result.stdout == expected_output
     assert result.stderr == ""
+
+
+def test_skip(tmp_path: Path) -> None:
+    """It is possible to skip code blocks by adding a marker before them."""
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    content = """\
+    .. code-block:: python
+
+       block_1
+
+    .. code-block:: python
+
+        block_2
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--no-pad-file",
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        str(rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    expected_output = textwrap.dedent(
+        text="""\
+
+
+        x = 2 + 2
+        assert x == 4
+        """,
+    )
+
+    assert result.stdout == expected_output
+    assert result.stderr == ""
