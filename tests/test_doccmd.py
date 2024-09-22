@@ -754,6 +754,54 @@ def test_default_skip_rst(tmp_path: Path) -> None:
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
+    content = """\
+    .. code-block:: python
+
+       block_1
+
+    .. skip doccmd: next
+
+    .. code-block:: python
+
+        block_2
+
+    .. code-block:: python
+
+        block_3
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--no-pad-file",
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        str(rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    expected_output = textwrap.dedent(
+        text="""\
+        block_1
+        block_3
+        """,
+    )
+
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
+def test_custom_skip_markers_rst(tmp_path: Path) -> None:
+    """
+    The next code block after a custom skip marker comment in a rST document is
+    not run.
+    """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
     skip_marker = uuid.uuid4().hex
     content = f"""\
     .. code-block:: python
@@ -796,13 +844,6 @@ def test_default_skip_rst(tmp_path: Path) -> None:
 
     assert result.stdout == expected_output
     assert result.stderr == ""
-
-
-def test_custom_skip_markers_rst() -> None:
-    """
-    The next code block after a custom skip marker comment in a rST document is
-    not run.
-    """
 
 
 def test_default_skip_myst() -> None:
