@@ -11,6 +11,7 @@ import click
 from beartype import beartype
 from pygments.lexers import get_all_lexers
 from sybil import Sybil
+from sybil.parsers.abstract import AbstractSkipParser
 from sybil.parsers.myst import CodeBlockParser as MystCodeBlockParser
 from sybil.parsers.rest import CodeBlockParser as RestCodeBlockParser
 from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
@@ -88,7 +89,7 @@ def _run_args_against_docs(
     default_myst_skip_parser = MystCustomDirectiveSkipParser(
         directive=default_skip_directive
     )
-    skip_parsers = [default_rest_skip_parser, default_myst_skip_parser]
+    skip_parsers: Sequence[AbstractSkipParser] = []
     for skip_marker in skip_markers:
         skip_directive = rf"skip doccmd\[{skip_marker}\]"
         rest_skip_parser = RestCustomDirectiveSkipParser(
@@ -97,9 +98,13 @@ def _run_args_against_docs(
         myst_skip_parser = MystCustomDirectiveSkipParser(
             directive=skip_directive
         )
-        skip_parsers.append(rest_skip_parser)
-        skip_parsers.append(myst_skip_parser)
+        skip_parsers = [*skip_parsers, rest_skip_parser, myst_skip_parser]
 
+    skip_parsers = [
+        *skip_parsers,
+        # default_rest_skip_parser,
+        # default_myst_skip_parser,
+    ]
     rest_parser = RestCodeBlockParser(language=language, evaluator=evaluator)
     myst_parser = MystCodeBlockParser(
         language=language,
