@@ -745,3 +745,332 @@ def test_multiple_languages(tmp_path: Path) -> None:
 
     assert result.stdout == expected_output
     assert result.stderr == ""
+
+
+def test_default_skip_rst(tmp_path: Path) -> None:
+    """
+    By default, the next code block after a 'doccmd skip: next' comment
+    in a rST document is not run.
+    """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    content = """\
+    .. code-block:: python
+
+       block_1
+
+    .. skip doccmd[all]: next
+
+    .. code-block:: python
+
+        block_2
+
+    .. code-block:: python
+
+        block_3
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--no-pad-file",
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        str(rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    expected_output = textwrap.dedent(
+        text="""\
+        block_1
+        block_3
+        """,
+    )
+
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
+def test_custom_skip_markers_rst(tmp_path: Path) -> None:
+    """
+    The next code block after a custom skip marker comment in a rST document is
+    not run.
+    """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    skip_marker = uuid.uuid4().hex
+    content = f"""\
+    .. code-block:: python
+
+       block_1
+
+    .. skip doccmd[{skip_marker}]: next
+
+    .. code-block:: python
+
+        block_2
+
+    .. code-block:: python
+
+        block_3
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--no-pad-file",
+        "--language",
+        "python",
+        "--skip-marker",
+        skip_marker,
+        "--command",
+        "cat",
+        str(rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    expected_output = textwrap.dedent(
+        text="""\
+        block_1
+        block_3
+        """,
+    )
+
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
+def test_default_skip_myst(tmp_path: Path) -> None:
+    """
+    By default, the next code block after a 'doccmd skip: next' comment
+    in a MyST document is not run.
+    """
+    runner = CliRunner(mix_stderr=False)
+    myst_file = tmp_path / "example.md"
+    content = """\
+    Example
+
+    ```python
+    block_1
+    ```
+
+    <!--- skip doccmd[all]: next -->
+
+    ```python
+    block_2
+    ```
+
+    ```python
+    block_3
+    ```
+
+    % skip doccmd[all]: next
+
+    ```python
+    block_4
+    ```
+    """
+    myst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--no-pad-file",
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        str(myst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    expected_output = textwrap.dedent(
+        text="""\
+        block_1
+        block_3
+        """,
+    )
+
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
+def test_custom_skip_markers_myst(tmp_path: Path) -> None:
+    """
+    The next code block after a custom skip marker comment in a MyST document
+    is not run.
+    """
+    runner = CliRunner(mix_stderr=False)
+    myst_file = tmp_path / "example.md"
+    skip_marker = uuid.uuid4().hex
+    content = f"""\
+    Example
+
+    ```python
+    block_1
+    ```
+
+    <!--- skip doccmd[{skip_marker}]: next -->
+
+    ```python
+    block_2
+    ```
+
+    ```python
+    block_3
+    ```
+
+    % skip doccmd[{skip_marker}]: next
+
+    ```python
+    block_4
+    ```
+    """
+    myst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--no-pad-file",
+        "--language",
+        "python",
+        "--skip-marker",
+        skip_marker,
+        "--command",
+        "cat",
+        str(myst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    expected_output = textwrap.dedent(
+        text="""\
+        block_1
+        block_3
+        """,
+    )
+
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
+def test_multiple_skip_markers(tmp_path: Path) -> None:
+    """All given skip markers, including the default one, are respected."""
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    skip_marker_1 = uuid.uuid4().hex
+    skip_marker_2 = uuid.uuid4().hex
+    content = f"""\
+    .. code-block:: python
+
+       block_1
+
+    .. skip doccmd[{skip_marker_1}]: next
+
+    .. code-block:: python
+
+        block_2
+
+    .. skip doccmd[{skip_marker_2}]: next
+
+    .. code-block:: python
+
+        block_3
+
+    .. skip doccmd[all]: next
+
+    .. code-block:: python
+
+        block_4
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--no-pad-file",
+        "--language",
+        "python",
+        "--skip-marker",
+        skip_marker_1,
+        "--skip-marker",
+        skip_marker_2,
+        "--command",
+        "cat",
+        str(rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    expected_output = textwrap.dedent(
+        text="""\
+        block_1
+        """,
+    )
+
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
+def test_skip_start_end(tmp_path: Path) -> None:
+    """Skip start and end markers are respected."""
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    skip_marker_1 = uuid.uuid4().hex
+    skip_marker_2 = uuid.uuid4().hex
+    content = """\
+    .. code-block:: python
+
+       block_1
+
+    .. skip doccmd[all]: start
+
+    .. code-block:: python
+
+        block_2
+
+    .. code-block:: python
+
+        block_3
+
+    .. skip doccmd[all]: end
+
+    .. code-block:: python
+
+        block_4
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--no-pad-file",
+        "--language",
+        "python",
+        "--skip-marker",
+        skip_marker_1,
+        "--skip-marker",
+        skip_marker_2,
+        "--command",
+        "cat",
+        str(rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    expected_output = textwrap.dedent(
+        text="""\
+        block_1
+        block_4
+        """,
+    )
+
+    assert result.stdout == expected_output
+    assert result.stderr == ""

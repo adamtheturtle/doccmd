@@ -6,6 +6,7 @@ import sys
 from collections.abc import Iterable, Sequence
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import click
 from beartype import beartype
@@ -14,6 +15,15 @@ from sybil import Sybil
 from sybil.parsers.myst import CodeBlockParser as MystCodeBlockParser
 from sybil.parsers.rest import CodeBlockParser as RestCodeBlockParser
 from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
+from sybil_extras.parsers.myst.custom_directive_skip import (
+    CustomDirectiveSkipParser as MystCustomDirectiveSkipParser,
+)
+from sybil_extras.parsers.rest.custom_directive_skip import (
+    CustomDirectiveSkipParser as RestCustomDirectiveSkipParser,
+)
+
+if TYPE_CHECKING:
+    from sybil.typing import Parser
 
 try:
     __version__ = version(__name__)
@@ -47,14 +57,15 @@ def _map_languages_to_suffix() -> dict[str, str]:
 
 @beartype
 def _run_args_against_docs(
+    *,
     file_path: Path,
     args: Sequence[str | Path],
     language: str,
     file_suffix: str | None,
     file_name_prefix: str | None,
-    *,
     pad_file: bool,
     verbose: bool,
+    skip_markers: Iterable[str],
 ) -> None:
     """Run commands on the given file."""
     if file_suffix is None:
@@ -74,12 +85,34 @@ def _run_args_against_docs(
         tempfile_name_prefix=file_name_prefix or "",
     )
 
+    default_skip_directive = r"skip doccmd\[all\]"
+    default_rest_skip_parser = RestCustomDirectiveSkipParser(
+        directive=default_skip_directive
+    )
+    default_myst_skip_parser = MystCustomDirectiveSkipParser(
+        directive=default_skip_directive
+    )
+    skip_parsers = [default_rest_skip_parser, default_myst_skip_parser]
+
+    for skip_marker in skip_markers:
+        skip_directive = rf"skip doccmd\[{skip_marker}\]"
+
+        rest_skip_parser = RestCustomDirectiveSkipParser(
+            directive=skip_directive,
+        )
+        myst_skip_parser = MystCustomDirectiveSkipParser(
+            directive=skip_directive
+        )
+        skip_parsers = [*skip_parsers, rest_skip_parser, myst_skip_parser]
+
     rest_parser = RestCodeBlockParser(language=language, evaluator=evaluator)
     myst_parser = MystCodeBlockParser(
         language=language,
         evaluator=evaluator,
     )
-    sybil = Sybil(parsers=[rest_parser, myst_parser])
+    code_block_parsers = [rest_parser, myst_parser]
+    parsers: Sequence[Parser] = [*code_block_parsers, *skip_parsers]
+    sybil = Sybil(parsers=parsers)
     document = sybil.parse(path=file_path)
     for example in document.examples():
         if verbose:
@@ -145,6 +178,32 @@ def _run_args_against_docs(
     ),
 )
 @click.option(
+    "skip_markers",
+    "--skip-marker",
+    type=str,
+    default=None,
+    show_default=True,
+    required=False,
+    help=(
+        """\
+        The marker used to identify code blocks to be skipped.
+        \b
+        By default, code blocks which come just after a comment matching 'skip
+        doccmd[all]: next' are skipped (e.g. `.. skip doccmd[all]: next` in
+        reStructuredText, `<!--- skip doccmd[all]: next -->` in Markdown, or
+        `% skip doccmd[all]: next` in MyST).
+        \b
+        When using this option, those, and code blocks which come just after a
+        comment including the given marker are ignored. For example, if the
+        given marker is 'type-check', code blocks which come just after a
+        comment matching 'skip doccmd[type-check]: next' are also skipped.
+        \b
+        This marker is matched using a regular expression.
+        """
+    ),
+    multiple=True,
+)
+@click.option(
     "--pad-file/--no-pad-file",
     is_flag=True,
     default=True,
@@ -179,6 +238,7 @@ def main(
     file_name_prefix: str | None,
     pad_file: bool,
     verbose: bool,
+    skip_markers: Iterable[str],
 ) -> None:
     """
     Run commands against code blocks in the given documentation files.
@@ -196,4 +256,5 @@ def main(
                 verbose=verbose,
                 file_suffix=file_suffix,
                 file_name_prefix=file_name_prefix,
+                skip_markers=skip_markers,
             )
