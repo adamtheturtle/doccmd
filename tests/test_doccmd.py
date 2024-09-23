@@ -852,7 +852,7 @@ def test_default_skip_myst(tmp_path: Path) -> None:
     in a MyST document is not run.
     """
     runner = CliRunner(mix_stderr=False)
-    rst_file = tmp_path / "example.rst"
+    myst_file = tmp_path / "example.md"
     content = """\
     Example
 
@@ -876,14 +876,14 @@ def test_default_skip_myst(tmp_path: Path) -> None:
     block_4
     ```
     """
-    rst_file.write_text(data=content, encoding="utf-8")
+    myst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--no-pad-file",
         "--language",
         "python",
         "--command",
         "cat",
-        str(rst_file),
+        str(myst_file),
     ]
     result = runner.invoke(
         cli=main,
@@ -902,11 +902,63 @@ def test_default_skip_myst(tmp_path: Path) -> None:
     assert result.stderr == ""
 
 
-def test_custom_skip_markers_myst() -> None:
+def test_custom_skip_markers_myst(tmp_path: Path) -> None:
     """
     The next code block after a custom skip marker comment in a MyST document
     is not run.
     """
+    runner = CliRunner(mix_stderr=False)
+    myst_file = tmp_path / "example.md"
+    skip_marker = uuid.uuid4().hex
+    content = f"""\
+    Example
+
+    ```python
+    block_1
+    ```
+
+    <!--- skip doccmd[{skip_marker}]: next -->
+
+    ```python
+    block_2
+    ```
+
+    ```python
+    block_3
+    ```
+
+    % skip doccmd[{skip_marker}]: next
+
+    ```python
+    block_4
+    ```
+    """
+    myst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--no-pad-file",
+        "--language",
+        "python",
+        "--skip-marker",
+        skip_marker,
+        "--command",
+        "cat",
+        str(myst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    expected_output = textwrap.dedent(
+        text="""\
+        block_1
+        block_3
+        """,
+    )
+
+    assert result.stdout == expected_output
+    assert result.stderr == ""
 
 
 def test_multiple_skip_markers() -> None:
