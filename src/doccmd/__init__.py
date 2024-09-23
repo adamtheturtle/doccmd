@@ -190,8 +190,8 @@ def _run_args_against_docs(
         \b
         By default, code blocks which come just after a comment matching 'skip
         doccmd[all]: next' are skipped (e.g. `.. skip doccmd[all]: next` in
-        rST, `<!--- skip doccmd[all]: next -->` in Markdown, or `% skip
-        doccmd[all]: next` in MyST).
+        reStructuredText, `<!--- skip doccmd[all]: next -->` in Markdown, or
+        `% skip doccmd[all]: next` in MyST).
         \b
         When using this option, those, and code blocks which come just after a
         comment including the given marker are ignored. For example, if the

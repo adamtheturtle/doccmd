@@ -22,11 +22,11 @@ Options:
                               skipped.  By default, code blocks which come just
                               after a comment matching 'skip doccmd[all]: next'
                               are skipped (e.g. `.. skip doccmd[all]: next` in
-                              rST, `<!--- skip doccmd[all]: next -->` in
-                              Markdown, or `% skip doccmd[all]: next` in MyST).
-                               When using this option, those, and code blocks
-                              which come just after a comment including the
-                              given marker are ignored. For example, if the
+                              reStructuredText, `<!--- skip doccmd[all]: next
+                              -->` in Markdown, or `% skip doccmd[all]: next` in
+                              MyST).  When using this option, those, and code
+                              blocks which come just after a comment including
+                              the given marker are ignored. For example, if the
                               given marker is 'type-check', code blocks which
                               come just after a comment matching 'skip
                               doccmd[type-check]: next' are also skipped.  This
