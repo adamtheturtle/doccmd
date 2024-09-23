@@ -181,7 +181,8 @@ def _run_args_against_docs(
         "including the given marker are ignored. "
         "For example, if the given marker is 'type-check', "
         "only code blocks which come just after a comment matching "
-        "'skip doccmd[type-check]: next' are skipped."
+        "'skip doccmd[type-check]: next' are skipped. "
+        "This is matched using a regular expression."
     ),
 )
 @click.option(
