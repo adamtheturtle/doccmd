@@ -1019,5 +1019,58 @@ def test_multiple_skip_markers(tmp_path: Path) -> None:
     assert result.stderr == ""
 
 
-def test_skip_start_end() -> None:
+def test_skip_start_end(tmp_path: Path) -> None:
     """Skip start and end markers are respected."""
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    skip_marker_1 = uuid.uuid4().hex
+    skip_marker_2 = uuid.uuid4().hex
+    content = """\
+    .. code-block:: python
+
+       block_1
+
+    .. skip doccmd[all]: start
+
+    .. code-block:: python
+
+        block_2
+
+    .. code-block:: python
+
+        block_3
+
+    .. skip doccmd[all]: end
+
+    .. code-block:: python
+
+        block_4
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--no-pad-file",
+        "--language",
+        "python",
+        "--skip-marker",
+        skip_marker_1,
+        "--skip-marker",
+        skip_marker_2,
+        "--command",
+        "cat",
+        str(rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    expected_output = textwrap.dedent(
+        text="""\
+        block_1
+        block_4
+        """,
+    )
+
+    assert result.stdout == expected_output
+    assert result.stderr == ""
