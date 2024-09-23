@@ -759,7 +759,7 @@ def test_default_skip_rst(tmp_path: Path) -> None:
 
        block_1
 
-    .. skip doccmd: next
+    .. skip doccmd[all]: next
 
     .. code-block:: python
 
@@ -860,7 +860,7 @@ def test_default_skip_myst(tmp_path: Path) -> None:
     block_1
     ```
 
-    <!--- skip doccmd: next -->
+    <!--- skip doccmd[all]: next -->
 
     ```python
     block_2
@@ -870,7 +870,7 @@ def test_default_skip_myst(tmp_path: Path) -> None:
     block_3
     ```
 
-    % skip doccmd: next
+    % skip doccmd[all]: next
 
     ```python
     block_4
@@ -984,7 +984,7 @@ def test_multiple_skip_markers(tmp_path: Path) -> None:
 
         block_3
 
-    .. skip doccmd: next
+    .. skip doccmd[all]: next
 
     .. code-block:: python
 
