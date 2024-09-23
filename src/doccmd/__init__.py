@@ -81,25 +81,30 @@ def _run_args_against_docs(
         tempfile_name_prefix=file_name_prefix or "",
     )
 
-    try:
-        skip_marker = skip_markers[0]
-    except IndexError:
-        skip_marker = None
-
-    if skip_marker is None:
-        skip_directive = "skip doccmd"
-    else:
+    default_skip_directive = "skip doccmd"
+    default_rest_skip_parser = RestCustomDirectiveSkipParser(
+        directive=default_skip_directive
+    )
+    default_myst_skip_parser = MystCustomDirectiveSkipParser(
+        directive=default_skip_directive
+    )
+    skip_parsers = [default_rest_skip_parser, default_myst_skip_parser]
+    for skip_marker in skip_markers:
         skip_directive = rf"skip doccmd\[{skip_marker}\]"
-
-    rest_skip_parser = RestCustomDirectiveSkipParser(directive=skip_directive)
-    myst_skip_parser = MystCustomDirectiveSkipParser(directive=skip_directive)
+        rest_skip_parser = RestCustomDirectiveSkipParser(
+            directive=skip_directive
+        )
+        myst_skip_parser = MystCustomDirectiveSkipParser(
+            directive=skip_directive
+        )
+        skip_parsers.append(rest_skip_parser)
+        skip_parsers.append(myst_skip_parser)
 
     rest_parser = RestCodeBlockParser(language=language, evaluator=evaluator)
     myst_parser = MystCodeBlockParser(
         language=language,
         evaluator=evaluator,
     )
-    skip_parsers = [rest_skip_parser, myst_skip_parser]
     code_block_parsers = [rest_parser, myst_parser]
     parsers = code_block_parsers + skip_parsers
     sybil = Sybil(parsers=parsers)

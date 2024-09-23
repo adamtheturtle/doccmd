@@ -1012,8 +1012,6 @@ def test_multiple_skip_markers(tmp_path: Path) -> None:
     expected_output = textwrap.dedent(
         text="""\
         block_1
-        block_3
-        block_4
         """,
     )
 
