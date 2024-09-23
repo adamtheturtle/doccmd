@@ -48,8 +48,8 @@ For example:
    echo "This will run"
    ```
 
+To skip multiple code blocks in a row, use ``skip doccmd[all]: start`` and ``skip doccmd[all]: end`` surrounding the code blocks to skip.
+
 Use the ``--skip-marker`` option to set a marker for this particular command which will work as well as ``"all"``.
-
 For example, use ``--skip-marker="type-check"`` to skip code blocks which come just after a comment matching ``skip doccmd[type-check]: next``.
-
 This marker is matched using a regular expression.
