@@ -61,7 +61,7 @@ def _run_args_against_docs(
     file_name_prefix: str | None,
     pad_file: bool,
     verbose: bool,
-    skip_marker: str | None,
+    skip_markers: Iterable[str],
 ) -> None:
     """Run commands on the given file."""
     if file_suffix is None:
@@ -80,6 +80,11 @@ def _run_args_against_docs(
         write_to_file=True,
         tempfile_name_prefix=file_name_prefix or "",
     )
+
+    try:
+        skip_marker = skip_markers[0]
+    except IndexError:
+        skip_marker = None
 
     if skip_marker is None:
         skip_directive = "skip doccmd"
@@ -163,27 +168,29 @@ def _run_args_against_docs(
     ),
 )
 @click.option(
-    "skip_marker",
+    "skip_markers",
     "--skip-marker",
     type=str,
     default=None,
     show_default=True,
     required=False,
     help=(
-        "The marker used to identify code blocks to be skipped. "
-        "By default, code blocks which come just after a comment matching "
-        "'skip doccmd: next' are skipped (e.g. "
-        "`.. skip doccmd` in rST, "
-        "`<!--- skip doccmd: next -->` in Markdown, or "
-        "`% skip doccmd: next` in MyST). "
-        "When using this option, those comments will be ignored, and "
-        "instead, only code blocks which come just after a comment "
-        "including the given marker are ignored. "
-        "For example, if the given marker is 'type-check', "
-        "only code blocks which come just after a comment matching "
-        "'skip doccmd[type-check]: next' are skipped. "
-        "This is matched using a regular expression."
+        """\
+        The marker used to identify code blocks to be skipped.
+        \b
+        By default, code blocks which come just after a comment matching 'skip
+        doccmd: next' are skipped (e.g. `.. skip doccmd` in rST, `<!--- skip
+        doccmd: next -->` in Markdown, or `% skip doccmd: next` in MyST).
+        \b
+        When using this option, those, and code blocks which come just after a
+        comment including the given marker are ignored. For example, if the
+        given marker is 'type-check', code blocks which come just after a
+        comment matching 'skip doccmd[type-check]: next' are also skipped.
+        \b
+        This marker is matched using a regular expression.
+        """
     ),
+    multiple=True,
 )
 @click.option(
     "--pad-file/--no-pad-file",
@@ -220,7 +227,7 @@ def main(
     file_name_prefix: str | None,
     pad_file: bool,
     verbose: bool,
-    skip_marker: str | None,
+    skip_markers: Iterable[str],
 ) -> None:
     """
     Run commands against code blocks in the given documentation files.
@@ -238,5 +245,5 @@ def main(
                 verbose=verbose,
                 file_suffix=file_suffix,
                 file_name_prefix=file_name_prefix,
-                skip_marker=skip_marker,
+                skip_markers=skip_markers,
             )
