@@ -57,6 +57,7 @@ Reference
    usage-example
    commands
    file-names-and-linter-ignores
+   skip-code-blocks
    contributing
    release-process
    changelog
