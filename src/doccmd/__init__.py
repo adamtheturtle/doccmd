@@ -6,12 +6,12 @@ import sys
 from collections.abc import Iterable, Sequence
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import click
 from beartype import beartype
 from pygments.lexers import get_all_lexers
 from sybil import Sybil
-from sybil.parsers.abstract import AbstractSkipParser
 from sybil.parsers.myst import CodeBlockParser as MystCodeBlockParser
 from sybil.parsers.rest import CodeBlockParser as RestCodeBlockParser
 from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
@@ -21,6 +21,9 @@ from sybil_extras.parsers.myst.custom_directive_skip import (
 from sybil_extras.parsers.rest.custom_directive_skip import (
     CustomDirectiveSkipParser as RestCustomDirectiveSkipParser,
 )
+
+if TYPE_CHECKING:
+    from sybil.typing import Parser
 
 try:
     __version__ = version(__name__)
@@ -89,7 +92,7 @@ def _run_args_against_docs(
     default_myst_skip_parser = MystCustomDirectiveSkipParser(
         directive=default_skip_directive
     )
-    skip_parsers: Sequence[AbstractSkipParser] = []
+    skip_parsers: Sequence[Parser] = []
     for skip_marker in skip_markers:
         skip_directive = rf"skip doccmd\[{skip_marker}\]"
         rest_skip_parser = RestCustomDirectiveSkipParser(
@@ -100,18 +103,15 @@ def _run_args_against_docs(
         )
         skip_parsers = [*skip_parsers, rest_skip_parser, myst_skip_parser]
 
-    skip_parsers = [
-        *skip_parsers,
-        # default_rest_skip_parser,
-        # default_myst_skip_parser,
-    ]
+    if not skip_markers:
+        skip_parsers = [default_rest_skip_parser, default_myst_skip_parser]
     rest_parser = RestCodeBlockParser(language=language, evaluator=evaluator)
     myst_parser = MystCodeBlockParser(
         language=language,
         evaluator=evaluator,
     )
     code_block_parsers = [rest_parser, myst_parser]
-    parsers = code_block_parsers + skip_parsers
+    parsers: Sequence[Parser] = [*code_block_parsers, *skip_parsers]
     sybil = Sybil(parsers=parsers)
     document = sybil.parse(path=file_path)
     for example in document.examples():
