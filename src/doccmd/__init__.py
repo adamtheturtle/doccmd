@@ -246,7 +246,8 @@ def main(
     This works with Markdown and reStructuredText files.
     """
     args = shlex.split(s=command)
-    languages = set(languages)
+    # Uniquify the languages, keeping the order.
+    languages = dict.fromkeys(languages).keys()
     for file_path in file_paths:
         for language in languages:
             _run_args_against_docs(
