@@ -246,7 +246,7 @@ def main(
     This works with Markdown and reStructuredText files.
     """
     args = shlex.split(s=command)
-    # Uniquify the languages, keeping the order.
+    # De-duplicate the languages, keeping the order.
     languages = dict.fromkeys(languages).keys()
     for file_path in file_paths:
         for language in languages:
