@@ -1115,3 +1115,103 @@ def test_skip_start_end(tmp_path: Path) -> None:
 
     assert result.stdout == expected_output
     assert result.stderr == ""
+
+
+def test_duplicate_skip_marker(tmp_path: Path) -> None:
+    """Duplicate skip markers are respected."""
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    skip_marker = uuid.uuid4().hex
+    content = f"""\
+    .. code-block:: python
+
+       block_1
+
+    .. skip doccmd[{skip_marker}]: next
+
+    .. code-block:: python
+
+        block_2
+
+    .. skip doccmd[{skip_marker}]: next
+
+    .. code-block:: python
+
+        block_3
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--no-pad-file",
+        "--language",
+        "python",
+        "--skip-marker",
+        skip_marker,
+        "--skip-marker",
+        skip_marker,
+        "--command",
+        "cat",
+        str(rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    expected_output = textwrap.dedent(
+        text="""\
+        block_1
+        """,
+    )
+
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
+def test_default_skip_marker_given(tmp_path: Path) -> None:
+    """No error is shown when the default skip marker is given."""
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    skip_marker = "all"
+    content = f"""\
+    .. code-block:: python
+
+       block_1
+
+    .. skip doccmd[{skip_marker}]: next
+
+    .. code-block:: python
+
+        block_2
+
+    .. skip doccmd[{skip_marker}]: next
+
+    .. code-block:: python
+
+        block_3
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--no-pad-file",
+        "--language",
+        "python",
+        "--skip-marker",
+        skip_marker,
+        "--command",
+        "cat",
+        str(rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    expected_output = textwrap.dedent(
+        text="""\
+        block_1
+        """,
+    )
+
+    assert result.stdout == expected_output
+    assert result.stderr == ""

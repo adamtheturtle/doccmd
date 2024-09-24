@@ -85,14 +85,8 @@ def _run_args_against_docs(
         tempfile_name_prefix=file_name_prefix or "",
     )
 
-    default_skip_directive = r"skip doccmd\[all\]"
-    default_rest_skip_parser = RestCustomDirectiveSkipParser(
-        directive=default_skip_directive
-    )
-    default_myst_skip_parser = MystCustomDirectiveSkipParser(
-        directive=default_skip_directive
-    )
-    skip_parsers = [default_rest_skip_parser, default_myst_skip_parser]
+    skip_markers = {*skip_markers, "all"}
+    skip_parsers: Sequence[Parser] = []
 
     for skip_marker in skip_markers:
         skip_directive = rf"skip doccmd\[{skip_marker}\]"
@@ -106,10 +100,7 @@ def _run_args_against_docs(
         skip_parsers = [*skip_parsers, rest_skip_parser, myst_skip_parser]
 
     rest_parser = RestCodeBlockParser(language=language, evaluator=evaluator)
-    myst_parser = MystCodeBlockParser(
-        language=language,
-        evaluator=evaluator,
-    )
+    myst_parser = MystCodeBlockParser(language=language, evaluator=evaluator)
     code_block_parsers = [rest_parser, myst_parser]
     parsers: Sequence[Parser] = [*code_block_parsers, *skip_parsers]
     sybil = Sybil(parsers=parsers)
@@ -248,6 +239,7 @@ def main(
     args = shlex.split(s=command)
     # De-duplicate the languages, keeping the order.
     languages = dict.fromkeys(languages).keys()
+    skip_markers = dict.fromkeys(skip_markers).keys()
     for file_path in file_paths:
         for language in languages:
             _run_args_against_docs(
