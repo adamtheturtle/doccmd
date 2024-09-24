@@ -63,6 +63,47 @@ def test_run_command(tmp_path: Path) -> None:
     assert result.stderr == ""
 
 
+def test_double_language(tmp_path: Path) -> None:
+    """Giving the same language twice does not run the command twice."""
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    content = """\
+    .. code-block:: python
+
+        x = 2 + 2
+        assert x == 4
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        str(rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    expected_output = textwrap.dedent(
+        # The file is padded so that any error messages relate to the correct
+        # line number in the original file.
+        text="""\
+
+
+        x = 2 + 2
+        assert x == 4
+        """,
+    )
+
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
 def test_file_does_not_exist() -> None:
     """An error is shown when a file does not exist."""
     runner = CliRunner(mix_stderr=False)
