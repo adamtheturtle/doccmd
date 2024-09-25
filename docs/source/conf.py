@@ -51,9 +51,6 @@ intersphinx_mapping = {
 nitpicky = True
 warning_is_error = True
 
-html_show_copyright = False
-html_show_sphinx = False
-html_show_sourcelink = False
 autoclass_content = "both"
 
 html_theme = "furo"
