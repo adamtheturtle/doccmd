@@ -46,7 +46,7 @@ dependencies = [
     "sybil-extras==2024.9.22.1",
 ]
 optional-dependencies.dev = [
-    "actionlint-py==1.7.1.15",
+    "actionlint-py==1.7.2.16",
     "check-manifest==0.49",
     "deptry==0.20.0",
     "doc8==1.1.2",
