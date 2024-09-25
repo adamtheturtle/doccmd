@@ -59,6 +59,7 @@ html_show_copyright = False
 html_show_sphinx = False
 html_show_sourcelink = False
 html_theme_options = {
+    "source_edit_link": "https://github.com/adamtheturtle/doccmd/edit/main/{filename}",
     "sidebar_hide_name": False,
 }
 
