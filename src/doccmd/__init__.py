@@ -129,7 +129,6 @@ def _run_args_against_docs(
             sys.exit(exc.errno)
 
 
-@beartype
 @click.command(name="doccmd")
 @click.option(
     "languages",
@@ -220,6 +219,7 @@ def _run_args_against_docs(
     default=False,
     help="Enable verbose output.",
 )
+@beartype
 def main(
     *,
     languages: Iterable[str],
