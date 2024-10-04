@@ -27,6 +27,8 @@ ci:
         - ruff-format-fix-docs
         - shellcheck
         - shellcheck-docs
+        - shfmt
+        - shfmt-docs
         - spelling
         - vulture
         - vulture-docs
@@ -71,6 +73,19 @@ repos:
     - id: shellcheck-docs
       name: shellcheck-docs
       entry: doccmd --language=shell --language=console --command="shellcheck --shell=bash --exclude=SC1017"
+      language: system
+      types_or: [markdown, rst]
+
+    - id: shfmt
+      name: shfmt
+      entry: shfmt --write
+      language: system
+      pass_filenames: false
+      types_or: [shell]
+
+    - id: shfmt-docs
+      name: shfmt-docs
+      entry: doccmd --language=shell --language=console --no-pad-file --command="shfmt --write"
       language: system
       types_or: [markdown, rst]
 
