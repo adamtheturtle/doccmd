@@ -38,8 +38,8 @@ Pre-built Linux binaries
 
 .. code-block:: console
 
-   $ curl --fail -L https://github.com/adamtheturtle/doccmd/releases/download/2024.09.27/doccmd -o /usr/local/bin/doccmd && \
-   $ chmod +x /usr/local/bin/doccmd
+   $ curl --fail -L https://github.com/adamtheturtle/doccmd/releases/download/2024.09.27/doccmd -o /usr/local/bin/doccmd &&
+       chmod +x /usr/local/bin/doccmd
 
 Using ``doccmd`` as a pre-commit hook
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
