@@ -29,7 +29,7 @@ Pre-built Linux binaries
    :substitutions:
 
    $ curl --fail -L "https://github.com/|github-owner|/|github-repository|/releases/download/|release|/doccmd" -o /usr/local/bin/doccmd &&
-       $ chmod +x /usr/local/bin/doccmd
+       chmod +x /usr/local/bin/doccmd
 
 Using ``doccmd`` as a pre-commit hook
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
