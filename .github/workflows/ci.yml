@@ -62,4 +62,4 @@ jobs:
         if: runner.os != 'Windows'
 
       - uses: pre-commit-ci/lite-action@v1.0.3
-        if: runner.os != 'Windows'
+        if: always() && runner.os != 'Windows'

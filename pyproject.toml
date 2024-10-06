@@ -86,7 +86,7 @@ optional-dependencies.dev = [
 optional-dependencies.packaging = [
     "pyinstaller==6.10.0",
 ]
-optional-dependencies.release = ["build", "check-wheel-contents"]
+optional-dependencies.release = [ "build", "check-wheel-contents" ]
 urls.Source = "https://doccmd.readthedocs.io/en/latest/"
 scripts.doccmd = "doccmd:main"
 
@@ -305,6 +305,7 @@ ignore = [
 pep621_dev_dependency_groups = [
     "dev",
     "packaging",
+    "release",
 ]
 
 [tool.pyproject-fmt]
