@@ -111,14 +111,14 @@ jobs:
         with:
           timeout_seconds: 10
           max_attempts: 20
-          command: pip install doccmd==${{ steps.calver.outputs.release }}
+          command: uv pip install doccmd==${{ steps.calver.outputs.release }}
 
       - name: Create a Homebrew recipe
         id: homebrew-create
         env:
           FILENAME: doccmd.rb
         run: |
-          poet --formula doccmd > ${{ env.FILENAME }}
+          uv run --with="vws-cli==${{ steps.calver.outputs.release }}" poet --formula vws-cli > ${{ env.FILENAME }}
           echo "HOMEBREW_RECIPE_FILE=${{ env.FILENAME }}" >> "$GITHUB_OUTPUT"
 
       - name: "Update Homebrew description"
