@@ -666,7 +666,7 @@ def test_directory_passed_in(tmp_path: Path) -> None:
 def test_main_entry_point() -> None:
     """It is possible to run the main entry point."""
     result = subprocess.run(
-        args=["python", "-m", "doccmd"],
+        args=[sys.executable, "-m", "doccmd"],
         capture_output=True,
         text=True,
         check=False,
