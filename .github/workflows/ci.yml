@@ -34,8 +34,8 @@ jobs:
 
       - name: "Lint"
         run: |
-          uv run --all-extras --python=${{ matrix.python-version }} pre-commit run --all-files --hook-stage commit --verbose
-          uv run --all-extras --python=${{ matrix.python-version }} pre-commit run --all-files --hook-stage push --verbose
+          uv run --all-extras --python=${{ matrix.python-version }} pre-commit run --all-files --hook-stage pre-commit --verbose
+          uv run --all-extras --python=${{ matrix.python-version }} pre-commit run --all-files --hook-stage pre-push --verbose
           uv run --all-extras --python=${{ matrix.python-version }} pre-commit run --all-files --hook-stage manual --verbose
 
       # We require a lower coverage for Windows as we do not
