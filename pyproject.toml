@@ -55,7 +55,7 @@ optional-dependencies.dev = [
     "homebrew-pypi-poet==0.10",
     "interrogate==1.7.0",
     "mypy==1.11.2",
-    "pre-commit==3.8.0",
+    "pre-commit==4.0.0",
     "pydocstyle==6.3",
     "pyenchant==3.2.2",
     "pygments==2.18.0",
