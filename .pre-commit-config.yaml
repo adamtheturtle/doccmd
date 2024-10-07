@@ -69,15 +69,17 @@ repos:
 
     - id: shellcheck
       name: shellcheck
-      entry: shellcheck --shell=bash --exclude=SC1017 --exclude=SC1017
+      entry: uv run --extra=dev shellcheck --shell=bash --exclude=SC1017 --exclude=SC1017
       language: python
       types_or: [shell]
+      additional_dependencies: ["uv"]
 
     - id: shellcheck-docs
       name: shellcheck-docs
-      entry: doccmd --language=shell --language=console --command="shellcheck --shell=bash --exclude=SC1017 --exclude=SC1017"
+      entry: uv run --extra=dev doccmd --language=shell --language=console --command="shellcheck --shell=bash --exclude=SC1017 --exclude=SC1017"
       language: python
       types_or: [markdown, rst]
+      additional_dependencies: ["uv"]
 
     - id: shfmt
       name: shfmt
@@ -96,103 +98,118 @@ repos:
     - id: mypy
       name: mypy
       stages: [pre-push]
-      entry: python -m mypy .
+      entry: uv run --extra=dev -m mypy .
       language: python
       types_or: [python, toml]
       pass_filenames: false
+      additional_dependencies: ["uv"]
 
     - id: mypy-docs
       name: mypy-docs
       stages: [pre-push]
-      entry: doccmd --language=python --command="mypy"
+      entry: uv run --extra=dev doccmd --language=python --command="mypy"
       language: python
       types_or: [markdown, rst, python, toml]
+      additional_dependencies: ["uv"]
 
     - id: check-manifest
       name: check-manifest
       stages: [pre-push]
-      entry: python -m check_manifest .
+      entry: uv run --extra=dev -m check_manifest .
       language: python
       pass_filenames: false
+      additional_dependencies: ["uv"]
 
     - id: pyright
       name: pyright
       stages: [pre-push]
-      entry: python -m pyright .
+      entry: uv run --extra=dev -m pyright .
       language: python
       types_or: [python, toml]
       pass_filenames: false
+      additional_dependencies: ["uv"]
 
     - id: pyright-docs
       name: pyright-docs
       stages: [pre-push]
-      entry: doccmd --language=python --command="pyright"
+      entry: uv run --extra=dev doccmd --language=python --command="pyright"
       language: python
       types_or: [markdown, rst, python, toml]
+      additional_dependencies: ["uv"]
 
     - id: vulture
       name: vulture
-      entry: python -m vulture .
+      entry: uv run --extra=dev -m vulture .
       language: python
       types_or: [python]
       pass_filenames: false
+      additional_dependencies: ["uv"]
 
     - id: vulture-docs
       name: vulture docs
-      entry: doccmd --language=python --command="vulture"
+      entry: uv run --extra=dev doccmd --language=python --command="vulture"
       language: python
       types_or: [markdown, rst]
+      additional_dependencies: ["uv"]
 
     - id: pyroma
       name: pyroma
-      entry: python -m pyroma --min 10 .
+      entry: uv run --extra=dev -m pyroma --min 10 .
       language: python
       pass_filenames: false
       types_or: [toml]
+      additional_dependencies: ["uv"]
 
     - id: deptry
       name: deptry
-      entry: python -m deptry src/
+      entry: uv run --extra=dev -m deptry src/
       language: python
       pass_filenames: false
+      additional_dependencies: ["uv"]
 
     - id: pylint
       name: pylint
-      entry: python -m pylint src/ tests/ admin/
+      entry: uv run --extra=dev -m pylint src/ tests/ admin/
       language: python
       stages: [manual]
       pass_filenames: false
+      additional_dependencies: ["uv"]
 
     - id: pylint-docs
       name: pylint-docs
-      entry: doccmd --language=python --command="pylint"
+      entry: uv run --extra=dev doccmd --language=python --command="pylint"
       language: python
       stages: [manual]
       types_or: [markdown, rst, python, toml]
+      additional_dependencies: ["uv"]
 
     - id: ruff-check-fix
       name: Ruff check fix
-      entry: python -m ruff check --fix
+      entry: uv run --extra=dev -m ruff check --fix
       language: python
       types_or: [python]
+      additional_dependencies: ["uv"]
 
     - id: ruff-check-fix-docs
       name: Ruff check fix docs
-      entry: doccmd --language=python --command="ruff check --fix"
+      entry: uv run --extra=dev doccmd --language=python --command="ruff check --fix"
       language: python
       types_or: [markdown, rst]
+      additional_dependencies: ["uv"]
 
     - id: ruff-format-fix
       name: Ruff format
-      entry: python -m ruff format
+      entry: uv run --extra=dev -m ruff format
       language: python
       types_or: [python]
+      additional_dependencies: ["uv"]
 
     - id: ruff-format-fix-docs
       name: Ruff format docs
-      entry: doccmd --language=python --no-pad-file --command="ruff format"
+      entry: uv run --extra=dev doccmd --language=python --no-pad-file --command="ruff format"
       language: python
       types_or: [markdown, rst]
+      additional_dependencies: ["uv"]
 
     - id: doc8
       name: doc8
@@ -203,16 +220,18 @@ repos:
 
     - id: interrogate
       name: interrogate
-      entry: python -m interrogate
+      entry: uv run --extra=dev -m interrogate
       language: python
       types_or: [python]
       exclude_types: [executable]
+      additional_dependencies: ["uv"]
 
     - id: interrogate-docs
       name: interrogate docs
-      entry: doccmd --language=python --command="interrogate"
+      entry: uv run --extra=dev doccmd --language=python --command="interrogate"
       language: python
       types_or: [markdown, rst]
+      additional_dependencies: ["uv"]
 
     - id: pyproject-fmt-fix
       name: pyproject-fmt
@@ -229,6 +248,7 @@ repos:
       types_or: [rst]
       stages: [manual]
       pass_filenames: false
+      additional_dependencies: ["uv"]
 
     - id: spelling
       name: spelling
@@ -237,6 +257,7 @@ repos:
       types_or: [rst]
       stages: [manual]
       pass_filenames: false
+      additional_dependencies: ["uv"]
 
     - id: docs
       name: Build Documentation
@@ -244,11 +265,13 @@ repos:
       language: python
       stages: [manual]
       pass_filenames: false
+      additional_dependencies: ["uv"]
 
     - id: pyright-verifytypes
       name: pyright-verifytypes
       stages: [pre-push]
-      entry: python -m pyright --verifytypes doccmd
+      entry: uv run --extra=dev -m pyright --verifytypes doccmd
       language: python
       pass_filenames: false
       types_or: [python]
+      additional_dependencies: ["uv"]
