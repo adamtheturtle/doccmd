@@ -1,4 +1,6 @@
-"""Make PyInstaller binaries for the platform that this is being run on."""
+"""
+Make PyInstaller binaries for the platform that this is being run on.
+"""
 
 import contextlib
 import shutil

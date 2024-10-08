@@ -1,4 +1,6 @@
-"""Tests for `doccmd`."""
+"""
+Tests for `doccmd`.
+"""
 
 import subprocess
 import sys
@@ -31,7 +33,9 @@ def test_help(file_regression: FileRegressionFixture) -> None:
 
 
 def test_run_command(tmp_path: Path) -> None:
-    """It is possible to run a command against a code block in a document."""
+    """
+    It is possible to run a command against a code block in a document.
+    """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
     content = """\
@@ -64,7 +68,9 @@ def test_run_command(tmp_path: Path) -> None:
 
 
 def test_double_language(tmp_path: Path) -> None:
-    """Giving the same language twice does not run the command twice."""
+    """
+    Giving the same language twice does not run the command twice.
+    """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
     content = """\
@@ -105,7 +111,9 @@ def test_double_language(tmp_path: Path) -> None:
 
 
 def test_file_does_not_exist() -> None:
-    """An error is shown when a file does not exist."""
+    """
+    An error is shown when a file does not exist.
+    """
     runner = CliRunner(mix_stderr=False)
     arguments = [
         "--language",
@@ -125,8 +133,7 @@ def test_file_does_not_exist() -> None:
 
 def test_multiple_code_blocks(tmp_path: Path) -> None:
     """
-    It is possible to run a command against multiple code blocks in a
-    document.
+    It is possible to run a command against multiple code blocks in a document.
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
@@ -172,7 +179,9 @@ def test_multiple_code_blocks(tmp_path: Path) -> None:
 
 
 def test_language_filters(tmp_path: Path) -> None:
-    """Languages not specified are not run."""
+    """
+    Languages not specified are not run.
+    """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
     content = """\
@@ -208,7 +217,9 @@ def test_language_filters(tmp_path: Path) -> None:
 
 
 def test_run_command_no_pad_file(tmp_path: Path) -> None:
-    """It is possible to not pad the file."""
+    """
+    It is possible to not pad the file.
+    """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
     content = """\
@@ -244,7 +255,9 @@ def test_run_command_no_pad_file(tmp_path: Path) -> None:
 
 
 def test_multiple_files(tmp_path: Path) -> None:
-    """It is possible to run a command against multiple files."""
+    """
+    It is possible to run a command against multiple files.
+    """
     runner = CliRunner(mix_stderr=False)
     rst_file1 = tmp_path / "example1.rst"
     rst_file2 = tmp_path / "example2.rst"
@@ -295,8 +308,8 @@ def test_multiple_files(tmp_path: Path) -> None:
 
 def test_multiple_files_multiple_types(tmp_path: Path) -> None:
     """
-    It is possible to run a command against multiple files of multiple
-    types (Markdown and rST).
+    It is possible to run a command against multiple files of multiple types
+    (Markdown and rST).
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
@@ -355,7 +368,9 @@ def test_multiple_files_multiple_types(tmp_path: Path) -> None:
 
 
 def test_modify_file(tmp_path: Path) -> None:
-    """Commands can modify files."""
+    """
+    Commands can modify files.
+    """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
     content = """\
@@ -401,7 +416,9 @@ def test_modify_file(tmp_path: Path) -> None:
 
 
 def test_exit_code(tmp_path: Path) -> None:
-    """The exit code of the first failure is propagated."""
+    """
+    The exit code of the first failure is propagated.
+    """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
     exit_code = 25
@@ -440,8 +457,7 @@ def test_file_extension(
     expected_extension: str,
 ) -> None:
     """
-    The file extension of the temporary file is appropriate for the
-    language.
+    The file extension of the temporary file is appropriate for the language.
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
@@ -466,7 +482,9 @@ def test_file_extension(
 
 @pytest.mark.parametrize(argnames="extension", argvalues=["foobar", ".foobar"])
 def test_given_file_extension(tmp_path: Path, extension: str) -> None:
-    """It is possible to specify the file extension."""
+    """
+    It is possible to specify the file extension.
+    """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
     content = """\
@@ -497,7 +515,9 @@ def test_given_file_extension(tmp_path: Path, extension: str) -> None:
 
 
 def test_given_prefix(tmp_path: Path) -> None:
-    """It is possible to specify a prefix for the temporary file."""
+    """
+    It is possible to specify a prefix for the temporary file.
+    """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
     content = """\
@@ -554,7 +574,9 @@ def test_file_extension_unknown_language(tmp_path: Path) -> None:
 
 
 def test_file_given_multiple_times(tmp_path: Path) -> None:
-    """No error is shown when a file is given multiple times."""
+    """
+    No error is shown when a file is given multiple times.
+    """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
     content = """\
@@ -596,7 +618,9 @@ def test_file_given_multiple_times(tmp_path: Path) -> None:
 
 
 def test_verbose(tmp_path: Path) -> None:
-    """Verbose output is shown."""
+    """
+    Verbose output is shown.
+    """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
     content = """\
@@ -633,7 +657,9 @@ def test_verbose(tmp_path: Path) -> None:
 
 
 def test_directory_passed_in(tmp_path: Path) -> None:
-    """An error is shown when a directory is passed in instead of a file."""
+    """
+    An error is shown when a directory is passed in instead of a file.
+    """
     runner = CliRunner(mix_stderr=False)
     directory = tmp_path / "example_dir"
     directory.mkdir()
@@ -664,7 +690,9 @@ def test_directory_passed_in(tmp_path: Path) -> None:
 
 
 def test_main_entry_point() -> None:
-    """It is possible to run the main entry point."""
+    """
+    It is possible to run the main entry point.
+    """
     result = subprocess.run(
         args=[sys.executable, "-m", "doccmd"],
         capture_output=True,
@@ -675,7 +703,9 @@ def test_main_entry_point() -> None:
 
 
 def test_command_not_found(tmp_path: Path) -> None:
-    """An error is shown when the command is not found."""
+    """
+    An error is shown when the command is not found.
+    """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
     non_existent_command = uuid.uuid4().hex
@@ -705,7 +735,9 @@ def test_command_not_found(tmp_path: Path) -> None:
 
 
 def test_not_executable(tmp_path: Path) -> None:
-    """An error is shown when the command is a non-executable file."""
+    """
+    An error is shown when the command is a non-executable file.
+    """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
     not_executable_command = tmp_path / "non_executable"
@@ -742,8 +774,8 @@ def test_not_executable(tmp_path: Path) -> None:
 
 def test_multiple_languages(tmp_path: Path) -> None:
     """
-    It is possible to run a command against multiple code blocks in a
-    document with different languages.
+    It is possible to run a command against multiple code blocks in a document
+    with different languages.
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
@@ -790,8 +822,8 @@ def test_multiple_languages(tmp_path: Path) -> None:
 
 def test_default_skip_rst(tmp_path: Path) -> None:
     """
-    By default, the next code block after a 'doccmd skip: next' comment
-    in a rST document is not run.
+    By default, the next code block after a 'doccmd skip: next' comment in a
+    rST document is not run.
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
@@ -889,8 +921,8 @@ def test_custom_skip_markers_rst(tmp_path: Path) -> None:
 
 def test_default_skip_myst(tmp_path: Path) -> None:
     """
-    By default, the next code block after a 'doccmd skip: next' comment
-    in a MyST document is not run.
+    By default, the next code block after a 'doccmd skip: next' comment in a
+    MyST document is not run.
     """
     runner = CliRunner(mix_stderr=False)
     myst_file = tmp_path / "example.md"
@@ -1003,7 +1035,9 @@ def test_custom_skip_markers_myst(tmp_path: Path) -> None:
 
 
 def test_multiple_skip_markers(tmp_path: Path) -> None:
-    """All given skip markers, including the default one, are respected."""
+    """
+    All given skip markers, including the default one, are respected.
+    """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
     skip_marker_1 = uuid.uuid4().hex
@@ -1061,7 +1095,9 @@ def test_multiple_skip_markers(tmp_path: Path) -> None:
 
 
 def test_skip_start_end(tmp_path: Path) -> None:
-    """Skip start and end markers are respected."""
+    """
+    Skip start and end markers are respected.
+    """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
     skip_marker_1 = uuid.uuid4().hex
@@ -1118,7 +1154,9 @@ def test_skip_start_end(tmp_path: Path) -> None:
 
 
 def test_duplicate_skip_marker(tmp_path: Path) -> None:
-    """Duplicate skip markers are respected."""
+    """
+    Duplicate skip markers are respected.
+    """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
     skip_marker = uuid.uuid4().hex
@@ -1169,7 +1207,9 @@ def test_duplicate_skip_marker(tmp_path: Path) -> None:
 
 
 def test_default_skip_marker_given(tmp_path: Path) -> None:
-    """No error is shown when the default skip marker is given."""
+    """
+    No error is shown when the default skip marker is given.
+    """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
     skip_marker = "all"

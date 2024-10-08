@@ -1,4 +1,6 @@
-"""Enable running `doccmd` with `python -m doccmd`."""
+"""
+Enable running `doccmd` with `python -m doccmd`.
+"""
 
 from doccmd import main
 

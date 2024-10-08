@@ -1,4 +1,6 @@
-"""CLI to run commands on the given files."""
+"""
+CLI to run commands on the given files.
+"""
 
 import shlex
 import subprocess
@@ -67,7 +69,9 @@ def _run_args_against_docs(
     verbose: bool,
     skip_markers: Iterable[str],
 ) -> None:
-    """Run commands on the given file."""
+    """
+    Run commands on the given file.
+    """
     if file_suffix is None:
         language_to_suffix = _map_languages_to_suffix()
         file_suffix = language_to_suffix.get(language.lower(), ".txt")
@@ -231,8 +235,7 @@ def main(
     verbose: bool,
     skip_markers: Iterable[str],
 ) -> None:
-    """
-    Run commands against code blocks in the given documentation files.
+    """Run commands against code blocks in the given documentation files.
 
     This works with Markdown and reStructuredText files.
     """
