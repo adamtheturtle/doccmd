@@ -109,7 +109,7 @@ jobs:
       - name: Install doccmd from PyPI
         uses: nick-fields/retry@v3
         with:
-          timeout_seconds: 10
+          timeout_seconds: 20
           max_attempts: 20
           command: uv pip install doccmd==${{ steps.calver.outputs.release }}
 
