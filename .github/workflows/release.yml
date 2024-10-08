@@ -58,7 +58,6 @@ jobs:
           underline="$(echo "${{ steps.calver.outputs.release }}" | tr -c '\n' '-')"
           echo "underline=${underline}" >> "$GITHUB_OUTPUT"
 
-
       - name: "Update changelog"
         uses: jacobtomlinson/gha-find-replace@v3
         with:
