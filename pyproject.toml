@@ -332,6 +332,12 @@ exclude_also = [
 
 [tool.mypy]
 
+files = [
+    "admin",
+    "docs",
+    "src",
+    "tests",
+]
 strict = true
 
 [tool.pyright]
