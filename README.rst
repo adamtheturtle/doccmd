@@ -12,8 +12,8 @@ This allows you to run linters, formatters, and other tools against the code blo
 Installation
 ------------
 
-With `pip`
-^^^^^^^^^^
+With ``pip``
+^^^^^^^^^^^^
 
 Requires Python |minimum-python-version|\+.
 
