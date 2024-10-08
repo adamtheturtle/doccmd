@@ -111,7 +111,7 @@ jobs:
         with:
           timeout_seconds: 20
           max_attempts: 20
-          command: uv pip install doccmd==${{ steps.calver.outputs.release }}
+          command: uv pip install --no-cache doccmd==${{ steps.calver.outputs.release }}
 
       - name: Create a Homebrew recipe
         id: homebrew-create
