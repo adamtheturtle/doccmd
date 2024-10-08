@@ -81,7 +81,7 @@ optional-dependencies.dev = [
     "types-docker==7.1.0.20240827",
     "types-pygments==2.18.0.20240506",
     "vulture==2.13",
-    "docformatter --in-place==1.7.5",
+    "docformatter==1.7.5",
 ]
 optional-dependencies.packaging = [
     "pyinstaller==6.10.0",
