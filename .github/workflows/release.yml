@@ -125,7 +125,7 @@ jobs:
         uses: jacobtomlinson/gha-find-replace@v3
         with:
           find: "desc \"Shiny new formula\""
-          replace:  "desc \"CLI for Vuforia Web Services\""
+          replace:  "desc \"Run tools against code blocks in documentation\""
           include: ${{ steps.homebrew-create.outputs.HOMEBREW_RECIPE_FILE }}
           regex: false
 
