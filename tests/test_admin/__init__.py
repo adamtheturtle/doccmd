@@ -1,1 +1,3 @@
-"""Tests for admin functions."""
+"""
+Tests for admin functions.
+"""
