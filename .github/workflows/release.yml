@@ -118,7 +118,7 @@ jobs:
         env:
           FILENAME: doccmd.rb
         run: |
-          uv run --extra=release --with="vws-cli==${{ steps.calver.outputs.release }}" poet --formula vws-cli > ${{ env.FILENAME }}
+          uv run --extra=release --with="doccmd==${{ steps.calver.outputs.release }}" poet --formula doccmd > ${{ env.FILENAME }}
           echo "HOMEBREW_RECIPE_FILE=${{ env.FILENAME }}" >> "$GITHUB_OUTPUT"
 
       - name: "Update Homebrew description"
