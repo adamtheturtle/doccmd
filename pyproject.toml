@@ -52,7 +52,6 @@ optional-dependencies.dev = [
     "doc8==1.1.2",
     "docker==7.1.0",
     "furo==2024.8.6",
-    "homebrew-pypi-poet==0.10",
     "interrogate==1.7.0",
     "mypy==1.11.2",
     "pre-commit==4.0.0",
@@ -86,7 +85,10 @@ optional-dependencies.dev = [
 optional-dependencies.packaging = [
     "pyinstaller==6.10.0",
 ]
-optional-dependencies.release = [ "check-wheel-contents" ]
+optional-dependencies.release = [
+    "check-wheel-contents==0.6.0",
+    "homebrew-pypi-poet==0.10",
+]
 urls.Source = "https://doccmd.readthedocs.io/en/latest/"
 scripts.doccmd = "doccmd:main"
 

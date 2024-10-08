@@ -109,7 +109,7 @@ jobs:
       - name: Install doccmd from PyPI
         uses: nick-fields/retry@v3
         with:
-          timeout_seconds: 10
+          timeout_seconds: 20
           max_attempts: 20
           command: uv pip install doccmd==${{ steps.calver.outputs.release }}
 
@@ -118,7 +118,7 @@ jobs:
         env:
           FILENAME: doccmd.rb
         run: |
-          uv run --with="vws-cli==${{ steps.calver.outputs.release }}" poet --formula vws-cli > ${{ env.FILENAME }}
+          uv run --extra=release -with="vws-cli==${{ steps.calver.outputs.release }}" poet --formula vws-cli > ${{ env.FILENAME }}
           echo "HOMEBREW_RECIPE_FILE=${{ env.FILENAME }}" >> "$GITHUB_OUTPUT"
 
       - name: "Update Homebrew description"
