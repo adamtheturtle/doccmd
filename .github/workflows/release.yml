@@ -118,14 +118,14 @@ jobs:
         env:
           FILENAME: doccmd.rb
         run: |
-          uv run --extra=release --with="vws-cli==${{ steps.calver.outputs.release }}" poet --formula vws-cli > ${{ env.FILENAME }}
+          uv run --extra=release --with="doccmd==${{ steps.calver.outputs.release }}" poet --formula doccmd > ${{ env.FILENAME }}
           echo "HOMEBREW_RECIPE_FILE=${{ env.FILENAME }}" >> "$GITHUB_OUTPUT"
 
       - name: "Update Homebrew description"
         uses: jacobtomlinson/gha-find-replace@v3
         with:
           find: "desc \"Shiny new formula\""
-          replace:  "desc \"CLI for Vuforia Web Services\""
+          replace:  "desc \"Run tools against code blocks in documentation\""
           include: ${{ steps.homebrew-create.outputs.HOMEBREW_RECIPE_FILE }}
           regex: false
 
