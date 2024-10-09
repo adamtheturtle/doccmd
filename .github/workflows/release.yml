@@ -101,9 +101,9 @@ jobs:
           uv build --sdist --wheel --out-dir dist/
           uv run --extra=release check-wheel-contents dist/*.whl
 
-      # We use PyPI trusted publishing rather than a PyPI API token.
-      # See https://github.com/pypa/gh-action-pypi-publish/tree/release/v1/?tab=readme-ov-file#trusted-publishing.
       - name: Publish distribution 📦 to PyPI
+        # We use PyPI trusted publishing rather than a PyPI API token.
+        # See https://github.com/pypa/gh-action-pypi-publish/tree/release/v1/?tab=readme-ov-file#trusted-publishing.
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           verbose: true
