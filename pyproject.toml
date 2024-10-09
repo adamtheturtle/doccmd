@@ -55,7 +55,7 @@ optional-dependencies.dev = [
     "furo==2024.8.6",
     "interrogate==1.7.0",
     "mypy==1.11.2",
-    "pre-commit==4.0.0",
+    "pre-commit==4.0.1",
     "pydocstyle==6.3",
     "pyenchant==3.3.0rc1",
     "pygments==2.18.0",
