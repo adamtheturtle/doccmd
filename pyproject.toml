@@ -63,7 +63,7 @@ optional-dependencies.dev = [
     "pygments==2.18.0",
     "pylint==3.3.1",
     "pyproject-fmt==2.2.4",
-    "pyright==1.1.383",
+    "pyright==1.1.384",
     "pyroma==4.2",
     "pytest==8.3.3",
     "pytest-cov==5.0.0",
