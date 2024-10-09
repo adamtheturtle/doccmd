@@ -40,7 +40,7 @@ def make_linux_binaries(repo_root: Path) -> None:
     command = f'bash -c "{cmd_in_container}"'
 
     repository = "python"
-    tag = "3.12"
+    tag = "3.13"
     platform = "linux/amd64"
     image = client.images.pull(
         repository=repository,
