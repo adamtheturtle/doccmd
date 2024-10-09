@@ -55,7 +55,7 @@ def test_linux_binaries(request: pytest.FixtureRequest) -> None:
     # Because of a click limitation, we do not support running on containers
     # which have LANG and LC_ALL unset.
     repository = "python"
-    tag = "3.12"
+    tag = "3.13"
     platform = "linux/amd64"
     image = client.images.pull(
         repository=repository,

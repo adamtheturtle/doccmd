@@ -17,7 +17,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ["3.10", "3.11", "3.12"]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
         platform: ["ubuntu-latest", "windows-latest"]
 
     runs-on: ${{ matrix.platform }}
@@ -68,4 +68,7 @@ jobs:
         if: runner.os != 'Windows'
 
       - uses: pre-commit-ci/lite-action@v1.0.3
-        if: always()
+        # Do not run pre-commit on Windows in order to avoid issues with
+        # line endings.
+        # We only need to run the changes from one runner in any case.
+        if: always() && runner.os != 'Windows'
