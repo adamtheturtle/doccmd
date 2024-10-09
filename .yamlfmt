@@ -3,3 +3,4 @@ formatter:
     retain_line_breaks_single: true
     trim_trailing_whitespace: true
     end_of_file_newline: true
+    line_ending: "lf"
