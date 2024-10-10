@@ -38,21 +38,20 @@ jobs:
 
       # We require a lower coverage for Windows as we do not
       # create binaries on Windows.
-      - name: Run tests Windows
+      - id: set-min-coverage
         run: |
-          # We run tests against "." and not the tests directory as we test the README
-          # and documentation.
-          uv run --extra=dev pytest -s -vvv --cov-fail-under=60 --cov=src/ --cov=tests . --cov-report=xml
-        if: runner.os == 'Windows'
-        env:
-          UV_PYTHON: ${{ matrix.python-version }}
+          if [ ${{ runner.os }} == 'Windows' ]; then
+            echo "min_coverage=60" >> "$GITHUB_OUTPUT"
+          else
+            echo "min_coverage=100" >> "$GITHUB_OUTPUT"
+          fi
+        shell: bash
 
-      - name: Run tests not-Windows
+      - name: Run tests
         run: |
           # We run tests against "." and not the tests directory as we test the README
           # and documentation.
-          uv run --extra=dev pytest -s -vvv --cov-fail-under=100 --cov=src/ --cov=tests . --cov-report=xml
-        if: runner.os != 'Windows'
+          uv run --extra=dev pytest -s -vvv --cov-fail-under=${{ steps.set-min-coverage.outputs.min_coverage }} --cov=src/ --cov=tests . --cov-report=xml
         env:
           UV_PYTHON: ${{ matrix.python-version }}
 
