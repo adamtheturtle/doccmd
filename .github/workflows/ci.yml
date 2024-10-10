@@ -46,7 +46,7 @@ jobs:
             echo "min_coverage=100" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Run tests not-Windows
+      - name: Run tests
         run: |
           # We run tests against "." and not the tests directory as we test the README
           # and documentation.
