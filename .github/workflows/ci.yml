@@ -45,6 +45,7 @@ jobs:
           else
             echo "min_coverage=100" >> "$GITHUB_OUTPUT"
           fi
+        shell: bash
 
       - name: Run tests
         run: |
