@@ -22,7 +22,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ["3.13"]
+        python-version: ['3.13']
 
     steps:
       - uses: actions/checkout@v4
@@ -43,11 +43,11 @@ jobs:
           version="$(git describe --tags --abbrev=0)"
           echo "version=${version}" >> "$GITHUB_OUTPUT"
 
-      - name: "Calver calculate version"
+      - name: Calver calculate version
         uses: StephaneBour/actions-calver@master
         id: calver
         with:
-          date_format: "%Y.%m.%d"
+          date_format: '%Y.%m.%d'
           release: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -58,12 +58,13 @@ jobs:
           underline="$(echo "${{ steps.calver.outputs.release }}" | tr -c '\n' '-')"
           echo "underline=${underline}" >> "$GITHUB_OUTPUT"
 
-      - name: "Update changelog"
+      - name: Update changelog
         uses: jacobtomlinson/gha-find-replace@v3
         with:
           find: "Next\n----"
-          replace: "Next\n----\n\n${{ steps.calver.outputs.release }}\n${{ steps.changelog_underline.outputs.underline }}"
-          include: "CHANGELOG.rst"
+          replace: "Next\n----\n\n${{ steps.calver.outputs.release }}\n${{ steps.changelog_underline.outputs.underline\
+            \ }}"
+          include: CHANGELOG.rst
           regex: false
 
       - uses: stefanzweifel/git-auto-commit-action@v5
@@ -78,7 +79,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           custom_tag: ${{ steps.calver.outputs.release }}
-          tag_prefix: ""
+          tag_prefix: ''
           commit_sha: ${{ steps.commit.outputs.commit_hash }}
 
       - name: Create Linux binaries
@@ -88,7 +89,7 @@ jobs:
       - name: Create a GitHub release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "dist/*"
+          artifacts: dist/*
           tag: ${{ steps.tag_version.outputs.new_tag }}
           name: Release ${{ steps.tag_version.outputs.new_tag }}
           body: ${{ steps.tag_version.outputs.changelog }}
@@ -127,11 +128,11 @@ jobs:
           uv run --extra=release --with="doccmd==${{ steps.calver.outputs.release }}" poet --formula doccmd > ${{ env.FILENAME }}
           echo "HOMEBREW_RECIPE_FILE=${{ env.FILENAME }}" >> "$GITHUB_OUTPUT"
 
-      - name: "Update Homebrew description"
+      - name: Update Homebrew description
         uses: jacobtomlinson/gha-find-replace@v3
         with:
-          find: "desc \"Shiny new formula\""
-          replace: "desc \"Run tools against code blocks in documentation\""
+          find: desc "Shiny new formula"
+          replace: desc "Run tools against code blocks in documentation"
           include: ${{ steps.homebrew-create.outputs.HOMEBREW_RECIPE_FILE }}
           regex: false
 
@@ -146,17 +147,17 @@ jobs:
         with:
           destination_branch: main
           source_file: ${{ steps.homebrew-create.outputs.HOMEBREW_RECIPE_FILE }}
-          destination_repo: 'adamtheturtle/homebrew-doccmd'
-          user_email: 'adamdangoor@gmail.com'
-          user_name: 'adamtheturtle'
-          commit_message: 'Bump CLI Homebrew recipe'
+          destination_repo: adamtheturtle/homebrew-doccmd
+          user_email: adamdangoor@gmail.com
+          user_name: adamtheturtle
+          commit_message: Bump CLI Homebrew recipe
 
-      - name: "Update README versions"
+      - name: Update README versions
         uses: jacobtomlinson/gha-find-replace@v3
         with:
           find: ${{ steps.get_current_version.outputs.version }}
           replace: ${{ steps.calver.outputs.release }}
-          include: "README.rst"
+          include: README.rst
           regex: false
 
       - uses: stefanzweifel/git-auto-commit-action@v5
