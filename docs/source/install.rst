@@ -42,7 +42,7 @@ To run ``doccmd`` with `pre-commit`_, add hooks like the following to your ``.pr
        rev: v2024.9.11.5
        hooks:
        -   id: doccmd
-           args: ["--language", "shell", "--command", "shellcheck --shell=bash --exclude=SC1017"]
+           args: ["--language", "shell", "--command", "shellcheck --shell=bash"]
            additional_dependencies: ["shellcheck-py"]
 
 .. _pre-commit: https://pre-commit.com
