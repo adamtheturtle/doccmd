@@ -1280,3 +1280,50 @@ def test_empty_file(tmp_path: Path) -> None:
     assert result.exit_code == 0
     assert result.stdout == ""
     assert result.stderr == ""
+
+
+@pytest.mark.parametrize(
+    argnames=("source_newline", "expect_crlf", "expect_cr", "expect_lf"),
+    argvalues=(
+        ["\n", False, False, True],
+        ["\r\n", True, True, True],
+        ["\r", False, True, False],
+    ),
+)
+def test_detect_line_endings(
+    *,
+    tmp_path: Path,
+    source_newline: str,
+    expect_crlf: bool,
+    expect_cr: bool,
+    expect_lf: bool,
+) -> None:
+    """
+    The line endings of the original file are used in the new file.
+    """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    content = """\
+    .. code-block:: python
+
+       block_1
+    """
+    rst_file.write_text(data=content, encoding="utf-8", newline=source_newline)
+    arguments = [
+        "--no-pad-file",
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        str(rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    assert result.stderr == ""
+    assert bool(b"\r\n" in result.stdout_bytes) == expect_crlf
+    assert bool(b"\r" in result.stdout_bytes) == expect_cr
+    assert bool(b"\n" in result.stdout_bytes) == expect_lf
