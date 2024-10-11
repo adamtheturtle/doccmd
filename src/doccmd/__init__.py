@@ -37,6 +37,18 @@ except PackageNotFoundError:  # pragma: no cover
 
 
 @beartype
+def _detect_newline(file_path: Path) -> str | None:
+    """
+    Detect the newline character used in the given file.
+    """
+    content_bytes = file_path.read_bytes()
+    for newline in (b"\r\n", b"\n", b"\r"):
+        if newline in content_bytes:
+            return newline.decode(encoding="utf-8")
+    return None
+
+
+@beartype
 def _map_languages_to_suffix() -> dict[str, str]:
     """
     Map programming languages to their corresponding file extension.
@@ -81,12 +93,15 @@ def _run_args_against_docs(
 
     suffixes = (file_suffix,)
 
+    newline = _detect_newline(file_path=file_path)
+
     evaluator = ShellCommandEvaluator(
         args=args,
         tempfile_suffixes=suffixes,
         pad_file=pad_file,
         write_to_file=True,
         tempfile_name_prefix=file_name_prefix or "",
+        newline=newline,
     )
 
     skip_markers = {*skip_markers, "all"}
