@@ -1255,3 +1255,28 @@ def test_default_skip_marker_given(tmp_path: Path) -> None:
 
     assert result.stdout == expected_output
     assert result.stderr == ""
+
+
+def test_empty_file(tmp_path: Path) -> None:
+    """
+    No error is shown when an empty file is given.
+    """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    rst_file.touch()
+    arguments = [
+        "--no-pad-file",
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        str(rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    assert result.stdout == ""
+    assert result.stderr == ""
