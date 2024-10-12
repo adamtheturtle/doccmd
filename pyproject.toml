@@ -38,9 +38,9 @@ dynamic = [
     "version",
 ]
 dependencies = [
-    "beartype",
-    "click",
-    "pygments",
+    "beartype>=0.19.0",
+    "click>=8.1.7",
+    "pygments>=2.18.0",
     "sybil>=7.0.0",
     # Pin this dependency as we expect:
     # * It might have breaking changes
