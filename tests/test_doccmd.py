@@ -628,6 +628,13 @@ def test_verbose(tmp_path: Path) -> None:
 
         x = 2 + 2
         assert x == 4
+
+    .. skip doccmd[all]: next
+
+    .. code-block:: python
+
+        x = 3 + 3
+        assert x == 6
     """
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
