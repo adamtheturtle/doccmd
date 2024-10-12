@@ -14,6 +14,7 @@ import click
 from beartype import beartype
 from pygments.lexers import get_all_lexers
 from sybil import Sybil
+from sybil.evaluators.skip import Skipper
 from sybil.parsers.myst import CodeBlockParser as MystCodeBlockParser
 from sybil.parsers.rest import CodeBlockParser as RestCodeBlockParser
 from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
@@ -25,6 +26,7 @@ from sybil_extras.parsers.rest.custom_directive_skip import (
 )
 
 if TYPE_CHECKING:
+    from sybil.parsers.abstract.skip import AbstractSkipParser
     from sybil.typing import Parser
 
 try:
@@ -105,7 +107,7 @@ def _run_args_against_docs(
     )
 
     skip_markers = {*skip_markers, "all"}
-    skip_parsers: Sequence[Parser] = []
+    skip_parsers: Sequence[AbstractSkipParser] = []
 
     for skip_marker in skip_markers:
         skip_directive = rf"skip doccmd\[{skip_marker}\]"
@@ -125,7 +127,14 @@ def _run_args_against_docs(
     sybil = Sybil(parsers=parsers)
     document = sybil.parse(path=file_path)
     for example in document.examples():
-        if verbose:
+        if (
+            verbose
+            and not isinstance(example.region.evaluator, Skipper)
+            and not any(
+                skip_parser.skipper.state_for(example=example).remove
+                for skip_parser in skip_parsers
+            )
+        ):
             command_str = shlex.join(
                 split_command=[str(item) for item in args],
             )

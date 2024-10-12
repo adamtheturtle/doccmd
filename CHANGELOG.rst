@@ -4,6 +4,8 @@ Changelog
 Next
 ----
 
+* Only log ``--verbose`` messages when the relevant example will be run and is not a skip directive.
+
 2024.10.11
 ----------
 
