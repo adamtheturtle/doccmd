@@ -635,6 +635,10 @@ def test_verbose(tmp_path: Path) -> None:
 
         x = 3 + 3
         assert x == 6
+
+    .. code-block:: shell
+
+        echo 1
     """
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
