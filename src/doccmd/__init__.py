@@ -104,6 +104,7 @@ def _run_args_against_docs(
         write_to_file=True,
         tempfile_name_prefix=file_name_prefix or "",
         newline=newline,
+        use_pty=False,
     )
 
     skip_markers = {*skip_markers, "all"}
