@@ -4,11 +4,7 @@ Changelog
 Next
 ----
 
-2024.10.13
-----------
-
-2024.10.12.1
-------------
+* Output in color (not yet on Windows).
 
 2024.10.12
 ----------

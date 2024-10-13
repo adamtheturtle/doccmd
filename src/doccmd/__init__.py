@@ -2,6 +2,7 @@
 CLI to run commands on the given files.
 """
 
+import platform
 import shlex
 import subprocess
 import sys
@@ -97,6 +98,7 @@ def _run_args_against_docs(
 
     newline = _detect_newline(file_path=file_path)
 
+    use_pty = sys.stdout.isatty() and platform.system() != "Windows"
     evaluator = ShellCommandEvaluator(
         args=args,
         tempfile_suffixes=suffixes,
@@ -104,7 +106,7 @@ def _run_args_against_docs(
         write_to_file=True,
         tempfile_name_prefix=file_name_prefix or "",
         newline=newline,
-        use_pty=False,
+        use_pty=use_pty,
     )
 
     skip_markers = {*skip_markers, "all"}
