@@ -4,7 +4,7 @@ Changelog
 Next
 ----
 
-* Output in colour (not yet on Windows).
+* Output in color (not yet on Windows).
 
 2024.10.12
 ----------
