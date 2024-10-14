@@ -55,6 +55,7 @@ optional-dependencies.dev = [
     "docformatter==1.7.5",
     "docker==7.1.0",
     "furo==2024.8.6",
+    "gitpython==3.1.43",
     "interrogate==1.7.0",
     "mypy==1.11.2",
     "pre-commit==4.0.1",

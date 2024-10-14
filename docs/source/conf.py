@@ -6,6 +6,7 @@ Configuration for Sphinx.
 
 import importlib.metadata
 
+from git import Repo
 from packaging.specifiers import SpecifierSet
 
 project = "doccmd"
@@ -33,10 +34,13 @@ copybutton_exclude = ".linenos, .gp"
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
-# Use ``importlib.metadata.version`` as per
-# https://setuptools-scm.readthedocs.io/en/latest/usage/#usage-from-sphinx.
-version = importlib.metadata.version(distribution_name=project)
-_month, _day, _year, *_ = version.split(".")
+# Do not use ``importlib.metadata.version`` as per
+# https://setuptools-scm.readthedocs.io/en/latest/usage/#usage-from-sphinx
+# as that gets the last version.
+repo = Repo("../..")
+tags = sorted(repo.tags, key=lambda t: t.commit.committed_date)
+latest_git_tag = tags[-1].name
+_month, _day, _year, *_ = latest_git_tag.split(".")
 release = f"{_month}.{_day}.{_year}"
 
 project_metadata = importlib.metadata.metadata(distribution_name=project)
