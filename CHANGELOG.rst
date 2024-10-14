@@ -4,6 +4,9 @@ Changelog
 Next
 ----
 
+2024.10.14
+----------
+
 * Add documentation and source links to PyPI.
 
 2024.10.13.1
