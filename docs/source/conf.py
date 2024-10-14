@@ -36,8 +36,7 @@ copybutton_exclude = ".linenos, .gp"
 # Use ``importlib.metadata.version`` as per
 # https://setuptools-scm.readthedocs.io/en/latest/usage/#usage-from-sphinx.
 version = importlib.metadata.version(distribution_name=project)
-_month, _day, _year, *_ = version.split(".")
-release = f"{_month}.{_day}.{_year}"
+release = version.split(".post")[0]
 
 project_metadata = importlib.metadata.metadata(distribution_name=project)
 requires_python = project_metadata["Requires-Python"]
