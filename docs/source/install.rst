@@ -37,9 +37,10 @@ Using ``doccmd`` as a pre-commit hook
 To run ``doccmd`` with `pre-commit`_, add hooks like the following to your ``.pre-commit-config.yaml``:
 
 .. code-block:: yaml
+   :substitutions:
 
    -   repo: https://github.com/adamtheturtle/doccmd-pre-commit
-       rev: v2024.9.11.5
+       rev: v|release|
        hooks:
        -   id: doccmd
            args: ["--language", "shell", "--command", "shellcheck --shell=bash"]

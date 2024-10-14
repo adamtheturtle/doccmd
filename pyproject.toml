@@ -55,7 +55,6 @@ optional-dependencies.dev = [
     "docformatter==1.7.5",
     "docker==7.1.0",
     "furo==2024.8.6",
-    "gitpython==3.1.43",
     "interrogate==1.7.0",
     "mypy==1.11.2",
     "pre-commit==4.0.1",
@@ -120,6 +119,10 @@ universal = true
 # We choose a ``.py`` file so that we can read it without
 # worrying about including the file in MANIFEST.in.
 write_to = "src/doccmd/_setuptools_scm_version.py"
+# This keeps the start of the version the same as the last release.
+# This is useful for our documentation to include e.g. binary links
+# to the latest released binary.
+version_scheme = "post-release"
 
 [tool.ruff]
 line-length = 79
