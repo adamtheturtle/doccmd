@@ -36,6 +36,9 @@ copybutton_exclude = ".linenos, .gp"
 # Use ``importlib.metadata.version`` as per
 # https://setuptools-scm.readthedocs.io/en/latest/usage/#usage-from-sphinx.
 version = importlib.metadata.version(distribution_name=project)
+# This method of getting the release from the version goes hand in hand with
+# the ``post-release`` versioning scheme chosen in the ``setuptools-scm``
+# configuration.
 release = version.split(".post")[0]
 
 project_metadata = importlib.metadata.metadata(distribution_name=project)

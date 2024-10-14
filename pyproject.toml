@@ -122,6 +122,8 @@ write_to = "src/doccmd/_setuptools_scm_version.py"
 # This keeps the start of the version the same as the last release.
 # This is useful for our documentation to include e.g. binary links
 # to the latest released binary.
+#
+# Code to match this is in ``conf.py``.
 version_scheme = "post-release"
 
 [tool.ruff]
