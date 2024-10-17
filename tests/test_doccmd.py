@@ -715,40 +715,6 @@ def test_verbose_not_utf_8(tmp_path: Path) -> None:
     assert result.stderr.strip() == expected_stderr
 
 
-def test_directory_passed_in(tmp_path: Path) -> None:
-    """
-    An error is shown when a directory is passed in instead of a file.
-    """
-    runner = CliRunner(mix_stderr=False)
-    directory = tmp_path / "example_dir"
-    directory.mkdir()
-    arguments = [
-        "--language",
-        "python",
-        "--command",
-        "cat",
-        str(directory),
-    ]
-    result = runner.invoke(
-        cli=main,
-        args=arguments,
-        catch_exceptions=False,
-    )
-    assert result.exit_code != 0
-    expected_stderr = textwrap.dedent(
-        text=(
-            f"""\
-            Usage: doccmd [OPTIONS] [FILE_PATHS]...
-            Try 'doccmd --help' for help.
-
-            Error: Invalid value for '[FILE_PATHS]...': File '{directory}' is a directory.
-            """  # noqa: E501
-        ),
-    )
-    assert result.stderr == expected_stderr
-
-
->>>>>>> no-utf8
 def test_main_entry_point() -> None:
     """
     It is possible to run the main entry point.
