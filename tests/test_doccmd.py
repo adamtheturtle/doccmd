@@ -153,8 +153,56 @@ def test_not_utf_8_file_given(tmp_path: Path) -> None:
     assert result.stderr == ""
 
 
+def test_bad_indentation(tmp_path: Path) -> None:
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text='''\
+        def example():
+            """
+            .. code-block:: python
+
+            block_1
+            """
+        ''',
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = ["--language", "python", "--command", "cat", str(rst_file)]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    expected_output = ""
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
 def test_python_file_given(tmp_path: Path) -> None:
-    pass
+    runner = CliRunner(mix_stderr=False)
+    python_file = tmp_path / "example.py"
+    content = textwrap.dedent(
+        text='''\
+        def example():
+            """
+            .. code-block:: python
+
+            block_1
+            """
+        ''',
+    )
+    python_file.write_text(data=content, encoding="utf-8")
+    arguments = ["--language", "python", "--command", "cat", str(python_file)]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    expected_output = ""
+    assert result.stdout == expected_output
+    assert result.stderr == ""
 
 
 def test_multiple_code_blocks(tmp_path: Path) -> None:

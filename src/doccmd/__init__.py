@@ -15,6 +15,7 @@ import click
 from beartype import beartype
 from pygments.lexers import get_all_lexers
 from sybil import Sybil
+from sybil.document import Document
 from sybil.evaluators.skip import Skipper
 from sybil.parsers.myst import CodeBlockParser as MystCodeBlockParser
 from sybil.parsers.rest import CodeBlockParser as RestCodeBlockParser
@@ -127,7 +128,11 @@ def _run_args_against_docs(
     myst_parser = MystCodeBlockParser(language=language, evaluator=evaluator)
     code_block_parsers = [rest_parser, myst_parser]
     parsers: Sequence[Parser] = [*code_block_parsers, *skip_parsers]
-    sybil = Sybil(parsers=parsers)
+    sybil = Sybil(
+        parsers=parsers,
+        # Do not treat Python files as special.
+        document_types={".py": Document},
+    )
     try:
         document = sybil.parse(path=file_path)
     except UnicodeError:
