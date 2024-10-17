@@ -238,8 +238,8 @@ def _run_args_against_docs(
     ),
 )
 @click.argument(
-    "file_paths",
-    type=click.Path(exists=True, path_type=Path, dir_okay=False),
+    "paths",
+    type=click.Path(exists=True, path_type=Path, dir_okay=True),
     nargs=-1,
 )
 @click.version_option(version=__version__)
@@ -255,7 +255,7 @@ def main(
     *,
     languages: Iterable[str],
     command: str,
-    file_paths: Iterable[Path],
+    paths: Iterable[Path],
     file_suffix: str | None,
     file_name_prefix: str | None,
     pad_file: bool,
@@ -270,11 +270,11 @@ def main(
     # De-duplicate the languages, keeping the order.
     languages = dict.fromkeys(languages).keys()
     skip_markers = dict.fromkeys(skip_markers).keys()
-    for file_path in file_paths:
+    for path in paths:
         for language in languages:
             _run_args_against_docs(
                 args=args,
-                file_path=file_path,
+                file_path=path,
                 language=language,
                 pad_file=pad_file,
                 verbose=verbose,

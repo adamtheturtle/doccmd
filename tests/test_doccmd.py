@@ -128,7 +128,7 @@ def test_file_does_not_exist() -> None:
         catch_exceptions=False,
     )
     assert result.exit_code != 0
-    assert "File 'non_existent_file.rst' does not exist" in result.stderr
+    assert "Path 'non_existent_file.rst' does not exist" in result.stderr
 
 
 def test_multiple_code_blocks(tmp_path: Path) -> None:
@@ -665,39 +665,6 @@ def test_verbose(tmp_path: Path) -> None:
         """,
     )
     assert result.stdout == expected_output
-
-
-def test_directory_passed_in(tmp_path: Path) -> None:
-    """
-    An error is shown when a directory is passed in instead of a file.
-    """
-    runner = CliRunner(mix_stderr=False)
-    directory = tmp_path / "example_dir"
-    directory.mkdir()
-    arguments = [
-        "--language",
-        "python",
-        "--command",
-        "cat",
-        str(directory),
-    ]
-    result = runner.invoke(
-        cli=main,
-        args=arguments,
-        catch_exceptions=False,
-    )
-    assert result.exit_code != 0
-    expected_stderr = textwrap.dedent(
-        text=(
-            f"""\
-            Usage: doccmd [OPTIONS] [FILE_PATHS]...
-            Try 'doccmd --help' for help.
-
-            Error: Invalid value for '[FILE_PATHS]...': File '{directory}' is a directory.
-            """  # noqa: E501
-        ),
-    )
-    assert result.stderr == expected_stderr
 
 
 def test_main_entry_point() -> None:
@@ -1338,3 +1305,51 @@ def test_detect_line_endings(
     assert bool(b"\r\n" in result.stdout_bytes) == expect_crlf
     assert bool(b"\r" in result.stdout_bytes) == expect_cr
     assert bool(b"\n" in result.stdout_bytes) == expect_lf
+
+
+def test_directory(tmp_path: Path) -> None:
+    """All Markdown files and rST files in a given directory are worked on."""
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    content = """\
+    .. code-block:: python
+
+        x = 2 + 2
+        assert x == 4
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    md_file = tmp_path / "example.md"
+    md_content = """\
+    ```python
+    print("In simple markdown code block")
+    ```
+    """
+    md_file.write_text(data=md_content, encoding="utf-8")
+    arguments = ["--language", "python", "--command", "cat", str(tmp_path)]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, result.stderr
+    expected_output = textwrap.dedent(
+        # The file is padded so that any error messages relate to the correct
+        # line number in the original file.
+        text="""\
+
+
+        x = 2 + 2
+        assert x == 4
+        """,
+    )
+
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
+def test_override_file_formats() -> None:
+    pass
+
+
+def test_extra_file_formats() -> None:
+    pass
