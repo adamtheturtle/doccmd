@@ -286,9 +286,10 @@ def main(
         if path.is_file():
             file_paths[path] = True
         else:
-            new_file_paths = path.glob(pattern="**/*")
+            new_file_paths = path.glob("**/*")
             for new_file_path in new_file_paths:
-                file_paths[new_file_path] = True
+                if new_file_path.is_file():
+                    file_paths[new_file_path] = True
 
     for file_path in file_paths:
         for language in languages:

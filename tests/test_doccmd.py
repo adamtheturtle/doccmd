@@ -1359,12 +1359,12 @@ def test_directory(tmp_path: Path) -> None:
     """All Markdown files and rST files in a given directory are worked on."""
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
-    content = """\
+    rst_content = """\
     .. code-block:: python
 
         rst_1_block
     """
-    rst_file.write_text(data=content, encoding="utf-8")
+    rst_file.write_text(data=rst_content, encoding="utf-8")
     md_file = tmp_path / "example.md"
     md_content = """\
     ```python
@@ -1372,6 +1372,19 @@ def test_directory(tmp_path: Path) -> None:
     ```
     """
     md_file.write_text(data=md_content, encoding="utf-8")
+    sub_directory = tmp_path / "subdir"
+    sub_directory.mkdir()
+    rst_file_in_sub_directory = sub_directory / "subdir_example.rst"
+    subdir_rst_content = """\
+    .. code-block:: python
+
+        rst_subdir_1_block
+    """
+    rst_file_in_sub_directory.write_text(
+        data=subdir_rst_content,
+        encoding="utf-8",
+    )
+
     arguments = [
         "--language",
         "python",
@@ -1392,6 +1405,7 @@ def test_directory(tmp_path: Path) -> None:
         text="""\
         md_1_block
         rst_1_block
+        rst_subdir_1_block
         """,
     )
 
