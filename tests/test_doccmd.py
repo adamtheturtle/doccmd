@@ -153,6 +153,10 @@ def test_not_utf_8_file_given(tmp_path: Path) -> None:
     assert result.stderr == ""
 
 
+def test_python_file_given(tmp_path: Path) -> None:
+    pass
+
+
 def test_multiple_code_blocks(tmp_path: Path) -> None:
     """
     It is possible to run a command against multiple code blocks in a document.
