@@ -128,7 +128,18 @@ def _run_args_against_docs(
     code_block_parsers = [rest_parser, myst_parser]
     parsers: Sequence[Parser] = [*code_block_parsers, *skip_parsers]
     sybil = Sybil(parsers=parsers)
-    document = sybil.parse(path=file_path)
+    try:
+        document = sybil.parse(path=file_path)
+    except UnicodeError:
+        if verbose:
+            unicode_error_message = (
+                f"Skipping '{file_path}' because it is not UTF-8 encoded."
+            )
+            styled_message = click.style(
+                text=unicode_error_message, fg="yellow"
+            )
+            click.echo(message=styled_message, err=True)
+        return
     for example in document.examples():
         if (
             verbose
