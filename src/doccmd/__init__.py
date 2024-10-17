@@ -271,7 +271,7 @@ def main(
     languages = dict.fromkeys(languages).keys()
     skip_markers = dict.fromkeys(skip_markers).keys()
     file_paths: dict[Path, bool] = {}
-    file_extensions = {".md", ".rst"}
+    file_extensions = (".md", ".rst")
     for path in paths:
         if path.is_file():
             file_paths[path] = True
