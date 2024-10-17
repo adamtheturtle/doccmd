@@ -1345,11 +1345,3 @@ def test_directory(tmp_path: Path) -> None:
 
     assert result.stdout == expected_output
     assert result.stderr == ""
-
-
-def test_override_file_formats() -> None:
-    pass
-
-
-def test_extra_file_formats() -> None:
-    pass
