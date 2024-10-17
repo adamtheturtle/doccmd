@@ -270,11 +270,22 @@ def main(
     # De-duplicate the languages, keeping the order.
     languages = dict.fromkeys(languages).keys()
     skip_markers = dict.fromkeys(skip_markers).keys()
+    file_paths: dict[Path, bool] = {}
+    file_extensions = {".md", ".rst"}
     for path in paths:
+        if path.is_file():
+            file_paths[path] = True
+        else:
+            for file_extension in file_extensions:
+                new_file_paths = path.glob(pattern=f"**/*{file_extension}")
+                for new_file_path in new_file_paths:
+                    file_paths[new_file_path] = True
+
+    for file_path in file_paths:
         for language in languages:
             _run_args_against_docs(
                 args=args,
-                file_path=path,
+                file_path=file_path,
                 language=language,
                 pad_file=pad_file,
                 verbose=verbose,

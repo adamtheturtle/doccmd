@@ -575,7 +575,7 @@ def test_file_extension_unknown_language(tmp_path: Path) -> None:
 
 def test_file_given_multiple_times(tmp_path: Path) -> None:
     """
-    No error is shown when a file is given multiple times.
+    When a file is given multiple times, it is only run once.
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
@@ -602,10 +602,6 @@ def test_file_given_multiple_times(tmp_path: Path) -> None:
     assert result.exit_code == 0
     expected_output = textwrap.dedent(
         text="""\
-
-
-        x = 2 + 2
-        assert x == 4
 
 
         x = 2 + 2
@@ -1314,18 +1310,24 @@ def test_directory(tmp_path: Path) -> None:
     content = """\
     .. code-block:: python
 
-        x = 2 + 2
-        assert x == 4
+        rst_1_block
     """
     rst_file.write_text(data=content, encoding="utf-8")
     md_file = tmp_path / "example.md"
     md_content = """\
     ```python
-    print("In simple markdown code block")
+    md_1_block
     ```
     """
     md_file.write_text(data=md_content, encoding="utf-8")
-    arguments = ["--language", "python", "--command", "cat", str(tmp_path)]
+    arguments = [
+        "--language",
+        "python",
+        "--no-pad-file",
+        "--command",
+        "cat",
+        str(tmp_path),
+    ]
     result = runner.invoke(
         cli=main,
         args=arguments,
@@ -1336,10 +1338,8 @@ def test_directory(tmp_path: Path) -> None:
         # The file is padded so that any error messages relate to the correct
         # line number in the original file.
         text="""\
-
-
-        x = 2 + 2
-        assert x == 4
+        md_1_block
+        rst_1_block
         """,
     )
 
