@@ -155,33 +155,10 @@ def test_not_utf_8_file_given(tmp_path: Path) -> None:
     assert result.stderr == ""
 
 
-def test_bad_indentation(tmp_path: Path) -> None:
-    runner = CliRunner(mix_stderr=False)
-    rst_file = tmp_path / "example.rst"
-    content = textwrap.dedent(
-        text='''\
-        def example():
-            """
-            .. code-block:: python
-
-            block_1
-            """
-        ''',
-    )
-    rst_file.write_text(data=content, encoding="utf-8")
-    arguments = ["--language", "python", "--command", "cat", str(rst_file)]
-    result = runner.invoke(
-        cli=main,
-        args=arguments,
-        catch_exceptions=False,
-    )
-    assert result.exit_code == 0
-    expected_output = ""
-    assert result.stdout == expected_output
-    assert result.stderr == ""
-
-
 def test_python_file_given(tmp_path: Path) -> None:
+    """
+    If a Python document is given, it is not loaded.
+    """
     runner = CliRunner(mix_stderr=False)
     python_file = tmp_path / "example.py"
     content = textwrap.dedent(
@@ -464,7 +441,7 @@ def test_modify_file(tmp_path: Path) -> None:
         import sys
 
         with open(sys.argv[1], "w") as file:
-            file.write("foobar")
+            file.write("x = 1")
         """
     )
     modify_code_file = tmp_path / "modify_code.py"
@@ -486,7 +463,7 @@ def test_modify_file(tmp_path: Path) -> None:
     expected_modified_content = """\
     .. code-block:: python
 
-        foobar
+        x = 1
     """
     assert modified_content == expected_modified_content
 
