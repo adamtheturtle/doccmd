@@ -131,6 +131,30 @@ def test_file_does_not_exist() -> None:
     assert "File 'non_existent_file.rst' does not exist" in result.stderr
 
 
+def test_not_utf_8_file_given(tmp_path: Path) -> None:
+    """
+    No error is given if a file is passed in which is not UTF-8.
+    """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    content = """\
+    .. code-block:: python
+
+       print("\xc0\x80")
+    """
+    rst_file.write_text(data=content, encoding="latin1")
+    arguments = ["--language", "python", "--command", "cat", str(rst_file)]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    expected_output = ""
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
 def test_multiple_code_blocks(tmp_path: Path) -> None:
     """
     It is possible to run a command against multiple code blocks in a document.
@@ -617,9 +641,9 @@ def test_file_given_multiple_times(tmp_path: Path) -> None:
     assert result.stderr == ""
 
 
-def test_verbose(tmp_path: Path) -> None:
+def test_verbose_running(tmp_path: Path) -> None:
     """
-    Verbose output is shown.
+    Verbose output is shown showing what is running.
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
@@ -665,6 +689,39 @@ def test_verbose(tmp_path: Path) -> None:
         """,
     )
     assert result.stdout == expected_output
+
+
+def test_verbose_not_utf_8(tmp_path: Path) -> None:
+    """
+    Verbose output shows what files are being skipped because they are not
+    UTF-8.
+    """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    content = """\
+    .. code-block:: python
+
+       print("\xc0\x80")
+    """
+    rst_file.write_text(data=content, encoding="latin1")
+    arguments = [
+        "--verbose",
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        str(rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    expected_output = ""
+    assert result.stdout == expected_output
+    expected_stderr = f"Skipping '{rst_file}' because it is not UTF-8 encoded."
+    assert result.stderr.strip() == expected_stderr
 
 
 def test_directory_passed_in(tmp_path: Path) -> None:

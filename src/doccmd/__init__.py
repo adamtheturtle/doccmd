@@ -16,6 +16,7 @@ from beartype import beartype
 from pygments.lexers import get_all_lexers
 from sybil import Sybil
 from sybil.evaluators.skip import Skipper
+from sybil.parsers.abstract.skip import AbstractSkipParser
 from sybil.parsers.myst import CodeBlockParser as MystCodeBlockParser
 from sybil.parsers.rest import CodeBlockParser as RestCodeBlockParser
 from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
@@ -27,7 +28,6 @@ from sybil_extras.parsers.rest.custom_directive_skip import (
 )
 
 if TYPE_CHECKING:
-    from sybil.parsers.abstract.skip import AbstractSkipParser
     from sybil.typing import Parser
 
 try:
@@ -73,43 +73,12 @@ def _map_languages_to_suffix() -> dict[str, str]:
 
 
 @beartype
-def _run_args_against_docs(
-    *,
-    file_path: Path,
-    args: Sequence[str | Path],
-    language: str,
-    file_suffix: str | None,
-    file_name_prefix: str | None,
-    pad_file: bool,
-    verbose: bool,
+def _get_skip_parsers(
     skip_markers: Iterable[str],
-) -> None:
+) -> Sequence[AbstractSkipParser]:
     """
-    Run commands on the given file.
+    Skip parsers for reST and MyST based on the provided skip markers.
     """
-    if file_suffix is None:
-        language_to_suffix = _map_languages_to_suffix()
-        file_suffix = language_to_suffix.get(language.lower(), ".txt")
-
-    if not file_suffix.startswith("."):
-        file_suffix = f".{file_suffix}"
-
-    suffixes = (file_suffix,)
-
-    newline = _detect_newline(file_path=file_path)
-
-    use_pty = sys.stdout.isatty() and platform.system() != "Windows"
-    evaluator = ShellCommandEvaluator(
-        args=args,
-        tempfile_suffixes=suffixes,
-        pad_file=pad_file,
-        write_to_file=True,
-        tempfile_name_prefix=file_name_prefix or "",
-        newline=newline,
-        use_pty=use_pty,
-    )
-
-    skip_markers = {*skip_markers, "all"}
     skip_parsers: Sequence[AbstractSkipParser] = []
 
     for skip_marker in skip_markers:
@@ -122,13 +91,74 @@ def _run_args_against_docs(
             directive=skip_directive
         )
         skip_parsers = [*skip_parsers, rest_skip_parser, myst_skip_parser]
+    return skip_parsers
+
+
+@beartype
+def _get_file_suffix(language: str, file_suffix: str | None) -> str:
+    """
+    Get the file suffix, either from input or based on the language.
+    """
+    if file_suffix is None:
+        language_to_suffix = _map_languages_to_suffix()
+        file_suffix = language_to_suffix.get(language.lower(), ".txt")
+
+    if not file_suffix.startswith("."):
+        file_suffix = f".{file_suffix}"
+
+    return file_suffix
+
+
+@beartype
+def _run_args_against_docs(
+    *,
+    file_path: Path,
+    args: Sequence[str | Path],
+    language: str,
+    file_suffix: str | None,
+    file_name_prefix: str | None,
+    pad_file: bool,
+    verbose: bool,
+    skip_markers: Iterable[str],
+    use_pty: bool,
+) -> None:
+    """
+    Run commands on the given file.
+    """
+    file_suffix = _get_file_suffix(language=language, file_suffix=file_suffix)
+    newline = _detect_newline(file_path=file_path)
+
+    evaluator = ShellCommandEvaluator(
+        args=args,
+        tempfile_suffixes=(file_suffix,),
+        pad_file=pad_file,
+        write_to_file=True,
+        tempfile_name_prefix=file_name_prefix or "",
+        newline=newline,
+        use_pty=use_pty,
+    )
+
+    skip_markers = {*skip_markers, "all"}
+    skip_parsers = _get_skip_parsers(skip_markers=skip_markers)
 
     rest_parser = RestCodeBlockParser(language=language, evaluator=evaluator)
     myst_parser = MystCodeBlockParser(language=language, evaluator=evaluator)
     code_block_parsers = [rest_parser, myst_parser]
     parsers: Sequence[Parser] = [*code_block_parsers, *skip_parsers]
     sybil = Sybil(parsers=parsers)
-    document = sybil.parse(path=file_path)
+    try:
+        document = sybil.parse(path=file_path)
+    except UnicodeError:
+        if verbose:
+            unicode_error_message = (
+                f"Skipping '{file_path}' because it is not UTF-8 encoded."
+            )
+            styled_unicode_error_message = click.style(
+                text=unicode_error_message,
+                fg="yellow",
+            )
+            click.echo(message=styled_unicode_error_message, err=True)
+        return
     for example in document.examples():
         if (
             verbose
@@ -270,6 +300,7 @@ def main(
     # De-duplicate the languages, keeping the order.
     languages = dict.fromkeys(languages).keys()
     skip_markers = dict.fromkeys(skip_markers).keys()
+    use_pty = sys.stdout.isatty() and platform.system() != "Windows"
     for file_path in file_paths:
         for language in languages:
             _run_args_against_docs(
@@ -281,4 +312,5 @@ def main(
                 file_suffix=file_suffix,
                 file_name_prefix=file_name_prefix,
                 skip_markers=skip_markers,
+                use_pty=use_pty,
             )
