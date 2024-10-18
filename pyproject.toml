@@ -45,7 +45,7 @@ dependencies = [
     # Pin this dependency as we expect:
     # * It might have breaking changes
     # * It is not a direct dependency of the user
-    "sybil-extras==2024.10.13.1",
+    "sybil-extras==2024.10.18",
 ]
 optional-dependencies.dev = [
     "actionlint-py==1.7.3.17",
@@ -56,20 +56,20 @@ optional-dependencies.dev = [
     "docker==7.1.0",
     "furo==2024.8.6",
     "interrogate==1.7.0",
-    "mypy==1.11.2",
+    "mypy==1.12.0",
     "pre-commit==4.0.1",
     "pydocstyle==6.3",
     "pyenchant==3.3.0rc1",
     "pygments==2.18.0",
     "pylint==3.3.1",
-    "pyproject-fmt==2.3.0",
-    "pyright==1.1.384",
+    "pyproject-fmt==2.4.3",
+    "pyright==1.1.385",
     "pyroma==4.2",
     "pytest==8.3.3",
     "pytest-cov==5.0.0",
     "pytest-regressions==2.5.0",
     "pyyaml==6.0.2",
-    "ruff==0.6.9",
+    "ruff==0.7.0",
     # We add shellcheck-py not only for shell scripts and shell code blocks,
     # but also because having it installed means that ``actionlint-py`` will
     # use it to lint shell commands in GitHub workflow files.
@@ -79,7 +79,7 @@ optional-dependencies.dev = [
     "sphinx-click==6.0.0",
     "sphinx-copybutton==0.5.2",
     "sphinx-inline-tabs==2023.4.21",
-    "sphinx-substitution-extensions==2024.8.6",
+    "sphinx-substitution-extensions==2024.10.17",
     "sphinxcontrib-spelling==8",
     "types-docker==7.1.0.20240827",
     "types-pygments==2.18.0.20240506",
@@ -87,7 +87,7 @@ optional-dependencies.dev = [
     "yamlfix==1.17.0",
 ]
 optional-dependencies.packaging = [
-    "pyinstaller==6.10.0",
+    "pyinstaller==6.11.0",
 ]
 optional-dependencies.release = [
     "check-wheel-contents==0.6.0",
@@ -122,6 +122,8 @@ write_to = "src/doccmd/_setuptools_scm_version.py"
 # This keeps the start of the version the same as the last release.
 # This is useful for our documentation to include e.g. binary links
 # to the latest released binary.
+#
+# Code to match this is in ``conf.py``.
 version_scheme = "post-release"
 
 [tool.ruff]
