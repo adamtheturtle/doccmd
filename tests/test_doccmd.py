@@ -132,7 +132,9 @@ def test_file_does_not_exist() -> None:
 
 
 def test_not_utf_8_file_given(tmp_path: Path) -> None:
-    """No error is given if a file is passed in which is not UTF-8."""
+    """
+    No error is given if a file is passed in which is not UTF-8.
+    """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
     content = """\
@@ -742,7 +744,10 @@ def test_verbose_running(tmp_path: Path) -> None:
 
 
 def test_verbose_not_utf_8(tmp_path: Path) -> None:
-    """Verbose output shows what files are being skipped because they are not UTF-8."""
+    """
+    Verbose output shows what files are being skipped because they are not
+    UTF-8.
+    """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
     content = """\
