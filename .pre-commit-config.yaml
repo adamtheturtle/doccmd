@@ -127,7 +127,7 @@ repos:
       - id: mypy-docs
         name: mypy-docs
         stages: [pre-push]
-        entry: uv run --extra=dev doccmd --verbose --language=python --command="mypy"
+        entry: uv run --extra=dev doccmd --language=python --command="mypy"
         language: python
         types_or: [markdown, rst, python, toml]
         additional_dependencies: [uv]
@@ -298,7 +298,7 @@ repos:
         additional_dependencies: [uv]
 
       - id: yamlfix
-        name: pyproject-fmt
+        name: yamlfix
         entry: uv run --extra=dev yamlfix
         language: python
         types_or: [yaml]
