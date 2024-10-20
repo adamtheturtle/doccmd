@@ -4,6 +4,7 @@ args
 beartype
 changelog
 cli
+de
 doccmd
 dockerfile
 dockerfiles
