@@ -267,6 +267,20 @@ def _run_args_against_docs(
         "they generally need to look at the file without padding."
     ),
 )
+@click.option(
+    "--search-for-rst/--no-search-for-rst",
+    is_flag=True,
+    default=True,
+    show_default=True,
+    help=("TODO"),
+)
+@click.option(
+    "--search-for-md/--no-search-for-md",
+    is_flag=True,
+    default=True,
+    show_default=True,
+    help=("TODO"),
+)
 @click.argument(
     "paths",
     type=click.Path(exists=True, path_type=Path, dir_okay=True),
@@ -291,6 +305,9 @@ def main(
     pad_file: bool,
     verbose: bool,
     skip_markers: Iterable[str],
+    search_for_rst: bool,  # TODO: Set this up, default yes
+    search_for_md: bool,  # TODO: Set this up, default yes
+    file_suffixes: Iterable[str],  # TODO: This might be a follow up PR
 ) -> None:
     """Run commands against code blocks in the given documentation files.
 
@@ -300,6 +317,7 @@ def main(
     # De-duplicate the languages, keeping the order.
     languages = dict.fromkeys(languages).keys()
     skip_markers = dict.fromkeys(skip_markers).keys()
+    # TODO: De-duplicate file suffixes
     file_paths: dict[Path, bool] = {}
     for path in paths:
         if path.is_file():
