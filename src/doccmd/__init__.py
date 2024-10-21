@@ -297,9 +297,10 @@ def main(
     This works with Markdown and reStructuredText files.
     """
     args = shlex.split(s=command)
-    # De-duplicate the languages, keeping the order.
+    # De-duplicate some choices, keeping the order.
     languages = dict.fromkeys(languages).keys()
     skip_markers = dict.fromkeys(skip_markers).keys()
+    file_paths = dict.fromkeys(file_paths).keys()
     use_pty = sys.stdout.isatty() and platform.system() != "Windows"
     for file_path in file_paths:
         for language in languages:
