@@ -115,7 +115,7 @@ def _get_temporary_file_suffix(
 @beartype
 def _run_args_against_docs(
     *,
-    file_path: Path,
+    document_path: Path,
     args: Sequence[str | Path],
     code_block_language: str,
     temporary_file_suffix: str | None,
@@ -132,7 +132,7 @@ def _run_args_against_docs(
         language=code_block_language,
         given_file_suffix=temporary_file_suffix,
     )
-    newline = _detect_newline(file_path=file_path)
+    newline = _detect_newline(file_path=document_path)
 
     evaluator = ShellCommandEvaluator(
         args=args,
@@ -159,11 +159,11 @@ def _run_args_against_docs(
     parsers: Sequence[Parser] = [*code_block_parsers, *skip_parsers]
     sybil = Sybil(parsers=parsers)
     try:
-        document = sybil.parse(path=file_path)
+        document = sybil.parse(path=document_path)
     except UnicodeError:
         if verbose:
             unicode_error_message = (
-                f"Skipping '{file_path}' because it is not UTF-8 encoded."
+                f"Skipping '{document_path}' because it is not UTF-8 encoded."
             )
             styled_unicode_error_message = click.style(
                 text=unicode_error_message,
@@ -185,7 +185,7 @@ def _run_args_against_docs(
             )
             message = (
                 f"Running '{command_str}' on code block at "
-                f"{file_path} line {example.line}"
+                f"{document_path} line {example.line}"
             )
             styled_message = click.style(text=message, fg="yellow")
             click.echo(message=styled_message)
@@ -280,7 +280,7 @@ def _run_args_against_docs(
     ),
 )
 @click.argument(
-    "file_paths",
+    "document_paths",
     type=click.Path(exists=True, path_type=Path, dir_okay=False),
     nargs=-1,
 )
@@ -297,7 +297,7 @@ def main(
     *,
     languages: Iterable[str],
     command: str,
-    file_paths: Iterable[Path],
+    document_paths: Iterable[Path],
     file_suffix: str | None,
     file_name_prefix: str | None,
     pad_file: bool,
@@ -312,13 +312,13 @@ def main(
     # De-duplicate some choices, keeping the order.
     languages = dict.fromkeys(languages).keys()
     skip_markers = dict.fromkeys(skip_markers).keys()
-    file_paths = dict.fromkeys(file_paths).keys()
+    document_paths = dict.fromkeys(document_paths).keys()
     use_pty = sys.stdout.isatty() and platform.system() != "Windows"
-    for file_path in file_paths:
+    for document_path in document_paths:
         for language in languages:
             _run_args_against_docs(
                 args=args,
-                file_path=file_path,
+                document_path=document_path,
                 code_block_language=language,
                 pad_temporary_file=pad_file,
                 verbose=verbose,
