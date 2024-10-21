@@ -117,10 +117,10 @@ def _run_args_against_docs(
     *,
     file_path: Path,
     args: Sequence[str | Path],
-    language: str,
-    file_suffix: str | None,
-    file_name_prefix: str | None,
-    pad_file: bool,
+    code_block_language: str,
+    temporary_file_suffix: str | None,
+    temporary_file_name_prefix: str | None,
+    pad_temporary_file: bool,
     verbose: bool,
     skip_markers: Iterable[str],
     use_pty: bool,
@@ -128,18 +128,18 @@ def _run_args_against_docs(
     """
     Run commands on the given file.
     """
-    file_suffix = _get_temporary_file_suffix(
-        language=language,
-        given_file_suffix=file_suffix,
+    temporary_file_suffix = _get_temporary_file_suffix(
+        language=code_block_language,
+        given_file_suffix=temporary_file_suffix,
     )
     newline = _detect_newline(file_path=file_path)
 
     evaluator = ShellCommandEvaluator(
         args=args,
-        tempfile_suffixes=(file_suffix,),
-        pad_file=pad_file,
+        tempfile_suffixes=(temporary_file_suffix,),
+        pad_file=pad_temporary_file,
         write_to_file=True,
-        tempfile_name_prefix=file_name_prefix or "",
+        tempfile_name_prefix=temporary_file_name_prefix or "",
         newline=newline,
         use_pty=use_pty,
     )
@@ -147,8 +147,14 @@ def _run_args_against_docs(
     skip_markers = {*skip_markers, "all"}
     skip_parsers = _get_skip_parsers(skip_markers=skip_markers)
 
-    rest_parser = RestCodeBlockParser(language=language, evaluator=evaluator)
-    myst_parser = MystCodeBlockParser(language=language, evaluator=evaluator)
+    rest_parser = RestCodeBlockParser(
+        language=code_block_language,
+        evaluator=evaluator,
+    )
+    myst_parser = MystCodeBlockParser(
+        language=code_block_language,
+        evaluator=evaluator,
+    )
     code_block_parsers = [rest_parser, myst_parser]
     parsers: Sequence[Parser] = [*code_block_parsers, *skip_parsers]
     sybil = Sybil(parsers=parsers)
@@ -313,11 +319,11 @@ def main(
             _run_args_against_docs(
                 args=args,
                 file_path=file_path,
-                language=language,
-                pad_file=pad_file,
+                code_block_language=language,
+                pad_temporary_file=pad_file,
                 verbose=verbose,
-                file_suffix=file_suffix,
-                file_name_prefix=file_name_prefix,
+                temporary_file_suffix=file_suffix,
+                temporary_file_name_prefix=file_name_prefix,
                 skip_markers=skip_markers,
                 use_pty=use_pty,
             )
