@@ -599,23 +599,30 @@ def test_file_extension_unknown_language(tmp_path: Path) -> None:
 
 def test_file_given_multiple_times(tmp_path: Path) -> None:
     """
-    No error is shown when a file is given multiple times.
+    Files given multiple times are de-duplicated.
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
+    other_rst_file = tmp_path / "other_example.rst"
     content = """\
     .. code-block:: python
 
-        x = 2 + 2
-        assert x == 4
+        block
+    """
+    other_content = """\
+    .. code-block:: python
+
+        other_block
     """
     rst_file.write_text(data=content, encoding="utf-8")
+    other_rst_file.write_text(data=other_content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
         "--command",
         "cat",
         str(rst_file),
+        str(other_rst_file),
         str(rst_file),
     ]
     result = runner.invoke(
@@ -628,12 +635,10 @@ def test_file_given_multiple_times(tmp_path: Path) -> None:
         text="""\
 
 
-        x = 2 + 2
-        assert x == 4
+        block
 
 
-        x = 2 + 2
-        assert x == 4
+        other_block
         """,
     )
 
