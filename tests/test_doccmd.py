@@ -599,23 +599,30 @@ def test_file_extension_unknown_language(tmp_path: Path) -> None:
 
 def test_file_given_multiple_times(tmp_path: Path) -> None:
     """
-    When a file is given multiple times, it is only run once.
+    Files given multiple times are de-duplicated.
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
+    other_rst_file = tmp_path / "other_example.rst"
     content = """\
     .. code-block:: python
 
-        x = 2 + 2
-        assert x == 4
+        block
+    """
+    other_content = """\
+    .. code-block:: python
+
+        other_block
     """
     rst_file.write_text(data=content, encoding="utf-8")
+    other_rst_file.write_text(data=other_content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
         "--command",
         "cat",
         str(rst_file),
+        str(other_rst_file),
         str(rst_file),
     ]
     result = runner.invoke(
@@ -628,8 +635,10 @@ def test_file_given_multiple_times(tmp_path: Path) -> None:
         text="""\
 
 
-        x = 2 + 2
-        assert x == 4
+        block
+
+
+        other_block
         """,
     )
 
@@ -1394,7 +1403,9 @@ def test_detect_line_endings(
 
 
 def test_directory(tmp_path: Path) -> None:
-    """All Markdown files and rST files in a given directory are worked on."""
+    """
+    All Markdown files and rST files in a given directory are worked on.
+    """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
     rst_content = """\

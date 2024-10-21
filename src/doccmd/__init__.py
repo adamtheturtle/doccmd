@@ -325,11 +325,12 @@ def main(
     This works with Markdown and reStructuredText files.
     """
     args = shlex.split(s=command)
-    # De-duplicate the languages, keeping the order.
+    # De-duplicate some choices, keeping the order.
     languages = dict.fromkeys(languages).keys()
     skip_markers = dict.fromkeys(skip_markers).keys()
     # TODO: De-duplicate file suffixes
     file_paths: dict[Path, bool] = {}
+    paths = dict.fromkeys(paths).keys()
     # TODO: I think that this logic might also really be in Sybil
     # - make changes once we have passing tests
     for path in paths:
