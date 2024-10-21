@@ -330,6 +330,8 @@ def main(
     skip_markers = dict.fromkeys(skip_markers).keys()
     # TODO: De-duplicate file suffixes
     file_paths: dict[Path, bool] = {}
+    # TODO: I think that this logic might also really be in Sybil
+    # - make changes once we have passing tests
     for path in paths:
         if path.is_file():
             file_paths[path] = True
