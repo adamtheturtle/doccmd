@@ -95,18 +95,21 @@ def _get_skip_parsers(
 
 
 @beartype
-def _get_file_suffix(language: str, file_suffix: str | None) -> str:
+def _get_temporary_file_suffix(
+    language: str,
+    given_file_suffix: str | None,
+) -> str:
     """
     Get the file suffix, either from input or based on the language.
     """
-    if file_suffix is None:
+    if given_file_suffix is None:
         language_to_suffix = _map_languages_to_suffix()
-        file_suffix = language_to_suffix.get(language.lower(), ".txt")
+        given_file_suffix = language_to_suffix.get(language.lower(), ".txt")
 
-    if not file_suffix.startswith("."):
-        file_suffix = f".{file_suffix}"
+    if not given_file_suffix.startswith("."):
+        given_file_suffix = f".{given_file_suffix}"
 
-    return file_suffix
+    return given_file_suffix
 
 
 @beartype
@@ -125,7 +128,10 @@ def _run_args_against_docs(
     """
     Run commands on the given file.
     """
-    file_suffix = _get_file_suffix(language=language, file_suffix=file_suffix)
+    file_suffix = _get_temporary_file_suffix(
+        language=language,
+        given_file_suffix=file_suffix,
+    )
     newline = _detect_newline(file_path=file_path)
 
     evaluator = ShellCommandEvaluator(
