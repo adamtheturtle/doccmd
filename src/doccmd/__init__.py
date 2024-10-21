@@ -217,8 +217,8 @@ def _run_args_against_docs(
 )
 @click.option("command", "-c", "--command", type=str, required=True)
 @click.option(
-    "file_suffix",
-    "--file-suffix",
+    "temporary_file_suffix",
+    "--temporary-file-suffix",
     type=str,
     required=False,
     help=(
@@ -228,8 +228,8 @@ def _run_args_against_docs(
     ),
 )
 @click.option(
-    "file_name_prefix",
-    "--file-name-prefix",
+    "temporary_file_name_prefix",
+    "--temporary-file-name-prefix",
     type=str,
     default="doccmd",
     show_default=True,
@@ -293,7 +293,12 @@ def _run_args_against_docs(
     show_default=True,
     help="Search for files with '.md' extensions in any given directories.",
 )
-@click.option("--extra-file-suffixes")
+@click.option(
+    "--extra-file-suffixes",
+    type=str,
+    help="Extra extensions to search for in any given directories.",
+    multiple=True,
+)
 @click.argument(
     "document_paths",
     type=click.Path(exists=True, path_type=Path, dir_okay=True),
@@ -313,8 +318,8 @@ def main(
     languages: Iterable[str],
     command: str,
     document_paths: Iterable[Path],
-    file_suffix: str | None,
-    file_name_prefix: str | None,
+    temporary_file_suffix: str | None,
+    temporary_file_name_prefix: str | None,
     pad_file: bool,
     verbose: bool,
     skip_markers: Iterable[str],
@@ -326,6 +331,14 @@ def main(
 
     This works with Markdown and reStructuredText files.
     """
+    # TODO: (use helper to...) add `.` - and test for this
+    file_suffixes = set(file_suffixes)
+    if search_for_rst:
+        file_suffixes = {*file_suffixes, ".rst"}
+    if search_for_md:
+        file_suffixes = {*file_suffixes, ".md"}
+
+    file_suffixes = dict.fromkeys(file_suffixes).keys()
     args = shlex.split(s=command)
     # De-duplicate some choices, keeping the order.
     languages = dict.fromkeys(languages).keys()
@@ -339,10 +352,11 @@ def main(
         if path.is_file():
             file_paths[path] = True
         else:
-            new_file_paths = path.glob("**/*")
-            for new_file_path in new_file_paths:
-                if new_file_path.is_file():
-                    file_paths[new_file_path] = True
+            for temporary_file_suffix in file_suffixes:
+                new_file_paths = path.glob(f"**/*{temporary_file_suffix}")
+                for new_file_path in new_file_paths:
+                    if new_file_path.is_file():
+                        file_paths[new_file_path] = True
 
     use_pty = sys.stdout.isatty() and platform.system() != "Windows"
     for file_path in file_paths:
@@ -353,8 +367,8 @@ def main(
                 code_block_language=language,
                 pad_temporary_file=pad_file,
                 verbose=verbose,
-                temporary_file_suffix=file_suffix,
-                temporary_file_name_prefix=file_name_prefix,
+                temporary_file_suffix=temporary_file_suffix,
+                temporary_file_name_prefix=temporary_file_name_prefix,
                 skip_markers=skip_markers,
                 use_pty=use_pty,
             )
