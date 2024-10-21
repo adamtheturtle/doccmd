@@ -284,14 +284,14 @@ def _run_args_against_docs(
     is_flag=True,
     default=True,
     show_default=True,
-    help=("TODO"),
+    help="Search for files with '.rst' extensions in any given directories.",
 )
 @click.option(
     "--search-for-md/--no-search-for-md",
     is_flag=True,
     default=True,
     show_default=True,
-    help=("TODO"),
+    help="Search for files with '.md' extensions in any given directories.",
 )
 @click.option("--extra-file-suffixes")
 @click.argument(
