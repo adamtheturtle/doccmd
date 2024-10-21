@@ -148,10 +148,12 @@ def _run_args_against_docs(
     skip_parsers = _get_skip_parsers(skip_markers=skip_markers)
 
     rest_parser = RestCodeBlockParser(
-        language=code_block_language, evaluator=evaluator
+        language=code_block_language,
+        evaluator=evaluator,
     )
     myst_parser = MystCodeBlockParser(
-        language=code_block_language, evaluator=evaluator
+        language=code_block_language,
+        evaluator=evaluator,
     )
     code_block_parsers = [rest_parser, myst_parser]
     parsers: Sequence[Parser] = [*code_block_parsers, *skip_parsers]
