@@ -281,6 +281,7 @@ def _run_args_against_docs(
     show_default=True,
     help=("TODO"),
 )
+@click.option("--extra-file-suffixes")
 @click.argument(
     "paths",
     type=click.Path(exists=True, path_type=Path, dir_okay=True),
@@ -300,8 +301,8 @@ def main(
     languages: Iterable[str],
     command: str,
     paths: Iterable[Path],
-    file_suffix: str | None,
-    file_name_prefix: str | None,
+    file_suffix: str | None,  # TODO: Rename this
+    file_name_prefix: str | None,  # TODO: Rename this
     pad_file: bool,
     verbose: bool,
     skip_markers: Iterable[str],
