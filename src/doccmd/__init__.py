@@ -95,21 +95,21 @@ def _get_skip_parsers(
 
 
 @beartype
-def _get_temporary_file_suffix(
+def _get_temporary_file_extension(
     language: str,
-    given_file_suffix: str | None,
+    given_file_extension: str | None,
 ) -> str:
     """
     Get the file suffix, either from input or based on the language.
     """
-    if given_file_suffix is None:
+    if given_file_extension is None:
         language_to_suffix = _map_languages_to_suffix()
-        given_file_suffix = language_to_suffix.get(language.lower(), ".txt")
+        given_file_extension = language_to_suffix.get(language.lower(), ".txt")
 
-    if not given_file_suffix.startswith("."):
-        given_file_suffix = f".{given_file_suffix}"
+    if not given_file_extension.startswith("."):
+        given_file_extension = f".{given_file_extension}"
 
-    return given_file_suffix
+    return given_file_extension
 
 
 @beartype
@@ -118,7 +118,7 @@ def _run_args_against_docs(
     document_path: Path,
     args: Sequence[str | Path],
     code_block_language: str,
-    temporary_file_suffix: str | None,
+    temporary_file_extension: str | None,
     temporary_file_name_prefix: str | None,
     pad_temporary_file: bool,
     verbose: bool,
@@ -128,15 +128,15 @@ def _run_args_against_docs(
     """
     Run commands on the given file.
     """
-    temporary_file_suffix = _get_temporary_file_suffix(
+    temporary_file_extension = _get_temporary_file_extension(
         language=code_block_language,
-        given_file_suffix=temporary_file_suffix,
+        given_file_extension=temporary_file_extension,
     )
     newline = _detect_newline(file_path=document_path)
 
     evaluator = ShellCommandEvaluator(
         args=args,
-        tempfile_suffixes=(temporary_file_suffix,),
+        tempfile_suffixes=(temporary_file_extension,),
         pad_file=pad_temporary_file,
         write_to_file=True,
         tempfile_name_prefix=temporary_file_name_prefix or "",
@@ -217,8 +217,8 @@ def _run_args_against_docs(
 )
 @click.option("command", "-c", "--command", type=str, required=True)
 @click.option(
-    "file_suffix",
-    "--file-suffix",
+    "temporary_file_extension",
+    "--temporary-file-extension",
     type=str,
     required=False,
     help=(
@@ -228,8 +228,8 @@ def _run_args_against_docs(
     ),
 )
 @click.option(
-    "file_name_prefix",
-    "--file-name-prefix",
+    "temporary_file_name_prefix",
+    "--temporary-file-name-prefix",
     type=str,
     default="doccmd",
     show_default=True,
@@ -298,8 +298,8 @@ def main(
     languages: Iterable[str],
     command: str,
     document_paths: Iterable[Path],
-    file_suffix: str | None,
-    file_name_prefix: str | None,
+    temporary_file_extension: str | None,
+    temporary_file_name_prefix: str | None,
     pad_file: bool,
     verbose: bool,
     skip_markers: Iterable[str],
@@ -322,8 +322,8 @@ def main(
                 code_block_language=language,
                 pad_temporary_file=pad_file,
                 verbose=verbose,
-                temporary_file_suffix=file_suffix,
-                temporary_file_name_prefix=file_name_prefix,
+                temporary_file_extension=temporary_file_extension,
+                temporary_file_name_prefix=temporary_file_name_prefix,
                 skip_markers=skip_markers,
                 use_pty=use_pty,
             )
