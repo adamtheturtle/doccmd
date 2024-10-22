@@ -323,37 +323,33 @@ def main(
     pad_file: bool,
     verbose: bool,
     skip_markers: Iterable[str],
-    search_for_rst: bool,  # TODO: Set this up, default yes
-    search_for_md: bool,  # TODO: Set this up, default yes
-    file_suffixes: Iterable[str],  # TODO: This might be a follow up PR
+    search_for_rst: bool,
+    search_for_md: bool,
+    extra_file_suffixes: Iterable[str],
 ) -> None:
     """Run commands against code blocks in the given documentation files.
 
     This works with Markdown and reStructuredText files.
     """
-    # TODO: (use helper to...) add `.` - and test for this
-    file_suffixes = set(file_suffixes)
+    extra_file_suffixes = dict.fromkeys(extra_file_suffixes).keys()
+    file_suffixes = set(extra_file_suffixes)
     if search_for_rst:
         file_suffixes = {*file_suffixes, ".rst"}
     if search_for_md:
         file_suffixes = {*file_suffixes, ".md"}
 
-    file_suffixes = dict.fromkeys(file_suffixes).keys()
     args = shlex.split(s=command)
     # De-duplicate some choices, keeping the order.
     languages = dict.fromkeys(languages).keys()
     skip_markers = dict.fromkeys(skip_markers).keys()
-    # TODO: De-duplicate file suffixes
     file_paths: dict[Path, bool] = {}
     document_paths = dict.fromkeys(document_paths).keys()
-    # TODO: I think that this logic might also really be in Sybil
-    # - make changes once we have passing tests
     for path in document_paths:
         if path.is_file():
             file_paths[path] = True
         else:
-            for temporary_file_suffix in file_suffixes:
-                new_file_paths = path.glob(f"**/*{temporary_file_suffix}")
+            for file_suffix in file_suffixes:
+                new_file_paths = path.glob(f"**/*{file_suffix}")
                 for new_file_path in new_file_paths:
                     if new_file_path.is_file():
                         file_paths[new_file_path] = True

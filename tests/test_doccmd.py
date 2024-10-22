@@ -1466,3 +1466,6 @@ class TestDirectories:
 
         assert result.stdout == expected_output
         assert result.stderr == ""
+
+
+# Test de-dupe across directories / files given
