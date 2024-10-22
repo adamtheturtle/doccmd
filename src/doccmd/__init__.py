@@ -325,6 +325,8 @@ def main(
     skip_markers: Iterable[str],
     search_for_rst: bool,
     search_for_md: bool,
+    # Maybe we should separate rst and markdown files and have extra options
+    # for each
     extra_file_suffixes: Iterable[str],
 ) -> None:
     """Run commands against code blocks in the given documentation files.
