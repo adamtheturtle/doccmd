@@ -4,14 +4,7 @@ Changelog
 Next
 ----
 
-2024.10.18
-----------
-
-2024.10.14.2
-------------
-
-2024.10.14.1
-------------
+* Rename some options to make it clear that they apply to the temporary files created.
 
 2024.10.14
 ----------
