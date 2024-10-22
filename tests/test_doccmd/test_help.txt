@@ -5,38 +5,44 @@ Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...
   This works with Markdown and reStructuredText files.
 
 Options:
-  -l, --language TEXT         Run `command` against code blocks for this
-                              language. Give multiple times for multiple
-                              languages.  [required]
-  -c, --command TEXT          [required]
-  --file-suffix TEXT          The file extension to give to the temporary file
-                              made from the code block. By default, the file
-                              extension is inferred from the language, or it is
-                              '.txt' if the language is not recognized.
-  --file-name-prefix TEXT     The prefix to give to the temporary file made from
-                              the code block. This is useful for distinguishing
-                              files created by this tool from other files, e.g.
-                              for ignoring in linter configurations.  [default:
-                              doccmd; required]
-  --skip-marker TEXT          The marker used to identify code blocks to be
-                              skipped.  By default, code blocks which come just
-                              after a comment matching 'skip doccmd[all]: next'
-                              are skipped (e.g. `.. skip doccmd[all]: next` in
-                              reStructuredText, `<!--- skip doccmd[all]: next
-                              -->` in Markdown, or `% skip doccmd[all]: next` in
-                              MyST).  When using this option, those, and code
-                              blocks which come just after a comment including
-                              the given marker are ignored. For example, if the
-                              given marker is 'type-check', code blocks which
-                              come just after a comment matching 'skip
-                              doccmd[type-check]: next' are also skipped.  This
-                              marker is matched using a regular expression.
-  --pad-file / --no-pad-file  Run the command against a temporary file padded
-                              with newlines. This is useful for matching line
-                              numbers from the output to the relevant location
-                              in the document. Use --no-pad-file for formatters
-                              - they generally need to look at the file without
-                              padding.  [default: pad-file]
-  --version                   Show the version and exit.
-  -v, --verbose               Enable verbose output.
-  --help                      Show this message and exit.
+  -l, --language TEXT             Run `command` against code blocks for this
+                                  language. Give multiple times for multiple
+                                  languages.  [required]
+  -c, --command TEXT              [required]
+  --temporary-file-extension TEXT
+                                  The file extension to give to the temporary
+                                  file made from the code block. By default, the
+                                  file extension is inferred from the language,
+                                  or it is '.txt' if the language is not
+                                  recognized.
+  --temporary-file-name-prefix TEXT
+                                  The prefix to give to the temporary file made
+                                  from the code block. This is useful for
+                                  distinguishing files created by this tool from
+                                  other files, e.g. for ignoring in linter
+                                  configurations.  [default: doccmd; required]
+  --skip-marker TEXT              The marker used to identify code blocks to be
+                                  skipped.  By default, code blocks which come
+                                  just after a comment matching 'skip
+                                  doccmd[all]: next' are skipped (e.g. `.. skip
+                                  doccmd[all]: next` in reStructuredText, `<!---
+                                  skip doccmd[all]: next -->` in Markdown, or `%
+                                  skip doccmd[all]: next` in MyST).  When using
+                                  this option, those, and code blocks which come
+                                  just after a comment including the given
+                                  marker are ignored. For example, if the given
+                                  marker is 'type-check', code blocks which come
+                                  just after a comment matching 'skip
+                                  doccmd[type-check]: next' are also skipped. 
+                                  This marker is matched using a regular
+                                  expression.
+  --pad-file / --no-pad-file      Run the command against a temporary file
+                                  padded with newlines. This is useful for
+                                  matching line numbers from the output to the
+                                  relevant location in the document. Use --no-
+                                  pad-file for formatters - they generally need
+                                  to look at the file without padding.
+                                  [default: pad-file]
+  --version                       Show the version and exit.
+  -v, --verbose                   Enable verbose output.
+  --help                          Show this message and exit.

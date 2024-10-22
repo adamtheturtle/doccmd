@@ -28,7 +28,7 @@ def test_help(file_regression: FileRegressionFixture) -> None:
         args=arguments,
         catch_exceptions=False,
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 0, (result.stdout, result.stderr)
     file_regression.check(contents=result.output)
 
 
@@ -51,7 +51,7 @@ def test_run_command(tmp_path: Path) -> None:
         args=arguments,
         catch_exceptions=False,
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
         # The file is padded so that any error messages relate to the correct
         # line number in the original file.
@@ -94,7 +94,7 @@ def test_double_language(tmp_path: Path) -> None:
         args=arguments,
         catch_exceptions=False,
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
         # The file is padded so that any error messages relate to the correct
         # line number in the original file.
@@ -149,7 +149,7 @@ def test_not_utf_8_file_given(tmp_path: Path) -> None:
         args=arguments,
         catch_exceptions=False,
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = ""
     assert result.stdout == expected_output
     assert result.stderr == ""
@@ -179,7 +179,7 @@ def test_multiple_code_blocks(tmp_path: Path) -> None:
         args=arguments,
         catch_exceptions=False,
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
         text="""\
 
@@ -226,7 +226,7 @@ def test_language_filters(tmp_path: Path) -> None:
         args=arguments,
         catch_exceptions=False,
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
         text="""\
 
@@ -266,7 +266,7 @@ def test_run_command_no_pad_file(tmp_path: Path) -> None:
         args=arguments,
         catch_exceptions=False,
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
         text="""\
         x = 2 + 2
@@ -312,7 +312,7 @@ def test_multiple_files(tmp_path: Path) -> None:
         args=arguments,
         catch_exceptions=False,
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
         text="""\
 
@@ -376,7 +376,7 @@ def test_multiple_files_multiple_types(tmp_path: Path) -> None:
         args=arguments,
         catch_exceptions=False,
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
         text="""\
         print("In reStructuredText code-block")
@@ -498,7 +498,7 @@ def test_file_extension(
         args=arguments,
         catch_exceptions=False,
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 0, (result.stdout, result.stderr)
     output = result.stdout
     output_path = Path(output.strip())
     assert output_path.suffix == expected_extension
@@ -521,7 +521,7 @@ def test_given_file_extension(tmp_path: Path, extension: str) -> None:
     arguments = [
         "--language",
         "python",
-        "--file-suffix",
+        "--temporary-file-extension",
         extension,
         "--command",
         "echo",
@@ -532,7 +532,7 @@ def test_given_file_extension(tmp_path: Path, extension: str) -> None:
         args=arguments,
         catch_exceptions=False,
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 0, (result.stdout, result.stderr)
     output = result.stdout
     output_path = Path(output.strip())
     assert output_path.suffixes == [".foobar"]
@@ -554,7 +554,7 @@ def test_given_prefix(tmp_path: Path) -> None:
     arguments = [
         "--language",
         "python",
-        "--file-name-prefix",
+        "--temporary-file-name-prefix",
         "myprefix",
         "--command",
         "echo",
@@ -565,7 +565,7 @@ def test_given_prefix(tmp_path: Path) -> None:
         args=arguments,
         catch_exceptions=False,
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 0, (result.stdout, result.stderr)
     output = result.stdout
     output_path = Path(output.strip())
     assert output_path.name.startswith("myprefix_")
@@ -591,7 +591,7 @@ def test_file_extension_unknown_language(tmp_path: Path) -> None:
         args=arguments,
         catch_exceptions=False,
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 0, (result.stdout, result.stderr)
     output = result.stdout
     output_path = Path(output.strip())
     assert output_path.suffix == ".txt"
@@ -630,7 +630,7 @@ def test_file_given_multiple_times(tmp_path: Path) -> None:
         args=arguments,
         catch_exceptions=False,
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
         text="""\
 
@@ -683,7 +683,7 @@ def test_verbose_running(tmp_path: Path) -> None:
         args=arguments,
         catch_exceptions=False,
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
         text=f"""\
         Running 'cat' on code block at {rst_file} line 1
@@ -722,7 +722,7 @@ def test_verbose_not_utf_8(tmp_path: Path) -> None:
         args=arguments,
         catch_exceptions=False,
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = ""
     assert result.stdout == expected_output
     expected_stderr = f"Skipping '{rst_file}' because it is not UTF-8 encoded."
@@ -879,7 +879,7 @@ def test_multiple_languages(tmp_path: Path) -> None:
         args=arguments,
         catch_exceptions=False,
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
         text="""\
         x = 2 + 2
@@ -929,7 +929,7 @@ def test_default_skip_rst(tmp_path: Path) -> None:
         args=arguments,
         catch_exceptions=False,
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
         text="""\
         block_1
@@ -980,7 +980,7 @@ def test_custom_skip_markers_rst(tmp_path: Path) -> None:
         args=arguments,
         catch_exceptions=False,
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
         text="""\
         block_1
@@ -1036,7 +1036,7 @@ def test_default_skip_myst(tmp_path: Path) -> None:
         args=arguments,
         catch_exceptions=False,
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
         text="""\
         block_1
@@ -1095,7 +1095,7 @@ def test_custom_skip_markers_myst(tmp_path: Path) -> None:
         args=arguments,
         catch_exceptions=False,
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
         text="""\
         block_1
@@ -1156,7 +1156,7 @@ def test_multiple_skip_markers(tmp_path: Path) -> None:
         args=arguments,
         catch_exceptions=False,
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
         text="""\
         block_1
@@ -1214,7 +1214,7 @@ def test_skip_start_end(tmp_path: Path) -> None:
         args=arguments,
         catch_exceptions=False,
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
         text="""\
         block_1
@@ -1268,7 +1268,7 @@ def test_duplicate_skip_marker(tmp_path: Path) -> None:
         args=arguments,
         catch_exceptions=False,
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
         text="""\
         block_1
@@ -1319,7 +1319,7 @@ def test_default_skip_marker_given(tmp_path: Path) -> None:
         args=arguments,
         catch_exceptions=False,
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
         text="""\
         block_1
@@ -1350,7 +1350,7 @@ def test_empty_file(tmp_path: Path) -> None:
         args=arguments,
         catch_exceptions=False,
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 0, (result.stdout, result.stderr)
     assert result.stdout == ""
     assert result.stderr == ""
 
@@ -1395,7 +1395,7 @@ def test_detect_line_endings(
         args=arguments,
         catch_exceptions=False,
     )
-    assert result.exit_code == 0
+    assert result.exit_code == 0, (result.stdout, result.stderr)
     assert result.stderr == ""
     assert bool(b"\r\n" in result.stdout_bytes) == expect_crlf
     assert bool(b"\r" in result.stdout_bytes) == expect_cr
