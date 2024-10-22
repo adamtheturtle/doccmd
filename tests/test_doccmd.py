@@ -1469,3 +1469,4 @@ class TestDirectories:
 
 
 # Test de-dupe across directories / files given
+# Test recurse through directories
