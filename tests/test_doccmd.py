@@ -1402,61 +1402,67 @@ def test_detect_line_endings(
     assert bool(b"\n" in result.stdout_bytes) == expect_lf
 
 
-def test_directory(tmp_path: Path) -> None:
+class TestDirectories:
     """
-    All Markdown files and rST files in a given directory are worked on.
+    Tests for collecting files from directories.
     """
-    runner = CliRunner(mix_stderr=False)
-    rst_file = tmp_path / "example.rst"
-    rst_content = """\
-    .. code-block:: python
 
-        rst_1_block
-    """
-    rst_file.write_text(data=rst_content, encoding="utf-8")
-    md_file = tmp_path / "example.md"
-    md_content = """\
-    ```python
-    md_1_block
-    ```
-    """
-    md_file.write_text(data=md_content, encoding="utf-8")
-    sub_directory = tmp_path / "subdir"
-    sub_directory.mkdir()
-    rst_file_in_sub_directory = sub_directory / "subdir_example.rst"
-    subdir_rst_content = """\
-    .. code-block:: python
+    @staticmethod
+    def test_directory(tmp_path: Path) -> None:
+        """
+        All Markdown files and rST files in a given directory are worked on.
+        """
+        runner = CliRunner(mix_stderr=False)
+        rst_file = tmp_path / "example.rst"
+        rst_content = """\
+        .. code-block:: python
 
-        rst_subdir_1_block
-    """
-    rst_file_in_sub_directory.write_text(
-        data=subdir_rst_content,
-        encoding="utf-8",
-    )
-
-    arguments = [
-        "--language",
-        "python",
-        "--no-pad-file",
-        "--command",
-        "cat",
-        str(tmp_path),
-    ]
-    result = runner.invoke(
-        cli=main,
-        args=arguments,
-        catch_exceptions=False,
-    )
-    assert result.exit_code == 0, result.stderr
-    expected_output = textwrap.dedent(
-        # The file is padded so that any error messages relate to the correct
-        # line number in the original file.
-        text="""\
+            rst_1_block
+        """
+        rst_file.write_text(data=rst_content, encoding="utf-8")
+        md_file = tmp_path / "example.md"
+        md_content = """\
+        ```python
         md_1_block
-        rst_1_block
-        rst_subdir_1_block
-        """,
-    )
+        ```
+        """
+        md_file.write_text(data=md_content, encoding="utf-8")
+        sub_directory = tmp_path / "subdir"
+        sub_directory.mkdir()
+        rst_file_in_sub_directory = sub_directory / "subdir_example.rst"
+        subdir_rst_content = """\
+        .. code-block:: python
 
-    assert result.stdout == expected_output
-    assert result.stderr == ""
+            rst_subdir_1_block
+        """
+        rst_file_in_sub_directory.write_text(
+            data=subdir_rst_content,
+            encoding="utf-8",
+        )
+
+        arguments = [
+            "--language",
+            "python",
+            "--no-pad-file",
+            "--command",
+            "cat",
+            str(tmp_path),
+        ]
+        result = runner.invoke(
+            cli=main,
+            args=arguments,
+            catch_exceptions=False,
+        )
+        assert result.exit_code == 0, result.stderr
+        expected_output = textwrap.dedent(
+            # The file is padded so that any error messages relate to the
+            # correct line number in the original file.
+            text="""\
+            md_1_block
+            rst_1_block
+            rst_subdir_1_block
+            """,
+        )
+
+        assert result.stdout == expected_output
+        assert result.stderr == ""
