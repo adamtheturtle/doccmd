@@ -7,6 +7,7 @@ import shlex
 import subprocess
 import sys
 from collections.abc import Iterable, Sequence
+from enum import Enum, auto
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -86,8 +87,15 @@ def _get_skip_directives(skip_markers: Iterable[str]) -> Sequence[str]:
 
 
 @beartype
+class _MarkupLanguage(Enum):
+    MYST = auto()
+    RESTRUCTURED_TEXT = auto()
+
+
+@beartype
 def _get_skip_parsers(
     skip_directives: Sequence[str],
+    markup_language: _MarkupLanguage,
 ) -> Sequence[AbstractSkipParser]:
     """
     Skip parsers for reST and MyST based on the provided skip markers.
@@ -95,13 +103,18 @@ def _get_skip_parsers(
     skip_parsers: Sequence[AbstractSkipParser] = []
 
     for skip_directive in skip_directives:
-        rest_skip_parser = RestCustomDirectiveSkipParser(
-            directive=skip_directive,
-        )
-        myst_skip_parser = MystCustomDirectiveSkipParser(
-            directive=skip_directive
-        )
-        skip_parsers = [*skip_parsers, rest_skip_parser, myst_skip_parser]
+        match markup_language:
+            case _MarkupLanguage.MYST:
+                myst_skip_parser = MystCustomDirectiveSkipParser(
+                    directive=skip_directive
+                )
+                skip_parsers = [*skip_parsers, myst_skip_parser]
+            case _MarkupLanguage.RESTRUCTURED_TEXT:
+                rst_skip_parser = RestCustomDirectiveSkipParser(
+                    directive=skip_directive,
+                )
+                skip_parsers = [*skip_parsers, rst_skip_parser]
+
     return skip_parsers
 
 
@@ -127,6 +140,7 @@ def _get_temporary_file_extension(
 def _run_args_against_docs(
     *,
     document_path: Path,
+    markup_language: _MarkupLanguage,
     args: Sequence[str | Path],
     code_block_language: str,
     temporary_file_extension: str | None,
@@ -157,7 +171,10 @@ def _run_args_against_docs(
 
     skip_markers = {*skip_markers, "all"}
     skip_directives = _get_skip_directives(skip_markers=skip_markers)
-    skip_parsers = _get_skip_parsers(skip_directives=skip_directives)
+    skip_parsers = _get_skip_parsers(
+        skip_directives=skip_directives,
+        markup_language=markup_language,
+    )
 
     rest_parser = RestCodeBlockParser(
         language=code_block_language,
@@ -327,10 +344,13 @@ def main(
     document_paths = dict.fromkeys(document_paths).keys()
     use_pty = sys.stdout.isatty() and platform.system() != "Windows"
     for document_path in document_paths:
+        # TODO: Work this out
+        markup_language = _MarkupLanguage.MYST
         for language in languages:
             _run_args_against_docs(
                 args=args,
                 document_path=document_path,
+                markup_language=markup_language,
                 code_block_language=language,
                 pad_temporary_file=pad_file,
                 verbose=verbose,
