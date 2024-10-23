@@ -73,17 +73,28 @@ def _map_languages_to_suffix() -> dict[str, str]:
 
 
 @beartype
+def _get_skip_directives(skip_markers: Iterable[str]) -> Sequence[str]:
+    """
+    Skip directives for reST and MyST based on the provided skip markers.
+    """
+    skip_directives: Sequence[str] = []
+
+    for skip_marker in skip_markers:
+        skip_directive = rf"skip doccmd\[{skip_marker}\]"
+        skip_directives = [*skip_directives, skip_directive]
+    return skip_directives
+
+
+@beartype
 def _get_skip_parsers(
-    skip_markers: Iterable[str],
+    skip_directives: Sequence[str],
 ) -> Sequence[AbstractSkipParser]:
     """
     Skip parsers for reST and MyST based on the provided skip markers.
     """
     skip_parsers: Sequence[AbstractSkipParser] = []
 
-    for skip_marker in skip_markers:
-        skip_directive = rf"skip doccmd\[{skip_marker}\]"
-
+    for skip_directive in skip_directives:
         rest_skip_parser = RestCustomDirectiveSkipParser(
             directive=skip_directive,
         )
@@ -145,7 +156,8 @@ def _run_args_against_docs(
     )
 
     skip_markers = {*skip_markers, "all"}
-    skip_parsers = _get_skip_parsers(skip_markers=skip_markers)
+    skip_directives = _get_skip_directives(skip_markers=skip_markers)
+    skip_parsers = _get_skip_parsers(skip_directives=skip_directives)
 
     rest_parser = RestCodeBlockParser(
         language=code_block_language,
