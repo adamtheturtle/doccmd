@@ -20,6 +20,7 @@ from sybil.evaluators.skip import Skipper
 from sybil.parsers.abstract.skip import AbstractSkipParser
 from sybil.parsers.myst import CodeBlockParser as MystCodeBlockParser
 from sybil.parsers.rest import CodeBlockParser as RestCodeBlockParser
+from sybil.typing import Parser
 from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
 from sybil_extras.parsers.myst.custom_directive_skip import (
     CustomDirectiveSkipParser as MystCustomDirectiveSkipParser,
@@ -27,9 +28,6 @@ from sybil_extras.parsers.myst.custom_directive_skip import (
 from sybil_extras.parsers.rest.custom_directive_skip import (
     CustomDirectiveSkipParser as RestCustomDirectiveSkipParser,
 )
-
-if TYPE_CHECKING:
-    from sybil.typing import Parser
 
 try:
     __version__ = version(__name__)
@@ -133,6 +131,32 @@ def _get_skip_parsers(
 
 
 @beartype
+def _get_code_block_parsers(
+    markup_language: _MarkupLanguage,
+    code_block_language: str,
+    evaluator: ShellCommandEvaluator,
+) -> Sequence[Parser]:
+    """
+    Get the code block parsers for the given language.
+    """
+    match markup_language:
+        case _MarkupLanguage.MYST:
+            return [
+                MystCodeBlockParser(
+                    language=code_block_language,
+                    evaluator=evaluator,
+                ),
+            ]
+        case _MarkupLanguage.RESTRUCTURED_TEXT:
+            return [
+                RestCodeBlockParser(
+                    language=code_block_language,
+                    evaluator=evaluator,
+                ),
+            ]
+
+
+@beartype
 def _get_temporary_file_extension(
     language: str,
     given_file_extension: str | None,
@@ -189,16 +213,12 @@ def _run_args_against_docs(
         skip_directives=skip_directives,
         markup_language=markup_language,
     )
+    code_block_parsers = _get_code_block_parsers(
+        markup_language=markup_language,
+        code_block_language=code_block_language,
+        evaluator=evaluator,
+    )
 
-    rest_parser = RestCodeBlockParser(
-        language=code_block_language,
-        evaluator=evaluator,
-    )
-    myst_parser = MystCodeBlockParser(
-        language=code_block_language,
-        evaluator=evaluator,
-    )
-    code_block_parsers = [rest_parser, myst_parser]
     parsers: Sequence[Parser] = [*code_block_parsers, *skip_parsers]
     sybil = Sybil(parsers=parsers)
     try:
