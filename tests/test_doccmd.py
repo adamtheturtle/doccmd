@@ -1400,3 +1400,7 @@ def test_detect_line_endings(
     assert bool(b"\r\n" in result.stdout_bytes) == expect_crlf
     assert bool(b"\r" in result.stdout_bytes) == expect_cr
     assert bool(b"\n" in result.stdout_bytes) == expect_lf
+
+
+# TODO: Test Markdown markup in rst file
+# TODO: Test unusual file suffix

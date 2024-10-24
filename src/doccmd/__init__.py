@@ -87,9 +87,23 @@ def _get_skip_directives(skip_markers: Iterable[str]) -> Sequence[str]:
 
 
 @beartype
+class _UnknownMarkupLanguageError(Exception):
+    pass
+
+
+@beartype
 class _MarkupLanguage(Enum):
     MYST = auto()
     RESTRUCTURED_TEXT = auto()
+
+
+@beartype
+def _detect_markup_language(file_path: Path) -> _MarkupLanguage:
+    if file_path.suffix == ".md":
+        return _MarkupLanguage.MYST
+    if file_path.suffix == ".rst":
+        return _MarkupLanguage.RESTRUCTURED_TEXT
+    raise _UnknownMarkupLanguageError
 
 
 @beartype
@@ -140,7 +154,6 @@ def _get_temporary_file_extension(
 def _run_args_against_docs(
     *,
     document_path: Path,
-    markup_language: _MarkupLanguage,
     args: Sequence[str | Path],
     code_block_language: str,
     temporary_file_extension: str | None,
@@ -158,6 +171,7 @@ def _run_args_against_docs(
         given_file_extension=temporary_file_extension,
     )
     newline = _detect_newline(file_path=document_path)
+    markup_language = _detect_markup_language(file_path=document_path)
 
     evaluator = ShellCommandEvaluator(
         args=args,
@@ -344,13 +358,10 @@ def main(
     document_paths = dict.fromkeys(document_paths).keys()
     use_pty = sys.stdout.isatty() and platform.system() != "Windows"
     for document_path in document_paths:
-        # TODO: Work this out
-        markup_language = _MarkupLanguage.MYST
         for language in languages:
             _run_args_against_docs(
                 args=args,
                 document_path=document_path,
-                markup_language=markup_language,
                 code_block_language=language,
                 pad_temporary_file=pad_file,
                 verbose=verbose,
