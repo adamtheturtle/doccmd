@@ -2,7 +2,6 @@
 Tests for `doccmd`.
 """
 
-import platform
 import stat
 import subprocess
 import sys
@@ -1434,7 +1433,7 @@ def test_pty(
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
-    posix_test = textwrap.dedent(
+    sh_function = textwrap.dedent(
         text="""\
         #!/bin/sh
 
@@ -1446,26 +1445,8 @@ def test_pty(
         fi
         """,
     )
-    windows_test = textwrap.dedent(
-        text="""\
-        if (-not [Console]::IsOutputRedirected) {
-            Write-Output "stdout is a terminal"
-        } else {
-            Write-Output "stdout is not a terminal"
-        }
-        """,
-    )
-    posix_extension = "sh"
-    windows_extension = "ps1"
-    if platform.system() == "Windows":  # pragma: no cover
-        extension = windows_extension
-        test_content = windows_test
-    else:  # pragma: no cover
-        extension = posix_extension
-        test_content = posix_test
-
-    script = tmp_path / f"my_script.{extension}"
-    script.write_text(data=test_content)
+    script = tmp_path / "my_script.sh"
+    script.write_text(data=sh_function)
     script.chmod(mode=stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR)
     content = """\
     .. code-block:: python
