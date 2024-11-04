@@ -4,6 +4,9 @@ Changelog
 Next
 ----
 
+2024.11.04
+----------
+
 * Rename some options to make it clear that they apply to the temporary files created.
 
 2024.10.14
