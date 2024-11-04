@@ -1460,7 +1460,7 @@ def test_pty(
         "--language",
         "python",
         "--command",
-        str(script),
+        script.as_posix(),
         str(rst_file),
     ]
     result = runner.invoke(
