@@ -1414,7 +1414,7 @@ def test_detect_line_endings(
 @pytest.mark.parametrize(
     argnames=["options", "expected_output"],
     argvalues=[
-        # We cannot test the actual behavior of using a psuedo-terminal,
+        # We cannot test the actual behavior of using a pseudo-terminal,
         # as CI (e.g. GitHub Actions) does not support it.
         # Therefore we do not test the `--use-pty` option.
         (["--no-use-pty"], "stdout is not a terminal."),
