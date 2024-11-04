@@ -40,6 +40,33 @@ except PackageNotFoundError:  # pragma: no cover
 
 
 @beartype
+def _log_info(message: str) -> None:
+    """
+    Log an info message.
+    """
+    styled_message = click.style(text=message, fg="yellow")
+    click.echo(message=styled_message, err=False)
+
+
+@beartype
+def _log_warning(message: str) -> None:
+    """
+    Log a warning message.
+    """
+    styled_message = click.style(text=message, fg="yellow")
+    click.echo(message=styled_message, err=True)
+
+
+@beartype
+def _log_error(message: str) -> None:
+    """
+    Log an error message.
+    """
+    styled_message = click.style(text=message, fg="red")
+    click.echo(message=styled_message, err=True)
+
+
+@beartype
 def _detect_newline(file_path: Path) -> str | None:
     """
     Detect the newline character used in the given file.
@@ -177,11 +204,7 @@ def _run_args_against_docs(
             unicode_error_message = (
                 f"Skipping '{document_path}' because it is not UTF-8 encoded."
             )
-            styled_unicode_error_message = click.style(
-                text=unicode_error_message,
-                fg="yellow",
-            )
-            click.echo(message=styled_unicode_error_message, err=True)
+            _log_warning(message=unicode_error_message)
         return
     for example in document.examples():
         if (
@@ -195,22 +218,18 @@ def _run_args_against_docs(
             command_str = shlex.join(
                 split_command=[str(item) for item in args],
             )
-            message = (
+            running_command_message = (
                 f"Running '{command_str}' on code block at "
                 f"{document_path} line {example.line}"
             )
-            styled_message = click.style(text=message, fg="yellow")
-            click.echo(message=styled_message)
+            _log_info(message=running_command_message)
         try:
             example.evaluate()
         except subprocess.CalledProcessError as exc:
             sys.exit(exc.returncode)
         except OSError as exc:
-            styled_permission_message = click.style(
-                text=f"Error running command '{args[0]}': {exc}",
-                fg="red",
-            )
-            click.echo(message=styled_permission_message, err=True)
+            os_error_message = f"Error running command '{args[0]}': {exc}"
+            _log_error(message=os_error_message)
             sys.exit(exc.errno)
 
 
