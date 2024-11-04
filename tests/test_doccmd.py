@@ -1433,7 +1433,7 @@ def test_pty(
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
-    sh_function = textwrap.dedent(
+    tty_test = textwrap.dedent(
         text="""\
         import sys
 
@@ -1443,8 +1443,8 @@ def test_pty(
             print("stdout is not a terminal.")
         """,
     )
-    script = tmp_path / "my_script.sh"
-    script.write_text(data=sh_function)
+    script = tmp_path / "my_script.py"
+    script.write_text(data=tty_test)
     script.chmod(mode=stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR)
     content = """\
     .. code-block:: python
