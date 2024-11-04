@@ -349,8 +349,13 @@ def _run_args_against_docs(
     type=_UsePty,
     flag_value=_UsePty.YES,
     default=False,
-    show_default="detect-use-pty",
-    help=("""X"""),
+    show_default="--detect-use-pty",
+    help=(
+        "Use a pseudo-terminal for running commands. "
+        "This can be useful e.g. to get color output, but can also break "
+        "in some environments. "
+        "Not supported on Windows."
+    ),
 )
 @click.option(
     "--no-use-pty",
@@ -359,7 +364,12 @@ def _run_args_against_docs(
     type=_UsePty,
     flag_value=_UsePty.NO,
     default=False,
-    show_default="detect-use-pty",
+    show_default="--detect-use-pty",
+    help=(
+        "Do not use a pseudo-terminal for running commands. "
+        "This is useful when ``doccmd`` detects that it is running in a "
+        "TTY outside of Windows but the environment does not support PTYs."
+    ),
 )
 @click.option(
     "--detect-use-pty",
@@ -368,7 +378,11 @@ def _run_args_against_docs(
     type=_UsePty,
     flag_value=_UsePty.DETECT,
     default=True,
-    show_default="detect-use-pty",
+    show_default="True",
+    help=(
+        "Automatically determine whether to use a pseudo-terminal for running "
+        "commands."
+    ),
 )
 @beartype
 def main(
