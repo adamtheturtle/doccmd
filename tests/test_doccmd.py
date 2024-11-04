@@ -2,10 +2,12 @@
 Tests for `doccmd`.
 """
 
+import stat
 import subprocess
 import sys
 import textwrap
 import uuid
+from collections.abc import Sequence
 from pathlib import Path
 
 import pytest
@@ -1407,3 +1409,62 @@ def test_detect_line_endings(
     assert bool(b"\r\n" in result.stdout_bytes) == expect_crlf
     assert bool(b"\r" in result.stdout_bytes) == expect_cr
     assert bool(b"\n" in result.stdout_bytes) == expect_lf
+
+
+@pytest.mark.parametrize(
+    argnames=["options", "expected_output"],
+    argvalues=[
+        (["--use-pty"], "stdout is a terminal."),
+        (["--no-use-pty"], "stdout is not a terminal."),
+        # We are not really testing the detection mechanism.
+        (["--detect-use-pty"], "stdout is not a terminal."),
+    ],
+    ids=["use-pty", "no-use-pty", "detect-use-pty"],
+)
+def test_pty(
+    tmp_path: Path,
+    options: Sequence[str],
+    expected_output: str,
+) -> None:
+    """
+    Test options for using pty.
+    """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    sh_function = textwrap.dedent(
+        text="""\
+        #!/bin/sh
+
+        if [[ -t 1 ]]; then
+            echo "stdout is a terminal."
+        else
+            echo "stdout is not a terminal."
+        fi
+        """,
+    )
+    script = tmp_path / "my_script.sh"
+    script.write_text(data=sh_function)
+    script.chmod(mode=stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR)
+    content = """\
+    .. code-block:: python
+
+       block_1
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        *options,
+        "--no-pad-file",
+        "--language",
+        "python",
+        "--command",
+        str(script),
+        str(rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert result.stderr == ""
+    assert result.stdout.strip() == expected_output
