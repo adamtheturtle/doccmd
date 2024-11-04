@@ -7,6 +7,7 @@ import shlex
 import subprocess
 import sys
 from collections.abc import Iterable, Sequence
+from enum import Enum, auto
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -37,6 +38,24 @@ except PackageNotFoundError:  # pragma: no cover
     # for example in a PyInstaller binary,
     # we write the file ``_setuptools_scm_version.py`` on ``pip install``.
     from ._setuptools_scm_version import __version__
+
+
+class _UsePty(Enum):
+    """
+    Choices for the use of a pseudo-terminal.
+    """
+
+    YES = auto()
+    NO = auto()
+    DETECT = auto()
+
+    def use_pty(self) -> bool:
+        """
+        Whether to use a pseudo-terminal.
+        """
+        if self is _UsePty.DETECT:
+            return sys.stdout.isatty() and platform.system() != "Windows"
+        return self is _UsePty.YES
 
 
 @beartype
@@ -323,6 +342,48 @@ def _run_args_against_docs(
     default=False,
     help="Enable verbose output.",
 )
+@click.option(
+    "--use-pty",
+    "use_pty_option",
+    is_flag=True,
+    type=_UsePty,
+    flag_value=_UsePty.YES,
+    default=False,
+    show_default="--detect-use-pty",
+    help=(
+        "Use a pseudo-terminal for running commands. "
+        "This can be useful e.g. to get color output, but can also break "
+        "in some environments. "
+        "Not supported on Windows."
+    ),
+)
+@click.option(
+    "--no-use-pty",
+    "use_pty_option",
+    is_flag=True,
+    type=_UsePty,
+    flag_value=_UsePty.NO,
+    default=False,
+    show_default="--detect-use-pty",
+    help=(
+        "Do not use a pseudo-terminal for running commands. "
+        "This is useful when ``doccmd`` detects that it is running in a "
+        "TTY outside of Windows but the environment does not support PTYs."
+    ),
+)
+@click.option(
+    "--detect-use-pty",
+    "use_pty_option",
+    is_flag=True,
+    type=_UsePty,
+    flag_value=_UsePty.DETECT,
+    default=True,
+    show_default="True",
+    help=(
+        "Automatically determine whether to use a pseudo-terminal for running "
+        "commands."
+    ),
+)
 @beartype
 def main(
     *,
@@ -334,6 +395,7 @@ def main(
     pad_file: bool,
     verbose: bool,
     skip_markers: Iterable[str],
+    use_pty_option: _UsePty,
 ) -> None:
     """Run commands against code blocks in the given documentation files.
 
@@ -344,7 +406,7 @@ def main(
     languages = dict.fromkeys(languages).keys()
     skip_markers = dict.fromkeys(skip_markers).keys()
     document_paths = dict.fromkeys(document_paths).keys()
-    use_pty = sys.stdout.isatty() and platform.system() != "Windows"
+    use_pty = use_pty_option.use_pty()
     if verbose:
         _log_error(
             message="Using PTY for running commands."
