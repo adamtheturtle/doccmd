@@ -7,7 +7,7 @@ import shlex
 import subprocess
 import sys
 from collections.abc import Iterable, Sequence
-from enum import Enum, auto
+from enum import Enum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -40,6 +40,7 @@ except PackageNotFoundError:  # pragma: no cover
     from ._setuptools_scm_version import __version__
 
 
+@unique
 class _UsePty(Enum):
     """
     Choices for the use of a pseudo-terminal.
