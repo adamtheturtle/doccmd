@@ -42,7 +42,7 @@ except PackageNotFoundError:  # pragma: no cover
 
 class _UsePty(Enum):
     """
-    Enum for the use of PTY.
+    Choices for the use of a pseudo-terminal.
     """
 
     YES = auto()
@@ -51,7 +51,7 @@ class _UsePty(Enum):
 
     def use_pty(self) -> bool:
         """
-        Get the value of the enum.
+        Whether to use a pseudo-terminal.
         """
         if self is _UsePty.DETECT:
             return sys.stdout.isatty() and platform.system() != "Windows"

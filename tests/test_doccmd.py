@@ -1427,7 +1427,7 @@ def test_pty(
     expected_output: str,
 ) -> None:
     """
-    Test options for using pty.
+    Test options for using pseudo-terminal.
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
