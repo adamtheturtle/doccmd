@@ -1435,6 +1435,8 @@ def test_pty(
     rst_file = tmp_path / "example.rst"
     tty_test = textwrap.dedent(
         text="""\
+        #!/usr/bin/env python3
+
         import sys
 
         if sys.stdout.isatty():
@@ -1458,7 +1460,7 @@ def test_pty(
         "--language",
         "python",
         "--command",
-        f"{sys.executable} {script.as_posix()}",
+        script.as_posix(),
         str(rst_file),
     ]
     result = runner.invoke(
