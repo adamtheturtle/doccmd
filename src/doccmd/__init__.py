@@ -345,6 +345,13 @@ def main(
     skip_markers = dict.fromkeys(skip_markers).keys()
     document_paths = dict.fromkeys(document_paths).keys()
     use_pty = sys.stdout.isatty() and platform.system() != "Windows"
+    if verbose:
+        _log_error(
+            message="Using PTY for running commands."
+            if use_pty
+            else "Not using PTY for running commands."
+        )
+
     for document_path in document_paths:
         for language in languages:
             _run_args_against_docs(

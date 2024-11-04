@@ -725,8 +725,15 @@ def test_verbose_not_utf_8(tmp_path: Path) -> None:
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = ""
     assert result.stdout == expected_output
-    expected_stderr = f"Skipping '{rst_file}' because it is not UTF-8 encoded."
-    assert result.stderr.strip() == expected_stderr
+    # The first line here is not relevant, but we test the entire
+    # verbose output to ensure that it is as expected.
+    expected_stderr = textwrap.dedent(
+        text=f"""\
+            Not using PTY for running commands.
+            Skipping '{rst_file}' because it is not UTF-8 encoded.
+            """,
+    )
+    assert result.stderr == expected_stderr
 
 
 def test_directory_passed_in(tmp_path: Path) -> None:
