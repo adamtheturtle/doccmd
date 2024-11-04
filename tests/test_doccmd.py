@@ -1435,14 +1435,12 @@ def test_pty(
     rst_file = tmp_path / "example.rst"
     sh_function = textwrap.dedent(
         text="""\
-        #!/bin/sh
+        import sys
 
-        if [ -t 1 ]; then
-            # We do not test this as CI does not support it.
-            echo "stdout is a terminal."
-        else
-            echo "stdout is not a terminal."
-        fi
+        if sys.stdout.isatty():
+            print("stdout is a terminal.")
+        else:
+            print("stdout is not a terminal.")
         """,
     )
     script = tmp_path / "my_script.sh"
@@ -1460,7 +1458,7 @@ def test_pty(
         "--language",
         "python",
         "--command",
-        script.as_posix(),
+        f"{sys.executable} {script.as_posix()}",
         str(rst_file),
     ]
     result = runner.invoke(
