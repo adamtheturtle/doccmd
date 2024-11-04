@@ -1433,7 +1433,7 @@ def test_pty(
     rst_file = tmp_path / "example.rst"
     sh_function = textwrap.dedent(
         text="""\
-        #!/bin/sh
+        #!/bin/bash
 
         if [[ -t 1 ]]; then
             echo "stdout is a terminal."
