@@ -1421,7 +1421,7 @@ def test_detect_line_endings(
         # We are not really testing the detection mechanism.
         (["--detect-use-pty"], "stdout is not a terminal."),
     ],
-    ids=["use-pty", "no-use-pty", "detect-use-pty"],
+    ids=["no-use-pty", "detect-use-pty"],
 )
 def test_pty(
     tmp_path: Path,
