@@ -17,7 +17,6 @@ from beartype import beartype
 from pygments.lexers import get_all_lexers
 from sybil import Sybil
 from sybil.evaluators.skip import Skipper
-from sybil.parsers.abstract.skip import AbstractSkipParser
 from sybil.parsers.myst import CodeBlockParser as MystCodeBlockParser
 from sybil.parsers.rest import CodeBlockParser as RestCodeBlockParser
 from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
@@ -122,7 +121,7 @@ def _map_languages_to_suffix() -> dict[str, str]:
 @beartype
 def _get_skip_directives(skip_markers: Iterable[str]) -> Sequence[str]:
     """
-    Skip directives for reST and MyST based on the provided skip markers.
+    Skip directives based on the provided skip markers.
     """
     skip_directives: Sequence[str] = []
 
@@ -133,23 +132,67 @@ def _get_skip_directives(skip_markers: Iterable[str]) -> Sequence[str]:
 
 
 @beartype
-def _get_skip_parsers(
-    skip_directives: Sequence[str],
-) -> Sequence[AbstractSkipParser]:
+class _UnknownMarkupLanguageError(Exception):
     """
-    Skip parsers for reST and MyST based on the provided skip markers.
+    Raised when the markup language is not recognized.
     """
-    skip_parsers: Sequence[AbstractSkipParser] = []
 
-    for skip_directive in skip_directives:
-        rest_skip_parser = RestCustomDirectiveSkipParser(
-            directive=skip_directive,
-        )
-        myst_skip_parser = MystCustomDirectiveSkipParser(
-            directive=skip_directive
-        )
-        skip_parsers = [*skip_parsers, rest_skip_parser, myst_skip_parser]
-    return skip_parsers
+    def __init__(self, file_path: Path) -> None:
+        """
+        Args:
+            file_path: The file path for which the markup language is unknown.
+        """
+        super().__init__(f"Markup language not known for {file_path}.")
+
+
+@beartype
+@unique
+class _MarkupLanguage(Enum):
+    """
+    Supported markup languages.
+    """
+
+    MYST = auto()
+    RESTRUCTURED_TEXT = auto()
+
+    @classmethod
+    def from_file_path(cls, file_path: Path) -> "_MarkupLanguage":
+        """
+        Determine the markup language from the file path.
+        """
+        if file_path.suffix == ".md":
+            return cls.MYST
+        if file_path.suffix == ".rst":
+            return cls.RESTRUCTURED_TEXT
+        raise _UnknownMarkupLanguageError(file_path=file_path)
+
+    @property
+    def skip_parser_cls(
+        self,
+    ) -> type[MystCustomDirectiveSkipParser | RestCustomDirectiveSkipParser]:
+        """
+        Skip parser class.
+        """
+        match self:
+            case _MarkupLanguage.MYST:
+                return MystCustomDirectiveSkipParser
+            # Ignore coverage because this never not reached.
+            case _MarkupLanguage.RESTRUCTURED_TEXT:  # pragma: no cover
+                return RestCustomDirectiveSkipParser
+
+    @property
+    def code_block_parser_cls(
+        self,
+    ) -> type[MystCodeBlockParser | RestCodeBlockParser]:
+        """
+        Skip parser class.
+        """
+        match self:
+            case _MarkupLanguage.MYST:
+                return MystCodeBlockParser
+            # Ignore coverage because this never not reached.
+            case _MarkupLanguage.RESTRUCTURED_TEXT:  # pragma: no cover
+                return RestCodeBlockParser
 
 
 @beartype
@@ -186,6 +229,7 @@ def _run_args_against_docs(
     """
     Run commands on the given file.
     """
+    markup_language = _MarkupLanguage.from_file_path(file_path=document_path)
     temporary_file_extension = _get_temporary_file_extension(
         language=code_block_language,
         given_file_extension=temporary_file_extension,
@@ -204,17 +248,17 @@ def _run_args_against_docs(
 
     skip_markers = {*skip_markers, "all"}
     skip_directives = _get_skip_directives(skip_markers=skip_markers)
-    skip_parsers = _get_skip_parsers(skip_directives=skip_directives)
+    skip_parsers = [
+        markup_language.skip_parser_cls(directive=skip_directive)
+        for skip_directive in skip_directives
+    ]
+    code_block_parsers = [
+        markup_language.code_block_parser_cls(
+            language=code_block_language,
+            evaluator=evaluator,
+        )
+    ]
 
-    rest_parser = RestCodeBlockParser(
-        language=code_block_language,
-        evaluator=evaluator,
-    )
-    myst_parser = MystCodeBlockParser(
-        language=code_block_language,
-        evaluator=evaluator,
-    )
-    code_block_parsers = [rest_parser, myst_parser]
     parsers: Sequence[Parser] = [*code_block_parsers, *skip_parsers]
     sybil = Sybil(parsers=parsers)
     try:
@@ -414,6 +458,12 @@ def main(
             if use_pty
             else "Not using PTY for running commands."
         )
+
+    try:
+        for document_path in document_paths:
+            _MarkupLanguage.from_file_path(file_path=document_path)
+    except _UnknownMarkupLanguageError as exc:
+        raise click.UsageError(message=str(exc)) from exc
 
     for document_path in document_paths:
         for language in languages:

@@ -1411,6 +1411,76 @@ def test_detect_line_endings(
     assert bool(b"\n" in result.stdout_bytes) == expect_lf
 
 
+def test_one_supported_markup_in_another_extension(tmp_path: Path) -> None:
+    """
+    Code blocks in a supported markup language in a file with an extension
+    which matches another extension are not run.
+    """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    content = """\
+    ```python
+    print("In simple markdown code block")
+    ```
+
+    ```{code-block} python
+    print("In MyST code-block")
+    ```
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = ["--language", "python", "--command", "cat", str(rst_file)]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    # Empty because the Markdown-style code block is not run in.
+    expected_output = ""
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
+@pytest.mark.parametrize(argnames="extension", argvalues=[".unknown", ""])
+def test_unknown_file_suffix(extension: str, tmp_path: Path) -> None:
+    """
+    An error is shown when the file suffix is not known.
+    """
+    runner = CliRunner(mix_stderr=False)
+    document_file = tmp_path / ("example" + extension)
+    content = """\
+    .. code-block:: python
+
+        x = 2 + 2
+        assert x == 4
+    """
+    document_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        str(document_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code != 0, (result.stdout, result.stderr)
+    expected_stderr = textwrap.dedent(
+        text=f"""\
+            Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...
+            Try 'doccmd --help' for help.
+
+            Error: Markup language not known for {document_file}.
+            """,
+    )
+
+    assert result.stdout == ""
+    assert result.stderr == expected_stderr
+
+
 @pytest.mark.parametrize(
     argnames=["options", "expected_output"],
     argvalues=[
