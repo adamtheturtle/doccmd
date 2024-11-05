@@ -32,7 +32,7 @@ class UnknownMarkupLanguageError(Exception):
 
 
 @runtime_checkable
-class MarkupLanguage(Protocol):
+class _MarkupLanguage(Protocol):
     """
     A protocol for markup languages.
     """
@@ -62,7 +62,7 @@ class MarkupLanguage(Protocol):
 
 @beartype
 @dataclass(frozen=True)
-class MyST:
+class _MyST:
     """
     The MyST markup language.
     """
@@ -77,7 +77,7 @@ class MyST:
 
 @beartype
 @dataclass(frozen=True)
-class ReStructuredText:
+class _ReStructuredText:
     """
     The reStructuredText markup language.
     """
@@ -91,12 +91,12 @@ class ReStructuredText:
 
 
 @beartype
-def get_markup_language(file_path: Path) -> MarkupLanguage:
+def get_markup_language(file_path: Path) -> _MarkupLanguage:
     """
     Determine the markup language from the file path.
     """
     if file_path.suffix == ".md":
-        return MyST
+        return _MyST
     if file_path.suffix == ".rst":
-        return ReStructuredText
+        return _ReStructuredText
     raise UnknownMarkupLanguageError(file_path=file_path)
