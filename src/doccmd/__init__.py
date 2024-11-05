@@ -417,6 +417,7 @@ def main(
     # TODO: Error if overlapping extensions rST and MyST
     # TODO: Make sure it is fine extension starting without a dot
     # TODO: Make empty extension not count
+    # TODO: de-duplicate extensions
     args = shlex.split(s=command)
     # De-duplicate some choices, keeping the order.
     languages = dict.fromkeys(languages).keys()

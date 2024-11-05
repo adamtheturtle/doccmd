@@ -1481,6 +1481,53 @@ def test_unknown_file_suffix(extension: str, tmp_path: Path) -> None:
     assert result.stderr == expected_stderr
 
 
+def test_custom_rst_file_suffixes(tmp_path: Path) -> None:
+    """
+    ReStructuredText files with custom suffixes are recognized.
+    """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.customrst"
+    content = """\
+    .. code-block:: python
+
+        x = 2 + 2
+        assert x == 4
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    rst_file_2 = tmp_path / "example.customrst2"
+    content_2 = """\
+    .. code-block:: python
+
+        x = 3 + 3
+        assert x == 6
+    """
+    rst_file_2.write_text(data=content_2, encoding="utf-8")
+    arguments = [
+        "--no-pad-file",
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        "--rst-extension",
+        ".customrst",
+        "--rst-extension",
+        ".customrst2",
+        str(rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert result.stdout == ""
+    assert result.stderr == ""
+
+
+def test_custom_myst_file_suffixes():
+    """X"""
+
+
 @pytest.mark.parametrize(
     argnames=["options", "expected_output"],
     argvalues=[
