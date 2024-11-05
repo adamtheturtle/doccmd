@@ -2,6 +2,7 @@
 Tools for managing markup languages.
 """
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar, Protocol, runtime_checkable
@@ -17,7 +18,7 @@ from sybil_extras.parsers.rest.custom_directive_skip import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Mapping
+    from collections.abc import MutableMapping
 
 
 @beartype
@@ -94,14 +95,21 @@ class _ReStructuredText:
 
 
 @beartype
-def get_markup_language(file_path: Path) -> _MarkupLanguage:
+def get_markup_language(
+    file_path: Path,
+    myst_suffixes: Iterable[str],
+    rst_suffixes: Iterable[str],
+) -> _MarkupLanguage:
     """
     Determine the markup language from the file path.
     """
-    suffix_map: Mapping[str, _MarkupLanguage] = {
-        ".md": _MyST,
-        ".rst": _ReStructuredText,
-    }
+    suffix_map: MutableMapping[str, _MarkupLanguage] = {}
+
+    for suffix in myst_suffixes:
+        suffix_map[suffix] = _MyST
+    for suffix in rst_suffixes:
+        suffix_map[suffix] = _ReStructuredText
+
     try:
         return suffix_map[file_path.suffix]
     except KeyError as exc:
