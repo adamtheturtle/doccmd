@@ -10,16 +10,17 @@ from collections.abc import Iterable, Sequence
 from enum import Enum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import click
 from beartype import beartype
 from pygments.lexers import get_all_lexers
 from sybil import Sybil
 from sybil.evaluators.skip import Skipper
+from sybil.parsers.abstract.codeblock import AbstractCodeBlockParser
 from sybil.parsers.abstract.skip import AbstractSkipParser
 from sybil.parsers.myst import CodeBlockParser as MystCodeBlockParser
 from sybil.parsers.rest import CodeBlockParser as RestCodeBlockParser
-from sybil.typing import Parser
 from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
 from sybil_extras.parsers.myst.custom_directive_skip import (
     CustomDirectiveSkipParser as MystCustomDirectiveSkipParser,
@@ -27,6 +28,9 @@ from sybil_extras.parsers.myst.custom_directive_skip import (
 from sybil_extras.parsers.rest.custom_directive_skip import (
     CustomDirectiveSkipParser as RestCustomDirectiveSkipParser,
 )
+
+if TYPE_CHECKING:
+    from sybil.typing import Parser
 
 try:
     __version__ = version(__name__)
@@ -183,7 +187,7 @@ def _get_code_block_parsers(
     markup_language: _MarkupLanguage,
     code_block_language: str,
     evaluator: ShellCommandEvaluator,
-) -> Sequence[Parser]:
+) -> Sequence[AbstractCodeBlockParser]:
     """
     Get the code block parsers for the given language.
     """
