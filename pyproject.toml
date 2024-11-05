@@ -346,6 +346,7 @@ omit = [
 [tool.coverage.report]
 exclude_also = [
     "if TYPE_CHECKING:",
+    "class .*\\bProtocol\\):",
 ]
 
 [tool.mypy]
