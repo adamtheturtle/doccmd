@@ -4,7 +4,7 @@ Tools for managing markup languages.
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import ClassVar, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, ClassVar, Protocol, runtime_checkable
 
 from beartype import beartype
 from sybil.parsers.myst import CodeBlockParser as MystCodeBlockParser
@@ -15,6 +15,9 @@ from sybil_extras.parsers.myst.custom_directive_skip import (
 from sybil_extras.parsers.rest.custom_directive_skip import (
     CustomDirectiveSkipParser as RestCustomDirectiveSkipParser,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 
 @beartype
@@ -95,8 +98,11 @@ def get_markup_language(file_path: Path) -> _MarkupLanguage:
     """
     Determine the markup language from the file path.
     """
-    if file_path.suffix == ".md":
-        return _MyST
-    if file_path.suffix == ".rst":
-        return _ReStructuredText
-    raise UnknownMarkupLanguageError(file_path=file_path)
+    suffix_map: Mapping[str, _MarkupLanguage] = {
+        ".md": _MyST,
+        ".rst": _ReStructuredText,
+    }
+    try:
+        return suffix_map[file_path.suffix]
+    except KeyError as exc:
+        raise UnknownMarkupLanguageError(file_path=file_path) from exc
