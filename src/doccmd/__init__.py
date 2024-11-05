@@ -17,15 +17,9 @@ from beartype import beartype
 from pygments.lexers import get_all_lexers
 from sybil import Sybil
 from sybil.evaluators.skip import Skipper
-from sybil.parsers.myst import CodeBlockParser as MystCodeBlockParser
-from sybil.parsers.rest import CodeBlockParser as RestCodeBlockParser
 from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
-from sybil_extras.parsers.myst.custom_directive_skip import (
-    CustomDirectiveSkipParser as MystCustomDirectiveSkipParser,
-)
-from sybil_extras.parsers.rest.custom_directive_skip import (
-    CustomDirectiveSkipParser as RestCustomDirectiveSkipParser,
-)
+
+from ._languages import UnknownMarkupLanguageError, get_markup_language
 
 if TYPE_CHECKING:
     from sybil.typing import Parser
@@ -132,70 +126,6 @@ def _get_skip_directives(skip_markers: Iterable[str]) -> Sequence[str]:
 
 
 @beartype
-class _UnknownMarkupLanguageError(Exception):
-    """
-    Raised when the markup language is not recognized.
-    """
-
-    def __init__(self, file_path: Path) -> None:
-        """
-        Args:
-            file_path: The file path for which the markup language is unknown.
-        """
-        super().__init__(f"Markup language not known for {file_path}.")
-
-
-@beartype
-@unique
-class _MarkupLanguage(Enum):
-    """
-    Supported markup languages.
-    """
-
-    MYST = auto()
-    RESTRUCTURED_TEXT = auto()
-
-    @classmethod
-    def from_file_path(cls, file_path: Path) -> "_MarkupLanguage":
-        """
-        Determine the markup language from the file path.
-        """
-        if file_path.suffix == ".md":
-            return cls.MYST
-        if file_path.suffix == ".rst":
-            return cls.RESTRUCTURED_TEXT
-        raise _UnknownMarkupLanguageError(file_path=file_path)
-
-    @property
-    def skip_parser_cls(
-        self,
-    ) -> type[MystCustomDirectiveSkipParser | RestCustomDirectiveSkipParser]:
-        """
-        Skip parser class.
-        """
-        match self:
-            case _MarkupLanguage.MYST:
-                return MystCustomDirectiveSkipParser
-            # Ignore coverage because this never not reached.
-            case _MarkupLanguage.RESTRUCTURED_TEXT:  # pragma: no cover
-                return RestCustomDirectiveSkipParser
-
-    @property
-    def code_block_parser_cls(
-        self,
-    ) -> type[MystCodeBlockParser | RestCodeBlockParser]:
-        """
-        Skip parser class.
-        """
-        match self:
-            case _MarkupLanguage.MYST:
-                return MystCodeBlockParser
-            # Ignore coverage because this never not reached.
-            case _MarkupLanguage.RESTRUCTURED_TEXT:  # pragma: no cover
-                return RestCodeBlockParser
-
-
-@beartype
 def _get_temporary_file_extension(
     language: str,
     given_file_extension: str | None,
@@ -229,7 +159,7 @@ def _run_args_against_docs(
     """
     Run commands on the given file.
     """
-    markup_language = _MarkupLanguage.from_file_path(file_path=document_path)
+    markup_language = get_markup_language(file_path=document_path)
     temporary_file_extension = _get_temporary_file_extension(
         language=code_block_language,
         given_file_extension=temporary_file_extension,
@@ -461,8 +391,8 @@ def main(
 
     try:
         for document_path in document_paths:
-            _MarkupLanguage.from_file_path(file_path=document_path)
-    except _UnknownMarkupLanguageError as exc:
+            get_markup_language(file_path=document_path)
+    except UnknownMarkupLanguageError as exc:
         raise click.UsageError(message=str(exc)) from exc
 
     for document_path in document_paths:

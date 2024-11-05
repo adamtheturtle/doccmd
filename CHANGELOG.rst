@@ -4,9 +4,12 @@ Changelog
 Next
 ----
 
+* Error if files do not have a ``rst`` or ``md`` extension.
+
 2024.11.04
 ----------
 
+* Add options to control whether a pseudo-terminal is used for running commands in.
 * Rename some options to make it clear that they apply to the temporary files created.
 
 2024.10.14
