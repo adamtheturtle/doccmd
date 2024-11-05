@@ -4,6 +4,9 @@ Changelog
 Next
 ----
 
+2024.11.05
+----------
+
 * Error if files do not have a ``rst`` or ``md`` extension.
 
 2024.11.04
