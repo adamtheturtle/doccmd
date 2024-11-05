@@ -1441,10 +1441,13 @@ def test_one_supported_markup_in_another_extension(tmp_path: Path) -> None:
     assert result.stderr == ""
 
 
-def test_unknown_file_suffix(tmp_path: Path) -> None:
-    """X"""
+@pytest.mark.parametrize(argnames="extension", argvalues=[".unknown", ""])
+def test_unknown_file_suffix(extension: str, tmp_path: Path) -> None:
+    """
+    An error is shown when the file suffix is not known.
+    """
     runner = CliRunner(mix_stderr=False)
-    document_file = tmp_path / "example.unknown"
+    document_file = tmp_path / ("example" + extension)
     content = """\
     .. code-block:: python
 
@@ -1469,9 +1472,6 @@ def test_unknown_file_suffix(tmp_path: Path) -> None:
 
     assert result.stdout == ""
     assert result.stderr == expected_stderr
-
-
-# TODO: Test no file suffix
 
 
 @pytest.mark.parametrize(
