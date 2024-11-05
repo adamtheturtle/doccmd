@@ -1411,7 +1411,36 @@ def test_detect_line_endings(
     assert bool(b"\n" in result.stdout_bytes) == expect_lf
 
 
-# TODO: Test Markdown markup in rst file
+def test_one_supported_markup_in_another_extension(tmp_path: Path) -> None:
+    """
+    Code blocks in a supported markup language in a file with an extension
+    which matches another extension are not run.
+    """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    content = """\
+    ```python
+    print("In simple markdown code block")
+    ```
+
+    ```{code-block} python
+    print("In MyST code-block")
+    ```
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = ["--language", "python", "--command", "cat", str(rst_file)]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    # Empty because the Markdown-style code block is not run in.
+    expected_output = ""
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
 # TODO: Test unusual file suffix
 
 
