@@ -45,4 +45,17 @@ Options:
                                   [default: pad-file]
   --version                       Show the version and exit.
   -v, --verbose                   Enable verbose output.
+  --use-pty                       Use a pseudo-terminal for running commands.
+                                  This can be useful e.g. to get color output,
+                                  but can also break in some environments. Not
+                                  supported on Windows.  [default: (--detect-
+                                  use-pty)]
+  --no-use-pty                    Do not use a pseudo-terminal for running
+                                  commands. This is useful when ``doccmd``
+                                  detects that it is running in a TTY outside of
+                                  Windows but the environment does not support
+                                  PTYs.  [default: (--detect-use-pty)]
+  --detect-use-pty                Automatically determine whether to use a
+                                  pseudo-terminal for running commands.
+                                  [default: (True)]
   --help                          Show this message and exit.

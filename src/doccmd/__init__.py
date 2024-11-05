@@ -7,7 +7,7 @@ import shlex
 import subprocess
 import sys
 from collections.abc import Iterable, Sequence
-from enum import Enum, auto
+from enum import Enum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -36,6 +36,52 @@ except PackageNotFoundError:  # pragma: no cover
     # for example in a PyInstaller binary,
     # we write the file ``_setuptools_scm_version.py`` on ``pip install``.
     from ._setuptools_scm_version import __version__
+
+
+@unique
+class _UsePty(Enum):
+    """
+    Choices for the use of a pseudo-terminal.
+    """
+
+    YES = auto()
+    NO = auto()
+    DETECT = auto()
+
+    def use_pty(self) -> bool:
+        """
+        Whether to use a pseudo-terminal.
+        """
+        if self is _UsePty.DETECT:
+            return sys.stdout.isatty() and platform.system() != "Windows"
+        return self is _UsePty.YES
+
+
+@beartype
+def _log_info(message: str) -> None:
+    """
+    Log an info message.
+    """
+    styled_message = click.style(text=message, fg="yellow")
+    click.echo(message=styled_message, err=False)
+
+
+@beartype
+def _log_warning(message: str) -> None:
+    """
+    Log a warning message.
+    """
+    styled_message = click.style(text=message, fg="yellow")
+    click.echo(message=styled_message, err=True)
+
+
+@beartype
+def _log_error(message: str) -> None:
+    """
+    Log an error message.
+    """
+    styled_message = click.style(text=message, fg="red")
+    click.echo(message=styled_message, err=True)
 
 
 @beartype
@@ -228,11 +274,7 @@ def _run_args_against_docs(
             unicode_error_message = (
                 f"Skipping '{document_path}' because it is not UTF-8 encoded."
             )
-            styled_unicode_error_message = click.style(
-                text=unicode_error_message,
-                fg="yellow",
-            )
-            click.echo(message=styled_unicode_error_message, err=True)
+            _log_warning(message=unicode_error_message)
         return
     for example in document.examples():
         if (
@@ -246,22 +288,18 @@ def _run_args_against_docs(
             command_str = shlex.join(
                 split_command=[str(item) for item in args],
             )
-            message = (
+            running_command_message = (
                 f"Running '{command_str}' on code block at "
                 f"{document_path} line {example.line}"
             )
-            styled_message = click.style(text=message, fg="yellow")
-            click.echo(message=styled_message)
+            _log_info(message=running_command_message)
         try:
             example.evaluate()
         except subprocess.CalledProcessError as exc:
             sys.exit(exc.returncode)
         except OSError as exc:
-            styled_permission_message = click.style(
-                text=f"Error running command '{args[0]}': {exc}",
-                fg="red",
-            )
-            click.echo(message=styled_permission_message, err=True)
+            os_error_message = f"Error running command '{args[0]}': {exc}"
+            _log_error(message=os_error_message)
             sys.exit(exc.errno)
 
 
@@ -355,6 +393,48 @@ def _run_args_against_docs(
     default=False,
     help="Enable verbose output.",
 )
+@click.option(
+    "--use-pty",
+    "use_pty_option",
+    is_flag=True,
+    type=_UsePty,
+    flag_value=_UsePty.YES,
+    default=False,
+    show_default="--detect-use-pty",
+    help=(
+        "Use a pseudo-terminal for running commands. "
+        "This can be useful e.g. to get color output, but can also break "
+        "in some environments. "
+        "Not supported on Windows."
+    ),
+)
+@click.option(
+    "--no-use-pty",
+    "use_pty_option",
+    is_flag=True,
+    type=_UsePty,
+    flag_value=_UsePty.NO,
+    default=False,
+    show_default="--detect-use-pty",
+    help=(
+        "Do not use a pseudo-terminal for running commands. "
+        "This is useful when ``doccmd`` detects that it is running in a "
+        "TTY outside of Windows but the environment does not support PTYs."
+    ),
+)
+@click.option(
+    "--detect-use-pty",
+    "use_pty_option",
+    is_flag=True,
+    type=_UsePty,
+    flag_value=_UsePty.DETECT,
+    default=True,
+    show_default="True",
+    help=(
+        "Automatically determine whether to use a pseudo-terminal for running "
+        "commands."
+    ),
+)
 @beartype
 def main(
     *,
@@ -366,6 +446,7 @@ def main(
     pad_file: bool,
     verbose: bool,
     skip_markers: Iterable[str],
+    use_pty_option: _UsePty,
 ) -> None:
     """Run commands against code blocks in the given documentation files.
 
@@ -376,7 +457,14 @@ def main(
     languages = dict.fromkeys(languages).keys()
     skip_markers = dict.fromkeys(skip_markers).keys()
     document_paths = dict.fromkeys(document_paths).keys()
-    use_pty = sys.stdout.isatty() and platform.system() != "Windows"
+    use_pty = use_pty_option.use_pty()
+    if verbose:
+        _log_error(
+            message="Using PTY for running commands."
+            if use_pty
+            else "Not using PTY for running commands."
+        )
+
     for document_path in document_paths:
         for language in languages:
             _run_args_against_docs(

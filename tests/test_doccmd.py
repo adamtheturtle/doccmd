@@ -2,10 +2,12 @@
 Tests for `doccmd`.
 """
 
+import stat
 import subprocess
 import sys
 import textwrap
 import uuid
+from collections.abc import Sequence
 from pathlib import Path
 
 import pytest
@@ -725,8 +727,15 @@ def test_verbose_not_utf_8(tmp_path: Path) -> None:
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = ""
     assert result.stdout == expected_output
-    expected_stderr = f"Skipping '{rst_file}' because it is not UTF-8 encoded."
-    assert result.stderr.strip() == expected_stderr
+    # The first line here is not relevant, but we test the entire
+    # verbose output to ensure that it is as expected.
+    expected_stderr = textwrap.dedent(
+        text=f"""\
+            Not using PTY for running commands.
+            Skipping '{rst_file}' because it is not UTF-8 encoded.
+            """,
+    )
+    assert result.stderr == expected_stderr
 
 
 def test_directory_passed_in(tmp_path: Path) -> None:
@@ -1404,3 +1413,63 @@ def test_detect_line_endings(
 
 # TODO: Test Markdown markup in rst file
 # TODO: Test unusual file suffix
+
+
+@pytest.mark.parametrize(
+    argnames=["options", "expected_output"],
+    argvalues=[
+        # We cannot test the actual behavior of using a pseudo-terminal,
+        # as CI (e.g. GitHub Actions) does not support it.
+        # Therefore we do not test the `--use-pty` option.
+        (["--no-use-pty"], "stdout is not a terminal."),
+        # We are not really testing the detection mechanism.
+        (["--detect-use-pty"], "stdout is not a terminal."),
+    ],
+    ids=["no-use-pty", "detect-use-pty"],
+)
+def test_pty(
+    tmp_path: Path,
+    options: Sequence[str],
+    expected_output: str,
+) -> None:
+    """
+    Test options for using pseudo-terminal.
+    """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    tty_test = textwrap.dedent(
+        text="""\
+        import sys
+
+        if sys.stdout.isatty():
+            print("stdout is a terminal.")
+        else:
+            print("stdout is not a terminal.")
+        """,
+    )
+    script = tmp_path / "my_script.py"
+    script.write_text(data=tty_test)
+    script.chmod(mode=stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR)
+    content = """\
+    .. code-block:: python
+
+       block_1
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        *options,
+        "--no-pad-file",
+        "--language",
+        "python",
+        "--command",
+        f"{Path(sys.executable).as_posix()} {script.as_posix()}",
+        str(rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert result.stderr == ""
+    assert result.stdout.strip() == expected_output
