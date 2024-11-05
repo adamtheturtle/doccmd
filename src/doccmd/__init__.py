@@ -155,31 +155,18 @@ class _MarkupLanguage(Enum):
             return cls.RESTRUCTURED_TEXT
         raise _UnknownMarkupLanguageError
 
-
-@beartype
-def _get_skip_parsers(
-    skip_directives: Sequence[str],
-    markup_language: _MarkupLanguage,
-) -> Sequence[AbstractSkipParser]:
-    """
-    Skip parsers based on the provided skip directives.
-    """
-    skip_parsers: Sequence[AbstractSkipParser] = []
-
-    for skip_directive in skip_directives:
-        match markup_language:
+    @property
+    def skip_parser_cls(
+        self,
+    ) -> type[MystCustomDirectiveSkipParser | RestCustomDirectiveSkipParser]:
+        """
+        Skip parser class.
+        """
+        match self:
             case _MarkupLanguage.MYST:
-                myst_skip_parser = MystCustomDirectiveSkipParser(
-                    directive=skip_directive
-                )
-                skip_parsers = [*skip_parsers, myst_skip_parser]
+                return MystCustomDirectiveSkipParser
             case _MarkupLanguage.RESTRUCTURED_TEXT:
-                rst_skip_parser = RestCustomDirectiveSkipParser(
-                    directive=skip_directive,
-                )
-                skip_parsers = [*skip_parsers, rst_skip_parser]
-
-    return skip_parsers
+                return RestCustomDirectiveSkipParser
 
 
 @beartype
@@ -261,10 +248,10 @@ def _run_args_against_docs(
 
     skip_markers = {*skip_markers, "all"}
     skip_directives = _get_skip_directives(skip_markers=skip_markers)
-    skip_parsers = _get_skip_parsers(
-        skip_directives=skip_directives,
-        markup_language=markup_language,
-    )
+    skip_parsers = [
+        markup_language.skip_parser_cls(directive=skip_directive)
+        for skip_directive in skip_directives
+    ]
     code_block_parsers = _get_code_block_parsers(
         markup_language=markup_language,
         code_block_language=code_block_language,
