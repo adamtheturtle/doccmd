@@ -142,7 +142,7 @@ class _UnknownMarkupLanguageError(Exception):
         Args:
             file_path: The file path for which the markup language is unknown.
         """
-        super().__init__(f"Unknown markup language for {file_path}.")
+        super().__init__(f"Markup language not known for {file_path}.")
 
 
 @beartype
@@ -232,7 +232,13 @@ def _run_args_against_docs(
         given_file_extension=temporary_file_extension,
     )
     newline = _detect_newline(file_path=document_path)
-    markup_language = _MarkupLanguage.from_file_path(file_path=document_path)
+    try:
+        markup_language = _MarkupLanguage.from_file_path(
+            file_path=document_path
+        )
+    except _UnknownMarkupLanguageError as exc:
+        _log_error(message=str(exc))
+        sys.exit(1)
 
     evaluator = ShellCommandEvaluator(
         args=args,

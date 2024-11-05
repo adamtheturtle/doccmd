@@ -1441,7 +1441,37 @@ def test_one_supported_markup_in_another_extension(tmp_path: Path) -> None:
     assert result.stderr == ""
 
 
-# TODO: Test unusual file suffix
+def test_unknown_file_suffix(tmp_path: Path) -> None:
+    """X"""
+    runner = CliRunner(mix_stderr=False)
+    document_file = tmp_path / "example.unknown"
+    content = """\
+    .. code-block:: python
+
+        x = 2 + 2
+        assert x == 4
+    """
+    document_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        str(document_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 1, (result.stdout, result.stderr)
+    expected_stderr = f"Markup language not known for {document_file}.\n"
+
+    assert result.stdout == ""
+    assert result.stderr == expected_stderr
+
+
+# TODO: Test no file suffix
 
 
 @pytest.mark.parametrize(
