@@ -176,7 +176,8 @@ class _MarkupLanguage(Enum):
         match self:
             case _MarkupLanguage.MYST:
                 return MystCustomDirectiveSkipParser
-            case _MarkupLanguage.RESTRUCTURED_TEXT:
+            # Ignore coverage because this never not reached.
+            case _MarkupLanguage.RESTRUCTURED_TEXT:  # pragma: no cover
                 return RestCustomDirectiveSkipParser
 
     @property
@@ -189,7 +190,8 @@ class _MarkupLanguage(Enum):
         match self:
             case _MarkupLanguage.MYST:
                 return MystCodeBlockParser
-            case _MarkupLanguage.RESTRUCTURED_TEXT:
+            # Ignore coverage because this never not reached.
+            case _MarkupLanguage.RESTRUCTURED_TEXT:  # pragma: no cover
                 return RestCodeBlockParser
 
 
