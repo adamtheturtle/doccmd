@@ -119,7 +119,7 @@ def _map_languages_to_suffix() -> dict[str, str]:
 @beartype
 def _get_skip_directives(skip_markers: Iterable[str]) -> Sequence[str]:
     """
-    Skip directives for reST and MyST based on the provided skip markers.
+    Skip directives based on the provided skip markers.
     """
     skip_directives: Sequence[str] = []
 
@@ -156,7 +156,7 @@ def _get_skip_parsers(
     markup_language: _MarkupLanguage,
 ) -> Sequence[AbstractSkipParser]:
     """
-    Skip parsers for reST and MyST based on the provided skip markers.
+    Skip parsers based on the provided skip directives.
     """
     skip_parsers: Sequence[AbstractSkipParser] = []
 
