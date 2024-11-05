@@ -140,14 +140,16 @@ class _MarkupLanguage(Enum):
     MYST = auto()
     RESTRUCTURED_TEXT = auto()
 
-
-@beartype
-def _detect_markup_language(file_path: Path) -> _MarkupLanguage:
-    if file_path.suffix == ".md":
-        return _MarkupLanguage.MYST
-    if file_path.suffix == ".rst":
-        return _MarkupLanguage.RESTRUCTURED_TEXT
-    raise _UnknownMarkupLanguageError
+    @classmethod
+    def from_file_path(cls, file_path: Path) -> "_MarkupLanguage":
+        """
+        Determine the markup language from the file path.
+        """
+        if file_path.suffix == ".md":
+            return cls.MYST
+        if file_path.suffix == ".rst":
+            return cls.RESTRUCTURED_TEXT
+        raise _UnknownMarkupLanguageError
 
 
 @beartype
@@ -241,7 +243,7 @@ def _run_args_against_docs(
         given_file_extension=temporary_file_extension,
     )
     newline = _detect_newline(file_path=document_path)
-    markup_language = _detect_markup_language(file_path=document_path)
+    markup_language = _MarkupLanguage.from_file_path(file_path=document_path)
 
     evaluator = ShellCommandEvaluator(
         args=args,
