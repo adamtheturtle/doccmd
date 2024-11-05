@@ -10,7 +10,6 @@ from collections.abc import Iterable, Sequence
 from enum import Enum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import click
 from beartype import beartype
@@ -136,6 +135,7 @@ class _UnknownMarkupLanguageError(Exception):
 
 
 @beartype
+@unique
 class _MarkupLanguage(Enum):
     MYST = auto()
     RESTRUCTURED_TEXT = auto()
