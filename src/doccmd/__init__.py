@@ -155,11 +155,17 @@ def _run_args_against_docs(
     verbose: bool,
     skip_markers: Iterable[str],
     use_pty: bool,
+    myst_suffixes: Iterable[str],
+    rst_suffixes: Iterable[str],
 ) -> None:
     """
     Run commands on the given file.
     """
-    markup_language = get_markup_language(file_path=document_path)
+    markup_language = get_markup_language(
+        file_path=document_path,
+        myst_suffixes=myst_suffixes,
+        rst_suffixes=rst_suffixes,
+    )
     temporary_file_extension = _get_temporary_file_extension(
         language=code_block_language,
         given_file_extension=temporary_file_extension,
@@ -389,9 +395,16 @@ def main(
             else "Not using PTY for running commands."
         )
 
+    myst_suffixes = (".md",)
+    rst_suffixes = (".rst",)
+
     try:
         for document_path in document_paths:
-            get_markup_language(file_path=document_path)
+            get_markup_language(
+                file_path=document_path,
+                myst_suffixes=myst_suffixes,
+                rst_suffixes=rst_suffixes,
+            )
     except UnknownMarkupLanguageError as exc:
         raise click.UsageError(message=str(exc)) from exc
 
@@ -407,4 +420,6 @@ def main(
                 temporary_file_name_prefix=temporary_file_name_prefix,
                 skip_markers=skip_markers,
                 use_pty=use_pty,
+                myst_suffixes=myst_suffixes,
+                rst_suffixes=rst_suffixes,
             )
