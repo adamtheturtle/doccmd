@@ -1467,8 +1467,15 @@ def test_unknown_file_suffix(extension: str, tmp_path: Path) -> None:
         args=arguments,
         catch_exceptions=False,
     )
-    assert result.exit_code == 1, (result.stdout, result.stderr)
-    expected_stderr = f"Markup language not known for {document_file}.\n"
+    assert result.exit_code != 0, (result.stdout, result.stderr)
+    expected_stderr = textwrap.dedent(
+        text=f"""\
+            Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...
+            Try 'doccmd --help' for help.
+
+            Error: Markup language not known for {document_file}.
+            """,
+    )
 
     assert result.stdout == ""
     assert result.stderr == expected_stderr
