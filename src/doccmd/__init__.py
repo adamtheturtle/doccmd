@@ -137,6 +137,13 @@ class _UnknownMarkupLanguageError(Exception):
     Raised when the markup language is not recognized.
     """
 
+    def __init__(self, file_path: Path) -> None:
+        """
+        Args:
+            file_path: The file path for which the markup language is unknown.
+        """
+        super().__init__(f"Unknown markup language for {file_path}.")
+
 
 @beartype
 @unique
@@ -157,7 +164,7 @@ class _MarkupLanguage(Enum):
             return cls.MYST
         if file_path.suffix == ".rst":
             return cls.RESTRUCTURED_TEXT
-        raise _UnknownMarkupLanguageError
+        raise _UnknownMarkupLanguageError(file_path=file_path)
 
     @property
     def skip_parser_cls(
