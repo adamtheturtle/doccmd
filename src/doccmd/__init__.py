@@ -17,8 +17,6 @@ from beartype import beartype
 from pygments.lexers import get_all_lexers
 from sybil import Sybil
 from sybil.evaluators.skip import Skipper
-from sybil.parsers.abstract.codeblock import AbstractCodeBlockParser
-from sybil.parsers.abstract.skip import AbstractSkipParser
 from sybil.parsers.myst import CodeBlockParser as MystCodeBlockParser
 from sybil.parsers.rest import CodeBlockParser as RestCodeBlockParser
 from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
@@ -135,12 +133,18 @@ def _get_skip_directives(skip_markers: Iterable[str]) -> Sequence[str]:
 
 @beartype
 class _UnknownMarkupLanguageError(Exception):
-    pass
+    """
+    Raised when the markup language is not recognized.
+    """
 
 
 @beartype
 @unique
 class _MarkupLanguage(Enum):
+    """
+    Supported markup languages.
+    """
+
     MYST = auto()
     RESTRUCTURED_TEXT = auto()
 
@@ -168,31 +172,18 @@ class _MarkupLanguage(Enum):
             case _MarkupLanguage.RESTRUCTURED_TEXT:
                 return RestCustomDirectiveSkipParser
 
-
-@beartype
-def _get_code_block_parsers(
-    markup_language: _MarkupLanguage,
-    code_block_language: str,
-    evaluator: ShellCommandEvaluator,
-) -> Sequence[AbstractCodeBlockParser]:
-    """
-    Get the code block parsers for the given language.
-    """
-    match markup_language:
-        case _MarkupLanguage.MYST:
-            return [
-                MystCodeBlockParser(
-                    language=code_block_language,
-                    evaluator=evaluator,
-                ),
-            ]
-        case _MarkupLanguage.RESTRUCTURED_TEXT:
-            return [
-                RestCodeBlockParser(
-                    language=code_block_language,
-                    evaluator=evaluator,
-                ),
-            ]
+    @property
+    def code_block_parser_cls(
+        self,
+    ) -> type[MystCodeBlockParser | RestCodeBlockParser]:
+        """
+        Skip parser class.
+        """
+        match self:
+            case _MarkupLanguage.MYST:
+                return MystCodeBlockParser
+            case _MarkupLanguage.RESTRUCTURED_TEXT:
+                return RestCodeBlockParser
 
 
 @beartype
@@ -252,11 +243,12 @@ def _run_args_against_docs(
         markup_language.skip_parser_cls(directive=skip_directive)
         for skip_directive in skip_directives
     ]
-    code_block_parsers = _get_code_block_parsers(
-        markup_language=markup_language,
-        code_block_language=code_block_language,
-        evaluator=evaluator,
-    )
+    code_block_parsers = [
+        markup_language.code_block_parser_cls(
+            language=code_block_language,
+            evaluator=evaluator,
+        )
+    ]
 
     parsers: Sequence[Parser] = [*code_block_parsers, *skip_parsers]
     sybil = Sybil(parsers=parsers)
