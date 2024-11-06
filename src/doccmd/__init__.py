@@ -110,6 +110,7 @@ def _get_file_paths(
     *,
     document_paths: Sequence[Path],
     file_suffixes: Sequence[str],
+    max_depth: int,
 ) -> Sequence[Path]:
     """
     Get the file paths from the given document paths (files and directories).
@@ -120,7 +121,11 @@ def _get_file_paths(
             file_paths[path] = True
         else:
             for file_suffix in file_suffixes:
-                new_file_paths = path.glob(f"**/*{file_suffix}")
+                new_file_paths = (
+                    path_part
+                    for path_part in path.rglob(f"*{file_suffix}")
+                    if len(path_part.relative_to(path).parts) <= max_depth
+                )
                 for new_file_path in new_file_paths:
                     if new_file_path.is_file():
                         file_paths[new_file_path] = True
@@ -536,6 +541,13 @@ def _run_args_against_docs(
     show_default=True,
     callback=_validate_file_extensions,
 )
+@click.option(
+    "--max-depth",
+    type=click.IntRange(min=1, clamp=True),
+    default=sys.maxsize,
+    show_default=False,
+    help="Maximum depth to search for files in directories.",
+)
 @beartype
 def main(
     *,
@@ -550,6 +562,7 @@ def main(
     use_pty_option: _UsePty,
     rst_suffixes: Sequence[str],
     myst_suffixes: Sequence[str],
+    max_depth: int,
 ) -> None:
     """Run commands against code blocks in the given documentation files.
 
@@ -566,6 +579,7 @@ def main(
     file_paths = _get_file_paths(
         document_paths=document_paths,
         file_suffixes=[*myst_suffixes, *rst_suffixes],
+        max_depth=max_depth,
     )
 
     _validate_files_are_known_markup_types(
