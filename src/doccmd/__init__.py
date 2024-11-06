@@ -6,11 +6,11 @@ import platform
 import shlex
 import subprocess
 import sys
-from collections.abc import Callable, Iterable, Sequence
+from collections.abc import Iterable, Sequence
 from enum import Enum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, TypeVar, overload
+from typing import TYPE_CHECKING, TypeVar, overload
 
 import click
 from beartype import beartype
@@ -34,9 +34,6 @@ except PackageNotFoundError:  # pragma: no cover
 
 
 T = TypeVar("T")
-_ClickCallbackType = Callable[
-    [click.Context, click.Option | click.Parameter, Any], Any
-]
 
 
 @beartype
