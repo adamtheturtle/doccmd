@@ -365,6 +365,36 @@ def _run_args_against_docs(
         "commands."
     ),
 )
+@click.option(
+    "--rst-extension",
+    "rst_suffixes",
+    type=str,
+    help=(
+        "Files with this extension (suffix) to treat as reStructuredText. "
+        "Give this multiple times to look for multiple extensions. "
+        "To avoid considering any files, "
+        "including the default, "
+        "as reStructuredText files, use --rst-extension=''."
+    ),
+    multiple=True,
+    default=(".rst",),
+    show_default=True,
+)
+@click.option(
+    "--myst-extension",
+    "myst_suffixes",
+    type=str,
+    help=(
+        "Files with this extension (suffix) to treat as MyST. "
+        "Give this multiple times to look for multiple extensions. "
+        "To avoid considering any files, "
+        "including the default, "
+        "as MyST files, use --myst-extension=''."
+    ),
+    multiple=True,
+    default=(".md",),
+    show_default=True,
+)
 @beartype
 def main(
     *,
@@ -377,6 +407,8 @@ def main(
     verbose: bool,
     skip_markers: Iterable[str],
     use_pty_option: _UsePty,
+    rst_suffixes: Iterable[str],
+    myst_suffixes: Iterable[str],
 ) -> None:
     """Run commands against code blocks in the given documentation files.
 
@@ -394,9 +426,6 @@ def main(
             if use_pty
             else "Not using PTY for running commands."
         )
-
-    myst_suffixes = (".md",)
-    rst_suffixes = (".rst",)
 
     try:
         for document_path in document_paths:
