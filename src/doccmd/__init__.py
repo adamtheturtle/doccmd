@@ -10,7 +10,7 @@ from collections.abc import Iterable, Sequence
 from enum import Enum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
-from typing import TYPE_CHECKING, overload
+from typing import TYPE_CHECKING, TypeVar, overload
 
 import click
 from beartype import beartype
@@ -31,6 +31,23 @@ except PackageNotFoundError:  # pragma: no cover
     # for example in a PyInstaller binary,
     # we write the file ``_setuptools_scm_version.py`` on ``pip install``.
     from ._setuptools_scm_version import __version__
+
+
+T = TypeVar("T")
+
+
+@beartype
+def _deduplicate(
+    ctx: click.Context,
+    param: click.Parameter,
+    sequence: Sequence[T],
+) -> Sequence[T]:
+    """
+    Deduplicate a sequence while keeping the order.
+    """
+    assert ctx
+    assert param
+    return tuple(dict.fromkeys(sequence).keys())
 
 
 @overload
@@ -360,6 +377,7 @@ def _run_args_against_docs(
         "Give multiple times for multiple languages."
     ),
     multiple=True,
+    callback=_deduplicate,
 )
 @click.option("command", "-c", "--command", type=str, required=True)
 @click.option(
@@ -412,6 +430,7 @@ def _run_args_against_docs(
         """
     ),
     multiple=True,
+    callback=_deduplicate,
 )
 @click.option(
     "--pad-file/--no-pad-file",
@@ -430,6 +449,7 @@ def _run_args_against_docs(
     "document_paths",
     type=click.Path(exists=True, path_type=Path, dir_okay=True),
     nargs=-1,
+    callback=_deduplicate,
 )
 @click.version_option(version=__version__)
 @click.option(
@@ -533,10 +553,6 @@ def main(
     This works with Markdown and reStructuredText files.
     """
     args = shlex.split(s=command)
-    # De-duplicate some choices, keeping the order.
-    languages = tuple(dict.fromkeys(languages).keys())
-    skip_markers = tuple(dict.fromkeys(skip_markers).keys())
-    document_paths = tuple(dict.fromkeys(document_paths).keys())
     use_pty = use_pty_option.use_pty()
 
     _validate_file_suffix_overlaps(
