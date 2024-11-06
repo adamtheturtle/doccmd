@@ -1727,3 +1727,90 @@ def test_source_given_extension_no_leading_period(
     )
     assert result.stdout == ""
     assert result.stderr == expected_stderr
+
+
+def test_overlapping_extensions(tmp_path: Path) -> None:
+    """
+    An error is shown if there are overlapping extensions between --rst-
+    extension and --myst-extension.
+    """
+    runner = CliRunner(mix_stderr=False)
+    source_file = tmp_path / "example.custom"
+    content = """\
+    .. code-block:: python
+
+        x = 1
+    """
+    source_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        "--rst-extension",
+        ".custom",
+        "--myst-extension",
+        ".custom",
+        "--rst-extension",
+        ".custom2",
+        "--myst-extension",
+        ".custom2",
+        str(source_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code != 0, (result.stdout, result.stderr)
+    expected_stderr = textwrap.dedent(
+        text="""\
+            Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...
+            Try 'doccmd --help' for help.
+
+            Error: Overlapping extensions between --rst-extension and --myst-extension: .custom, .custom2.
+            """,  # noqa: E501
+    )
+    assert result.stdout == ""
+    assert result.stderr == expected_stderr
+
+
+def test_overlapping_extensions_dot(tmp_path: Path) -> None:
+    """
+    No error is shown if both --rst-extension and --myst-extension are '.'.
+    """
+    runner = CliRunner(mix_stderr=False)
+    source_file = tmp_path / "example.custom"
+    content = """\
+    .. code-block:: python
+
+        x = 1
+    """
+    source_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--no-pad-file",
+        "--command",
+        "cat",
+        "--rst-extension",
+        ".",
+        "--myst-extension",
+        ".",
+        "--rst-extension",
+        ".custom",
+        str(source_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    expected_output = textwrap.dedent(
+        text="""\
+        x = 1
+        """,
+    )
+    assert result.stdout == expected_output
+    assert result.stderr == ""
