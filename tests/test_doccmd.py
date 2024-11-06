@@ -1830,8 +1830,6 @@ def test_directory(tmp_path: Path) -> None:
     )
     assert result.exit_code == 0, result.stderr
     expected_output = textwrap.dedent(
-        # The file is padded so that any error messages relate to the
-        # correct line number in the original file.
         text="""\
         md_1_block
         rst_1_block
