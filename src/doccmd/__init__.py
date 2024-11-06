@@ -43,7 +43,7 @@ def validate_file_extensions(
     """
     for value in values:
         if not value.startswith("."):
-            message = f"Extensions must start with a '.'. '{value}' does not."
+            message = f"'{value}' does not start with a '.'."
             raise click.BadParameter(message=message, ctx=ctx, param=param)
     return values
 

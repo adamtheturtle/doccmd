@@ -1635,3 +1635,42 @@ def test_pty(
     assert result.exit_code == 0, (result.stdout, result.stderr)
     assert result.stderr == ""
     assert result.stdout.strip() == expected_output
+
+
+def test_extension_no_leading_period(tmp_path: Path) -> None:
+    """
+    An error is shown when an --rst-extension is given with no leading period.
+    """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    content = """\
+    .. code-block:: python
+
+        x = 1
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        "--rst-extension",
+        "customrst",
+        str(rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code != 0, (result.stdout, result.stderr)
+    expected_stderr = textwrap.dedent(
+        text="""\
+            Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...
+            Try 'doccmd --help' for help.
+
+            Error: Invalid value for '--rst-extension': 'customrst' does not start with a '.'.
+            """,  # noqa: E501
+    )
+    assert result.stdout == ""
+    assert result.stderr == expected_stderr
