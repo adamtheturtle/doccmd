@@ -33,6 +33,21 @@ except PackageNotFoundError:  # pragma: no cover
     from ._setuptools_scm_version import __version__
 
 
+def validate_file_extensions(
+    ctx: click.Context,
+    param: click.Parameter,
+    values: tuple[str, ...],
+) -> tuple[str, ...]:
+    """
+    Validate that the input string starts with a dot.
+    """
+    for value in values:
+        if not value.startswith("."):
+            message = f"Extensions must start with a '.'. '{value}' does not."
+            raise click.BadParameter(message=message, ctx=ctx, param=param)
+    return values
+
+
 @unique
 class _UsePty(Enum):
     """
@@ -379,6 +394,7 @@ def _run_args_against_docs(
     multiple=True,
     default=(".rst",),
     show_default=True,
+    callback=validate_file_extensions,
 )
 @click.option(
     "--myst-extension",
@@ -394,6 +410,7 @@ def _run_args_against_docs(
     multiple=True,
     default=(".md",),
     show_default=True,
+    callback=validate_file_extensions,
 )
 @beartype
 def main(
