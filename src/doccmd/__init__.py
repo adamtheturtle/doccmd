@@ -86,6 +86,28 @@ def _validate_file_extensions(
 
 
 @beartype
+def _get_file_paths(
+    *,
+    document_paths: Sequence[Path],
+    file_suffixes: Sequence[str],
+) -> Sequence[Path]:
+    """
+    Get the file paths from the given document paths (files and directories).
+    """
+    file_paths: dict[Path, bool] = {}
+    for path in document_paths:
+        if path.is_file():
+            file_paths[path] = True
+        else:
+            for file_suffix in file_suffixes:
+                new_file_paths = path.glob(f"**/*{file_suffix}")
+                for new_file_path in new_file_paths:
+                    if new_file_path.is_file():
+                        file_paths[new_file_path] = True
+    return list(file_paths.keys())
+
+
+@beartype
 def _validate_file_suffix_overlaps(
     *,
     myst_suffixes: Iterable[str],
@@ -494,17 +516,17 @@ def _run_args_against_docs(
 @beartype
 def main(
     *,
-    languages: Iterable[str],
+    languages: Sequence[str],
     command: str,
-    document_paths: Iterable[Path],
+    document_paths: Sequence[Path],
     temporary_file_extension: str | None,
     temporary_file_name_prefix: str | None,
     pad_file: bool,
     verbose: bool,
-    skip_markers: Iterable[str],
+    skip_markers: Sequence[str],
     use_pty_option: _UsePty,
-    rst_suffixes: Iterable[str],
-    myst_suffixes: Iterable[str],
+    rst_suffixes: Sequence[str],
+    myst_suffixes: Sequence[str],
 ) -> None:
     """Run commands against code blocks in the given documentation files.
 
@@ -512,10 +534,9 @@ def main(
     """
     args = shlex.split(s=command)
     # De-duplicate some choices, keeping the order.
-    languages = dict.fromkeys(languages).keys()
-    skip_markers = dict.fromkeys(skip_markers).keys()
-    file_paths: dict[Path, bool] = {}
-    document_paths = dict.fromkeys(document_paths).keys()
+    languages = tuple(dict.fromkeys(languages).keys())
+    skip_markers = tuple(dict.fromkeys(skip_markers).keys())
+    document_paths = tuple(dict.fromkeys(document_paths).keys())
     use_pty = use_pty_option.use_pty()
 
     _validate_file_suffix_overlaps(
@@ -523,17 +544,10 @@ def main(
         rst_suffixes=rst_suffixes,
     )
 
-    file_suffixes = [*myst_suffixes, *rst_suffixes]
-
-    for path in document_paths:
-        if path.is_file():
-            file_paths[path] = True
-        else:
-            for file_suffix in file_suffixes:
-                new_file_paths = path.glob(f"**/*{file_suffix}")
-                for new_file_path in new_file_paths:
-                    if new_file_path.is_file():
-                        file_paths[new_file_path] = True
+    file_paths = _get_file_paths(
+        document_paths=document_paths,
+        file_suffixes=[*myst_suffixes, *rst_suffixes],
+    )
 
     _validate_files_are_known_markup_types(
         file_paths=file_paths,
