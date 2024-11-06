@@ -124,7 +124,7 @@ def _get_file_paths(
                 for new_file_path in new_file_paths:
                     if new_file_path.is_file():
                         file_paths[new_file_path] = True
-    return list(file_paths.keys())
+    return tuple(file_paths.keys())
 
 
 @beartype
