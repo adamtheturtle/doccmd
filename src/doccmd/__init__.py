@@ -422,7 +422,7 @@ def _run_args_against_docs(
         "Give this multiple times to look for multiple extensions. "
         "To avoid considering any files, "
         "including the default, "
-        "as reStructuredText files, use --rst-extension=''."
+        "as reStructuredText files, use `--rst-extension=.`."
     ),
     multiple=True,
     default=(".rst",),
@@ -438,7 +438,7 @@ def _run_args_against_docs(
         "Give this multiple times to look for multiple extensions. "
         "To avoid considering any files, "
         "including the default, "
-        "as MyST files, use --myst-extension=''."
+        "as MyST files, use `--myst-extension=.`."
     ),
     multiple=True,
     default=(".md",),
