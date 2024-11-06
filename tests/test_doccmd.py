@@ -506,10 +506,9 @@ def test_file_extension(
     assert output_path.suffix == expected_extension
 
 
-@pytest.mark.parametrize(argnames="extension", argvalues=["foobar", ".foobar"])
-def test_given_file_extension(tmp_path: Path, extension: str) -> None:
+def test_given_temporary_file_extension(tmp_path: Path) -> None:
     """
-    It is possible to specify the file extension.
+    It is possible to specify the file extension for created temporary files.
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
@@ -524,7 +523,7 @@ def test_given_file_extension(tmp_path: Path, extension: str) -> None:
         "--language",
         "python",
         "--temporary-file-extension",
-        extension,
+        ".foobar",
         "--command",
         "echo",
         str(rst_file),
@@ -538,6 +537,49 @@ def test_given_file_extension(tmp_path: Path, extension: str) -> None:
     output = result.stdout
     output_path = Path(output.strip())
     assert output_path.suffixes == [".foobar"]
+
+
+def test_given_temporary_file_extension_no_leading_period(
+    tmp_path: Path,
+) -> None:
+    """
+    An error is shown when a given temporary file extension is given with no
+    leading period.
+    """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    content = """\
+    .. code-block:: python
+
+        x = 2 + 2
+        assert x == 4
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--temporary-file-extension",
+        "foobar",
+        "--command",
+        "echo",
+        str(rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code != 0, (result.stdout, result.stderr)
+    assert result.stdout == ""
+    expected_stderr = textwrap.dedent(
+        text="""\
+        Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...
+        Try 'doccmd --help' for help.
+
+        Error: Invalid value for '--temporary-file-extension': 'foobar' does not start with a '.'.
+        """,  # noqa: E501
+    )
+    assert result.stderr == expected_stderr
 
 
 def test_given_prefix(tmp_path: Path) -> None:
