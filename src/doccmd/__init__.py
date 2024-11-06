@@ -438,7 +438,7 @@ def main(
     document_paths = dict.fromkeys(document_paths).keys()
     use_pty = use_pty_option.use_pty()
     if verbose:
-        _log_error(
+        _log_info(
             message="Using PTY for running commands."
             if use_pty
             else "Not using PTY for running commands."
