@@ -130,7 +130,7 @@ def test_file_does_not_exist() -> None:
         catch_exceptions=False,
     )
     assert result.exit_code != 0
-    assert "File 'non_existent_file.rst' does not exist" in result.stderr
+    assert "Path 'non_existent_file.rst' does not exist" in result.stderr
 
 
 def test_not_utf_8_file_given(tmp_path: Path) -> None:
@@ -783,39 +783,6 @@ def test_verbose_not_utf_8(tmp_path: Path) -> None:
             Not using PTY for running commands.
             Skipping '{rst_file}' because it is not UTF-8 encoded.
             """,
-    )
-    assert result.stderr == expected_stderr
-
-
-def test_directory_passed_in(tmp_path: Path) -> None:
-    """
-    An error is shown when a directory is passed in instead of a file.
-    """
-    runner = CliRunner(mix_stderr=False)
-    directory = tmp_path / "example_dir"
-    directory.mkdir()
-    arguments = [
-        "--language",
-        "python",
-        "--command",
-        "cat",
-        str(directory),
-    ]
-    result = runner.invoke(
-        cli=main,
-        args=arguments,
-        catch_exceptions=False,
-    )
-    assert result.exit_code != 0
-    expected_stderr = textwrap.dedent(
-        text=(
-            f"""\
-            Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...
-            Try 'doccmd --help' for help.
-
-            Error: Invalid value for '[DOCUMENT_PATHS]...': File '{directory}' is a directory.
-            """  # noqa: E501
-        ),
     )
     assert result.stderr == expected_stderr
 
@@ -1812,5 +1779,66 @@ def test_overlapping_extensions_dot(tmp_path: Path) -> None:
         x = 1
         """,
     )
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
+def test_directory(tmp_path: Path) -> None:
+    """
+    All source files in a given directory are worked on.
+    """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    rst_content = """\
+    .. code-block:: python
+
+       rst_1_block
+    """
+    rst_file.write_text(data=rst_content, encoding="utf-8")
+    md_file = tmp_path / "example.md"
+    md_content = """\
+    ```python
+    md_1_block
+    ```
+    """
+    md_file.write_text(data=md_content, encoding="utf-8")
+    sub_directory = tmp_path / "subdir"
+    sub_directory.mkdir()
+    rst_file_in_sub_directory = sub_directory / "subdir_example.rst"
+    subdir_rst_content = """\
+    .. code-block:: python
+
+       rst_subdir_1_block
+    """
+    rst_file_in_sub_directory.write_text(
+        data=subdir_rst_content,
+        encoding="utf-8",
+    )
+
+    sub_directory_with_known_file_extension = sub_directory / "subdir.rst"
+    sub_directory_with_known_file_extension.mkdir()
+
+    arguments = [
+        "--language",
+        "python",
+        "--no-pad-file",
+        "--command",
+        "cat",
+        str(tmp_path),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, result.stderr
+    expected_output = textwrap.dedent(
+        text="""\
+        md_1_block
+        rst_1_block
+        rst_subdir_1_block
+        """,
+    )
+
     assert result.stdout == expected_output
     assert result.stderr == ""

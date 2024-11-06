@@ -49,6 +49,7 @@ def _validate_file_extension(
 ) -> None: ...
 
 
+@beartype
 def _validate_file_extension(
     ctx: click.Context,
     param: click.Parameter,
@@ -66,6 +67,7 @@ def _validate_file_extension(
     return value
 
 
+@beartype
 def _validate_file_extensions(
     ctx: click.Context,
     param: click.Parameter,
@@ -83,6 +85,29 @@ def _validate_file_extensions(
     )
 
 
+@beartype
+def _get_file_paths(
+    *,
+    document_paths: Sequence[Path],
+    file_suffixes: Sequence[str],
+) -> Sequence[Path]:
+    """
+    Get the file paths from the given document paths (files and directories).
+    """
+    file_paths: dict[Path, bool] = {}
+    for path in document_paths:
+        if path.is_file():
+            file_paths[path] = True
+        else:
+            for file_suffix in file_suffixes:
+                new_file_paths = path.glob(f"**/*{file_suffix}")
+                for new_file_path in new_file_paths:
+                    if new_file_path.is_file():
+                        file_paths[new_file_path] = True
+    return list(file_paths.keys())
+
+
+@beartype
 def _validate_file_suffix_overlaps(
     *,
     myst_suffixes: Iterable[str],
@@ -104,6 +129,26 @@ def _validate_file_suffix_overlaps(
             f"{', '.join(sorted(overlap_ignoring_dot))}."
         )
         raise click.UsageError(message=message)
+
+
+def _validate_files_are_known_markup_types(
+    *,
+    file_paths: Iterable[Path],
+    myst_suffixes: Iterable[str],
+    rst_suffixes: Iterable[str],
+) -> None:
+    """
+    Validate that the given files are known markup types.
+    """
+    try:
+        for file_path in file_paths:
+            get_markup_language(
+                file_path=file_path,
+                myst_suffixes=myst_suffixes,
+                rst_suffixes=rst_suffixes,
+            )
+    except UnknownMarkupLanguageError as exc:
+        raise click.UsageError(message=str(exc)) from exc
 
 
 @unique
@@ -383,7 +428,7 @@ def _run_args_against_docs(
 )
 @click.argument(
     "document_paths",
-    type=click.Path(exists=True, path_type=Path, dir_okay=False),
+    type=click.Path(exists=True, path_type=Path, dir_okay=True),
     nargs=-1,
 )
 @click.version_option(version=__version__)
@@ -471,17 +516,17 @@ def _run_args_against_docs(
 @beartype
 def main(
     *,
-    languages: Iterable[str],
+    languages: Sequence[str],
     command: str,
-    document_paths: Iterable[Path],
+    document_paths: Sequence[Path],
     temporary_file_extension: str | None,
     temporary_file_name_prefix: str | None,
     pad_file: bool,
     verbose: bool,
-    skip_markers: Iterable[str],
+    skip_markers: Sequence[str],
     use_pty_option: _UsePty,
-    rst_suffixes: Iterable[str],
-    myst_suffixes: Iterable[str],
+    rst_suffixes: Sequence[str],
+    myst_suffixes: Sequence[str],
 ) -> None:
     """Run commands against code blocks in the given documentation files.
 
@@ -489,24 +534,27 @@ def main(
     """
     args = shlex.split(s=command)
     # De-duplicate some choices, keeping the order.
-    languages = dict.fromkeys(languages).keys()
-    skip_markers = dict.fromkeys(skip_markers).keys()
-    document_paths = dict.fromkeys(document_paths).keys()
+    languages = tuple(dict.fromkeys(languages).keys())
+    skip_markers = tuple(dict.fromkeys(skip_markers).keys())
+    document_paths = tuple(dict.fromkeys(document_paths).keys())
     use_pty = use_pty_option.use_pty()
 
-    try:
-        for document_path in document_paths:
-            get_markup_language(
-                file_path=document_path,
-                myst_suffixes=myst_suffixes,
-                rst_suffixes=rst_suffixes,
-            )
-    except UnknownMarkupLanguageError as exc:
-        raise click.UsageError(message=str(exc)) from exc
-
     _validate_file_suffix_overlaps(
-        myst_suffixes=myst_suffixes, rst_suffixes=rst_suffixes
+        myst_suffixes=myst_suffixes,
+        rst_suffixes=rst_suffixes,
     )
+
+    file_paths = _get_file_paths(
+        document_paths=document_paths,
+        file_suffixes=[*myst_suffixes, *rst_suffixes],
+    )
+
+    _validate_files_are_known_markup_types(
+        file_paths=file_paths,
+        myst_suffixes=myst_suffixes,
+        rst_suffixes=rst_suffixes,
+    )
+
     if verbose:
         _log_info(
             message="Using PTY for running commands."
@@ -514,11 +562,11 @@ def main(
             else "Not using PTY for running commands."
         )
 
-    for document_path in document_paths:
+    for file_path in file_paths:
         for language in languages:
             _run_args_against_docs(
                 args=args,
-                document_path=document_path,
+                document_path=file_path,
                 code_block_language=language,
                 pad_temporary_file=pad_file,
                 verbose=verbose,
