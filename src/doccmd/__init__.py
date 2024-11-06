@@ -383,7 +383,7 @@ def _run_args_against_docs(
 )
 @click.argument(
     "document_paths",
-    type=click.Path(exists=True, path_type=Path, dir_okay=False),
+    type=click.Path(exists=True, path_type=Path, dir_okay=True),
     nargs=-1,
 )
 @click.version_option(version=__version__)
@@ -491,22 +491,37 @@ def main(
     # De-duplicate some choices, keeping the order.
     languages = dict.fromkeys(languages).keys()
     skip_markers = dict.fromkeys(skip_markers).keys()
+    file_paths: dict[Path, bool] = {}
     document_paths = dict.fromkeys(document_paths).keys()
     use_pty = use_pty_option.use_pty()
 
+    _validate_file_suffix_overlaps(
+        myst_suffixes=myst_suffixes,
+        rst_suffixes=rst_suffixes,
+    )
+
+    file_suffixes = [*myst_suffixes, *rst_suffixes]
+
+    for path in document_paths:
+        if path.is_file():
+            file_paths[path] = True
+        else:
+            for file_suffix in file_suffixes:
+                new_file_paths = path.glob(f"**/*{file_suffix}")
+                for new_file_path in new_file_paths:
+                    if new_file_path.is_file():
+                        file_paths[new_file_path] = True
+
     try:
-        for document_path in document_paths:
+        for file_path in file_paths:
             get_markup_language(
-                file_path=document_path,
+                file_path=file_path,
                 myst_suffixes=myst_suffixes,
                 rst_suffixes=rst_suffixes,
             )
     except UnknownMarkupLanguageError as exc:
         raise click.UsageError(message=str(exc)) from exc
 
-    _validate_file_suffix_overlaps(
-        myst_suffixes=myst_suffixes, rst_suffixes=rst_suffixes
-    )
     if verbose:
         _log_info(
             message="Using PTY for running commands."
@@ -514,11 +529,11 @@ def main(
             else "Not using PTY for running commands."
         )
 
-    for document_path in document_paths:
+    for file_path in file_paths:
         for language in languages:
             _run_args_against_docs(
                 args=args,
-                document_path=document_path,
+                document_path=file_path,
                 code_block_language=language,
                 pad_temporary_file=pad_file,
                 verbose=verbose,
