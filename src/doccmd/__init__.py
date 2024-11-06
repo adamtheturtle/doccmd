@@ -49,6 +49,7 @@ def _validate_file_extension(
 ) -> None: ...
 
 
+@beartype
 def _validate_file_extension(
     ctx: click.Context,
     param: click.Parameter,
@@ -66,6 +67,7 @@ def _validate_file_extension(
     return value
 
 
+@beartype
 def _validate_file_extensions(
     ctx: click.Context,
     param: click.Parameter,
@@ -83,6 +85,7 @@ def _validate_file_extensions(
     )
 
 
+@beartype
 def _validate_file_suffix_overlaps(
     *,
     myst_suffixes: Iterable[str],
@@ -104,6 +107,26 @@ def _validate_file_suffix_overlaps(
             f"{', '.join(sorted(overlap_ignoring_dot))}."
         )
         raise click.UsageError(message=message)
+
+
+def _validate_files_are_known_markup_types(
+    *,
+    file_paths: dict[Path, bool],
+    myst_suffixes: Iterable[str],
+    rst_suffixes: Iterable[str],
+) -> None:
+    """
+    Validate that the given files are known markup types.
+    """
+    try:
+        for file_path in file_paths:
+            get_markup_language(
+                file_path=file_path,
+                myst_suffixes=myst_suffixes,
+                rst_suffixes=rst_suffixes,
+            )
+    except UnknownMarkupLanguageError as exc:
+        raise click.UsageError(message=str(exc)) from exc
 
 
 @unique
@@ -512,15 +535,11 @@ def main(
                     if new_file_path.is_file():
                         file_paths[new_file_path] = True
 
-    try:
-        for file_path in file_paths:
-            get_markup_language(
-                file_path=file_path,
-                myst_suffixes=myst_suffixes,
-                rst_suffixes=rst_suffixes,
-            )
-    except UnknownMarkupLanguageError as exc:
-        raise click.UsageError(message=str(exc)) from exc
+    _validate_files_are_known_markup_types(
+        file_paths=file_paths,
+        myst_suffixes=myst_suffixes,
+        rst_suffixes=rst_suffixes,
+    )
 
     if verbose:
         _log_info(
