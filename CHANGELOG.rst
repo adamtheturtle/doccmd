@@ -4,6 +4,9 @@ Changelog
 Next
 ----
 
+2024.11.06.1
+------------
+
 * Add a ``--max-depth`` option for recursing into directories.
 
 2024.11.06
