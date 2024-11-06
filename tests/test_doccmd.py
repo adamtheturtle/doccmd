@@ -729,16 +729,22 @@ def test_verbose_running(tmp_path: Path) -> None:
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
-        text=f"""\
-        Not using PTY for running commands.
-        Running 'cat' on code block at {rst_file} line 1
+        text="""\
 
 
         x = 2 + 2
         assert x == 4
         """,
     )
+    expected_stderr = f"Running 'cat' on code block at {rst_file} line 1\n"
+    expected_stderr = textwrap.dedent(
+        text=f"""\
+        Not using PTY for running commands.
+        Running 'cat' on code block at {rst_file} line 1
+        """,
+    )
     assert result.stdout == expected_output
+    assert result.stderr == expected_stderr
 
 
 def test_verbose_not_utf_8(tmp_path: Path) -> None:
@@ -768,12 +774,13 @@ def test_verbose_not_utf_8(tmp_path: Path) -> None:
         catch_exceptions=False,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
-    expected_output = "Not using PTY for running commands.\n"
+    expected_output = ""
     assert result.stdout == expected_output
     # The first line here is not relevant, but we test the entire
     # verbose output to ensure that it is as expected.
     expected_stderr = textwrap.dedent(
         text=f"""\
+            Not using PTY for running commands.
             Skipping '{rst_file}' because it is not UTF-8 encoded.
             """,
     )
