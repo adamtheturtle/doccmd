@@ -74,13 +74,13 @@ def _validate_file_extensions(
     """
     Validate that the input strings start with a dot.
     """
-    # We could just return `values` as we know that the validator does not
-    # modify the given value, but to be safe, we use the returned values.
-    results: tuple[str, ...] = ()
-    for value in values:
-        new_value = _validate_file_extension(ctx=ctx, param=param, value=value)
-        results = (*results, new_value)
-    return results
+    # We could just return `values` as we know that `_validate_file_extension`
+    # does not modify the given value, but to be safe, we use the returned
+    # values.
+    return tuple(
+        _validate_file_extension(ctx=ctx, param=param, value=value)
+        for value in values
+    )
 
 
 @unique
