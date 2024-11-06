@@ -96,6 +96,8 @@ def _validate_file_extensions(
     """
     Validate that the input strings start with a dot.
     """
+    # This is not necessary but it saves us later working with
+    # duplicate values.
     values = _deduplicate(ctx=ctx, param=param, sequence=values)
     # We could just return `values` as we know that `_validate_file_extension`
     # does not modify the given value, but to be safe, we use the returned
