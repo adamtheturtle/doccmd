@@ -1877,6 +1877,7 @@ def test_de_duplication_source_files_and_dirs(tmp_path: Path) -> None:
         "--command",
         "cat",
         str(tmp_path),
+        str(sub_directory),
         str(rst_file_in_sub_directory),
     ]
     result = runner.invoke(
