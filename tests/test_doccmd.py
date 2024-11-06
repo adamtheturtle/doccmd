@@ -1841,7 +1841,3 @@ def test_directory(tmp_path: Path) -> None:
 
     assert result.stdout == expected_output
     assert result.stderr == ""
-
-
-# Test de-dupe across directories / files given
-# Test recurse through directories
