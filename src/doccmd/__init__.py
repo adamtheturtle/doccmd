@@ -10,7 +10,7 @@ from collections.abc import Iterable, Sequence
 from enum import Enum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, overload
 
 import click
 from beartype import beartype
@@ -31,6 +31,22 @@ except PackageNotFoundError:  # pragma: no cover
     # for example in a PyInstaller binary,
     # we write the file ``_setuptools_scm_version.py`` on ``pip install``.
     from ._setuptools_scm_version import __version__
+
+
+@overload
+def _validate_file_extension(
+    ctx: click.Context,
+    param: click.Parameter,
+    value: str,
+) -> str: ...
+
+
+@overload
+def _validate_file_extension(
+    ctx: click.Context,
+    param: click.Parameter,
+    value: None,
+) -> None: ...
 
 
 def _validate_file_extension(
