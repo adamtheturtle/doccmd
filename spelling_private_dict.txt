@@ -19,6 +19,7 @@ linuxbrew
 login
 macOS
 metadata
+myst
 noqa
 parsers
 pragma
@@ -29,6 +30,7 @@ pyright
 pytest
 reStructuredText
 reco
+rst
 txt
 typeshed
 ubuntu
