@@ -30,6 +30,7 @@ pyright
 pytest
 reStructuredText
 reco
+recursing
 rst
 txt
 typeshed
