@@ -43,7 +43,7 @@ def _deduplicate(
     sequence: Sequence[T],
 ) -> Sequence[T]:
     """
-    Deduplicate a sequence while keeping the order.
+    De-duplicate a sequence while keeping the order.
     """
     assert ctx
     assert param
