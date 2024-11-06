@@ -133,7 +133,7 @@ def _validate_file_suffix_overlaps(
 
 def _validate_files_are_known_markup_types(
     *,
-    file_paths: dict[Path, bool],
+    file_paths: Iterable[Path],
     myst_suffixes: Iterable[str],
     rst_suffixes: Iterable[str],
 ) -> None:
