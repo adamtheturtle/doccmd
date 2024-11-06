@@ -69,4 +69,6 @@ Options:
                                   multiple extensions. To avoid considering any
                                   files, including the default, as MyST files,
                                   use `--myst-extension=.`.  [default: .md]
+  --max-depth INTEGER RANGE       Maximum depth to search for files in
+                                  directories.  [x>=1]
   --help                          Show this message and exit.
