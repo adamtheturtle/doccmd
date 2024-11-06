@@ -1637,26 +1637,30 @@ def test_pty(
     assert result.stdout.strip() == expected_output
 
 
-def test_extension_no_leading_period(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    argnames="option",
+    argvalues=["--rst-extension", "--myst-extension"],
+)
+def test_source_given_extension_no_leading_period(
+    tmp_path: Path,
+    option: str,
+) -> None:
     """
-    An error is shown when an --rst-extension is given with no leading period.
+    An error is shown when a given source file extension is given with no
+    leading period.
     """
     runner = CliRunner(mix_stderr=False)
-    rst_file = tmp_path / "example.rst"
-    content = """\
-    .. code-block:: python
-
-        x = 1
-    """
-    rst_file.write_text(data=content, encoding="utf-8")
+    source_file = tmp_path / "example.rst"
+    content = "Hello world"
+    source_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
         "--command",
         "cat",
-        "--rst-extension",
+        option,
         "customrst",
-        str(rst_file),
+        str(source_file),
     ]
     result = runner.invoke(
         cli=main,
@@ -1665,11 +1669,11 @@ def test_extension_no_leading_period(tmp_path: Path) -> None:
     )
     assert result.exit_code != 0, (result.stdout, result.stderr)
     expected_stderr = textwrap.dedent(
-        text="""\
+        text=f"""\
             Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...
             Try 'doccmd --help' for help.
 
-            Error: Invalid value for '--rst-extension': 'customrst' does not start with a '.'.
+            Error: Invalid value for '{option}': 'customrst' does not start with a '.'.
             """,  # noqa: E501
     )
     assert result.stdout == ""
