@@ -506,10 +506,9 @@ def test_file_extension(
     assert output_path.suffix == expected_extension
 
 
-@pytest.mark.parametrize(argnames="extension", argvalues=["foobar", ".foobar"])
-def test_given_file_extension(tmp_path: Path, extension: str) -> None:
+def test_given_temporary_file_extension(tmp_path: Path) -> None:
     """
-    It is possible to specify the file extension.
+    It is possible to specify the file extension for created temporary files.
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
@@ -524,7 +523,7 @@ def test_given_file_extension(tmp_path: Path, extension: str) -> None:
         "--language",
         "python",
         "--temporary-file-extension",
-        extension,
+        ".foobar",
         "--command",
         "echo",
         str(rst_file),
@@ -538,6 +537,49 @@ def test_given_file_extension(tmp_path: Path, extension: str) -> None:
     output = result.stdout
     output_path = Path(output.strip())
     assert output_path.suffixes == [".foobar"]
+
+
+def test_given_temporary_file_extension_no_leading_period(
+    tmp_path: Path,
+) -> None:
+    """
+    An error is shown when a given temporary file extension is given with no
+    leading period.
+    """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    content = """\
+    .. code-block:: python
+
+        x = 2 + 2
+        assert x == 4
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--temporary-file-extension",
+        "foobar",
+        "--command",
+        "echo",
+        str(rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code != 0, (result.stdout, result.stderr)
+    assert result.stdout == ""
+    expected_stderr = textwrap.dedent(
+        text="""\
+        Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...
+        Try 'doccmd --help' for help.
+
+        Error: Invalid value for '--temporary-file-extension': 'foobar' does not start with a '.'.
+        """,  # noqa: E501
+    )
+    assert result.stderr == expected_stderr
 
 
 def test_given_prefix(tmp_path: Path) -> None:
@@ -687,16 +729,22 @@ def test_verbose_running(tmp_path: Path) -> None:
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
-        text=f"""\
-        Not using PTY for running commands.
-        Running 'cat' on code block at {rst_file} line 1
+        text="""\
 
 
         x = 2 + 2
         assert x == 4
         """,
     )
+    expected_stderr = f"Running 'cat' on code block at {rst_file} line 1\n"
+    expected_stderr = textwrap.dedent(
+        text=f"""\
+        Not using PTY for running commands.
+        Running 'cat' on code block at {rst_file} line 1
+        """,
+    )
     assert result.stdout == expected_output
+    assert result.stderr == expected_stderr
 
 
 def test_verbose_not_utf_8(tmp_path: Path) -> None:
@@ -726,12 +774,13 @@ def test_verbose_not_utf_8(tmp_path: Path) -> None:
         catch_exceptions=False,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
-    expected_output = "Not using PTY for running commands.\n"
+    expected_output = ""
     assert result.stdout == expected_output
     # The first line here is not relevant, but we test the entire
     # verbose output to ensure that it is as expected.
     expected_stderr = textwrap.dedent(
         text=f"""\
+            Not using PTY for running commands.
             Skipping '{rst_file}' because it is not UTF-8 encoded.
             """,
     )
@@ -1637,26 +1686,30 @@ def test_pty(
     assert result.stdout.strip() == expected_output
 
 
-def test_extension_no_leading_period(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    argnames="option",
+    argvalues=["--rst-extension", "--myst-extension"],
+)
+def test_source_given_extension_no_leading_period(
+    tmp_path: Path,
+    option: str,
+) -> None:
     """
-    An error is shown when an --rst-extension is given with no leading period.
+    An error is shown when a given source file extension is given with no
+    leading period.
     """
     runner = CliRunner(mix_stderr=False)
-    rst_file = tmp_path / "example.rst"
-    content = """\
-    .. code-block:: python
-
-        x = 1
-    """
-    rst_file.write_text(data=content, encoding="utf-8")
+    source_file = tmp_path / "example.rst"
+    content = "Hello world"
+    source_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
         "--command",
         "cat",
-        "--rst-extension",
+        option,
         "customrst",
-        str(rst_file),
+        str(source_file),
     ]
     result = runner.invoke(
         cli=main,
@@ -1665,11 +1718,11 @@ def test_extension_no_leading_period(tmp_path: Path) -> None:
     )
     assert result.exit_code != 0, (result.stdout, result.stderr)
     expected_stderr = textwrap.dedent(
-        text="""\
+        text=f"""\
             Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...
             Try 'doccmd --help' for help.
 
-            Error: Invalid value for '--rst-extension': 'customrst' does not start with a '.'.
+            Error: Invalid value for '{option}': 'customrst' does not start with a '.'.
             """,  # noqa: E501
     )
     assert result.stdout == ""

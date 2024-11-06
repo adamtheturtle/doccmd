@@ -73,7 +73,7 @@ def _log_info(message: str) -> None:
     Log an info message.
     """
     styled_message = click.style(text=message, fg="yellow")
-    click.echo(message=styled_message, err=False)
+    click.echo(message=styled_message, err=True)
 
 
 @beartype
