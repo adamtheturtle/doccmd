@@ -62,11 +62,11 @@ Options:
                                   reStructuredText. Give this multiple times to
                                   look for multiple extensions. To avoid
                                   considering any files, including the default,
-                                  as reStructuredText files, use --rst-
-                                  extension=''.  [default: .rst]
+                                  as reStructuredText files, use `--rst-
+                                  extension=.`.  [default: .rst]
   --myst-extension TEXT           Files with this extension (suffix) to treat as
                                   MyST. Give this multiple times to look for
                                   multiple extensions. To avoid considering any
                                   files, including the default, as MyST files,
-                                  use --myst-extension=''.  [default: .md]
+                                  use `--myst-extension=.`.  [default: .md]
   --help                          Show this message and exit.

@@ -10,7 +10,7 @@ from collections.abc import Iterable, Sequence
 from enum import Enum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, overload
 
 import click
 from beartype import beartype
@@ -33,19 +33,54 @@ except PackageNotFoundError:  # pragma: no cover
     from ._setuptools_scm_version import __version__
 
 
-def validate_file_extensions(
+@overload
+def _validate_file_extension(
+    ctx: click.Context,
+    param: click.Parameter,
+    value: str,
+) -> str: ...
+
+
+@overload
+def _validate_file_extension(
+    ctx: click.Context,
+    param: click.Parameter,
+    value: None,
+) -> None: ...
+
+
+def _validate_file_extension(
+    ctx: click.Context,
+    param: click.Parameter,
+    value: str | None,
+) -> str | None:
+    """
+    Validate that the input string starts with a dot.
+    """
+    if value is None:
+        return value
+
+    if not value.startswith("."):
+        message = f"'{value}' does not start with a '.'."
+        raise click.BadParameter(message=message, ctx=ctx, param=param)
+    return value
+
+
+def _validate_file_extensions(
     ctx: click.Context,
     param: click.Parameter,
     values: tuple[str, ...],
 ) -> tuple[str, ...]:
     """
-    Validate that the input string starts with a dot.
+    Validate that the input strings start with a dot.
     """
-    for value in values:
-        if not value.startswith("."):
-            message = f"'{value}' does not start with a '.'."
-            raise click.BadParameter(message=message, ctx=ctx, param=param)
-    return values
+    # We could just return `values` as we know that `_validate_file_extension`
+    # does not modify the given value, but to be safe, we use the returned
+    # values.
+    return tuple(
+        _validate_file_extension(ctx=ctx, param=param, value=value)
+        for value in values
+    )
 
 
 @unique
@@ -151,9 +186,6 @@ def _get_temporary_file_extension(
     if given_file_extension is None:
         language_to_suffix = _map_languages_to_suffix()
         given_file_extension = language_to_suffix.get(language.lower(), ".txt")
-
-    if not given_file_extension.startswith("."):
-        given_file_extension = f".{given_file_extension}"
 
     return given_file_extension
 
@@ -272,6 +304,7 @@ def _run_args_against_docs(
         "block. By default, the file extension is inferred from the language, "
         "or it is '.txt' if the language is not recognized."
     ),
+    callback=_validate_file_extension,
 )
 @click.option(
     "temporary_file_name_prefix",
@@ -389,12 +422,12 @@ def _run_args_against_docs(
         "Give this multiple times to look for multiple extensions. "
         "To avoid considering any files, "
         "including the default, "
-        "as reStructuredText files, use --rst-extension=''."
+        "as reStructuredText files, use `--rst-extension=.`."
     ),
     multiple=True,
     default=(".rst",),
     show_default=True,
-    callback=validate_file_extensions,
+    callback=_validate_file_extensions,
 )
 @click.option(
     "--myst-extension",
@@ -405,12 +438,12 @@ def _run_args_against_docs(
         "Give this multiple times to look for multiple extensions. "
         "To avoid considering any files, "
         "including the default, "
-        "as MyST files, use --myst-extension=''."
+        "as MyST files, use `--myst-extension=.`."
     ),
     multiple=True,
     default=(".md",),
     show_default=True,
-    callback=validate_file_extensions,
+    callback=_validate_file_extensions,
 )
 @beartype
 def main(

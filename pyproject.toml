@@ -347,6 +347,7 @@ omit = [
 exclude_also = [
     "if TYPE_CHECKING:",
     "class .*\\bProtocol\\):",
+    "@overload",
 ]
 
 [tool.mypy]
@@ -363,6 +364,7 @@ typeCheckingMode = "strict"
 [tool.interrogate]
 fail-under = 100
 omit-covered-files = true
+ignore-overloaded-functions = true
 verbose = 2
 exclude = [
     "src/*/_setuptools_scm_version.py",
