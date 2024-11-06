@@ -83,6 +83,29 @@ def _validate_file_extensions(
     )
 
 
+def _validate_file_suffix_overlaps(
+    *,
+    myst_suffixes: Iterable[str],
+    rst_suffixes: Iterable[str],
+) -> None:
+    """
+    Validate that the given file suffixes do not overlap.
+    """
+    myst_set = set(myst_suffixes)
+    rst_set = set(rst_suffixes)
+    overlap = myst_set & rst_set
+    # Allow the dot to overlap, as it is a common way to specify
+    # "no extensions".
+    overlap_ignoring_dot = overlap - {"."}
+    if overlap_ignoring_dot:
+        message = (
+            "Overlapping extensions between --rst-extension "
+            "and --myst-extension: "
+            f"{', '.join(sorted(overlap_ignoring_dot))}."
+        )
+        raise click.UsageError(message=message)
+
+
 @unique
 class _UsePty(Enum):
     """
@@ -470,12 +493,6 @@ def main(
     skip_markers = dict.fromkeys(skip_markers).keys()
     document_paths = dict.fromkeys(document_paths).keys()
     use_pty = use_pty_option.use_pty()
-    if verbose:
-        _log_info(
-            message="Using PTY for running commands."
-            if use_pty
-            else "Not using PTY for running commands."
-        )
 
     try:
         for document_path in document_paths:
@@ -486,6 +503,16 @@ def main(
             )
     except UnknownMarkupLanguageError as exc:
         raise click.UsageError(message=str(exc)) from exc
+
+    _validate_file_suffix_overlaps(
+        myst_suffixes=myst_suffixes, rst_suffixes=rst_suffixes
+    )
+    if verbose:
+        _log_info(
+            message="Using PTY for running commands."
+            if use_pty
+            else "Not using PTY for running commands."
+        )
 
     for document_path in document_paths:
         for language in languages:
