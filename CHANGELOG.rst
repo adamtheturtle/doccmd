@@ -4,6 +4,8 @@ Changelog
 Next
 ----
 
+* Add options to support given file extensions for source files.
+
 2024.11.05
 ----------
 
