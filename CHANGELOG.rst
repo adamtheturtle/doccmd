@@ -5,6 +5,7 @@ Next
 ----
 
 * Add options to support given file extensions for source files.
+* Add support for passing in directories.
 
 2024.11.05
 ----------
