@@ -543,7 +543,7 @@ def _run_args_against_docs(
 )
 @click.option(
     "--max-depth",
-    type=click.IntRange(min=1, clamp=True),
+    type=click.IntRange(min=1),
     default=sys.maxsize,
     show_default=False,
     help="Maximum depth to search for files in directories.",
