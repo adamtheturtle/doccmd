@@ -1815,6 +1815,9 @@ def test_directory(tmp_path: Path) -> None:
         encoding="utf-8",
     )
 
+    sub_directory_with_known_file_extension = sub_directory / "subdir.rst"
+    sub_directory_with_known_file_extension.mkdir()
+
     arguments = [
         "--language",
         "python",
