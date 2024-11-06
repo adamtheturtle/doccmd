@@ -1842,3 +1842,56 @@ def test_directory(tmp_path: Path) -> None:
 
     assert result.stdout == expected_output
     assert result.stderr == ""
+
+
+def test_de_duplication_source_files_and_dirs(tmp_path: Path) -> None:
+    """
+    If a file is given which is within a directory that is also given, the file
+    is de-duplicated.
+    """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    rst_content = """\
+    .. code-block:: python
+
+       rst_1_block
+    """
+    rst_file.write_text(data=rst_content, encoding="utf-8")
+    sub_directory = tmp_path / "subdir"
+    sub_directory.mkdir()
+    rst_file_in_sub_directory = sub_directory / "subdir_example.rst"
+    subdir_rst_content = """\
+    .. code-block:: python
+
+       rst_subdir_1_block
+    """
+    rst_file_in_sub_directory.write_text(
+        data=subdir_rst_content,
+        encoding="utf-8",
+    )
+
+    arguments = [
+        "--language",
+        "python",
+        "--no-pad-file",
+        "--command",
+        "cat",
+        str(tmp_path),
+        str(sub_directory),
+        str(rst_file_in_sub_directory),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, result.stderr
+    expected_output = textwrap.dedent(
+        text="""\
+        rst_1_block
+        rst_subdir_1_block
+        """,
+    )
+
+    assert result.stdout == expected_output
+    assert result.stderr == ""
