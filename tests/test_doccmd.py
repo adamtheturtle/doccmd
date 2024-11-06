@@ -2017,8 +2017,8 @@ def test_max_depth(tmp_path: Path) -> None:
 
 def test_exclude_files_from_recursed_directories(tmp_path: Path) -> None:
     """
-    Files matching the exclude pattern are not processed when recursing
-    directories.
+    Files with names matching the exclude pattern are not processed when
+    recursing directories.
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
