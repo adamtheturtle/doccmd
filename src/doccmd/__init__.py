@@ -548,6 +548,12 @@ def _run_args_against_docs(
     show_default=False,
     help="Maximum depth to search for files in directories.",
 )
+@click.option(
+    "--exclude",
+    type=click.Path(exists=True, path_type=Path, dir_okay=True),
+    multiple=True,
+    help="Paths to exclude from processing.",
+)
 @beartype
 def main(
     *,
@@ -563,6 +569,7 @@ def main(
     rst_suffixes: Sequence[str],
     myst_suffixes: Sequence[str],
     max_depth: int,
+    exclude: Sequence[Path],
 ) -> None:
     """Run commands against code blocks in the given documentation files.
 
@@ -581,6 +588,9 @@ def main(
         file_suffixes=[*myst_suffixes, *rst_suffixes],
         max_depth=max_depth,
     )
+
+    # Exclude specified paths
+    file_paths = [path for path in file_paths if path not in exclude]
 
     _validate_files_are_known_markup_types(
         file_paths=file_paths,

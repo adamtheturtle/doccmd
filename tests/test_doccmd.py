@@ -2013,3 +2013,137 @@ def test_max_depth(tmp_path: Path) -> None:
 
     assert result.stdout == expected_output
     assert result.stderr == ""
+
+
+def test_exclude_files_from_recursed_directories(tmp_path: Path) -> None:
+    """
+    Files matching the exclude pattern are not processed when recursing
+    directories.
+    """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    rst_content = """\
+    .. code-block:: python
+
+        rst_1_block
+    """
+    rst_file.write_text(data=rst_content, encoding="utf-8")
+
+    sub_directory = tmp_path / "subdir"
+    sub_directory.mkdir()
+    rst_file_in_sub_directory = sub_directory / "subdir_example.rst"
+    subdir_rst_content = """\
+    .. code-block:: python
+
+        rst_subdir_1_block
+    """
+    rst_file_in_sub_directory.write_text(
+        data=subdir_rst_content,
+        encoding="utf-8",
+    )
+
+    excluded_file = sub_directory / "exclude_me.rst"
+    excluded_content = """\
+    .. code-block:: python
+
+        excluded_block
+    """
+    excluded_file.write_text(data=excluded_content, encoding="utf-8")
+
+    arguments = [
+        "--language",
+        "python",
+        "--no-pad-file",
+        "--command",
+        "cat",
+        "--exclude",
+        "exclude_*e.*",
+        str(tmp_path),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, result.stderr
+    expected_output = textwrap.dedent(
+        text="""\
+        rst_1_block
+        rst_subdir_1_block
+        """,
+    )
+
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
+def test_multiple_exclude_patterns(tmp_path: Path) -> None:
+    """
+    Files matching any of the exclude patterns are not processed when recursing
+    directories.
+    """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    rst_content = """\
+    .. code-block:: python
+
+        rst_1_block
+    """
+    rst_file.write_text(data=rst_content, encoding="utf-8")
+
+    sub_directory = tmp_path / "subdir"
+    sub_directory.mkdir()
+    rst_file_in_sub_directory = sub_directory / "subdir_example.rst"
+    subdir_rst_content = """\
+    .. code-block:: python
+
+        rst_subdir_1_block
+    """
+    rst_file_in_sub_directory.write_text(
+        data=subdir_rst_content,
+        encoding="utf-8",
+    )
+
+    excluded_file_1 = sub_directory / "exclude_me.rst"
+    excluded_content_1 = """\
+    .. code-block:: python
+
+        excluded_block_1
+    """
+    excluded_file_1.write_text(data=excluded_content_1, encoding="utf-8")
+
+    excluded_file_2 = sub_directory / "ignore_me.rst"
+    excluded_content_2 = """\
+    .. code-block:: python
+
+        excluded_block_2
+    """
+    excluded_file_2.write_text(data=excluded_content_2, encoding="utf-8")
+
+    arguments = [
+        "--language",
+        "python",
+        "--no-pad-file",
+        "--command",
+        "cat",
+        "--exclude",
+        "exclude_*e.*",
+        "--exclude",
+        "ignore_*e.*",
+        str(tmp_path),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, result.stderr
+    expected_output = textwrap.dedent(
+        text="""\
+        rst_1_block
+        rst_subdir_1_block
+        """,
+    )
+
+    assert result.stdout == expected_output
+    assert result.stderr == ""
