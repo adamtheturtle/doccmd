@@ -4,6 +4,9 @@ Changelog
 Next
 ----
 
+2024.11.06
+----------
+
 * Add options to support given file extensions for source files.
 * Add support for passing in directories.
 
