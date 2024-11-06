@@ -1490,16 +1490,14 @@ def test_custom_rst_file_suffixes(tmp_path: Path) -> None:
     content = """\
     .. code-block:: python
 
-        x = 2 + 2
-        assert x == 4
+        x = 1
     """
     rst_file.write_text(data=content, encoding="utf-8")
     rst_file_2 = tmp_path / "example.customrst2"
     content_2 = """\
     .. code-block:: python
 
-        x = 3 + 3
-        assert x == 6
+        x = 2
     """
     rst_file_2.write_text(data=content_2, encoding="utf-8")
     arguments = [
@@ -1513,19 +1511,70 @@ def test_custom_rst_file_suffixes(tmp_path: Path) -> None:
         "--rst-extension",
         ".customrst2",
         str(rst_file),
+        str(rst_file_2),
     ]
     result = runner.invoke(
         cli=main,
         args=arguments,
         catch_exceptions=False,
     )
+    expected_output = textwrap.dedent(
+        text="""\
+        x = 1
+        x = 2
+        """,
+    )
     assert result.exit_code == 0, (result.stdout, result.stderr)
-    assert result.stdout == ""
+    assert result.stdout == expected_output
     assert result.stderr == ""
 
 
-def test_custom_myst_file_suffixes():
-    """X"""
+def test_custom_myst_file_suffixes(tmp_path: Path) -> None:
+    """
+    MyST files with custom suffixes are recognized.
+    """
+    runner = CliRunner(mix_stderr=False)
+    myst_file = tmp_path / "example.custommyst"
+    content = """\
+    ```python
+    x = 1
+    ```
+    """
+    myst_file.write_text(data=content, encoding="utf-8")
+    myst_file_2 = tmp_path / "example.custommyst2"
+    content_2 = """\
+    ```python
+    x = 2
+    ```
+    """
+    myst_file_2.write_text(data=content_2, encoding="utf-8")
+    arguments = [
+        "--no-pad-file",
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        "--myst-extension",
+        ".custommyst",
+        "--myst-extension",
+        ".custommyst2",
+        str(myst_file),
+        str(myst_file_2),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    expected_output = textwrap.dedent(
+        text="""\
+        x = 1
+        x = 2
+        """,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert result.stdout == expected_output
+    assert result.stderr == ""
 
 
 @pytest.mark.parametrize(
