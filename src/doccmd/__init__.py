@@ -32,7 +32,6 @@ except PackageNotFoundError:  # pragma: no cover
     # we write the file ``_setuptools_scm_version.py`` on ``pip install``.
     from ._setuptools_scm_version import __version__
 
-
 T = TypeVar("T")
 
 
@@ -111,6 +110,7 @@ def _get_file_paths(
     document_paths: Sequence[Path],
     file_suffixes: Sequence[str],
     max_depth: int,
+    exclude_patterns: Sequence[str],
 ) -> Sequence[Path]:
     """
     Get the file paths from the given document paths (files and directories).
@@ -127,7 +127,10 @@ def _get_file_paths(
                     if len(path_part.relative_to(path).parts) <= max_depth
                 )
                 for new_file_path in new_file_paths:
-                    if new_file_path.is_file():
+                    if new_file_path.is_file() and not any(
+                        new_file_path.match(path_pattern=pattern)
+                        for pattern in exclude_patterns
+                    ):
                         file_paths[new_file_path] = True
     return tuple(file_paths.keys())
 
@@ -548,6 +551,18 @@ def _run_args_against_docs(
     show_default=False,
     help="Maximum depth to search for files in directories.",
 )
+@click.option(
+    "--exclude",
+    "exclude_patterns",
+    type=str,
+    multiple=True,
+    help=(
+        "A glob-style pattern that matches file paths to ignore while "
+        "recursively discovering files in directories. "
+        "This option can be used multiple times. "
+        "Use forward slashes on all platforms."
+    ),
+)
 @beartype
 def main(
     *,
@@ -563,6 +578,7 @@ def main(
     rst_suffixes: Sequence[str],
     myst_suffixes: Sequence[str],
     max_depth: int,
+    exclude_patterns: Sequence[str],
 ) -> None:
     """Run commands against code blocks in the given documentation files.
 
@@ -580,6 +596,7 @@ def main(
         document_paths=document_paths,
         file_suffixes=[*myst_suffixes, *rst_suffixes],
         max_depth=max_depth,
+        exclude_patterns=exclude_patterns,
     )
 
     _validate_files_are_known_markup_types(

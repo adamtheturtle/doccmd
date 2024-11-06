@@ -71,4 +71,9 @@ Options:
                                   use `--myst-extension=.`.  [default: .md]
   --max-depth INTEGER RANGE       Maximum depth to search for files in
                                   directories.  [x>=1]
+  --exclude TEXT                  A glob-style pattern that matches file paths
+                                  to ignore while recursively discovering files
+                                  in directories. This option can be used
+                                  multiple times. Use forward slashes on all
+                                  platforms.
   --help                          Show this message and exit.
