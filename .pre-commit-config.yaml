@@ -61,6 +61,7 @@ repos:
       - id: file-contents-sorter
         files: spelling_private_dict\.txt$
       - id: trailing-whitespace
+        exclude: ^tests/test_doccmd/.*\.txt$
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.10.0
     hooks:
