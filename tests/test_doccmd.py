@@ -2156,26 +2156,11 @@ def test_lexing_exception(tmp_path: Path) -> None:
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "invalid_example.md"
     invalid_content = """\
-    Metadata-Version: 2.3
-    Name: attrs
-
     <p align="center">
     <a href="https://www.attrs.org/">
         <img src="https://raw.githubusercontent.com/python-attrs/attrs/main/docs/_static/attrs_logo.svg" width="35%" alt="attrs" />
     </a>
     </p>
-
-
-    *attrs* is the Python package that will bring back the **joy** of **writing classes** by relieving you from the drudgery of implementing object protocols (aka [dunder methods](https://www.attrs.org/en/latest/glossary.html#term-dunder-methods)).
-    [Trusted by NASA](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-profile/customizing-your-profile/personalizing-your-profile#list-of-qualifying-repositories-for-mars-2020-helicopter-contributor-achievement) for Mars missions since 2020!
-
-    Its main goal is to help you to write **concise** and **correct** software without slowing down your code.
-
-
-    ## Sponsors
-
-    *attrs* would not be possible without our [amazing sponsors](https://github.com/sponsors/hynek).
-    Especially those generously supporting us at the *The Organization* tier and higher:
 
     <!-- sponsor-break-begin -->
 
@@ -2210,27 +2195,6 @@ def test_lexing_exception(tmp_path: Path) -> None:
     <!-- code-begin -->
 
     ---
-
-    This example uses *attrs*'s modern APIs that have been introduced in version 20.1.0, and the *attrs* package import name that has been added in version 21.3.0.
-    The classic APIs (`@attr.s`, `attr.ib`, plus their serious-business aliases) and the `attr` package import name will remain **indefinitely**.
-
-    Check out [*On The Core API Names*](https://www.attrs.org/en/latest/names.html) for an in-depth explanation!
-
-
-    ### Hate Type Annotations!?
-
-    No problem!
-    Types are entirely **optional** with *attrs*.
-    Simply assign `attrs.field()` to the attributes instead of annotating them with types:
-
-    ```python
-    from attrs import define, field
-
-    @define
-    class SomeClass:
-        a_number = field(default=42)
-        list_of_numbers = field(factory=list)
-    ```
     """
     rst_file.write_text(data=invalid_content, encoding="utf-8")
     arguments = ["--language", "python", "--command", "cat", str(rst_file)]
