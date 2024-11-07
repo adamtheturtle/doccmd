@@ -2154,14 +2154,14 @@ def test_lexing_exception(tmp_path: Path) -> None:
     Lexing exceptions are handled when an invalid source file is given.
     """
     runner = CliRunner(mix_stderr=False)
-    rst_file = tmp_path / "invalid_example.md"
+    source_file = tmp_path / "invalid_example.md"
     # Lexing error as there is a hyphen in the comment
     # or... because of the word code!
     invalid_content = """\
     <!-- code -->
     """
-    rst_file.write_text(data=invalid_content, encoding="utf-8")
-    arguments = ["--language", "python", "--command", "cat", str(rst_file)]
+    source_file.write_text(data=invalid_content, encoding="utf-8")
+    arguments = ["--language", "python", "--command", "cat", str(source_file)]
     result = runner.invoke(
         cli=main,
         args=arguments,
