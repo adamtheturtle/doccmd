@@ -426,17 +426,17 @@ def _run_args_against_docs(
     help=(
         """\
         The marker used to identify code blocks to be skipped.
-        \b
+
         By default, code blocks which come just after a comment matching 'skip
         doccmd[all]: next' are skipped (e.g. `.. skip doccmd[all]: next` in
         reStructuredText, `<!--- skip doccmd[all]: next -->` in Markdown, or
         `% skip doccmd[all]: next` in MyST).
-        \b
+
         When using this option, those, and code blocks which come just after a
         comment including the given marker are ignored. For example, if the
         given marker is 'type-check', code blocks which come just after a
         comment matching 'skip doccmd[type-check]: next' are also skipped.
-        \b
+
         This marker is matched using a regular expression.
         """
     ),
