@@ -2156,10 +2156,7 @@ def test_lexing_exception(tmp_path: Path) -> None:
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "invalid_example.md"
     invalid_content = """\
-
     <!-- code-begin -->
-
-    ---
     """
     rst_file.write_text(data=invalid_content, encoding="utf-8")
     arguments = ["--language", "python", "--command", "cat", str(rst_file)]
