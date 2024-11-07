@@ -2155,8 +2155,10 @@ def test_lexing_exception(tmp_path: Path) -> None:
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "invalid_example.md"
+    # Lexing error as there is a hyphen in the comment
+    # or... because of the word code!
     invalid_content = """\
-    <!-- code-begin -->
+    <!-- code -->
     """
     rst_file.write_text(data=invalid_content, encoding="utf-8")
     arguments = ["--language", "python", "--command", "cat", str(rst_file)]
