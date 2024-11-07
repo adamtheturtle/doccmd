@@ -2156,41 +2156,6 @@ def test_lexing_exception(tmp_path: Path) -> None:
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "invalid_example.md"
     invalid_content = """\
-    <p align="center">
-    <a href="https://www.attrs.org/">
-        <img src="https://raw.githubusercontent.com/python-attrs/attrs/main/docs/_static/attrs_logo.svg" width="35%" alt="attrs" />
-    </a>
-    </p>
-
-    <!-- sponsor-break-begin -->
-
-    <p align="center">
-
-    <!-- [[[cog
-    import pathlib, tomllib
-
-    for sponsor in tomllib.loads(pathlib.Path("pyproject.toml").read_text())["tool"]["sponcon"]["sponsors"]:
-        print(f'<a href="{sponsor["url"]}"><img title="{sponsor["title"]}" src="https://www.attrs.org/en/24.2.0/_static/sponsors/{sponsor["img"]}" width="190" /></a>')
-    ]]] -->
-    <a href="https://www.variomedia.de/"><img title="Variomedia AG" src="https://www.attrs.org/en/24.2.0/_static/sponsors/Variomedia.svg" width="190" /></a>
-    <a href="https://tidelift.com/?utm_source=lifter&utm_medium=referral&utm_campaign=hynek"><img title="Tidelift" src="https://www.attrs.org/en/24.2.0/_static/sponsors/Tidelift.svg" width="190" /></a>
-    <a href="https://klaviyo.com/"><img title="Klaviyo" src="https://www.attrs.org/en/24.2.0/_static/sponsors/Klaviyo.svg" width="190" /></a>
-    <a href="https://filepreviews.io/"><img title="FilePreviews" src="https://www.attrs.org/en/24.2.0/_static/sponsors/FilePreviews.svg" width="190" /></a>
-    <!-- [[[end]]] -->
-
-    </p>
-
-    <!-- sponsor-break-end -->
-
-    <p align="center">
-    <strong>Please consider <a href="https://github.com/sponsors/hynek">joining them</a> to help make <em>attrs</em>’s maintenance more sustainable!</strong>
-    </p>
-
-    <!-- teaser-end -->
-
-    ## Example
-
-    *attrs* gives you a class decorator and a way to declaratively define the attributes on that class:
 
     <!-- code-begin -->
 
