@@ -2147,3 +2147,32 @@ def test_multiple_exclude_patterns(tmp_path: Path) -> None:
 
     assert result.stdout == expected_output
     assert result.stderr == ""
+
+
+def test_lexing_exception(tmp_path: Path) -> None:
+    """
+    Lexing exceptions are handled when an invalid source file is given.
+    """
+    runner = CliRunner(mix_stderr=False)
+    source_file = tmp_path / "invalid_example.md"
+    # Lexing error as there is a hyphen in the comment
+    # or... because of the word code!
+    invalid_content = """\
+    <!-- code -->
+    """
+    source_file.write_text(data=invalid_content, encoding="utf-8")
+    arguments = ["--language", "python", "--command", "cat", str(source_file)]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    expected_stderr = textwrap.dedent(
+        text=(
+            f"Skipping '{source_file}' because it could not be lexed: "
+            f"Could not match '(?:(?<=\\n)    )?--+>' in {source_file}:"
+            "\n'    '"
+        ),
+    )
+    assert expected_stderr in result.stderr

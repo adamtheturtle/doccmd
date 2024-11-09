@@ -4,8 +4,7 @@ Changelog
 Next
 ----
 
-2024.11.07
-----------
+* Skip files where we hit a lexing error.
 
 2024.11.06.1
 ------------
