@@ -12,6 +12,7 @@ dulwich
 formatters
 gzip
 homebrew
+lexing
 linter
 linters
 linting
