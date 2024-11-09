@@ -17,6 +17,7 @@ from beartype import beartype
 from pygments.lexers import get_all_lexers
 from sybil import Sybil
 from sybil.evaluators.skip import Skipper
+from sybil.exceptions import LexingException
 from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
 
 from ._languages import UnknownMarkupLanguageError, get_markup_language
@@ -349,6 +350,13 @@ def _run_args_against_docs(
             )
             _log_warning(message=unicode_error_message)
         return
+    except LexingException as exc:
+        lexing_error_message = (
+            f"Skipping '{document_path}' because it could not be lexed: {exc}."
+        )
+        _log_warning(message=lexing_error_message)
+        return
+
     for example in document.examples():
         if (
             verbose

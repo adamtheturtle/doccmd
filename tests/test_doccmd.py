@@ -2167,5 +2167,12 @@ def test_lexing_exception(tmp_path: Path) -> None:
         args=arguments,
         catch_exceptions=False,
     )
-    assert result.exit_code != 0, (result.stdout, result.stderr)
-    assert "Error parsing file" in result.stderr
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    expected_stderr = textwrap.dedent(
+        text=(
+            f"Skipping '{source_file}' because it could not be lexed: "
+            f"Could not match '(?:(?<=\\n)    )?--+>' in {source_file}:"
+            "\n'    '"
+        ),
+    )
+    assert expected_stderr in result.stderr
