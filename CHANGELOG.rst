@@ -5,6 +5,7 @@ Next
 ----
 
 * Skip files where we hit a lexing error.
+* Bump Sybil requirement to >= 9.0.0.
 
 2024.11.06.1
 ------------
