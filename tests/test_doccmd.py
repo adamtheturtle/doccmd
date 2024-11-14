@@ -2171,8 +2171,9 @@ def test_lexing_exception(tmp_path: Path) -> None:
     expected_stderr = textwrap.dedent(
         text=(
             f"Skipping '{source_file}' because it could not be lexed: "
-            f"Could not match '(?:(?<=\\n)    )?--+>' in {source_file}:"
-            "\n'    '"
+            "Could not find end of '    <!-- code -->\\n', starting at "
+            "line 1, column 1, looking for '(?:(?<=\\n)    )?--+>' in "
+            f"{source_file}:\n'    '.\n"
         ),
     )
-    assert expected_stderr in result.stderr
+    assert result.stderr == expected_stderr

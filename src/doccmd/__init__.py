@@ -17,7 +17,7 @@ from beartype import beartype
 from pygments.lexers import get_all_lexers
 from sybil import Sybil
 from sybil.evaluators.skip import Skipper
-from sybil.exceptions import LexingException
+from sybil.parsers.abstract.lexers import LexingException
 from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
 
 from ._languages import UnknownMarkupLanguageError, get_markup_language
