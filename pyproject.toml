@@ -89,7 +89,7 @@ optional-dependencies.packaging = [
     "pyinstaller==6.11.1",
 ]
 optional-dependencies.release = [
-    "check-wheel-contents==0.6.0",
+    "check-wheel-contents==0.6.1",
     "homebrew-pypi-poet==0.10",
 ]
 urls.Documentation = "https://doccmd.readthedocs.io/en/latest/"
