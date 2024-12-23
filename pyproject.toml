@@ -55,7 +55,7 @@ optional-dependencies.dev = [
     "docker==7.1.0",
     "furo==2024.8.6",
     "interrogate==1.7.0",
-    "mypy[faster-cache]==1.13.0",
+    "mypy[faster-cache]==1.14.0",
     "pre-commit==4.0.1",
     "pydocstyle==6.3",
     "pyenchant==3.3.0rc1",
