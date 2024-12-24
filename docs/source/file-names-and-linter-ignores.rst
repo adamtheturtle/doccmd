@@ -13,7 +13,17 @@ For example, to ignore a rule in all files created by ``doccmd`` in a ``ruff`` c
 
    [tool.ruff]
 
-   lint.per-file-ignores."doccmd_*.py" = [
+   lint.per-file-ignores."*doccmd_*.py" = [
       # Allow hardcoded secrets in documentation.
       "S105",
    ]
+
+To ignore a rule in files created by ``doccmd`` when using ``pylint``, use `pylint-per-file-ignores <https://pypi.org/project/pylint-per-file-ignores/>`_, and a configuration like the following (if using ``pyproject.toml``):
+
+.. code-block:: toml
+
+   [tool.pylint.'MESSAGES CONTROL']
+
+   per-file-ignores = """
+   *doccmd_*.py:invalid-name
+   """
