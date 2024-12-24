@@ -144,6 +144,10 @@ lint.ignore = [
     # helping.
     "PLR0913",
     # Allow 'assert' as we use it for tests.
+]
+
+lint.per-file-ignores."tests/*.py" = [
+    # Do not require tests to have a one-line summary.
     "S101",
 ]
 

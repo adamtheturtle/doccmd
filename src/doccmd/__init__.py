@@ -45,8 +45,10 @@ def _deduplicate(
     """
     De-duplicate a sequence while keeping the order.
     """
-    assert ctx
-    assert param
+    # We "use" the parameters to avoid vulture complaining.
+    del ctx
+    del param
+
     return tuple(dict.fromkeys(sequence).keys())
 
 
