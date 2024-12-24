@@ -22,7 +22,9 @@ def make_linux_binaries(repo_root: Path) -> None:
     """
     client = docker.from_env()
     dist_dir = repo_root / "dist"
-    assert not dist_dir.exists() or not set(dist_dir.iterdir())
+    if dist_dir.exists() and set(dist_dir.iterdir()):
+        msg = f"Directory {dist_dir} already exists and is not empty."
+        raise ValueError(msg)
 
     code_mount = Mount(
         source=str(repo_root.absolute()),
@@ -62,4 +64,6 @@ def make_linux_binaries(repo_root: Path) -> None:
         LOGGER.warning(warning_line)
 
     wait_result = container.wait()
-    assert wait_result["StatusCode"] == 0
+    if wait_result["StatusCode"] != 0:
+        msg = f"Container exited with status code {wait_result['StatusCode']}."
+        raise RuntimeError(msg)
