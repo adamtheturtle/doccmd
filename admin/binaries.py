@@ -22,8 +22,8 @@ def make_linux_binaries(repo_root: Path) -> None:
     """
     client = docker.from_env()
     dist_dir = repo_root / "dist"
-    if dist_dir.exists() or not set(dist_dir.iterdir()):
-        msg = f"Directory {dist_dir} already exists or is not empty."
+    if dist_dir.exists() and set(dist_dir.iterdir()):
+        msg = f"Directory {dist_dir} already exists and is not empty."
         raise ValueError(msg)
 
     code_mount = Mount(
