@@ -132,15 +132,12 @@ lint.select = [
     "ALL",
 ]
 lint.ignore = [
-    # We are happy to manage our own "complexity".
-    "C901",
     # Ruff warns that this conflicts with the formatter.
     "COM812",
     # Allow our chosen docstring line-style - no one-line summary.
     "D200",
     "D205",
     "D212",
-    "D415",
     # Ruff warns that this conflicts with the formatter.
     "ISC001",
     # Ignore "too-many-*" errors as they seem to get in the way more than
@@ -148,8 +145,6 @@ lint.ignore = [
     "PLR0913",
     # Allow 'assert' as we use it for tests.
     "S101",
-    # Ignore this rule which might go away and is too strict.
-    "S603",
 ]
 
 # Do not automatically remove commented out code.
