@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from sybil.typing import Parser
 
 try:
-    __version__ = version(__name__)
+    __version__ = version(distribution_name=__name__)
 except PackageNotFoundError:  # pragma: no cover
     # When pkg_resources and git tags are not available,
     # for example in a PyInstaller binary,
@@ -126,7 +126,7 @@ def _get_file_paths(
             for file_suffix in file_suffixes:
                 new_file_paths = (
                     path_part
-                    for path_part in path.rglob(f"*{file_suffix}")
+                    for path_part in path.rglob(pattern=f"*{file_suffix}")
                     if len(path_part.relative_to(path).parts) <= max_depth
                 )
                 for new_file_path in new_file_paths:
@@ -179,7 +179,7 @@ def _validate_files_are_known_markup_types(
                 rst_suffixes=rst_suffixes,
             )
     except UnknownMarkupLanguageError as exc:
-        raise click.UsageError(message=str(exc)) from exc
+        raise click.UsageError(message=str(object=exc)) from exc
 
 
 @unique
@@ -369,7 +369,7 @@ def _run_args_against_docs(
             )
         ):
             command_str = shlex.join(
-                split_command=[str(item) for item in args],
+                split_command=[str(object=item) for item in args],
             )
             running_command_message = (
                 f"Running '{command_str}' on code block at "
