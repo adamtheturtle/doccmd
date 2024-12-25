@@ -27,7 +27,7 @@ def make_linux_binaries(repo_root: Path) -> None:
         raise ValueError(msg)
 
     code_mount = Mount(
-        source=str(repo_root.absolute()),
+        source=str(object=repo_root.absolute()),
         target="/" + uuid.uuid4().hex,
         type="bind",
     )

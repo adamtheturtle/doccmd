@@ -47,7 +47,13 @@ def test_run_command(tmp_path: Path) -> None:
         assert x == 4
     """
     rst_file.write_text(data=content, encoding="utf-8")
-    arguments = ["--language", "python", "--command", "cat", str(rst_file)]
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        str(object=rst_file),
+    ]
     result = runner.invoke(
         cli=main,
         args=arguments,
@@ -89,7 +95,7 @@ def test_double_language(tmp_path: Path) -> None:
         "python",
         "--command",
         "cat",
-        str(rst_file),
+        str(object=rst_file),
     ]
     result = runner.invoke(
         cli=main,
@@ -145,7 +151,13 @@ def test_not_utf_8_file_given(tmp_path: Path) -> None:
        print("\xc0\x80")
     """
     rst_file.write_text(data=content, encoding="latin1")
-    arguments = ["--language", "python", "--command", "cat", str(rst_file)]
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        str(object=rst_file),
+    ]
     result = runner.invoke(
         cli=main,
         args=arguments,
@@ -175,7 +187,13 @@ def test_multiple_code_blocks(tmp_path: Path) -> None:
         assert y == 6
     """
     rst_file.write_text(data=content, encoding="utf-8")
-    arguments = ["--language", "python", "--command", "cat", str(rst_file)]
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        str(object=rst_file),
+    ]
     result = runner.invoke(
         cli=main,
         args=arguments,
@@ -222,7 +240,13 @@ def test_language_filters(tmp_path: Path) -> None:
         console.assert(y === 6);
     """
     rst_file.write_text(data=content, encoding="utf-8")
-    arguments = ["--language", "python", "--command", "cat", str(rst_file)]
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        str(object=rst_file),
+    ]
     result = runner.invoke(
         cli=main,
         args=arguments,
@@ -261,7 +285,7 @@ def test_run_command_no_pad_file(tmp_path: Path) -> None:
         "--command",
         "cat",
         "--no-pad-file",
-        str(rst_file),
+        str(object=rst_file),
     ]
     result = runner.invoke(
         cli=main,
@@ -306,8 +330,8 @@ def test_multiple_files(tmp_path: Path) -> None:
         "python",
         "--command",
         "cat",
-        str(rst_file1),
-        str(rst_file2),
+        str(object=rst_file1),
+        str(object=rst_file2),
     ]
     result = runner.invoke(
         cli=main,
@@ -370,8 +394,8 @@ def test_multiple_files_multiple_types(tmp_path: Path) -> None:
         "--command",
         "cat",
         "--no-pad-file",
-        str(rst_file),
-        str(md_file),
+        str(object=rst_file),
+        str(object=md_file),
     ]
     result = runner.invoke(
         cli=main,
@@ -408,14 +432,14 @@ def test_modify_file(tmp_path: Path) -> None:
     """
     rst_file.write_text(data=content, encoding="utf-8")
     modify_code_script = textwrap.dedent(
-        """\
+        text="""\
         #!/usr/bin/env python
 
         import sys
 
         with open(sys.argv[1], "w") as file:
             file.write("foobar")
-        """
+        """,
     )
     modify_code_file = tmp_path / "modify_code.py"
     modify_code_file.write_text(data=modify_code_script, encoding="utf-8")
@@ -424,7 +448,7 @@ def test_modify_file(tmp_path: Path) -> None:
         "python",
         "--command",
         f"python {modify_code_file.as_posix()}",
-        str(rst_file),
+        str(object=rst_file),
     ]
     result = runner.invoke(
         cli=main,
@@ -460,7 +484,7 @@ def test_exit_code(tmp_path: Path) -> None:
         "python",
         "--command",
         Path(sys.executable).as_posix(),
-        str(rst_file),
+        str(object=rst_file),
     ]
     result = runner.invoke(
         cli=main,
@@ -494,7 +518,13 @@ def test_file_extension(
         assert x == 4
     """
     rst_file.write_text(data=content, encoding="utf-8")
-    arguments = ["--language", language, "--command", "echo", str(rst_file)]
+    arguments = [
+        "--language",
+        language,
+        "--command",
+        "echo",
+        str(object=rst_file),
+    ]
     result = runner.invoke(
         cli=main,
         args=arguments,
@@ -526,7 +556,7 @@ def test_given_temporary_file_extension(tmp_path: Path) -> None:
         ".foobar",
         "--command",
         "echo",
-        str(rst_file),
+        str(object=rst_file),
     ]
     result = runner.invoke(
         cli=main,
@@ -562,7 +592,7 @@ def test_given_temporary_file_extension_no_leading_period(
         "foobar",
         "--command",
         "echo",
-        str(rst_file),
+        str(object=rst_file),
     ]
     result = runner.invoke(
         cli=main,
@@ -602,7 +632,7 @@ def test_given_prefix(tmp_path: Path) -> None:
         "myprefix",
         "--command",
         "echo",
-        str(rst_file),
+        str(object=rst_file),
     ]
     result = runner.invoke(
         cli=main,
@@ -629,7 +659,13 @@ def test_file_extension_unknown_language(tmp_path: Path) -> None:
         assert x == 4
     """
     rst_file.write_text(data=content, encoding="utf-8")
-    arguments = ["--language", "unknown", "--command", "echo", str(rst_file)]
+    arguments = [
+        "--language",
+        "unknown",
+        "--command",
+        "echo",
+        str(object=rst_file),
+    ]
     result = runner.invoke(
         cli=main,
         args=arguments,
@@ -665,9 +701,9 @@ def test_file_given_multiple_times(tmp_path: Path) -> None:
         "python",
         "--command",
         "cat",
-        str(rst_file),
-        str(other_rst_file),
-        str(rst_file),
+        str(object=rst_file),
+        str(object=other_rst_file),
+        str(object=rst_file),
     ]
     result = runner.invoke(
         cli=main,
@@ -720,7 +756,7 @@ def test_verbose_running(tmp_path: Path) -> None:
         "--command",
         "cat",
         "--verbose",
-        str(rst_file),
+        str(object=rst_file),
     ]
     result = runner.invoke(
         cli=main,
@@ -766,7 +802,7 @@ def test_verbose_not_utf_8(tmp_path: Path) -> None:
         "python",
         "--command",
         "cat",
-        str(rst_file),
+        str(object=rst_file),
     ]
     result = runner.invoke(
         cli=main,
@@ -820,7 +856,7 @@ def test_command_not_found(tmp_path: Path) -> None:
         "python",
         "--command",
         non_existent_command_with_args,
-        str(rst_file),
+        str(object=rst_file),
     ]
     result = runner.invoke(
         cli=main,
@@ -855,7 +891,7 @@ def test_not_executable(tmp_path: Path) -> None:
         "python",
         "--command",
         not_executable_command_with_args,
-        str(rst_file),
+        str(object=rst_file),
     ]
     result = runner.invoke(
         cli=main,
@@ -897,7 +933,7 @@ def test_multiple_languages(tmp_path: Path) -> None:
         "javascript",
         "--command",
         "cat",
-        str(rst_file),
+        str(object=rst_file),
     ]
     result = runner.invoke(
         cli=main,
@@ -947,7 +983,7 @@ def test_default_skip_rst(tmp_path: Path) -> None:
         "python",
         "--command",
         "cat",
-        str(rst_file),
+        str(object=rst_file),
     ]
     result = runner.invoke(
         cli=main,
@@ -998,7 +1034,7 @@ def test_custom_skip_markers_rst(tmp_path: Path) -> None:
         skip_marker,
         "--command",
         "cat",
-        str(rst_file),
+        str(object=rst_file),
     ]
     result = runner.invoke(
         cli=main,
@@ -1054,7 +1090,7 @@ def test_default_skip_myst(tmp_path: Path) -> None:
         "python",
         "--command",
         "cat",
-        str(myst_file),
+        str(object=myst_file),
     ]
     result = runner.invoke(
         cli=main,
@@ -1113,7 +1149,7 @@ def test_custom_skip_markers_myst(tmp_path: Path) -> None:
         skip_marker,
         "--command",
         "cat",
-        str(myst_file),
+        str(object=myst_file),
     ]
     result = runner.invoke(
         cli=main,
@@ -1174,7 +1210,7 @@ def test_multiple_skip_markers(tmp_path: Path) -> None:
         skip_marker_2,
         "--command",
         "cat",
-        str(rst_file),
+        str(object=rst_file),
     ]
     result = runner.invoke(
         cli=main,
@@ -1232,7 +1268,7 @@ def test_skip_start_end(tmp_path: Path) -> None:
         skip_marker_2,
         "--command",
         "cat",
-        str(rst_file),
+        str(object=rst_file),
     ]
     result = runner.invoke(
         cli=main,
@@ -1286,7 +1322,7 @@ def test_duplicate_skip_marker(tmp_path: Path) -> None:
         skip_marker,
         "--command",
         "cat",
-        str(rst_file),
+        str(object=rst_file),
     ]
     result = runner.invoke(
         cli=main,
@@ -1337,7 +1373,7 @@ def test_default_skip_marker_given(tmp_path: Path) -> None:
         skip_marker,
         "--command",
         "cat",
-        str(rst_file),
+        str(object=rst_file),
     ]
     result = runner.invoke(
         cli=main,
@@ -1368,7 +1404,7 @@ def test_empty_file(tmp_path: Path) -> None:
         "python",
         "--command",
         "cat",
-        str(rst_file),
+        str(object=rst_file),
     ]
     result = runner.invoke(
         cli=main,
@@ -1413,7 +1449,7 @@ def test_detect_line_endings(
         "python",
         "--command",
         "cat",
-        str(rst_file),
+        str(object=rst_file),
     ]
     result = runner.invoke(
         cli=main,
@@ -1444,7 +1480,13 @@ def test_one_supported_markup_in_another_extension(tmp_path: Path) -> None:
     ```
     """
     rst_file.write_text(data=content, encoding="utf-8")
-    arguments = ["--language", "python", "--command", "cat", str(rst_file)]
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        str(object=rst_file),
+    ]
     result = runner.invoke(
         cli=main,
         args=arguments,
@@ -1476,7 +1518,7 @@ def test_unknown_file_suffix(extension: str, tmp_path: Path) -> None:
         "python",
         "--command",
         "cat",
-        str(document_file),
+        str(object=document_file),
     ]
     result = runner.invoke(
         cli=main,
@@ -1526,8 +1568,8 @@ def test_custom_rst_file_suffixes(tmp_path: Path) -> None:
         ".customrst",
         "--rst-extension",
         ".customrst2",
-        str(rst_file),
-        str(rst_file_2),
+        str(object=rst_file),
+        str(object=rst_file_2),
     ]
     result = runner.invoke(
         cli=main,
@@ -1574,8 +1616,8 @@ def test_custom_myst_file_suffixes(tmp_path: Path) -> None:
         ".custommyst",
         "--myst-extension",
         ".custommyst2",
-        str(myst_file),
-        str(myst_file_2),
+        str(object=myst_file),
+        str(object=myst_file_2),
     ]
     result = runner.invoke(
         cli=main,
@@ -1641,7 +1683,7 @@ def test_pty(
         "python",
         "--command",
         f"{Path(sys.executable).as_posix()} {script.as_posix()}",
-        str(rst_file),
+        str(object=rst_file),
     ]
     result = runner.invoke(
         cli=main,
@@ -1676,7 +1718,7 @@ def test_source_given_extension_no_leading_period(
         "cat",
         option,
         "customrst",
-        str(source_file),
+        str(object=source_file),
     ]
     result = runner.invoke(
         cli=main,
@@ -1722,7 +1764,7 @@ def test_overlapping_extensions(tmp_path: Path) -> None:
         ".custom2",
         "--myst-extension",
         ".custom2",
-        str(source_file),
+        str(object=source_file),
     ]
     result = runner.invoke(
         cli=main,
@@ -1766,7 +1808,7 @@ def test_overlapping_extensions_dot(tmp_path: Path) -> None:
         ".",
         "--rst-extension",
         ".custom",
-        str(source_file),
+        str(object=source_file),
     ]
     result = runner.invoke(
         cli=main,
@@ -1824,7 +1866,7 @@ def test_directory(tmp_path: Path) -> None:
         "--no-pad-file",
         "--command",
         "cat",
-        str(tmp_path),
+        str(object=tmp_path),
     ]
     result = runner.invoke(
         cli=main,
@@ -1876,9 +1918,9 @@ def test_de_duplication_source_files_and_dirs(tmp_path: Path) -> None:
         "--no-pad-file",
         "--command",
         "cat",
-        str(tmp_path),
-        str(sub_directory),
-        str(rst_file_in_sub_directory),
+        str(object=tmp_path),
+        str(object=sub_directory),
+        str(object=rst_file_in_sub_directory),
     ]
     result = runner.invoke(
         cli=main,
@@ -1944,7 +1986,7 @@ def test_max_depth(tmp_path: Path) -> None:
         "cat",
         "--max-depth",
         "1",
-        str(tmp_path),
+        str(object=tmp_path),
     ]
     result = runner.invoke(
         cli=main,
@@ -1969,7 +2011,7 @@ def test_max_depth(tmp_path: Path) -> None:
         "cat",
         "--max-depth",
         "2",
-        str(tmp_path),
+        str(object=tmp_path),
     ]
     result = runner.invoke(
         cli=main,
@@ -1995,7 +2037,7 @@ def test_max_depth(tmp_path: Path) -> None:
         "cat",
         "--max-depth",
         "3",
-        str(tmp_path),
+        str(object=tmp_path),
     ]
     result = runner.invoke(
         cli=main,
@@ -2058,7 +2100,7 @@ def test_exclude_files_from_recursed_directories(tmp_path: Path) -> None:
         "cat",
         "--exclude",
         "exclude_*e.*",
-        str(tmp_path),
+        str(object=tmp_path),
     ]
     result = runner.invoke(
         cli=main,
@@ -2130,7 +2172,7 @@ def test_multiple_exclude_patterns(tmp_path: Path) -> None:
         "exclude_*e.*",
         "--exclude",
         "ignore_*e.*",
-        str(tmp_path),
+        str(object=tmp_path),
     ]
     result = runner.invoke(
         cli=main,
@@ -2161,7 +2203,13 @@ def test_lexing_exception(tmp_path: Path) -> None:
     <!-- code -->
     """
     source_file.write_text(data=invalid_content, encoding="utf-8")
-    arguments = ["--language", "python", "--command", "cat", str(source_file)]
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        str(object=source_file),
+    ]
     result = runner.invoke(
         cli=main,
         args=arguments,

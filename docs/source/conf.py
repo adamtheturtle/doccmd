@@ -39,7 +39,7 @@ version = importlib.metadata.version(distribution_name=project)
 # This method of getting the release from the version goes hand in hand with
 # the ``post-release`` versioning scheme chosen in the ``setuptools-scm``
 # configuration.
-release = version.split(".post")[0]
+release = version.split(sep=".post")[0]
 
 project_metadata = importlib.metadata.metadata(distribution_name=project)
 requires_python = project_metadata["Requires-Python"]

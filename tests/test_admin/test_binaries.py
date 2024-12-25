@@ -36,8 +36,8 @@ def test_linux_binaries(request: pytest.FixtureRequest) -> None:
 
     mounts = [
         Mount(
-            source=str(repo_root),
-            target=str(remote_repo_dir),
+            source=str(object=repo_root),
+            target=str(object=remote_repo_dir),
             type="bind",
         ),
     ]
@@ -45,7 +45,7 @@ def test_linux_binaries(request: pytest.FixtureRequest) -> None:
     remote_paths: list[Path] = []
     for path in dist_dir.iterdir():
         relative_path = path.relative_to(repo_root)
-        remote_path = remote_repo_dir / str(relative_path)
+        remote_path = remote_repo_dir / str(object=relative_path)
         remote_paths.append(remote_path)
 
     client = docker.from_env()
@@ -67,14 +67,14 @@ def test_linux_binaries(request: pytest.FixtureRequest) -> None:
         cmd_in_container = [
             "chmod",
             "+x",
-            str(remote_path),
+            str(object=remote_path),
             "&&",
-            str(remote_path),
+            str(object=remote_path),
             "--version",
             "&&",
             "rm",
             "-rf",
-            str(remote_path),
+            str(object=remote_path),
         ]
         joined_cmd = " ".join(cmd_in_container)
         command = f'bash -c "{joined_cmd}"'
