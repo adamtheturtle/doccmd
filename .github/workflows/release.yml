@@ -32,6 +32,9 @@ jobs:
           token: ${{ secrets.RELEASE_PAT }}
           # Fetch all history including tags.
           # Needed to find the latest tag.
+          #
+          # Also, avoids
+          # https://github.com/stefanzweifel/git-auto-commit-action/issues/99.
           fetch-depth: 0
 
       - name: Install uv
