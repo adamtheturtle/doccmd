@@ -75,7 +75,7 @@ Usage example
 What does it work on?
 ---------------------
 
-* reStructuredText (`.rst`)
+* reStructuredText (``.rst``)
 
 .. code-block:: rst
 
@@ -87,7 +87,7 @@ What does it work on?
 
       echo "Or this Hello, world!"
 
-* Markdown (`.md`)
+* Markdown (``.md``)
 
 .. code-block:: markdown
 
@@ -95,7 +95,7 @@ What does it work on?
    echo "Hello, world!"
    ```
 
-* MyST (`.md` with MyST syntax)
+* MyST (``.md`` with MyST syntax)
 
 .. code-block:: markdown
 
@@ -145,7 +145,7 @@ Code blocks which come just after a comment matching
 
 For example:
 
-* reStructuredText (`.rst`)
+* reStructuredText (``.rst``)
 
 .. code-block:: rst
 
@@ -159,7 +159,7 @@ For example:
 
       echo "This will run"
 
-* Markdown (`.md`)
+* Markdown (``.md``)
 
 .. code-block:: markdown
 
@@ -173,7 +173,7 @@ For example:
    echo "This will run"
    ```
 
-* MyST (`.md` with MyST syntax)
+* MyST (``.md`` with MyST syntax)
 
 .. code-block:: markdown
 
