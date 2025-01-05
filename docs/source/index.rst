@@ -11,7 +11,7 @@ This allows you to run linters, formatters, and other tools against the code blo
 What does it work on?
 ---------------------
 
-* reStructuredText (`.rst`)
+* reStructuredText (``.rst``)
 
 .. code-block:: rst
 
@@ -19,7 +19,7 @@ What does it work on?
 
       echo "Hello, world!"
 
-* Markdown (`.md`)
+* Markdown (``.md``)
 
 .. code-block:: markdown
 
@@ -27,7 +27,7 @@ What does it work on?
    echo "Hello, world!"
    ```
 
-* MyST (`.md` with MyST syntax)
+* MyST (``.md`` with MyST syntax)
 
 .. code-block:: markdown
 
