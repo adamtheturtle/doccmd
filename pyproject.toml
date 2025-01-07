@@ -83,7 +83,7 @@ optional-dependencies.dev = [
     "sphinx-substitution-extensions==2025.1.2",
     "sphinxcontrib-spelling==8.0.1",
     "types-docker==7.1.0.20241229",
-    "types-pygments==2.18.0.20240506",
+    "types-pygments==2.19.0.20250107",
     "vulture==2.14",
     "yamlfix==1.17.0",
 ]
