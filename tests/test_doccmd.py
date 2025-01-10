@@ -495,7 +495,7 @@ def test_exit_code(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize(
-    argnames=["language", "expected_extension"],
+    argnames=("language", "expected_extension"),
     argvalues=[
         ("python", ".py"),
         ("javascript", ".js"),
@@ -1418,11 +1418,11 @@ def test_empty_file(tmp_path: Path) -> None:
 
 @pytest.mark.parametrize(
     argnames=("source_newline", "expect_crlf", "expect_cr", "expect_lf"),
-    argvalues=(
-        ["\n", False, False, True],
-        ["\r\n", True, True, True],
-        ["\r", False, True, False],
-    ),
+    argvalues=[
+        ("\n", False, False, True),
+        ("\r\n", True, True, True),
+        ("\r", False, True, False),
+    ],
 )
 def test_detect_line_endings(
     *,
@@ -1636,7 +1636,7 @@ def test_custom_myst_file_suffixes(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize(
-    argnames=["options", "expected_output"],
+    argnames=("options", "expected_output"),
     argvalues=[
         # We cannot test the actual behavior of using a pseudo-terminal,
         # as CI (e.g. GitHub Actions) does not support it.
