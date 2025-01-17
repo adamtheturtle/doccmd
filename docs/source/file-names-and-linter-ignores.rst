@@ -24,6 +24,6 @@ To ignore a rule in files created by ``doccmd`` when using ``pylint``, use `pyli
 
    [tool.pylint.'MESSAGES CONTROL']
 
-   per-file-ignores = """
-   *doccmd_*.py:invalid-name
-   """
+   per-file-ignores = [
+      "*doccmd_*.py:invalid-name",
+   ]
