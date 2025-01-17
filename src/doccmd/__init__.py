@@ -6,6 +6,7 @@ import platform
 import shlex
 import subprocess
 import sys
+from collections import Counter
 from collections.abc import Iterable, Sequence
 from enum import Enum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
@@ -141,23 +142,22 @@ def _get_file_paths(
 @beartype
 def _validate_file_suffix_overlaps(
     *,
-    myst_suffixes: Iterable[str],
-    rst_suffixes: Iterable[str],
+    suffix_groups: Iterable[Iterable[str]],
 ) -> None:
     """
     Validate that the given file suffixes do not overlap.
     """
-    myst_set = set(myst_suffixes)
-    rst_set = set(rst_suffixes)
-    overlap = myst_set & rst_set
+    all_items = Counter([item for group in suffix_groups for item in group])
+    overlapping_items = {
+        item for item, count in all_items.items() if count > 1
+    }
     # Allow the dot to overlap, as it is a common way to specify
     # "no extensions".
-    overlap_ignoring_dot = overlap - {"."}
-    if overlap_ignoring_dot:
+    overlapping_items_ignoring_dot = overlapping_items - {"."}
+    if overlapping_items_ignoring_dot:
         message = (
-            "Overlapping extensions between --rst-extension "
-            "and --myst-extension: "
-            f"{', '.join(sorted(overlap_ignoring_dot))}."
+            "Overlapping extensions between multiple extension types: "
+            f"{', '.join(sorted(overlapping_items_ignoring_dot))}."
         )
         raise click.UsageError(message=message)
 
@@ -598,8 +598,7 @@ def main(
     use_pty = use_pty_option.use_pty()
 
     _validate_file_suffix_overlaps(
-        myst_suffixes=myst_suffixes,
-        rst_suffixes=rst_suffixes,
+        suffix_groups=(myst_suffixes, rst_suffixes),
     )
 
     file_paths = _get_file_paths(
