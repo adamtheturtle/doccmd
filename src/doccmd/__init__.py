@@ -527,7 +527,7 @@ def _run_args_against_docs(
     "rst_suffixes",
     type=str,
     help=(
-        "Files with this extension (suffix) to treat as reStructuredText. "
+        "Treat files with this extension (suffix) as reStructuredText. "
         "Give this multiple times to look for multiple extensions. "
         "To avoid considering any files, "
         "including the default, "
@@ -543,7 +543,7 @@ def _run_args_against_docs(
     "myst_suffixes",
     type=str,
     help=(
-        "Files with this extension (suffix) to treat as MyST. "
+        "Treat files with this extension (suffix) to as MyST. "
         "Give this multiple times to look for multiple extensions. "
         "To avoid considering any files, "
         "including the default, "
@@ -551,6 +551,19 @@ def _run_args_against_docs(
     ),
     multiple=True,
     default=(".md",),
+    show_default=True,
+    callback=_validate_file_extensions,
+)
+@click.option(
+    "--markdown-extension",
+    "markdown_suffixes",
+    type=str,
+    help=(
+        "Files with this extension (suffix) to treat as Markdown. "
+        "Give this multiple times to look for multiple extensions. "
+        "By default, '.md' is treated as MyST, not Markdown."
+    ),
+    multiple=True,
     show_default=True,
     callback=_validate_file_extensions,
 )
@@ -587,6 +600,7 @@ def main(
     use_pty_option: _UsePty,
     rst_suffixes: Sequence[str],
     myst_suffixes: Sequence[str],
+    markdown_suffixes: Sequence[str],
     max_depth: int,
     exclude_patterns: Sequence[str],
 ) -> None:
