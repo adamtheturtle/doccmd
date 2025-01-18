@@ -62,17 +62,21 @@ Options:
   --detect-use-pty                Automatically determine whether to use a
                                   pseudo-terminal for running commands.
                                   [default: (True)]
-  --rst-extension TEXT            Files with this extension (suffix) to treat as
+  --rst-extension TEXT            Treat files with this extension (suffix) as
                                   reStructuredText. Give this multiple times to
                                   look for multiple extensions. To avoid
                                   considering any files, including the default,
                                   as reStructuredText files, use `--rst-
                                   extension=.`.  [default: .rst]
-  --myst-extension TEXT           Files with this extension (suffix) to treat as
+  --myst-extension TEXT           Treat files with this extension (suffix) to as
                                   MyST. Give this multiple times to look for
                                   multiple extensions. To avoid considering any
                                   files, including the default, as MyST files,
                                   use `--myst-extension=.`.  [default: .md]
+  --markdown-extension TEXT       Files with this extension (suffix) to treat as
+                                  Markdown. Give this multiple times to look for
+                                  multiple extensions. By default, '.md' is
+                                  treated as MyST, not Markdown.
   --max-depth INTEGER RANGE       Maximum depth to search for files in
                                   directories.  [x>=1]
   --exclude TEXT                  A glob-style pattern that matches file paths
