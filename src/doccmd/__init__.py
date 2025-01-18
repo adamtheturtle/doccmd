@@ -6,7 +6,7 @@ import platform
 import shlex
 import subprocess
 import sys
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from enum import Enum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
@@ -20,7 +20,11 @@ from sybil.evaluators.skip import Skipper
 from sybil.parsers.abstract.lexers import LexingException
 from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
 
-from ._languages import UnknownMarkupLanguageError, get_markup_language
+from ._languages import (
+    MarkupLanguage,
+    MyST,
+    ReStructuredText,
+)
 
 if TYPE_CHECKING:
     from sybil.typing import Parser
@@ -141,45 +145,27 @@ def _get_file_paths(
 @beartype
 def _validate_file_suffix_overlaps(
     *,
-    myst_suffixes: Iterable[str],
-    rst_suffixes: Iterable[str],
+    suffix_groups: Mapping[MarkupLanguage, Iterable[str]],
 ) -> None:
     """
     Validate that the given file suffixes do not overlap.
     """
-    myst_set = set(myst_suffixes)
-    rst_set = set(rst_suffixes)
-    overlap = myst_set & rst_set
-    # Allow the dot to overlap, as it is a common way to specify
-    # "no extensions".
-    overlap_ignoring_dot = overlap - {"."}
-    if overlap_ignoring_dot:
-        message = (
-            "Overlapping extensions between --rst-extension "
-            "and --myst-extension: "
-            f"{', '.join(sorted(overlap_ignoring_dot))}."
-        )
-        raise click.UsageError(message=message)
+    for markup_language, suffixes in suffix_groups.items():
+        for other_markup_language, other_suffixes in suffix_groups.items():
+            if markup_language is other_markup_language:
+                continue
+            overlapping_suffixes = {*suffixes} & {*other_suffixes}
+            # Allow the dot to overlap, as it is a common way to specify
+            # "no extensions".
+            overlapping_suffixes_ignoring_dot = overlapping_suffixes - {"."}
 
-
-def _validate_files_are_known_markup_types(
-    *,
-    file_paths: Iterable[Path],
-    myst_suffixes: Iterable[str],
-    rst_suffixes: Iterable[str],
-) -> None:
-    """
-    Validate that the given files are known markup types.
-    """
-    try:
-        for file_path in file_paths:
-            get_markup_language(
-                file_path=file_path,
-                myst_suffixes=myst_suffixes,
-                rst_suffixes=rst_suffixes,
-            )
-    except UnknownMarkupLanguageError as exc:
-        raise click.UsageError(message=str(object=exc)) from exc
+            if overlapping_suffixes_ignoring_dot:
+                message = (
+                    f"Overlapping suffixes between {markup_language.name} and "
+                    f"{other_markup_language.name}: "
+                    f"{', '.join(sorted(overlapping_suffixes_ignoring_dot))}."
+                )
+                raise click.UsageError(message=message)
 
 
 @unique
@@ -301,17 +287,11 @@ def _run_args_against_docs(
     verbose: bool,
     skip_markers: Iterable[str],
     use_pty: bool,
-    myst_suffixes: Iterable[str],
-    rst_suffixes: Iterable[str],
+    markup_language: MarkupLanguage,
 ) -> None:
     """
     Run commands on the given file.
     """
-    markup_language = get_markup_language(
-        file_path=document_path,
-        myst_suffixes=myst_suffixes,
-        rst_suffixes=rst_suffixes,
-    )
     temporary_file_extension = _get_temporary_file_extension(
         language=code_block_language,
         given_file_extension=temporary_file_extension,
@@ -611,23 +591,32 @@ def main(
     args = shlex.split(s=command)
     use_pty = use_pty_option.use_pty()
 
-    _validate_file_suffix_overlaps(
-        myst_suffixes=myst_suffixes,
-        rst_suffixes=rst_suffixes,
-    )
+    suffix_groups: Mapping[MarkupLanguage, Sequence[str]] = {
+        MyST: myst_suffixes,
+        ReStructuredText: rst_suffixes,
+    }
+
+    _validate_file_suffix_overlaps(suffix_groups=suffix_groups)
 
     file_paths = _get_file_paths(
         document_paths=document_paths,
-        file_suffixes=[*myst_suffixes, *rst_suffixes],
+        file_suffixes=[
+            suffix
+            for suffixes in suffix_groups.values()
+            for suffix in suffixes
+        ],
         max_depth=max_depth,
         exclude_patterns=exclude_patterns,
     )
 
-    _validate_files_are_known_markup_types(
-        file_paths=file_paths,
-        myst_suffixes=myst_suffixes,
-        rst_suffixes=rst_suffixes,
-    )
+    suffix_map = {
+        value: key for key, values in suffix_groups.items() for value in values
+    }
+
+    for document_path in document_paths:
+        if document_path.is_file() and document_path.suffix not in suffix_map:
+            message = f"Markup language not known for {document_path}."
+            raise click.UsageError(message=message)
 
     if verbose:
         _log_info(
@@ -637,17 +626,17 @@ def main(
         )
 
     for file_path in file_paths:
-        for language in languages:
+        for code_block_language in languages:
+            markup_language = suffix_map[file_path.suffix]
             _run_args_against_docs(
                 args=args,
                 document_path=file_path,
-                code_block_language=language,
+                code_block_language=code_block_language,
                 pad_temporary_file=pad_file,
                 verbose=verbose,
                 temporary_file_extension=temporary_file_extension,
                 temporary_file_name_prefix=temporary_file_name_prefix,
                 skip_markers=skip_markers,
                 use_pty=use_pty,
-                myst_suffixes=myst_suffixes,
-                rst_suffixes=rst_suffixes,
+                markup_language=markup_language,
             )

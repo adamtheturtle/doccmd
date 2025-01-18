@@ -1777,7 +1777,7 @@ def test_overlapping_extensions(tmp_path: Path) -> None:
             Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...
             Try 'doccmd --help' for help.
 
-            Error: Overlapping extensions between --rst-extension and --myst-extension: .custom, .custom2.
+            Error: Overlapping suffixes between MyST and reStructuredText: .custom, .custom2.
             """,  # noqa: E501
     )
     assert result.stdout == ""
@@ -1786,7 +1786,7 @@ def test_overlapping_extensions(tmp_path: Path) -> None:
 
 def test_overlapping_extensions_dot(tmp_path: Path) -> None:
     """
-    No error is shown if both --rst-extension and --myst-extension are '.'.
+    No error is shown if multiple extension types are '.'.
     """
     runner = CliRunner(mix_stderr=False)
     source_file = tmp_path / "example.custom"
