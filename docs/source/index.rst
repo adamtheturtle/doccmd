@@ -21,6 +21,11 @@ What does it work on?
 
 * Markdown (``.md``)
 
+.. note::
+
+   By default, ``.md`` files are treated as MyST files.
+   To treat them as Markdown, use ``--myst-extension=. --markdown-extension=.md``.
+
 .. code-block:: markdown
 
    ```shell
