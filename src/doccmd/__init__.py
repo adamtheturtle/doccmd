@@ -599,12 +599,12 @@ def main(
         value: key for key, values in suffix_groups.items() for value in values
     }
 
-    for file_path in file_paths:
+    for document_path in document_paths:
         if not any(
-            file_path.suffix in suffix_group
+            document_path.suffix in suffix_group
             for suffix_group in suffix_groups.values()
         ):
-            message = f"Markup language not known for {file_path}."
+            message = f"Markup language not known for {document_paths}."
             raise click.UsageError(message=message)
 
     if verbose:
