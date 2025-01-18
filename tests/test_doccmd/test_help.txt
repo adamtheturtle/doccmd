@@ -68,7 +68,7 @@ Options:
                                   considering any files, including the default,
                                   as reStructuredText files, use `--rst-
                                   extension=.`.  [default: .rst]
-  --myst-extension TEXT           Treat files with this extension (suffix) to as
+  --myst-extension TEXT           Treat files with this extension (suffix) as
                                   MyST. Give this multiple times to look for
                                   multiple extensions. To avoid considering any
                                   files, including the default, as MyST files,
