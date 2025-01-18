@@ -600,16 +600,20 @@ def main(
     args = shlex.split(s=command)
     use_pty = use_pty_option.use_pty()
 
-    _validate_file_suffix_overlaps(
-        suffix_groups={
-            MyST: myst_suffixes,
-            ReStructuredText: rst_suffixes,
-        }
-    )
+    suffix_groups: Mapping[MarkupLanguage, Sequence[str]] = {
+        MyST: myst_suffixes,
+        ReStructuredText: rst_suffixes,
+    }
+
+    _validate_file_suffix_overlaps(suffix_groups=suffix_groups)
 
     file_paths = _get_file_paths(
         document_paths=document_paths,
-        file_suffixes=[*myst_suffixes, *rst_suffixes],
+        file_suffixes=[
+            suffix
+            for suffixes in suffix_groups.values()
+            for suffix in suffixes
+        ],
         max_depth=max_depth,
         exclude_patterns=exclude_patterns,
     )
