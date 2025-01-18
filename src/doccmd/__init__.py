@@ -287,12 +287,11 @@ def _run_args_against_docs(
     verbose: bool,
     skip_markers: Iterable[str],
     use_pty: bool,
-    suffix_map: Mapping[str, MarkupLanguage],
+    markup_language: MarkupLanguage,
 ) -> None:
     """
     Run commands on the given file.
     """
-    markup_language = suffix_map[document_path.suffix]
     temporary_file_extension = _get_temporary_file_extension(
         language=code_block_language,
         given_file_extension=temporary_file_extension,
@@ -616,16 +615,17 @@ def main(
         )
 
     for file_path in file_paths:
-        for language in languages:
+        for code_block_language in languages:
+            markup_language = suffix_map[file_path.suffix]
             _run_args_against_docs(
                 args=args,
                 document_path=file_path,
-                code_block_language=language,
+                code_block_language=code_block_language,
                 pad_temporary_file=pad_file,
                 verbose=verbose,
                 temporary_file_extension=temporary_file_extension,
                 temporary_file_name_prefix=temporary_file_name_prefix,
                 skip_markers=skip_markers,
                 use_pty=use_pty,
-                suffix_map=suffix_map,
+                markup_language=markup_language,
             )
