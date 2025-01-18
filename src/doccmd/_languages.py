@@ -77,7 +77,7 @@ class MyST:
     The MyST markup language.
     """
 
-    name = "MyST"
+    name: ClassVar[str] = "MyST"
 
     skip_parser_cls: ClassVar[type[MystCustomDirectiveSkipParser]] = (
         MystCustomDirectiveSkipParser
@@ -94,7 +94,7 @@ class ReStructuredText:
     The reStructuredText markup language.
     """
 
-    name = "reStructuredText"
+    name: ClassVar[str] = "reStructuredText"
 
     skip_parser_cls: ClassVar[type[RestCustomDirectiveSkipParser]] = (
         RestCustomDirectiveSkipParser
