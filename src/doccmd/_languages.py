@@ -6,17 +6,13 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import Protocol, runtime_checkable
 
+import sybil.parsers.myst
+import sybil.parsers.rest
+import sybil_extras.parsers.myst.custom_directive_skip
+import sybil_extras.parsers.rest.custom_directive_skip
 from sybil import Document, Region
 from sybil.evaluators.skip import Skipper
-from sybil.parsers.myst import CodeBlockParser as MystCodeBlockParser
-from sybil.parsers.rest import CodeBlockParser as RestCodeBlockParser
 from sybil.typing import Evaluator
-from sybil_extras.parsers.myst.custom_directive_skip import (
-    CustomDirectiveSkipParser as MystCustomDirectiveSkipParser,
-)
-from sybil_extras.parsers.rest.custom_directive_skip import (
-    CustomDirectiveSkipParser as RestCustomDirectiveSkipParser,
-)
 
 
 @runtime_checkable
@@ -93,12 +89,14 @@ class MarkupLanguage:
 
 MyST = MarkupLanguage(
     name="MyST",
-    skip_parser_cls=MystCustomDirectiveSkipParser,
-    code_block_parser_cls=MystCodeBlockParser,
+    skip_parser_cls=(
+        sybil_extras.parsers.myst.custom_directive_skip.CustomDirectiveSkipParser
+    ),
+    code_block_parser_cls=sybil.parsers.myst.CodeBlockParser,
 )
 
 ReStructuredText = MarkupLanguage(
     name="reStructuredText",
-    skip_parser_cls=RestCustomDirectiveSkipParser,
-    code_block_parser_cls=RestCodeBlockParser,
+    skip_parser_cls=sybil_extras.parsers.rest.custom_directive_skip.CustomDirectiveSkipParser,
+    code_block_parser_cls=sybil.parsers.rest.CodeBlockParser,
 )
