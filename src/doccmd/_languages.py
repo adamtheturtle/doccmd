@@ -29,7 +29,11 @@ class MarkupLanguage(Protocol):
     @property
     def skip_parser_cls(
         self,
-    ) -> type[MystCustomDirectiveSkipParser | RestCustomDirectiveSkipParser]:
+    ) -> type[
+        MystCustomDirectiveSkipParser
+        | RestCustomDirectiveSkipParser
+        | MarkdownCustomDirectiveSkipParser
+    ]:
         """
         Skip parser class.
         """
@@ -40,7 +44,9 @@ class MarkupLanguage(Protocol):
     @property
     def code_block_parser_cls(
         self,
-    ) -> type[MystCodeBlockParser | RestCodeBlockParser]:
+    ) -> type[
+        MystCodeBlockParser | RestCodeBlockParser | MarkdownCodeBlockParser
+    ]:
         """
         Skip parser class.
         """
