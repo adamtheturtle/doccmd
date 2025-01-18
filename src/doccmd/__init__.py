@@ -21,6 +21,7 @@ from sybil.parsers.abstract.lexers import LexingException
 from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
 
 from ._languages import (
+    Markdown,
     MarkupLanguage,
     MyST,
     ReStructuredText,
@@ -594,6 +595,7 @@ def main(
     suffix_groups: Mapping[MarkupLanguage, Sequence[str]] = {
         MyST: myst_suffixes,
         ReStructuredText: rst_suffixes,
+        Markdown: markdown_suffixes,
     }
 
     _validate_file_suffix_overlaps(suffix_groups=suffix_groups)

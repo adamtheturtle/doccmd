@@ -6,8 +6,12 @@ from dataclasses import dataclass
 from typing import ClassVar, Protocol, runtime_checkable
 
 from beartype import beartype
+from sybil.parsers.markdown import CodeBlockParser as MarkdownCodeBlockParser
 from sybil.parsers.myst import CodeBlockParser as MystCodeBlockParser
 from sybil.parsers.rest import CodeBlockParser as RestCodeBlockParser
+from sybil_extras.parsers.markdown.custom_directive_skip import (
+    CustomDirectiveSkipParser as MarkdownCustomDirectiveSkipParser,
+)
 from sybil_extras.parsers.myst.custom_directive_skip import (
     CustomDirectiveSkipParser as MystCustomDirectiveSkipParser,
 )
@@ -85,4 +89,21 @@ class ReStructuredText:
     )
     code_block_parser_cls: ClassVar[type[RestCodeBlockParser]] = (
         RestCodeBlockParser
+    )
+
+
+@beartype
+@dataclass(frozen=True)
+class Markdown:
+    """
+    The Markdown markup language.
+    """
+
+    name: ClassVar[str] = "Markdown"
+
+    skip_parser_cls: ClassVar[type[RestCustomDirectiveSkipParser]] = (
+        MarkdownCustomDirectiveSkipParser
+    )
+    code_block_parser_cls: ClassVar[type[RestCodeBlockParser]] = (
+        MarkdownCodeBlockParser
     )
