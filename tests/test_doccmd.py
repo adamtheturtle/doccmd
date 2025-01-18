@@ -1825,6 +1825,50 @@ def test_overlapping_extensions_dot(tmp_path: Path) -> None:
     assert result.stderr == ""
 
 
+def test_markdown(tmp_path: Path) -> None:
+    """
+    It is possible to run a command against a Markdown file.
+    """
+    runner = CliRunner(mix_stderr=False)
+    source_file = tmp_path / "example.md"
+    content = """\
+    % skip doccmd[all]: next
+
+    ```python
+        x = 1
+    ```
+    """
+    source_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--no-pad-file",
+        "--command",
+        "cat",
+        "--rst-extension",
+        ".",
+        "--myst-extension",
+        ".",
+        "--markdown-extension",
+        ".md",
+        str(object=source_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    expected_output = textwrap.dedent(
+        text="""\
+        x = 1
+        """,
+    )
+    # The skip directive is not run as "%" is not a valid comment in Markdown.
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
 def test_directory(tmp_path: Path) -> None:
     """
     All source files in a given directory are worked on.
