@@ -145,7 +145,6 @@ lint.ignore = [
     # Ignore "too-many-*" errors as they seem to get in the way more than
     # helping.
     "PLR0913",
-    # Allow 'assert' as we use it for tests.
 ]
 
 lint.per-file-ignores."tests/*.py" = [
