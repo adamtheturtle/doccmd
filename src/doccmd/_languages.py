@@ -6,8 +6,10 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import Protocol, runtime_checkable
 
+import sybil.parsers.markdown
 import sybil.parsers.myst
 import sybil.parsers.rest
+import sybil_extras.parsers.markdown.custom_directive_skip
 import sybil_extras.parsers.myst.custom_directive_skip
 import sybil_extras.parsers.rest.custom_directive_skip
 from sybil import Document, Region
@@ -99,4 +101,10 @@ ReStructuredText = MarkupLanguage(
     name="reStructuredText",
     skip_parser_cls=sybil_extras.parsers.rest.custom_directive_skip.CustomDirectiveSkipParser,
     code_block_parser_cls=sybil.parsers.rest.CodeBlockParser,
+)
+
+Markdown = MarkupLanguage(
+    name="Markdown",
+    skip_parser_cls=sybil_extras.parsers.markdown.custom_directive_skip.CustomDirectiveSkipParser,
+    code_block_parser_cls=sybil.parsers.markdown.CodeBlockParser,
 )

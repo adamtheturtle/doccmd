@@ -21,6 +21,7 @@ from sybil.parsers.abstract.lexers import LexingException
 from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
 
 from ._languages import (
+    Markdown,
     MarkupLanguage,
     MyST,
     ReStructuredText,
@@ -535,6 +536,19 @@ def _run_args_against_docs(
     callback=_validate_file_extensions,
 )
 @click.option(
+    "--markdown-extension",
+    "markdown_suffixes",
+    type=str,
+    help=(
+        "Files with this extension (suffix) to treat as Markdown. "
+        "Give this multiple times to look for multiple extensions. "
+        "By default, `.md` is treated as MyST, not Markdown."
+    ),
+    multiple=True,
+    show_default=True,
+    callback=_validate_file_extensions,
+)
+@click.option(
     "--max-depth",
     type=click.IntRange(min=1),
     default=sys.maxsize,
@@ -567,6 +581,7 @@ def main(
     use_pty_option: _UsePty,
     rst_suffixes: Sequence[str],
     myst_suffixes: Sequence[str],
+    markdown_suffixes: Sequence[str],
     max_depth: int,
     exclude_patterns: Sequence[str],
 ) -> None:
@@ -580,6 +595,7 @@ def main(
     suffix_groups: Mapping[MarkupLanguage, Sequence[str]] = {
         MyST: myst_suffixes,
         ReStructuredText: rst_suffixes,
+        Markdown: markdown_suffixes,
     }
 
     _validate_file_suffix_overlaps(suffix_groups=suffix_groups)

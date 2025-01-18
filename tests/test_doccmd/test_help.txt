@@ -73,6 +73,10 @@ Options:
                                   multiple extensions. To avoid considering any
                                   files, including the default, as MyST files,
                                   use `--myst-extension=.`.  [default: .md]
+  --markdown-extension TEXT       Files with this extension (suffix) to treat as
+                                  Markdown. Give this multiple times to look for
+                                  multiple extensions. By default, `.md` is
+                                  treated as MyST, not Markdown.
   --max-depth INTEGER RANGE       Maximum depth to search for files in
                                   directories.  [x>=1]
   --exclude TEXT                  A glob-style pattern that matches file paths
