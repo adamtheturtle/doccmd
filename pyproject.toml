@@ -423,6 +423,9 @@ ignore_names = [
     "spelling_word_list_filename",
     "templates_path",
     "warning_is_error",
+    # Ignore Protocol method arguments
+    # see https://github.com/jendrikseipp/vulture/issues/309
+    "directive",
 ]
 
 exclude = [
