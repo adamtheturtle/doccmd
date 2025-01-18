@@ -524,7 +524,7 @@ def _run_args_against_docs(
     "myst_suffixes",
     type=str,
     help=(
-        "Treat files with this extension (suffix) to as MyST. "
+        "Treat files with this extension (suffix) as MyST. "
         "Give this multiple times to look for multiple extensions. "
         "To avoid considering any files, "
         "including the default, "
