@@ -168,20 +168,6 @@ def _validate_file_suffix_overlaps(
                 raise click.UsageError(message=message)
 
 
-def _validate_files_are_known_markup_types(
-    *,
-    file_paths: Iterable[Path],
-    suffix_map: Mapping[str, MarkupLanguage],
-) -> None:
-    """
-    Validate that the given files are known markup types.
-    """
-    for file_path in file_paths:
-        if file_path.suffix not in suffix_map:
-            message = f"Markup language not known for {file_path}."
-            raise click.UsageError(message=message)
-
-
 @unique
 class _UsePty(Enum):
     """
@@ -614,10 +600,13 @@ def main(
         value: key for key, values in suffix_groups.items() for value in values
     }
 
-    _validate_files_are_known_markup_types(
-        file_paths=file_paths,
-        suffix_map=suffix_map,
-    )
+    for file_path in file_paths:
+        if not any(
+            file_path.suffix in suffix_group
+            for suffix_group in suffix_groups.values()
+        ):
+            message = f"Markup language not known for {file_path}."
+            raise click.UsageError(message=message)
 
     if verbose:
         _log_info(
