@@ -26,7 +26,6 @@ from ._languages import (
     ReStructuredText,
     UnknownMarkupLanguageError,
     get_markup_language,
-    get_suffix_map,
 )
 
 if TYPE_CHECKING:
@@ -618,10 +617,10 @@ def main(
         exclude_patterns=exclude_patterns,
     )
 
-    suffix_map = get_suffix_map(
-        myst_suffixes=myst_suffixes,
-        rst_suffixes=rst_suffixes,
-    )
+    suffix_map = {
+        value: key for key, values in suffix_groups.items() for value in values
+    }
+
     _validate_files_are_known_markup_types(
         file_paths=file_paths,
         suffix_map=suffix_map,

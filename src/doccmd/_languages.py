@@ -2,7 +2,7 @@
 Tools for managing markup languages.
 """
 
-from collections.abc import Iterable, Mapping
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import ClassVar, Protocol, runtime_checkable
@@ -102,24 +102,6 @@ class ReStructuredText:
     code_block_parser_cls: ClassVar[type[RestCodeBlockParser]] = (
         RestCodeBlockParser
     )
-
-
-@beartype
-def get_suffix_map(
-    myst_suffixes: Iterable[str],
-    rst_suffixes: Iterable[str],
-) -> dict[str, MarkupLanguage]:
-    """
-    Get a map of suffixes to markup languages.
-    """
-    suffix_map: dict[str, MarkupLanguage] = {}
-
-    for suffix in myst_suffixes:
-        suffix_map[suffix] = MyST
-    for suffix in rst_suffixes:
-        suffix_map[suffix] = ReStructuredText
-
-    return suffix_map
 
 
 @beartype
