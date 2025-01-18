@@ -542,7 +542,7 @@ def _run_args_against_docs(
     help=(
         "Files with this extension (suffix) to treat as Markdown. "
         "Give this multiple times to look for multiple extensions. "
-        "By default, '.md' is treated as MyST, not Markdown."
+        "By default, `.md` is treated as MyST, not Markdown."
     ),
     multiple=True,
     show_default=True,
