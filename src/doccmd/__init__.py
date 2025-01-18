@@ -507,7 +507,7 @@ def _run_args_against_docs(
     "rst_suffixes",
     type=str,
     help=(
-        "Files with this extension (suffix) to treat as reStructuredText. "
+        "Treat files with this extension (suffix) as reStructuredText. "
         "Give this multiple times to look for multiple extensions. "
         "To avoid considering any files, "
         "including the default, "
@@ -523,7 +523,7 @@ def _run_args_against_docs(
     "myst_suffixes",
     type=str,
     help=(
-        "Files with this extension (suffix) to treat as MyST. "
+        "Treat files with this extension (suffix) to as MyST. "
         "Give this multiple times to look for multiple extensions. "
         "To avoid considering any files, "
         "including the default, "

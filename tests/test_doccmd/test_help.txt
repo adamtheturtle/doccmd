@@ -62,13 +62,13 @@ Options:
   --detect-use-pty                Automatically determine whether to use a
                                   pseudo-terminal for running commands.
                                   [default: (True)]
-  --rst-extension TEXT            Files with this extension (suffix) to treat as
+  --rst-extension TEXT            Treat files with this extension (suffix) as
                                   reStructuredText. Give this multiple times to
                                   look for multiple extensions. To avoid
                                   considering any files, including the default,
                                   as reStructuredText files, use `--rst-
                                   extension=.`.  [default: .rst]
-  --myst-extension TEXT           Files with this extension (suffix) to treat as
+  --myst-extension TEXT           Treat files with this extension (suffix) to as
                                   MyST. Give this multiple times to look for
                                   multiple extensions. To avoid considering any
                                   files, including the default, as MyST files,
