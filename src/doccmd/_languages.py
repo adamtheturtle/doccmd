@@ -101,9 +101,9 @@ class Markdown:
 
     name: ClassVar[str] = "Markdown"
 
-    skip_parser_cls: ClassVar[type[RestCustomDirectiveSkipParser]] = (
+    skip_parser_cls: ClassVar[type[MarkdownCustomDirectiveSkipParser]] = (
         MarkdownCustomDirectiveSkipParser
     )
-    code_block_parser_cls: ClassVar[type[RestCodeBlockParser]] = (
+    code_block_parser_cls: ClassVar[type[MarkdownCodeBlockParser]] = (
         MarkdownCodeBlockParser
     )
