@@ -7,7 +7,7 @@ import shlex
 import subprocess
 import sys
 from collections import Counter
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from enum import Enum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
@@ -21,7 +21,12 @@ from sybil.evaluators.skip import Skipper
 from sybil.parsers.abstract.lexers import LexingException
 from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
 
-from ._languages import UnknownMarkupLanguageError, get_markup_language
+from ._languages import (
+    MarkupLanguage,
+    UnknownMarkupLanguageError,
+    get_markup_language,
+    get_suffix_map,
+)
 
 if TYPE_CHECKING:
     from sybil.typing import Parser
@@ -163,10 +168,7 @@ def _validate_file_suffix_overlaps(
 
 
 def _validate_files_are_known_markup_types(
-    *,
-    file_paths: Iterable[Path],
-    myst_suffixes: Iterable[str],
-    rst_suffixes: Iterable[str],
+    *, file_paths: Iterable[Path], suffix_map: Mapping[str, MarkupLanguage]
 ) -> None:
     """
     Validate that the given files are known markup types.
@@ -175,8 +177,7 @@ def _validate_files_are_known_markup_types(
         for file_path in file_paths:
             get_markup_language(
                 file_path=file_path,
-                myst_suffixes=myst_suffixes,
-                rst_suffixes=rst_suffixes,
+                suffix_map=suffix_map,
             )
     except UnknownMarkupLanguageError as exc:
         raise click.UsageError(message=str(object=exc)) from exc
@@ -301,16 +302,14 @@ def _run_args_against_docs(
     verbose: bool,
     skip_markers: Iterable[str],
     use_pty: bool,
-    myst_suffixes: Iterable[str],
-    rst_suffixes: Iterable[str],
+    suffix_map: Mapping[str, MarkupLanguage],
 ) -> None:
     """
     Run commands on the given file.
     """
     markup_language = get_markup_language(
         file_path=document_path,
-        myst_suffixes=myst_suffixes,
-        rst_suffixes=rst_suffixes,
+        suffix_map=suffix_map,
     )
     temporary_file_extension = _get_temporary_file_extension(
         language=code_block_language,
@@ -608,10 +607,13 @@ def main(
         exclude_patterns=exclude_patterns,
     )
 
-    _validate_files_are_known_markup_types(
-        file_paths=file_paths,
+    suffix_map = get_suffix_map(
         myst_suffixes=myst_suffixes,
         rst_suffixes=rst_suffixes,
+    )
+    _validate_files_are_known_markup_types(
+        file_paths=file_paths,
+        suffix_map=suffix_map,
     )
 
     if verbose:
@@ -633,6 +635,5 @@ def main(
                 temporary_file_name_prefix=temporary_file_name_prefix,
                 skip_markers=skip_markers,
                 use_pty=use_pty,
-                myst_suffixes=myst_suffixes,
-                rst_suffixes=rst_suffixes,
+                suffix_map=suffix_map,
             )
