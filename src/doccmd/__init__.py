@@ -168,20 +168,6 @@ def _validate_file_suffix_overlaps(
                 raise click.UsageError(message=message)
 
 
-def _validate_files_are_known_markup_types(
-    *,
-    file_paths: Iterable[Path],
-    suffix_map: Mapping[str, MarkupLanguage],
-) -> None:
-    """
-    Validate that the given files are known markup types.
-    """
-    for file_path in file_paths:
-        if file_path.suffix not in suffix_map:
-            message = f"Markup language not known for {file_path}."
-            raise click.UsageError(message=message)
-
-
 @unique
 class _UsePty(Enum):
     """
@@ -301,12 +287,11 @@ def _run_args_against_docs(
     verbose: bool,
     skip_markers: Iterable[str],
     use_pty: bool,
-    suffix_map: Mapping[str, MarkupLanguage],
+    markup_language: MarkupLanguage,
 ) -> None:
     """
     Run commands on the given file.
     """
-    markup_language = suffix_map[document_path.suffix]
     temporary_file_extension = _get_temporary_file_extension(
         language=code_block_language,
         given_file_extension=temporary_file_extension,
@@ -614,10 +599,10 @@ def main(
         value: key for key, values in suffix_groups.items() for value in values
     }
 
-    _validate_files_are_known_markup_types(
-        file_paths=file_paths,
-        suffix_map=suffix_map,
-    )
+    for document_path in document_paths:
+        if document_path.is_file() and document_path.suffix not in suffix_map:
+            message = f"Markup language not known for {document_path}."
+            raise click.UsageError(message=message)
 
     if verbose:
         _log_info(
@@ -627,16 +612,17 @@ def main(
         )
 
     for file_path in file_paths:
-        for language in languages:
+        for code_block_language in languages:
+            markup_language = suffix_map[file_path.suffix]
             _run_args_against_docs(
                 args=args,
                 document_path=file_path,
-                code_block_language=language,
+                code_block_language=code_block_language,
                 pad_temporary_file=pad_file,
                 verbose=verbose,
                 temporary_file_extension=temporary_file_extension,
                 temporary_file_name_prefix=temporary_file_name_prefix,
                 skip_markers=skip_markers,
                 use_pty=use_pty,
-                suffix_map=suffix_map,
+                markup_language=markup_language,
             )
