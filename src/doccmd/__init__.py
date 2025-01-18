@@ -24,8 +24,6 @@ from ._languages import (
     MarkupLanguage,
     MyST,
     ReStructuredText,
-    UnknownMarkupLanguageError,
-    get_markup_language,
 )
 
 if TYPE_CHECKING:
@@ -178,14 +176,10 @@ def _validate_files_are_known_markup_types(
     """
     Validate that the given files are known markup types.
     """
-    try:
-        for file_path in file_paths:
-            get_markup_language(
-                file_path=file_path,
-                suffix_map=suffix_map,
-            )
-    except UnknownMarkupLanguageError as exc:
-        raise click.UsageError(message=str(object=exc)) from exc
+    for file_path in file_paths:
+        if file_path.suffix not in suffix_map:
+            message = f"Markup language not known for {file_path}."
+            raise click.UsageError(message=message)
 
 
 @unique
@@ -312,10 +306,7 @@ def _run_args_against_docs(
     """
     Run commands on the given file.
     """
-    markup_language = get_markup_language(
-        file_path=document_path,
-        suffix_map=suffix_map,
-    )
+    markup_language = suffix_map[document_path.suffix]
     temporary_file_extension = _get_temporary_file_extension(
         language=code_block_language,
         given_file_extension=temporary_file_extension,
