@@ -4,6 +4,8 @@ Changelog
 Next
 ----
 
+* Add support for Markdown (not MyST) files.
+
 2025.01.11
 ----------
 
