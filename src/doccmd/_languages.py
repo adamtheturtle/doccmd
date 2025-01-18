@@ -6,7 +6,6 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from typing import Protocol, runtime_checkable
 
-from beartype import beartype
 from sybil import Document, Region
 from sybil.evaluators.skip import Skipper
 from sybil.parsers.myst import CodeBlockParser as MystCodeBlockParser
@@ -26,9 +25,21 @@ class _SkipParser(Protocol):
     A parser for skipping custom directives.
     """
 
-    def __init__(self, directive: str) -> None: ...
+    def __init__(self, directive: str) -> None:
+        """
+        Construct a skip parser.
+        """
+        # We disable a pylint warning here because the ellipsis is required
+        # for pyright to recognize this as a protocol.
+        ...  # pylint: disable=unnecessary-ellipsis
 
-    def __call__(self, document: Document) -> Iterable[Region]: ...
+    def __call__(self, document: Document) -> Iterable[Region]:
+        """
+        Call the skip parser.
+        """
+        # We disable a pylint warning here because the ellipsis is required
+        # for pyright to recognize this as a protocol.
+        ...  # pylint: disable=unnecessary-ellipsis
 
     @property
     def skipper(self) -> Skipper:
@@ -50,12 +61,25 @@ class _CodeBlockParser(Protocol):
         self,
         language: str | None = None,
         evaluator: Evaluator | None = None,
-    ) -> None: ...
+    ) -> None:
+        """
+        Construct a code block parser.
+        """
+        # We disable a pylint warning here because the ellipsis is required
+        # for pyright to recognize this as a protocol.
+        ...  # pylint: disable=unnecessary-ellipsis
 
-    def __call__(self, document: Document) -> Iterable[Region]: ...
+    def __call__(self, document: Document) -> Iterable[Region]:
+        """
+        Call the code block parser.
+        """
+        # We disable a pylint warning here because the ellipsis is required
+        # for pyright to recognize this as a protocol.
+        ...  # pylint: disable=unnecessary-ellipsis
 
 
-@beartype
+# We do not use Beartype here bcause it is incompatible with a Protocol which
+# has a property.
 @dataclass(frozen=True)
 class MarkupLanguage:
     """
