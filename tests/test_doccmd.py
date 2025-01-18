@@ -1837,6 +1837,16 @@ def test_markdown(tmp_path: Path) -> None:
     ```python
         x = 1
     ```
+
+    <!--- skip doccmd[all]: next -->
+
+    ```python
+        x = 2
+    ```
+
+    ```python
+        x = 3
+    ```
     """
     source_file.write_text(data=content, encoding="utf-8")
     arguments = [
@@ -1862,9 +1872,17 @@ def test_markdown(tmp_path: Path) -> None:
     expected_output = textwrap.dedent(
         text="""\
         x = 1
+        x = 3
         """,
     )
-    # The skip directive is not run as "%" is not a valid comment in Markdown.
+    # The first skip directive is not run as "%" is not a valid comment in
+    # Markdown.
+    #
+    # The second skip directive is run as `<!--- skip doccmd[all]:
+    # next -->` is a valid comment in Markdown.
+    #
+    # The code block after the second skip directive is run as it is
+    # a valid Markdown code block.
     assert result.stdout == expected_output
     assert result.stderr == ""
 
