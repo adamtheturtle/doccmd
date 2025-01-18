@@ -78,7 +78,7 @@ class _CodeBlockParser(Protocol):
         ...  # pylint: disable=unnecessary-ellipsis
 
 
-# We do not use Beartype here bcause it is incompatible with a Protocol which
+# We do not use Beartype here because it is incompatible with a Protocol which
 # has a property.
 @dataclass(frozen=True)
 class MarkupLanguage:
