@@ -6,7 +6,6 @@ import platform
 import shlex
 import subprocess
 import sys
-from collections import Counter
 from collections.abc import Iterable, Mapping, Sequence
 from enum import Enum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
@@ -23,6 +22,8 @@ from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
 
 from ._languages import (
     MarkupLanguage,
+    MyST,
+    ReStructuredText,
     UnknownMarkupLanguageError,
     get_markup_language,
     get_suffix_map,
@@ -147,24 +148,27 @@ def _get_file_paths(
 @beartype
 def _validate_file_suffix_overlaps(
     *,
-    suffix_groups: Iterable[Iterable[str]],
+    suffix_groups: Mapping[MarkupLanguage, Iterable[str]],
 ) -> None:
     """
     Validate that the given file suffixes do not overlap.
     """
-    all_items = Counter([item for group in suffix_groups for item in group])
-    overlapping_items = {
-        item for item, count in all_items.items() if count > 1
-    }
-    # Allow the dot to overlap, as it is a common way to specify
-    # "no extensions".
-    overlapping_items_ignoring_dot = overlapping_items - {"."}
-    if overlapping_items_ignoring_dot:
-        message = (
-            "Overlapping extensions between multiple extension types: "
-            f"{', '.join(sorted(overlapping_items_ignoring_dot))}."
-        )
-        raise click.UsageError(message=message)
+    for markup_language, suffixes in suffix_groups.items():
+        for other_markup_language, other_suffixes in suffix_groups.items():
+            if markup_language is other_markup_language:
+                continue
+            overlapping_suffixes = {*suffixes} & {*other_suffixes}
+            # Allow the dot to overlap, as it is a common way to specify
+            # "no extensions".
+            overlapping_suffixes_ignoring_dot = overlapping_suffixes - {"."}
+
+            if overlapping_suffixes_ignoring_dot:
+                message = (
+                    f"Overlapping suffixes between {markup_language.name} and "
+                    f"{other_markup_language.name}: "
+                    f"{', '.join(sorted(overlapping_suffixes_ignoring_dot))}."
+                )
+                raise click.UsageError(message=message)
 
 
 def _validate_files_are_known_markup_types(
@@ -597,7 +601,10 @@ def main(
     use_pty = use_pty_option.use_pty()
 
     _validate_file_suffix_overlaps(
-        suffix_groups=(myst_suffixes, rst_suffixes),
+        suffix_groups={
+            MyST: myst_suffixes,
+            ReStructuredText: rst_suffixes,
+        }
     )
 
     file_paths = _get_file_paths(

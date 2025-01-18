@@ -1777,7 +1777,7 @@ def test_overlapping_extensions(tmp_path: Path) -> None:
             Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...
             Try 'doccmd --help' for help.
 
-            Error: Overlapping extensions between multiple extension types: .custom, .custom2.
+            Error: Overlapping suffixes between MyST and reStructuredText: .custom, .custom2.
             """,  # noqa: E501
     )
     assert result.stdout == ""
