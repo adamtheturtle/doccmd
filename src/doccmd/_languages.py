@@ -3,7 +3,6 @@ Tools for managing markup languages.
 """
 
 from dataclasses import dataclass
-from typing import ClassVar, Protocol, runtime_checkable
 
 from beartype import beartype
 from sybil.parsers.myst import CodeBlockParser as MystCodeBlockParser
@@ -16,73 +15,28 @@ from sybil_extras.parsers.rest.custom_directive_skip import (
 )
 
 
-@runtime_checkable
-class MarkupLanguage(Protocol):
-    """
-    A protocol for markup languages.
-    """
-
-    @property
-    def skip_parser_cls(
-        self,
-    ) -> type[MystCustomDirectiveSkipParser | RestCustomDirectiveSkipParser]:
-        """
-        Skip parser class.
-        """
-        # We disable a pylint warning here because the ellipsis is required
-        # for pyright to recognize this as a protocol.
-        ...  # pylint: disable=unnecessary-ellipsis
-
-    @property
-    def code_block_parser_cls(
-        self,
-    ) -> type[MystCodeBlockParser | RestCodeBlockParser]:
-        """
-        Skip parser class.
-        """
-        # We disable a pylint warning here because the ellipsis is required
-        # for pyright to recognize this as a protocol.
-        ...  # pylint: disable=unnecessary-ellipsis
-
-    @property
-    def name(self) -> str:
-        """
-        The name of the markup language.
-        """
-        # We disable a pylint warning here because the ellipsis is required
-        # for pyright to recognize this as a protocol.
-        ...  # pylint: disable=unnecessary-ellipsis
-
-
 @beartype
 @dataclass(frozen=True)
-class MyST:
+class MarkupLanguage:
     """
-    The MyST markup language.
-    """
-
-    name: ClassVar[str] = "MyST"
-
-    skip_parser_cls: ClassVar[type[MystCustomDirectiveSkipParser]] = (
-        MystCustomDirectiveSkipParser
-    )
-    code_block_parser_cls: ClassVar[type[MystCodeBlockParser]] = (
-        MystCodeBlockParser
-    )
-
-
-@beartype
-@dataclass(frozen=True)
-class ReStructuredText:
-    """
-    The reStructuredText markup language.
+    A markup language.
     """
 
-    name: ClassVar[str] = "reStructuredText"
+    name: str
+    skip_parser_cls: type[
+        MystCustomDirectiveSkipParser | RestCustomDirectiveSkipParser
+    ]
+    code_block_parser_cls: type[MystCodeBlockParser | RestCodeBlockParser]
 
-    skip_parser_cls: ClassVar[type[RestCustomDirectiveSkipParser]] = (
-        RestCustomDirectiveSkipParser
-    )
-    code_block_parser_cls: ClassVar[type[RestCodeBlockParser]] = (
-        RestCodeBlockParser
-    )
+
+MyST = MarkupLanguage(
+    name="MyST",
+    skip_parser_cls=MystCustomDirectiveSkipParser,
+    code_block_parser_cls=MystCodeBlockParser,
+)
+
+ReStructuredText = MarkupLanguage(
+    name="reStructuredText",
+    skip_parser_cls=RestCustomDirectiveSkipParser,
+    code_block_parser_cls=RestCodeBlockParser,
+)
