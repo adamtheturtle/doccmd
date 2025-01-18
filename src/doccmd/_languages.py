@@ -60,13 +60,24 @@ class MarkupLanguage(Protocol):
         # for pyright to recognize this as a protocol.
         ...  # pylint: disable=unnecessary-ellipsis
 
+    @property
+    def name(self) -> str:
+        """
+        The name of the markup language.
+        """
+        # We disable a pylint warning here because the ellipsis is required
+        # for pyright to recognize this as a protocol.
+        ...  # pylint: disable=unnecessary-ellipsis
+
 
 @beartype
 @dataclass(frozen=True)
-class _MyST:
+class MyST:
     """
     The MyST markup language.
     """
+
+    name: ClassVar[str] = "MyST"
 
     skip_parser_cls: ClassVar[type[MystCustomDirectiveSkipParser]] = (
         MystCustomDirectiveSkipParser
@@ -78,10 +89,12 @@ class _MyST:
 
 @beartype
 @dataclass(frozen=True)
-class _ReStructuredText:
+class ReStructuredText:
     """
     The reStructuredText markup language.
     """
+
+    name: ClassVar[str] = "reStructuredText"
 
     skip_parser_cls: ClassVar[type[RestCustomDirectiveSkipParser]] = (
         RestCustomDirectiveSkipParser
@@ -102,9 +115,9 @@ def get_suffix_map(
     suffix_map: dict[str, MarkupLanguage] = {}
 
     for suffix in myst_suffixes:
-        suffix_map[suffix] = _MyST
+        suffix_map[suffix] = MyST
     for suffix in rst_suffixes:
-        suffix_map[suffix] = _ReStructuredText
+        suffix_map[suffix] = ReStructuredText
 
     return suffix_map
 
