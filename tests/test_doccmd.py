@@ -1391,6 +1391,78 @@ def test_default_skip_marker_given(tmp_path: Path) -> None:
     assert result.stderr == ""
 
 
+def test_skip_multiple(tmp_path: Path) -> None:
+    """
+    It is possible to mark a code block as to be skipped by multiple markers.
+    """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    skip_marker_1 = uuid.uuid4().hex
+    skip_marker_2 = uuid.uuid4().hex
+    content = f"""\
+    .. code-block:: python
+
+       block_1
+
+    .. skip doccmd[{skip_marker_1}]: next
+    .. skip doccmd[{skip_marker_2}]: next
+
+    .. code-block:: python
+
+        block_2
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--no-pad-file",
+        "--language",
+        "python",
+        "--skip-marker",
+        skip_marker_1,
+        "--command",
+        "cat",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    expected_output = textwrap.dedent(
+        text="""\
+        block_1
+        """,
+    )
+
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+    arguments = [
+        "--no-pad-file",
+        "--language",
+        "python",
+        "--skip-marker",
+        skip_marker_2,
+        "--command",
+        "cat",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    expected_output = textwrap.dedent(
+        text="""\
+        block_1
+        """,
+    )
+
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
 def test_empty_file(tmp_path: Path) -> None:
     """
     No error is shown when an empty file is given.
