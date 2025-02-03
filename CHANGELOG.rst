@@ -5,6 +5,7 @@ Next
 ----
 
 * Add support for Markdown (not MyST) files.
+* Add support for treating groups of code blocks as one.
 
 2025.01.11
 ----------

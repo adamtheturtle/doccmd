@@ -196,6 +196,38 @@ Use the ``--skip-marker`` option to set a marker for this particular command whi
 For example, use ``--skip-marker="type-check"`` to skip code blocks which come just after a comment matching ``skip doccmd[type-check]: next``.
 This marker is matched using a regular expression.
 
+Combining code blocks
+---------------------
+
+You might have two code blocks like this:
+
+.. TODO: CAN WE COMBINE WHEN RUNNING MYPY BUT NOT RUFF FORMAT?
+.. EG ``.. group doccmd[mypy] start/end`` to group this command with the ones below, but just for mypy+ruff and use ``--group-marker``
+.. Either allow [mypy,ruff] or allow multiple commands <-- How about same for skip markers? Document the regular expression
+
+.. code-block:: python
+
+   def my_function() -> None:
+      """Do nothing."""
+      pass
+
+and:
+
+.. TODO: Later use the combine command, not the skip
+
+.. skip doccmd[ruff]: next
+
+.. code-block:: python
+
+   """Run a function which is defined in the previous code block."""
+
+   my_function()
+
+and wish to type check the two code blocks as if they were one.
+By default, this will error as in the second code block, ``my_function`` is not defined.
+
+To treat a
+
 Full documentation
 ------------------
 

@@ -129,7 +129,7 @@ repos:
       - id: mypy-docs
         name: mypy-docs
         stages: [pre-push]
-        entry: uv run --extra=dev doccmd --language=python --command="mypy"
+        entry: uv run --extra=dev doccmd --language=python --command="mypy" --skip-marker="mypy"
         language: python
         types_or: [markdown, rst]
         additional_dependencies: [uv==0.5.20]
@@ -169,7 +169,7 @@ repos:
 
       - id: vulture-docs
         name: vulture docs
-        entry: uv run --extra=dev doccmd --language=python --command="vulture"
+        entry: uv run --extra=dev doccmd --language=python --command="uv run -m vulture"
         language: python
         types_or: [markdown, rst]
         additional_dependencies: [uv==0.5.20]
@@ -215,6 +215,7 @@ repos:
       - id: ruff-check-fix-docs
         name: Ruff check fix docs
         entry: uv run --extra=dev doccmd --language=python --command="ruff check --fix"
+          --skip-marker="ruff"
         language: python
         types_or: [markdown, rst]
         additional_dependencies: [uv==0.5.20]
@@ -251,7 +252,7 @@ repos:
 
       - id: interrogate-docs
         name: interrogate docs
-        entry: uv run --extra=dev doccmd --language=python --command="interrogate"
+        entry: uv run --extra=dev doccmd --language=python --command="uv run -m interrogate"
         language: python
         types_or: [markdown, rst]
         additional_dependencies: [uv==0.5.20]
