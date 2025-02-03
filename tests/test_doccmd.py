@@ -1409,10 +1409,6 @@ def test_skip_multiple(tmp_path: Path) -> None:
     .. code-block:: python
 
         block_2
-
-    .. code-block:: python
-
-        block_3
     """
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
