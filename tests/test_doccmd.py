@@ -1404,7 +1404,8 @@ def test_skip_multiple(tmp_path: Path) -> None:
 
        block_1
 
-    .. skip doccmd[{skip_marker_1} {skip_marker_2}]: next
+    .. skip doccmd[{skip_marker_1}]: next
+    .. skip doccmd[{skip_marker_2}]: next
 
     .. code-block:: python
 
