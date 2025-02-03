@@ -339,6 +339,8 @@ def _run_args_against_docs(
         )
         _log_warning(message=lexing_error_message)
         return
+    except ValueError:
+        return
 
     for example in document.examples():
         if (
