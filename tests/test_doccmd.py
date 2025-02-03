@@ -1418,6 +1418,29 @@ def test_skip_multiple(tmp_path: Path) -> None:
         "python",
         "--skip-marker",
         skip_marker_1,
+        "--command",
+        "cat",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    expected_output = textwrap.dedent(
+        text="""\
+        block_1
+        """,
+    )
+
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+    arguments = [
+        "--no-pad-file",
+        "--language",
+        "python",
         "--skip-marker",
         skip_marker_2,
         "--command",
