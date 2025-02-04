@@ -154,7 +154,7 @@ repos:
       - id: pyright-docs
         name: pyright-docs
         stages: [pre-push]
-        entry: uv run --extra=dev doccmd --language=python --command="pyright"
+        entry: uv run --extra=dev doccmd --language=python --command="pyright" --skip-marker="pyright"
         language: python
         types_or: [markdown, rst]
         additional_dependencies: [uv==0.5.20]
