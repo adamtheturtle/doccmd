@@ -203,7 +203,6 @@ You might have two code blocks like this:
 
 .. TODO: CAN WE COMBINE WHEN RUNNING MYPY BUT NOT RUFF FORMAT?
 .. EG ``.. group doccmd[mypy] start/end`` to group this command with the ones below, but just for mypy+ruff and use ``--group-marker``
-.. Either allow [mypy,ruff] or allow multiple commands <-- How about same for skip markers? Document the regular expression
 
 .. code-block:: python
 

@@ -169,7 +169,7 @@ repos:
 
       - id: vulture-docs
         name: vulture docs
-        entry: uv run --extra=dev doccmd --language=python --command="uv run -m vulture"
+        entry: uv run --extra=dev doccmd --language=python --command="vulture"
         language: python
         types_or: [markdown, rst]
         additional_dependencies: [uv==0.5.20]
@@ -252,7 +252,7 @@ repos:
 
       - id: interrogate-docs
         name: interrogate docs
-        entry: uv run --extra=dev doccmd --language=python --command="uv run -m interrogate"
+        entry: uv run --extra=dev doccmd --language=python --command="interrogate"
         language: python
         types_or: [markdown, rst]
         additional_dependencies: [uv==0.5.20]
