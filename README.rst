@@ -215,6 +215,7 @@ and:
 .. TODO: Later use the combine command, not the skip
 
 .. skip doccmd[ruff]: next
+.. skip doccmd[mypy]: next
 
 .. code-block:: python
 
