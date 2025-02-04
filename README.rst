@@ -216,6 +216,7 @@ and:
 
 .. skip doccmd[ruff]: next
 .. skip doccmd[mypy]: next
+.. skip doccmd[pyright]: next
 
 .. code-block:: python
 
