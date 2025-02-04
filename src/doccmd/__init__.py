@@ -429,6 +429,10 @@ def _run_args_against_docs(
         comment matching 'skip doccmd[type-check]: next' are also skipped.
 
         This marker is matched using a regular expression.
+
+        To skip a code block for each of multiple markers, for example to skip
+        a code block for the ``type-check`` and ``lint`` markers but not all
+        markers, add multiple ``skip doccmd`` comments above the code block.
         """
     ),
     multiple=True,
