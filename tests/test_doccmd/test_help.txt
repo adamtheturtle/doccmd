@@ -40,6 +40,12 @@ Options:
                                   
                                   This marker is matched using a regular
                                   expression.
+                                  
+                                  To skip a code block for each of multiple
+                                  markers, for example to skip a code block for
+                                  the ``type-check`` and ``lint`` markers but
+                                  not all markers, add multiple ``skip doccmd``
+                                  comments above the code block.
   --pad-file / --no-pad-file      Run the command against a temporary file
                                   padded with newlines. This is useful for
                                   matching line numbers from the output to the

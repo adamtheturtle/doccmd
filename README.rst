@@ -196,6 +196,8 @@ Use the ``--skip-marker`` option to set a marker for this particular command whi
 For example, use ``--skip-marker="type-check"`` to skip code blocks which come just after a comment matching ``skip doccmd[type-check]: next``.
 This marker is matched using a regular expression.
 
+To skip a code block for each of multiple markers, for example to skip a code block for the ``type-check`` and ``lint`` markers but not all markers, add multiple ``skip doccmd`` comments above the code block.
+
 Combining code blocks
 ---------------------
 
