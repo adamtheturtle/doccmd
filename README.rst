@@ -206,6 +206,8 @@ You might have two code blocks like this:
 .. TODO: CAN WE COMBINE WHEN RUNNING MYPY BUT NOT RUFF FORMAT?
 .. EG ``.. group doccmd[mypy] start/end`` to group this command with the ones below, but just for mypy+ruff and use ``--group-marker``
 
+.. group doccmd: start
+
 .. code-block:: python
 
    def my_function() -> None:
@@ -225,6 +227,8 @@ and:
    """Run a function which is defined in the previous code block."""
 
    my_function()
+
+.. group doccmd: end
 
 and wish to type check the two code blocks as if they were one.
 By default, this will error as in the second code block, ``my_function`` is not defined.
