@@ -16,6 +16,7 @@ import click
 from beartype import beartype
 from pygments.lexers import get_all_lexers
 from sybil import Sybil
+from sybil.evaluators.skip import Skipper
 from sybil.parsers.abstract.lexers import LexingException
 from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
 
@@ -27,7 +28,6 @@ from ._languages import (
 )
 
 if TYPE_CHECKING:
-    from sybil.example import Example
     from sybil.typing import Parser
 
 try:
@@ -340,18 +340,15 @@ def _run_args_against_docs(
         _log_warning(message=lexing_error_message)
         return
 
-    examples = list(document.examples())
-    grouped_examples: Sequence[Example] = []
-    for example in examples:
-        if any(
-            skip_parser.skipper.state_for(example=example).remove
-            for skip_parser in skip_parsers
+    for example in document.examples():
+        if (
+            verbose
+            and not isinstance(example.region.evaluator, Skipper)
+            and not any(
+                skip_parser.skipper.state_for(example=example).remove
+                for skip_parser in skip_parsers
+            )
         ):
-            continue
-        grouped_examples = [*grouped_examples, example]
-
-    for example in grouped_examples:
-        if verbose:
             command_str = shlex.join(
                 split_command=[str(object=item) for item in args],
             )
