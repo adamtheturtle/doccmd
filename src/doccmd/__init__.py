@@ -16,8 +16,6 @@ import click
 from beartype import beartype
 from pygments.lexers import get_all_lexers
 from sybil import Sybil
-from sybil.evaluators.skip import Skipper
-from sybil.example import Example
 from sybil.parsers.abstract.lexers import LexingException
 from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
 
@@ -29,6 +27,7 @@ from ._languages import (
 )
 
 if TYPE_CHECKING:
+    from sybil.example import Example
     from sybil.typing import Parser
 
 try:
@@ -40,14 +39,6 @@ except PackageNotFoundError:  # pragma: no cover
     from ._setuptools_scm_version import __version__
 
 T = TypeVar("T")
-
-import pdb
-
-stdin, stdout = sys.stdin, sys.stdout
-
-
-def set_trace():
-    pdb.Pdb(stdin=stdin, stdout=stdout).set_trace()
 
 
 @beartype
@@ -349,7 +340,6 @@ def _run_args_against_docs(
         _log_warning(message=lexing_error_message)
         return
 
-    # pdb.Pdb(stdin=stdin, stdout=stdout).set_trace()
     examples = list(document.examples())
     grouped_examples: Sequence[Example] = []
     for example in examples:
