@@ -2416,3 +2416,7 @@ def test_group_blocks(tmp_path: Path) -> None:
     assert result.exit_code == 0, (result.stdout, result.stderr)
     assert result.stdout == expected_output
     assert result.stderr == ""
+
+
+# TODO: Skip just before a group start marker
+# TODO: Skip within a group
