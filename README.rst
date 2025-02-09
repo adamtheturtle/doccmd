@@ -217,6 +217,7 @@ You might have two code blocks like this:
 and:
 
 .. TODO: Later use the combine command, not the skip
+.. TODO: Maybe error if write_to_file is True and combine is used? or only if the file is written to?
 
 .. skip doccmd[ruff]: next
 .. skip doccmd[mypy]: next
