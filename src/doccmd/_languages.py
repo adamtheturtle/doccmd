@@ -14,7 +14,9 @@ import sybil_extras.parsers.myst.custom_directive_skip
 import sybil_extras.parsers.rest.custom_directive_skip
 from beartype import beartype
 from sybil import Document, Region
-from sybil.typing import Evaluator
+from sybil.parsers.abstract.lexers import LexerCollection
+from sybil.parsers.markdown.lexers import DirectiveInHTMLCommentLexer
+from sybil.typing import Evaluator, Parser
 
 
 @runtime_checkable
@@ -66,14 +68,17 @@ class _CodeBlockParser(Protocol):
         # for pyright to recognize this as a protocol.
         ...  # pylint: disable=unnecessary-ellipsis
 
-@runtime_checkable
-class _GroupParser(Protocol):
-    """
-    A parser for groups.
-    """
 
-    def __init__(
-        self,
+class MarkdownCommentParser:
+    def __init__(self, directive: str, arguments: str) -> None:
+        lexers = [
+            DirectiveInHTMLCommentLexer(
+                directive=directive,
+                arguments=arguments,
+            )
+        ]
+        self.lexers = LexerCollection(lexers)
+
 
 @beartype
 @dataclass(frozen=True)
@@ -85,7 +90,7 @@ class MarkupLanguage:
     name: str
     skip_parser_cls: type[_SkipParser]
     code_block_parser_cls: type[_CodeBlockParser]
-    group_parser_cls = type[_GroupParser]
+    group_parser_cls: Parser
 
 
 MyST = MarkupLanguage(
@@ -94,6 +99,7 @@ MyST = MarkupLanguage(
         sybil_extras.parsers.myst.custom_directive_skip.CustomDirectiveSkipParser
     ),
     code_block_parser_cls=sybil.parsers.myst.CodeBlockParser,
+    group_parser_cls=MySTGroupParser,
 )
 
 ReStructuredText = MarkupLanguage(
