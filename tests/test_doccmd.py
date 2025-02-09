@@ -2359,3 +2359,60 @@ def test_lexing_exception(tmp_path: Path) -> None:
         ),
     )
     assert result.stderr == expected_stderr
+
+
+def test_group_blocks(tmp_path: Path) -> None:
+    """It is possible to group some blocks together.
+
+    Code blocks between a group start and end marker are concatenated
+    and passed as a single input to the command.
+    """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    content = """\
+    .. code-block:: python
+
+        block_1
+
+    .. group doccmd[all]: start
+
+    .. code-block:: python
+
+        block_group_1
+
+    .. code-block:: python
+
+        block_group_2
+
+    .. group doccmd[all]: end
+
+    .. code-block:: python
+
+        block_3
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--no-pad-file",
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    # The expected output is that the content outside the group remains
+    # unchanged, while the contents inside the group are merged.
+    expected_output = textwrap.dedent(
+        text="""\
+        block_1
+        block_group_1 block_group_2
+        block_3
+        """,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert result.stdout == expected_output
+    assert result.stderr == ""
