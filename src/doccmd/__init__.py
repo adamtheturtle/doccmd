@@ -29,7 +29,7 @@ from ._languages import (
 )
 
 if TYPE_CHECKING:
-    from sybil.typing import Parser
+    from sybil.typing import Evaluator, Parser
 
 try:
     __version__ = version(distribution_name=__name__)
@@ -330,9 +330,9 @@ def _run_args_against_docs(
         use_pty=use_pty,
     )
 
-    evaluators = [shell_command_evaluator]
+    evaluators: Sequence[Evaluator] = [shell_command_evaluator]
     if verbose:
-        evaluators.append(_LogCommandEvaluator(args=args))
+        evaluators = [*evaluators, _LogCommandEvaluator(args=args)]
     evaluator = MultiEvaluator(evaluators=evaluators)
 
     skip_markers = {*skip_markers, "all"}
