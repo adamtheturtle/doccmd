@@ -12,8 +12,8 @@ import sybil.parsers.rest
 import sybil_extras.parsers.markdown.custom_directive_skip
 import sybil_extras.parsers.myst.custom_directive_skip
 import sybil_extras.parsers.rest.custom_directive_skip
+from beartype import beartype
 from sybil import Document, Region
-from sybil.evaluators.skip import Skipper
 from sybil.typing import Evaluator
 
 
@@ -34,15 +34,6 @@ class _SkipParser(Protocol):
     def __call__(self, document: Document) -> Iterable[Region]:
         """
         Call the skip parser.
-        """
-        # We disable a pylint warning here because the ellipsis is required
-        # for pyright to recognize this as a protocol.
-        ...  # pylint: disable=unnecessary-ellipsis
-
-    @property
-    def skipper(self) -> Skipper:
-        """
-        The skipper used by the parser.
         """
         # We disable a pylint warning here because the ellipsis is required
         # for pyright to recognize this as a protocol.
@@ -76,8 +67,7 @@ class _CodeBlockParser(Protocol):
         ...  # pylint: disable=unnecessary-ellipsis
 
 
-# We do not use Beartype here because it is incompatible with a Protocol which
-# has a property.
+@beartype
 @dataclass(frozen=True)
 class MarkupLanguage:
     """

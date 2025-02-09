@@ -16,8 +16,9 @@ import click
 from beartype import beartype
 from pygments.lexers import get_all_lexers
 from sybil import Sybil
-from sybil.evaluators.skip import Skipper
+from sybil.example import Example
 from sybil.parsers.abstract.lexers import LexingException
+from sybil_extras.evaluators.multi import MultiEvaluator
 from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
 
 from ._languages import (
@@ -39,6 +40,26 @@ except PackageNotFoundError:  # pragma: no cover
     from ._setuptools_scm_version import __version__
 
 T = TypeVar("T")
+
+
+@beartype
+class _LogCommandEvaluator:
+    def __init__(
+        self,
+        *,
+        args: Sequence[str | Path],
+    ) -> None:
+        self.args = args
+
+    def __call__(self, example: Example) -> None:
+        command_str = shlex.join(
+            split_command=[str(object=item) for item in self.args],
+        )
+        running_command_message = (
+            f"Running '{command_str}' on code block at "
+            f"{example.path} line {example.line}"
+        )
+        _log_info(message=running_command_message)
 
 
 @beartype
@@ -299,7 +320,7 @@ def _run_args_against_docs(
     )
     newline = _detect_newline(file_path=document_path)
 
-    evaluator = ShellCommandEvaluator(
+    shell_command_evaluator = ShellCommandEvaluator(
         args=args,
         tempfile_suffixes=(temporary_file_extension,),
         pad_file=pad_temporary_file,
@@ -308,6 +329,11 @@ def _run_args_against_docs(
         newline=newline,
         use_pty=use_pty,
     )
+
+    evaluators = [shell_command_evaluator]
+    if verbose:
+        evaluators.append(_LogCommandEvaluator(args=args))
+    evaluator = MultiEvaluator(evaluators=evaluators)
 
     skip_markers = {*skip_markers, "all"}
     skip_directives = _get_skip_directives(skip_markers=skip_markers)
@@ -341,22 +367,6 @@ def _run_args_against_docs(
         return
 
     for example in document.examples():
-        if (
-            verbose
-            and not isinstance(example.region.evaluator, Skipper)
-            and not any(
-                skip_parser.skipper.state_for(example=example).remove
-                for skip_parser in skip_parsers
-            )
-        ):
-            command_str = shlex.join(
-                split_command=[str(object=item) for item in args],
-            )
-            running_command_message = (
-                f"Running '{command_str}' on code block at "
-                f"{document_path} line {example.line}"
-            )
-            _log_info(message=running_command_message)
         try:
             example.evaluate()
         except subprocess.CalledProcessError as exc:
