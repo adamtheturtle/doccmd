@@ -75,6 +75,14 @@ class _CodeBlockParser(Protocol):
         # for pyright to recognize this as a protocol.
         ...  # pylint: disable=unnecessary-ellipsis
 
+@runtime_checkable
+class _GroupParser(Protocol):
+    """
+    A parser for groups.
+    """
+
+    def __init__(
+        self,
 
 # We do not use Beartype here because it is incompatible with a Protocol which
 # has a property.
@@ -87,6 +95,7 @@ class MarkupLanguage:
     name: str
     skip_parser_cls: type[_SkipParser]
     code_block_parser_cls: type[_CodeBlockParser]
+    group_parser_cls = type[_GroupParser]
 
 
 MyST = MarkupLanguage(

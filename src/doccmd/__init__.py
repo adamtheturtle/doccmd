@@ -322,7 +322,12 @@ def _run_args_against_docs(
         )
     ]
 
-    parsers: Sequence[Parser] = [*code_block_parsers, *skip_parsers]
+    group_parsers = [markup_language.group_parser_cls()]
+    parsers: Sequence[Parser] = [
+        *code_block_parsers,
+        *skip_parsers,
+        *group_parsers,
+    ]
     sybil = Sybil(parsers=parsers)
     try:
         document = sybil.parse(path=document_path)
