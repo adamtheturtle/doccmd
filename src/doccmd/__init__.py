@@ -44,16 +44,28 @@ T = TypeVar("T")
 
 @beartype
 class _LogCommandEvaluator:
+    """
+    Log a command before running it.
+    """
+
     def __init__(
         self,
         *,
         args: Sequence[str | Path],
     ) -> None:
-        self.args = args
+        """Initialize the evaluator.
+
+        Args:
+            args: The shell command to run.
+        """
+        self._args = args
 
     def __call__(self, example: Example) -> None:
+        """
+        Log the command before running it.
+        """
         command_str = shlex.join(
-            split_command=[str(object=item) for item in self.args],
+            split_command=[str(object=item) for item in self._args],
         )
         running_command_message = (
             f"Running '{command_str}' on code block at "
@@ -366,15 +378,15 @@ def _run_args_against_docs(
         _log_warning(message=lexing_error_message)
         return
 
-    for example in document.examples():
-        try:
+    try:
+        for example in document.examples():
             example.evaluate()
-        except subprocess.CalledProcessError as exc:
-            sys.exit(exc.returncode)
-        except OSError as exc:
-            os_error_message = f"Error running command '{args[0]}': {exc}"
-            _log_error(message=os_error_message)
-            sys.exit(exc.errno)
+    except subprocess.CalledProcessError as exc:
+        sys.exit(exc.returncode)
+    except OSError as exc:
+        os_error_message = f"Error running command '{args[0]}': {exc}"
+        _log_error(message=os_error_message)
+        sys.exit(exc.errno)
 
 
 @click.command(name="doccmd")
