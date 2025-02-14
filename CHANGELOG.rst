@@ -5,6 +5,7 @@ Next
 ----
 
 * Add support for Markdown (not MyST) files.
+* Drop support for Python 3.10.
 
 2025.01.11
 ----------
