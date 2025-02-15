@@ -361,6 +361,10 @@ def _run_args_against_docs(
             _log_info(message=running_command_message)
         try:
             example.evaluate()
+        except ValueError as exc:
+            value_error_message = f"Error running command '{args[0]}': {exc}"
+            _log_error(message=value_error_message)
+            sys.exit(1)
         except subprocess.CalledProcessError as exc:
             sys.exit(exc.returncode)
         except OSError as exc:

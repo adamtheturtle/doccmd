@@ -1463,20 +1463,15 @@ def test_skip_multiple(tmp_path: Path) -> None:
     assert result.stderr == ""
 
 
-def test_skip_multiple_2(tmp_path: Path) -> None:
+def test_bad_skips(tmp_path: Path) -> None:
     """
-    It is possible to mark a code block as to be skipped by multiple markers.
+    Bad skip orders are flagged.
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
     skip_marker_1 = uuid.uuid4().hex
     content = f"""\
-    .. code-block:: python
-
-       block_1
-
-    .. skip doccmd[{skip_marker_1}]: next
-    .. skip doccmd[{skip_marker_1}]: next
+    .. skip doccmd[{skip_marker_1}]: end
 
     .. code-block:: python
 
@@ -1498,15 +1493,15 @@ def test_skip_multiple_2(tmp_path: Path) -> None:
         args=arguments,
         catch_exceptions=False,
     )
-    assert result.exit_code == 0, (result.stdout, result.stderr)
-    expected_output = textwrap.dedent(
+    assert result.exit_code != 0, (result.stdout, result.stderr)
+    expected_stderr = textwrap.dedent(
         text="""\
-        block_1
+        Error running command 'cat': 'skip: end' must follow 'skip: start'
         """,
     )
 
-    assert result.stdout == expected_output
-    assert result.stderr == ""
+    assert result.stdout == ""
+    assert result.stderr == expected_stderr
 
 
 def test_empty_file(tmp_path: Path) -> None:
