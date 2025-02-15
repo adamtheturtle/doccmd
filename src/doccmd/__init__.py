@@ -16,7 +16,6 @@ import click
 from beartype import beartype
 from pygments.lexers import get_all_lexers
 from sybil import Sybil
-from sybil.document import Document
 from sybil.example import Example
 from sybil.parsers.abstract.lexers import LexingException
 from sybil_extras.evaluators.multi import MultiEvaluator
@@ -311,30 +310,6 @@ def _get_temporary_file_extension(
 
 
 @beartype
-def _evaluate_document(
-    *,
-    document: Document,
-    args: Sequence[str | Path],
-) -> None:
-    """
-    Evaluate the document.
-    """
-    try:
-        for example in document.examples():
-            example.evaluate()
-    except ValueError as exc:
-        value_error_message = f"Error running command '{args[0]}': {exc}"
-        _log_error(message=value_error_message)
-        sys.exit(1)
-    except subprocess.CalledProcessError as exc:
-        sys.exit(exc.returncode)
-    except OSError as exc:
-        os_error_message = f"Error running command '{args[0]}': {exc}"
-        _log_error(message=os_error_message)
-        sys.exit(exc.errno)
-
-
-@beartype
 def _run_args_against_docs(
     *,
     document_path: Path,
@@ -405,7 +380,19 @@ def _run_args_against_docs(
     except ValueError:
         return
 
-    _evaluate_document(document=document, args=args)
+    try:
+        for example in document.examples():
+            example.evaluate()
+    except ValueError as exc:
+        value_error_message = f"Error running command '{args[0]}': {exc}"
+        _log_error(message=value_error_message)
+        sys.exit(1)
+    except subprocess.CalledProcessError as exc:
+        sys.exit(exc.returncode)
+    except OSError as exc:
+        os_error_message = f"Error running command '{args[0]}': {exc}"
+        _log_error(message=os_error_message)
+        sys.exit(exc.errno)
 
 
 @click.command(name="doccmd")
