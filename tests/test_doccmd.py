@@ -1463,6 +1463,47 @@ def test_skip_multiple(tmp_path: Path) -> None:
     assert result.stderr == ""
 
 
+def test_bad_skips(tmp_path: Path) -> None:
+    """
+    Bad skip orders are flagged.
+    """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    skip_marker_1 = uuid.uuid4().hex
+    content = f"""\
+    .. skip doccmd[{skip_marker_1}]: end
+
+    .. code-block:: python
+
+        block_2
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--no-pad-file",
+        "--language",
+        "python",
+        "--skip-marker",
+        skip_marker_1,
+        "--command",
+        "cat",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code != 0, (result.stdout, result.stderr)
+    expected_stderr = textwrap.dedent(
+        text="""\
+        Error running command 'cat': 'skip: end' must follow 'skip: start'
+        """,
+    )
+
+    assert result.stdout == ""
+    assert result.stderr == expected_stderr
+
+
 def test_empty_file(tmp_path: Path) -> None:
     """
     No error is shown when an empty file is given.
