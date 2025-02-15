@@ -16,8 +16,9 @@ import click
 from beartype import beartype
 from pygments.lexers import get_all_lexers
 from sybil import Sybil
-from sybil.evaluators.skip import Skipper
+from sybil.example import Example
 from sybil.parsers.abstract.lexers import LexingException
+from sybil_extras.evaluators.multi import MultiEvaluator
 from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
 
 from ._languages import (
@@ -28,7 +29,7 @@ from ._languages import (
 )
 
 if TYPE_CHECKING:
-    from sybil.typing import Parser
+    from sybil.typing import Evaluator, Parser
 
 try:
     __version__ = version(distribution_name=__name__)
@@ -39,6 +40,38 @@ except PackageNotFoundError:  # pragma: no cover
     from ._setuptools_scm_version import __version__
 
 T = TypeVar("T")
+
+
+@beartype
+class _LogCommandEvaluator:
+    """
+    Log a command before running it.
+    """
+
+    def __init__(
+        self,
+        *,
+        args: Sequence[str | Path],
+    ) -> None:
+        """Initialize the evaluator.
+
+        Args:
+            args: The shell command to run.
+        """
+        self._args = args
+
+    def __call__(self, example: Example) -> None:
+        """
+        Log the command before running it.
+        """
+        command_str = shlex.join(
+            split_command=[str(object=item) for item in self._args],
+        )
+        running_command_message = (
+            f"Running '{command_str}' on code block at "
+            f"{example.path} line {example.line}"
+        )
+        _log_info(message=running_command_message)
 
 
 @beartype
@@ -299,7 +332,7 @@ def _run_args_against_docs(
     )
     newline = _detect_newline(file_path=document_path)
 
-    evaluator = ShellCommandEvaluator(
+    shell_command_evaluator = ShellCommandEvaluator(
         args=args,
         tempfile_suffixes=(temporary_file_extension,),
         pad_file=pad_temporary_file,
@@ -308,6 +341,11 @@ def _run_args_against_docs(
         newline=newline,
         use_pty=use_pty,
     )
+
+    evaluators: Sequence[Evaluator] = [shell_command_evaluator]
+    if verbose:
+        evaluators = [*evaluators, _LogCommandEvaluator(args=args)]
+    evaluator = MultiEvaluator(evaluators=evaluators)
 
     skip_markers = {*skip_markers, "all"}
     skip_directives = _get_skip_directives(skip_markers=skip_markers)
@@ -342,35 +380,19 @@ def _run_args_against_docs(
     except ValueError:
         return
 
-    for example in document.examples():
-        if (
-            verbose
-            and not isinstance(example.region.evaluator, Skipper)
-            and not any(
-                skip_parser.skipper.state_for(example=example).remove
-                for skip_parser in skip_parsers
-            )
-        ):
-            command_str = shlex.join(
-                split_command=[str(object=item) for item in args],
-            )
-            running_command_message = (
-                f"Running '{command_str}' on code block at "
-                f"{document_path} line {example.line}"
-            )
-            _log_info(message=running_command_message)
-        try:
+    try:
+        for example in document.examples():
             example.evaluate()
-        except ValueError as exc:
-            value_error_message = f"Error running command '{args[0]}': {exc}"
-            _log_error(message=value_error_message)
-            sys.exit(1)
-        except subprocess.CalledProcessError as exc:
-            sys.exit(exc.returncode)
-        except OSError as exc:
-            os_error_message = f"Error running command '{args[0]}': {exc}"
-            _log_error(message=os_error_message)
-            sys.exit(exc.errno)
+    except ValueError as exc:
+        value_error_message = f"Error running command '{args[0]}': {exc}"
+        _log_error(message=value_error_message)
+        sys.exit(1)
+    except subprocess.CalledProcessError as exc:
+        sys.exit(exc.returncode)
+    except OSError as exc:
+        os_error_message = f"Error running command '{args[0]}': {exc}"
+        _log_error(message=os_error_message)
+        sys.exit(exc.errno)
 
 
 @click.command(name="doccmd")
@@ -435,6 +457,10 @@ def _run_args_against_docs(
         comment matching 'skip doccmd[type-check]: next' are also skipped.
 
         This marker is matched using a regular expression.
+
+        To skip a code block for each of multiple markers, for example to skip
+        a code block for the ``type-check`` and ``lint`` markers but not all
+        markers, add multiple ``skip doccmd`` comments above the code block.
         """
     ),
     multiple=True,
