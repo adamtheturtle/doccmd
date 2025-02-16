@@ -20,7 +20,7 @@ license = { file = "LICENSE" }
 authors = [
     { name = "Adam Dangoor", email = "adamdangoor@gmail.com" },
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Environment :: Web Environment",
@@ -28,7 +28,6 @@ classifiers = [
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -44,7 +43,7 @@ dependencies = [
     # Pin this dependency as we expect:
     # * It might have breaking changes
     # * It is not a direct dependency of the user
-    "sybil-extras==2025.1.11",
+    "sybil-extras==2025.2.16.1",
 ]
 optional-dependencies.dev = [
     "actionlint-py==1.7.7.23",
@@ -69,7 +68,7 @@ optional-dependencies.dev = [
     "pytest-cov==6.0.0",
     "pytest-regressions==2.7.0",
     "pyyaml==6.0.2",
-    "ruff==0.9.5",
+    "ruff==0.9.6",
     # We add shellcheck-py not only for shell scripts and shell code blocks,
     # but also because having it installed means that ``actionlint-py`` will
     # use it to lint shell commands in GitHub workflow files.
@@ -88,7 +87,7 @@ optional-dependencies.dev = [
     "yamlfix==1.17.0",
 ]
 optional-dependencies.packaging = [
-    "pyinstaller==6.11.1",
+    "pyinstaller==6.12.0",
 ]
 optional-dependencies.release = [
     "check-wheel-contents==0.6.1",

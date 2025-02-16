@@ -1002,6 +1002,80 @@ def test_default_skip_rst(tmp_path: Path) -> None:
     assert result.stderr == ""
 
 
+def test_skip_no_arguments(tmp_path: Path) -> None:
+    """
+    An error is shown if a skip is given with no arguments.
+    """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    content = """\
+    .. skip doccmd[all]:
+
+    .. code-block:: python
+
+        block_2
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--no-pad-file",
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    expected_stderr = (
+        f"Skipping '{rst_file}' because it could not be parsed: "
+        "Possibly a missing argument to a directive.\n"
+    )
+
+    assert result.stdout == ""
+    assert result.stderr == expected_stderr
+
+
+def test_skip_bad_arguments(tmp_path: Path) -> None:
+    """
+    An error is shown if a skip is given with bad arguments.
+    """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    content = """\
+    .. skip doccmd[all]: !!!
+
+    .. code-block:: python
+
+        block_2
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--no-pad-file",
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    expected_stderr = (
+        f"Skipping '{rst_file}' because it could not be parsed: "
+        "malformed arguments to skip doccmd[all]: '!!!'\n"
+    )
+
+    assert result.stdout == ""
+    assert result.stderr == expected_stderr
+
+
 def test_custom_skip_markers_rst(tmp_path: Path) -> None:
     """
     The next code block after a custom skip marker comment in a rST document is
@@ -1461,6 +1535,47 @@ def test_skip_multiple(tmp_path: Path) -> None:
 
     assert result.stdout == expected_output
     assert result.stderr == ""
+
+
+def test_bad_skips(tmp_path: Path) -> None:
+    """
+    Bad skip orders are flagged.
+    """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    skip_marker_1 = uuid.uuid4().hex
+    content = f"""\
+    .. skip doccmd[{skip_marker_1}]: end
+
+    .. code-block:: python
+
+        block_2
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--no-pad-file",
+        "--language",
+        "python",
+        "--skip-marker",
+        skip_marker_1,
+        "--command",
+        "cat",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code != 0, (result.stdout, result.stderr)
+    expected_stderr = textwrap.dedent(
+        text="""\
+        Error running command 'cat': 'skip: end' must follow 'skip: start'
+        """,
+    )
+
+    assert result.stdout == ""
+    assert result.stderr == expected_stderr
 
 
 def test_empty_file(tmp_path: Path) -> None:
@@ -2416,7 +2531,3 @@ def test_group_blocks(tmp_path: Path) -> None:
     assert result.exit_code == 0, (result.stdout, result.stderr)
     assert result.stdout == expected_output
     assert result.stderr == ""
-
-
-# TODO: Skip just before a group start marker
-# TODO: Skip within a group

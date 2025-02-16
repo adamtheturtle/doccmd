@@ -16,6 +16,7 @@ import click
 from beartype import beartype
 from pygments.lexers import get_all_lexers
 from sybil import Sybil
+from sybil.document import Document
 from sybil.example import Example
 from sybil.parsers.abstract.lexers import LexingException
 from sybil_extras.evaluators.multi import MultiEvaluator
@@ -310,6 +311,30 @@ def _get_temporary_file_extension(
 
 
 @beartype
+def _evaluate_document(
+    *,
+    document: Document,
+    args: Sequence[str | Path],
+) -> None:
+    """
+    Evaluate the document.
+    """
+    try:
+        for example in document.examples():
+            example.evaluate()
+    except ValueError as exc:
+        value_error_message = f"Error running command '{args[0]}': {exc}"
+        _log_error(message=value_error_message)
+        sys.exit(1)
+    except subprocess.CalledProcessError as exc:
+        sys.exit(exc.returncode)
+    except OSError as exc:
+        os_error_message = f"Error running command '{args[0]}': {exc}"
+        _log_error(message=os_error_message)
+        sys.exit(exc.errno)
+
+
+@beartype
 def _run_args_against_docs(
     *,
     document_path: Path,
@@ -360,7 +385,12 @@ def _run_args_against_docs(
         )
     ]
 
-    group_parsers = [markup_language.group_parser_cls()]
+    group_parsers = [
+        markup_language.group_parser_cls(
+            "group",
+            evaluator,
+        )
+    ]
     parsers: Sequence[Parser] = [
         *code_block_parsers,
         *skip_parsers,
@@ -382,16 +412,22 @@ def _run_args_against_docs(
         )
         _log_warning(message=lexing_error_message)
         return
+    except TypeError:
+        # See https://github.com/simplistix/sybil/pull/151.
+        type_error_message = (
+            f"Skipping '{document_path}' because it could not be parsed: "
+            "Possibly a missing argument to a directive."
+        )
+        _log_warning(message=type_error_message)
+        return
+    except ValueError as exc:
+        value_error_message = (
+            f"Skipping '{document_path}' because it could not be parsed: {exc}"
+        )
+        _log_error(message=value_error_message)
+        return
 
-    try:
-        for example in document.examples():
-            example.evaluate()
-    except subprocess.CalledProcessError as exc:
-        sys.exit(exc.returncode)
-    except OSError as exc:
-        os_error_message = f"Error running command '{args[0]}': {exc}"
-        _log_error(message=os_error_message)
-        sys.exit(exc.errno)
+    _evaluate_document(document=document, args=args)
 
 
 @click.command(name="doccmd")
