@@ -43,7 +43,7 @@ dependencies = [
     # Pin this dependency as we expect:
     # * It might have breaking changes
     # * It is not a direct dependency of the user
-    "sybil-extras==2025.1.11",
+    "sybil-extras==2025.2.16.1",
 ]
 optional-dependencies.dev = [
     "actionlint-py==1.7.7.23",
