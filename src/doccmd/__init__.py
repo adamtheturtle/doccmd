@@ -408,8 +408,14 @@ def _run_args_against_docs(
             f"Skipping '{document_path}' because it could not be parsed: "
             "Possibly a missing argument to a directive."
         )
-        _log_error(message=type_error_message)
-        sys.exit(1)
+        _log_warning(message=type_error_message)
+        return
+    except ValueError as exc:
+        value_error_message = (
+            f"Skipping '{document_path}' because it could not be parsed: {exc}"
+        )
+        _log_error(message=value_error_message)
+        return
 
     _evaluate_document(document=document, args=args)
 
