@@ -863,8 +863,8 @@ def test_command_not_found(tmp_path: Path) -> None:
         catch_exceptions=False,
     )
     assert result.exit_code != 0
-    expected_error = f"Error running command '{non_existent_command}':"
-    assert result.stderr.startswith(expected_error)
+    expected_stderr = f"Error running command '{non_existent_command}':"
+    assert result.stderr.startswith(expected_stderr)
 
 
 def test_not_executable(tmp_path: Path) -> None:
@@ -898,10 +898,10 @@ def test_not_executable(tmp_path: Path) -> None:
         catch_exceptions=False,
     )
     assert result.exit_code != 0
-    expected_error = (
+    expected_stderr = (
         f"Error running command '{not_executable_command.as_posix()}':"
     )
-    assert result.stderr.startswith(expected_error)
+    assert result.stderr.startswith(expected_stderr)
 
 
 def test_multiple_languages(tmp_path: Path) -> None:
