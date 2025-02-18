@@ -841,8 +841,15 @@ def test_verbose_not_utf_8(tmp_path: Path) -> None:
     # verbose output to ensure that it is as expected.
     expected_stderr = textwrap.dedent(
         text=f"""\
-            Not using PTY for running commands.
-            Skipping '{rst_file}' because it is not UTF-8 encoded.
+            {
+            click.style(text="Not using PTY for running commands.", fg="green")
+        }
+            {
+            click.style(
+                text=f"Skipping '{rst_file}' because it is not UTF-8 encoded.",
+                fg="yellow",
+            )
+        }
             """,
     )
     assert result.stderr == expected_stderr
