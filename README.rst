@@ -212,4 +212,4 @@ See the `full documentation <https://doccmd.readthedocs.io/en/latest>`__.
 .. |Documentation Status| image:: https://readthedocs.org/projects/doccmd/badge/?version=latest
    :target: https://doccmd.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
-.. |minimum-python-version| replace:: 3.11
+.. |minimum-python-version| replace:: 3.10
