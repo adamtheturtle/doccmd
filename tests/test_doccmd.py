@@ -10,6 +10,7 @@ import uuid
 from collections.abc import Sequence
 from pathlib import Path
 
+import click
 import pytest
 from click.testing import CliRunner
 from pytest_regressions.file_regression import FileRegressionFixture
@@ -793,8 +794,13 @@ def test_verbose_running(tmp_path: Path) -> None:
     )
     expected_stderr = textwrap.dedent(
         text=f"""\
-        Not using PTY for running commands.
-        Running 'cat' on code block at {rst_file} line 1
+        {click.style(text="Not using PTY for running commands.", fg="green")}
+        {
+            click.style(
+                text=f"Running 'cat' on code block at {rst_file} line 1",
+                fg="green",
+            )
+        }
         """,
     )
     assert result.stdout == expected_output
