@@ -2526,11 +2526,9 @@ def test_lexing_exception(tmp_path: Path) -> None:
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_stderr = textwrap.dedent(
-        text=(
-            f"Skipping '{source_file}' because it could not be lexed: "
-            "Could not find end of '    <!-- code -->\\n', starting at "
-            "line 1, column 1, looking for '(?:(?<=\\n)    )?--+>' in "
-            f"{source_file}:\n'    '.\n"
-        ),
+        text=f"""\
+        {fg.yellow}Skipping '{source_file}' because it could not be lexed: Could not find end of '    <!-- code -->\\n', starting at line 1, column 1, looking for '(?:(?<=\\n)    )?--+>' in {source_file}:
+        '    '.{reset}
+        """,  # noqa: E501
     )
     assert result.stderr == expected_stderr
