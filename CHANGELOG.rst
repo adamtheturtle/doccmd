@@ -4,6 +4,9 @@ Changelog
 Next
 ----
 
+2025.02.18
+----------
+
 * Re-add support for Python 3.10.
 
 2025.02.17
