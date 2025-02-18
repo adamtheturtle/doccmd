@@ -1610,9 +1610,9 @@ def test_bad_skips(tmp_path: Path) -> None:
     )
     assert result.exit_code != 0, (result.stdout, result.stderr)
     expected_stderr = textwrap.dedent(
-        text="""\
-        Error running command 'cat': 'skip: end' must follow 'skip: start'
-        """,
+        text=f"""\
+        {fg.red}Error running command 'cat': 'skip: end' must follow 'skip: start'{reset}
+        """,  # noqa: E501
     )
 
     assert result.stdout == ""
