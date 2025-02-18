@@ -926,7 +926,7 @@ def test_not_executable(tmp_path: Path) -> None:
     )
     assert result.exit_code != 0
     expected_stderr = (
-        f"Error running command '{not_executable_command.as_posix()}':"
+        f"{fg.red}Error running command '{not_executable_command.as_posix()}':"
     )
     assert result.stderr.startswith(expected_stderr)
 
@@ -1058,9 +1058,10 @@ def test_skip_no_arguments(tmp_path: Path) -> None:
         color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
-    expected_stderr = (
-        f"Skipping '{rst_file}' because it could not be parsed: "
-        "Possibly a missing argument to a directive.\n"
+    expected_stderr = textwrap.dedent(
+        text=f"""\
+        {fg.yellow}Skipping '{rst_file}' because it could not be parsed: Possibly a missing argument to a directive.{reset}
+        """,  # noqa: E501
     )
 
     assert result.stdout == ""
@@ -1096,9 +1097,10 @@ def test_skip_bad_arguments(tmp_path: Path) -> None:
         color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
-    expected_stderr = (
-        f"Skipping '{rst_file}' because it could not be parsed: "
-        "malformed arguments to skip doccmd[all]: '!!!'\n"
+    expected_stderr = textwrap.dedent(
+        text=f"""\
+        {fg.red}Skipping '{rst_file}' because it could not be parsed: malformed arguments to skip doccmd[all]: '!!!'{reset}
+        """,  # noqa: E501
     )
 
     assert result.stdout == ""
