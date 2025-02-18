@@ -791,7 +791,6 @@ def test_verbose_running(tmp_path: Path) -> None:
         assert x == 4
         """,
     )
-    expected_stderr = f"Running 'cat' on code block at {rst_file} line 1\n"
     expected_stderr = textwrap.dedent(
         text=f"""\
         Not using PTY for running commands.
@@ -885,8 +884,8 @@ def test_command_not_found(tmp_path: Path) -> None:
         color=True,
     )
     assert result.exit_code != 0
-    expected_error = f"Error running command '{non_existent_command}':"
-    assert result.stderr.startswith(expected_error)
+    expected_stderr = f"Error running command '{non_existent_command}':"
+    assert result.stderr.startswith(expected_stderr)
 
 
 def test_not_executable(tmp_path: Path) -> None:
@@ -921,11 +920,10 @@ def test_not_executable(tmp_path: Path) -> None:
         color=True,
     )
     assert result.exit_code != 0
-    expected_error = "Error running command:"
-    expected_error = (
+    expected_stderr = (
         f"Error running command '{not_executable_command.as_posix()}':"
     )
-    assert result.stderr.startswith(expected_error)
+    assert result.stderr.startswith(expected_stderr)
 
 
 def test_multiple_languages(tmp_path: Path) -> None:
