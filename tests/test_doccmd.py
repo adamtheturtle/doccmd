@@ -772,7 +772,6 @@ def test_verbose_running(tmp_path: Path) -> None:
         assert x == 4
         """,
     )
-    expected_stderr = f"Running 'cat' on code block at {rst_file} line 1\n"
     expected_stderr = textwrap.dedent(
         text=f"""\
         Not using PTY for running commands.
@@ -899,7 +898,6 @@ def test_not_executable(tmp_path: Path) -> None:
         catch_exceptions=False,
     )
     assert result.exit_code != 0
-    expected_error = "Error running command:"
     expected_error = (
         f"Error running command '{not_executable_command.as_posix()}':"
     )
