@@ -12,6 +12,8 @@ from pathlib import Path
 
 import click
 import pytest
+from ansi.colour import fg
+from ansi.colour.fx import reset
 from click.testing import CliRunner
 from pytest_regressions.file_regression import FileRegressionFixture
 
@@ -794,13 +796,8 @@ def test_verbose_running(tmp_path: Path) -> None:
     )
     expected_stderr = textwrap.dedent(
         text=f"""\
-        {click.style(text="Not using PTY for running commands.", fg="green")}
-        {
-            click.style(
-                text=f"Running 'cat' on code block at {rst_file} line 1",
-                fg="green",
-            )
-        }
+        {fg.green}Not using PTY for running commands.{reset}
+        {fg.green}Running 'cat' on code block at {rst_file} line 1{reset}
         """,
     )
     assert result.stdout == expected_output
@@ -897,7 +894,10 @@ def test_command_not_found(tmp_path: Path) -> None:
         color=True,
     )
     assert result.exit_code != 0
-    expected_stderr = f"Error running command '{non_existent_command}':"
+    red_style_start = "\x1b[31m"
+    expected_stderr = (
+        f"{red_style_start}Error running command '{non_existent_command}':"
+    )
     assert result.stderr.startswith(expected_stderr)
 
 
