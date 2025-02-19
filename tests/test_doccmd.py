@@ -1060,7 +1060,7 @@ def test_skip_no_arguments(tmp_path: Path) -> None:
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_stderr = textwrap.dedent(
         text=f"""\
-        {fg.yellow}Skipping '{rst_file}' because it could not be parsed: Possibly a missing argument to a directive.{reset}
+        {fg.red}Skipping '{rst_file}' because it could not be parsed: missing arguments to skip{reset}
         """,  # noqa: E501
     )
 
@@ -1099,7 +1099,7 @@ def test_skip_bad_arguments(tmp_path: Path) -> None:
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_stderr = textwrap.dedent(
         text=f"""\
-        {fg.red}Skipping '{rst_file}' because it could not be parsed: malformed arguments to skip doccmd[all]: '!!!'{reset}
+        {fg.red}Skipping '{rst_file}' because it could not be parsed: malformed arguments to skip: '!!!'{reset}
         """,  # noqa: E501
     )
 
@@ -1611,7 +1611,7 @@ def test_bad_skips(tmp_path: Path) -> None:
     assert result.exit_code != 0, (result.stdout, result.stderr)
     expected_stderr = textwrap.dedent(
         text=f"""\
-        {fg.red}Error running command 'cat': 'skip: end' must follow 'skip: start'{reset}
+        {fg.red}Error running command 'cat': 'skip doccmd\\[{skip_marker_1}\\]: end' must follow 'skip doccmd\\[{skip_marker_1}\\]: start'{reset}
         """,  # noqa: E501
     )
 
