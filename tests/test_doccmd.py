@@ -1060,7 +1060,7 @@ def test_skip_no_arguments(tmp_path: Path) -> None:
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_stderr = textwrap.dedent(
         text=f"""\
-        {fg.red}Skipping '{rst_file}' because it could not be parsed: missing arguments to skip{reset}
+        {fg.red}Skipping '{rst_file}' because it could not be parsed: missing arguments to skip doccmd\\[all\\]{reset}
         """,  # noqa: E501
     )
 
@@ -1099,7 +1099,7 @@ def test_skip_bad_arguments(tmp_path: Path) -> None:
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_stderr = textwrap.dedent(
         text=f"""\
-        {fg.red}Skipping '{rst_file}' because it could not be parsed: malformed arguments to skip: '!!!'{reset}
+        {fg.red}Skipping '{rst_file}' because it could not be parsed: malformed arguments to skip doccmd\\[all\\]: '!!!'{reset}
         """,  # noqa: E501
     )
 
