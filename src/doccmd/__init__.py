@@ -404,14 +404,6 @@ def _run_args_against_docs(
         )
         _log_warning(message=lexing_error_message)
         return
-    except TypeError:
-        # See https://github.com/simplistix/sybil/pull/151.
-        type_error_message = (
-            f"Skipping '{document_path}' because it could not be parsed: "
-            "Possibly a missing argument to a directive."
-        )
-        _log_warning(message=type_error_message)
-        return
     except ValueError as exc:
         value_error_message = (
             f"Skipping '{document_path}' because it could not be parsed: {exc}"
