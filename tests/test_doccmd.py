@@ -11,6 +11,8 @@ from collections.abc import Sequence
 from pathlib import Path
 
 import pytest
+from ansi.colour import fg
+from ansi.colour.fx import reset
 from click.testing import CliRunner
 from pytest_regressions.file_regression import FileRegressionFixture
 
@@ -29,6 +31,7 @@ def test_help(file_regression: FileRegressionFixture) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     file_regression.check(contents=result.output)
@@ -58,6 +61,7 @@ def test_run_command(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
@@ -101,6 +105,7 @@ def test_double_language(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
@@ -134,6 +139,7 @@ def test_file_does_not_exist() -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code != 0
     assert "Path 'non_existent_file.rst' does not exist" in result.stderr
@@ -162,6 +168,7 @@ def test_not_utf_8_file_given(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = ""
@@ -198,6 +205,7 @@ def test_multiple_code_blocks(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
@@ -251,6 +259,7 @@ def test_language_filters(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
@@ -291,6 +300,7 @@ def test_run_command_no_pad_file(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
@@ -337,6 +347,7 @@ def test_multiple_files(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
@@ -401,6 +412,7 @@ def test_multiple_files_multiple_types(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
@@ -454,6 +466,7 @@ def test_modify_file(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     modified_content = rst_file.read_text(encoding="utf-8")
@@ -490,6 +503,7 @@ def test_exit_code(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == exit_code
 
@@ -529,6 +543,7 @@ def test_file_extension(
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     output = result.stdout
@@ -562,6 +577,7 @@ def test_given_temporary_file_extension(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     output = result.stdout
@@ -598,6 +614,7 @@ def test_given_temporary_file_extension_no_leading_period(
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code != 0, (result.stdout, result.stderr)
     assert result.stdout == ""
@@ -638,6 +655,7 @@ def test_given_prefix(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     output = result.stdout
@@ -670,6 +688,7 @@ def test_file_extension_unknown_language(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     output = result.stdout
@@ -709,6 +728,7 @@ def test_file_given_multiple_times(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
@@ -762,6 +782,7 @@ def test_verbose_running(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
@@ -772,11 +793,10 @@ def test_verbose_running(tmp_path: Path) -> None:
         assert x == 4
         """,
     )
-    expected_stderr = f"Running 'cat' on code block at {rst_file} line 1\n"
     expected_stderr = textwrap.dedent(
         text=f"""\
-        Not using PTY for running commands.
-        Running 'cat' on code block at {rst_file} line 1
+        {fg.green}Not using PTY for running commands.{reset}
+        {fg.green}Running 'cat' on code block at {rst_file} line 1{reset}
         """,
     )
     assert result.stdout == expected_output
@@ -808,6 +828,7 @@ def test_verbose_not_utf_8(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = ""
@@ -816,9 +837,9 @@ def test_verbose_not_utf_8(tmp_path: Path) -> None:
     # verbose output to ensure that it is as expected.
     expected_stderr = textwrap.dedent(
         text=f"""\
-            Not using PTY for running commands.
-            Skipping '{rst_file}' because it is not UTF-8 encoded.
-            """,
+            {fg.green}Not using PTY for running commands.{reset}
+            {fg.yellow}Skipping '{rst_file}' because it is not UTF-8 encoded.{reset}
+            """,  # noqa: E501
     )
     assert result.stderr == expected_stderr
 
@@ -862,10 +883,14 @@ def test_command_not_found(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code != 0
-    expected_error = f"Error running command '{non_existent_command}':"
-    assert result.stderr.startswith(expected_error)
+    red_style_start = "\x1b[31m"
+    expected_stderr = (
+        f"{red_style_start}Error running command '{non_existent_command}':"
+    )
+    assert result.stderr.startswith(expected_stderr)
 
 
 def test_not_executable(tmp_path: Path) -> None:
@@ -897,13 +922,13 @@ def test_not_executable(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code != 0
-    expected_error = "Error running command:"
-    expected_error = (
-        f"Error running command '{not_executable_command.as_posix()}':"
+    expected_stderr = (
+        f"{fg.red}Error running command '{not_executable_command.as_posix()}':"
     )
-    assert result.stderr.startswith(expected_error)
+    assert result.stderr.startswith(expected_stderr)
 
 
 def test_multiple_languages(tmp_path: Path) -> None:
@@ -939,6 +964,7 @@ def test_multiple_languages(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
@@ -989,6 +1015,7 @@ def test_default_skip_rst(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
@@ -1028,11 +1055,13 @@ def test_skip_no_arguments(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
-    expected_stderr = (
-        f"Skipping '{rst_file}' because it could not be parsed: "
-        "Possibly a missing argument to a directive.\n"
+    expected_stderr = textwrap.dedent(
+        text=f"""\
+        {fg.red}Skipping '{rst_file}' because it could not be parsed: missing arguments to skip doccmd[all]{reset}
+        """,  # noqa: E501
     )
 
     assert result.stdout == ""
@@ -1065,11 +1094,13 @@ def test_skip_bad_arguments(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
-    expected_stderr = (
-        f"Skipping '{rst_file}' because it could not be parsed: "
-        "malformed arguments to skip doccmd[all]: '!!!'\n"
+    expected_stderr = textwrap.dedent(
+        text=f"""\
+        {fg.red}Skipping '{rst_file}' because it could not be parsed: malformed arguments to skip doccmd[all]: '!!!'{reset}
+        """,  # noqa: E501
     )
 
     assert result.stdout == ""
@@ -1114,6 +1145,7 @@ def test_custom_skip_markers_rst(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
@@ -1170,6 +1202,7 @@ def test_default_skip_myst(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
@@ -1229,6 +1262,7 @@ def test_custom_skip_markers_myst(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
@@ -1290,6 +1324,7 @@ def test_multiple_skip_markers(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
@@ -1348,6 +1383,7 @@ def test_skip_start_end(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
@@ -1402,6 +1438,7 @@ def test_duplicate_skip_marker(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
@@ -1453,6 +1490,7 @@ def test_default_skip_marker_given(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
@@ -1500,6 +1538,7 @@ def test_skip_multiple(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
@@ -1525,6 +1564,7 @@ def test_skip_multiple(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
@@ -1566,12 +1606,13 @@ def test_bad_skips(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code != 0, (result.stdout, result.stderr)
     expected_stderr = textwrap.dedent(
-        text="""\
-        Error running command 'cat': 'skip: end' must follow 'skip: start'
-        """,
+        text=f"""\
+        {fg.red}Error running command 'cat': 'skip doccmd[{skip_marker_1}]: end' must follow 'skip doccmd[{skip_marker_1}]: start'{reset}
+        """,  # noqa: E501
     )
 
     assert result.stdout == ""
@@ -1597,6 +1638,7 @@ def test_empty_file(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     assert result.stdout == ""
@@ -1642,6 +1684,7 @@ def test_detect_line_endings(
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     assert result.stderr == ""
@@ -1678,6 +1721,7 @@ def test_one_supported_markup_in_another_extension(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     # Empty because the Markdown-style code block is not run in.
@@ -1711,6 +1755,7 @@ def test_unknown_file_suffix(extension: str, tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code != 0, (result.stdout, result.stderr)
     expected_stderr = textwrap.dedent(
@@ -1762,6 +1807,7 @@ def test_custom_rst_file_suffixes(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     expected_output = textwrap.dedent(
         text="""\
@@ -1810,6 +1856,7 @@ def test_custom_myst_file_suffixes(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     expected_output = textwrap.dedent(
         text="""\
@@ -1876,6 +1923,7 @@ def test_pty(
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     assert result.stderr == ""
@@ -1911,6 +1959,7 @@ def test_source_given_extension_no_leading_period(
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code != 0, (result.stdout, result.stderr)
     expected_stderr = textwrap.dedent(
@@ -1957,6 +2006,7 @@ def test_overlapping_extensions(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code != 0, (result.stdout, result.stderr)
     expected_stderr = textwrap.dedent(
@@ -2001,6 +2051,7 @@ def test_overlapping_extensions_dot(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
@@ -2054,6 +2105,7 @@ def test_markdown(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
@@ -2121,6 +2173,7 @@ def test_directory(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, result.stderr
     expected_output = textwrap.dedent(
@@ -2175,6 +2228,7 @@ def test_de_duplication_source_files_and_dirs(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, result.stderr
     expected_output = textwrap.dedent(
@@ -2241,6 +2295,7 @@ def test_max_depth(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, result.stderr
     expected_output = textwrap.dedent(
@@ -2266,6 +2321,7 @@ def test_max_depth(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, result.stderr
     expected_output = textwrap.dedent(
@@ -2292,6 +2348,7 @@ def test_max_depth(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, result.stderr
     expected_output = textwrap.dedent(
@@ -2355,6 +2412,7 @@ def test_exclude_files_from_recursed_directories(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, result.stderr
     expected_output = textwrap.dedent(
@@ -2427,6 +2485,7 @@ def test_multiple_exclude_patterns(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, result.stderr
     expected_output = textwrap.dedent(
@@ -2463,15 +2522,14 @@ def test_lexing_exception(tmp_path: Path) -> None:
         cli=main,
         args=arguments,
         catch_exceptions=False,
+        color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_stderr = textwrap.dedent(
-        text=(
-            f"Skipping '{source_file}' because it could not be lexed: "
-            "Could not find end of '    <!-- code -->\\n', starting at "
-            "line 1, column 1, looking for '(?:(?<=\\n)    )?--+>' in "
-            f"{source_file}:\n'    '.\n"
-        ),
+        text=f"""\
+        {fg.yellow}Skipping '{source_file}' because it could not be lexed: Could not find end of '    <!-- code -->\\n', starting at line 1, column 1, looking for '(?:(?<=\\n)    )?--+>' in {source_file}:
+        '    '.{reset}
+        """,  # noqa: E501
     )
     assert result.stderr == expected_stderr
 

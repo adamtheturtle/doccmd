@@ -20,7 +20,7 @@ license = { file = "LICENSE" }
 authors = [
     { name = "Adam Dangoor", email = "adamdangoor@gmail.com" },
 ]
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Environment :: Web Environment",
@@ -28,6 +28,7 @@ classifiers = [
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX",
     "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -39,14 +40,15 @@ dependencies = [
     "beartype>=0.19.0",
     "click>=8.1.7",
     "pygments>=2.18.0",
-    "sybil>=9.0.0,<10.0.0",
+    "sybil>=9.1.0,<10.0.0",
     # Pin this dependency as we expect:
     # * It might have breaking changes
     # * It is not a direct dependency of the user
-    "sybil-extras==2025.2.16.1",
+    "sybil-extras==2025.2.19.1",
 ]
 optional-dependencies.dev = [
     "actionlint-py==1.7.7.23",
+    "ansi==0.3.7",
     "check-manifest==0.50",
     "deptry==0.23.0",
     "doc8==1.1.2",

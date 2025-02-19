@@ -38,7 +38,7 @@ Pre-built Linux binaries
 
 .. code-block:: console
 
-   $ curl --fail -L https://github.com/adamtheturtle/doccmd/releases/download/2025.01.11/doccmd -o /usr/local/bin/doccmd &&
+   $ curl --fail -L https://github.com/adamtheturtle/doccmd/releases/download/2025.02.19/doccmd -o /usr/local/bin/doccmd &&
        chmod +x /usr/local/bin/doccmd
 
 Using ``doccmd`` as a pre-commit hook
@@ -49,7 +49,7 @@ To run ``doccmd`` with `pre-commit`_, add hooks like the following to your ``.pr
 .. code-block:: yaml
 
    -   repo: https://github.com/adamtheturtle/doccmd-pre-commit
-       rev: v2025.01.11
+       rev: v2025.02.19
        hooks:
        -   id: doccmd
            args: ["--language", "shell", "--command", "shellcheck --shell=bash"]
@@ -194,7 +194,6 @@ To skip multiple code blocks in a row, use ``skip doccmd[all]: start`` and ``ski
 
 Use the ``--skip-marker`` option to set a marker for this particular command which will work as well as ``"all"``.
 For example, use ``--skip-marker="type-check"`` to skip code blocks which come just after a comment matching ``skip doccmd[type-check]: next``.
-This marker is matched using a regular expression.
 
 To skip a code block for each of multiple markers, for example to skip a code block for the ``type-check`` and ``lint`` markers but not all markers, add multiple ``skip doccmd`` comments above the code block.
 
@@ -250,4 +249,4 @@ See the `full documentation <https://doccmd.readthedocs.io/en/latest>`__.
 .. |Documentation Status| image:: https://readthedocs.org/projects/doccmd/badge/?version=latest
    :target: https://doccmd.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
-.. |minimum-python-version| replace:: 3.11
+.. |minimum-python-version| replace:: 3.10

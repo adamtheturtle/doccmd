@@ -290,7 +290,7 @@ def _get_skip_directives(skip_markers: Iterable[str]) -> Sequence[str]:
     skip_directives: Sequence[str] = []
 
     for skip_marker in skip_markers:
-        skip_directive = rf"skip doccmd\[{skip_marker}\]"
+        skip_directive = rf"skip doccmd[{skip_marker}]"
         skip_directives = [*skip_directives, skip_directive]
     return skip_directives
 
@@ -375,7 +375,9 @@ def _run_args_against_docs(
     skip_markers = {*skip_markers, "all"}
     skip_directives = _get_skip_directives(skip_markers=skip_markers)
     skip_parsers = [
-        markup_language.skip_parser_cls(directive=skip_directive)
+        markup_language.skip_parser_cls(
+            directive=skip_directive,
+        )
         for skip_directive in skip_directives
     ]
     code_block_parsers = [
@@ -411,14 +413,6 @@ def _run_args_against_docs(
             f"Skipping '{document_path}' because it could not be lexed: {exc}."
         )
         _log_warning(message=lexing_error_message)
-        return
-    except TypeError:
-        # See https://github.com/simplistix/sybil/pull/151.
-        type_error_message = (
-            f"Skipping '{document_path}' because it could not be parsed: "
-            "Possibly a missing argument to a directive."
-        )
-        _log_warning(message=type_error_message)
         return
     except ValueError as exc:
         value_error_message = (
@@ -490,8 +484,6 @@ def _run_args_against_docs(
         comment including the given marker are ignored. For example, if the
         given marker is 'type-check', code blocks which come just after a
         comment matching 'skip doccmd[type-check]: next' are also skipped.
-
-        This marker is matched using a regular expression.
 
         To skip a code block for each of multiple markers, for example to skip
         a code block for the ``type-check`` and ``lint`` markers but not all
