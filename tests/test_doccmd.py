@@ -147,7 +147,7 @@ def test_file_does_not_exist() -> None:
 
 def test_not_utf_8_file_given(tmp_path: Path) -> None:
     """
-    No error is given if a file is passed in which is not UTF-8.
+    An error is given if a file is passed in which is not UTF-8.
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
@@ -172,8 +172,9 @@ def test_not_utf_8_file_given(tmp_path: Path) -> None:
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = ""
+    expected_stderr = f"{fg.red}{rst_file} is not UTF-8 encoded.{reset}\n"
     assert result.stdout == expected_output
-    assert result.stderr == ""
+    assert result.stderr == expected_stderr
 
 
 def test_multiple_code_blocks(tmp_path: Path) -> None:
@@ -803,47 +804,6 @@ def test_verbose_running(tmp_path: Path) -> None:
     assert result.stderr == expected_stderr
 
 
-def test_verbose_not_utf_8(tmp_path: Path) -> None:
-    """
-    Verbose output shows what files are being skipped because they are not
-    UTF-8.
-    """
-    runner = CliRunner(mix_stderr=False)
-    rst_file = tmp_path / "example.rst"
-    content = """\
-    .. code-block:: python
-
-       print("\xc0\x80")
-    """
-    rst_file.write_text(data=content, encoding="latin1")
-    arguments = [
-        "--verbose",
-        "--language",
-        "python",
-        "--command",
-        "cat",
-        str(object=rst_file),
-    ]
-    result = runner.invoke(
-        cli=main,
-        args=arguments,
-        catch_exceptions=False,
-        color=True,
-    )
-    assert result.exit_code == 0, (result.stdout, result.stderr)
-    expected_output = ""
-    assert result.stdout == expected_output
-    # The first line here is not relevant, but we test the entire
-    # verbose output to ensure that it is as expected.
-    expected_stderr = textwrap.dedent(
-        text=f"""\
-            {fg.green}Not using PTY for running commands.{reset}
-            {fg.yellow}Skipping '{rst_file}' because it is not UTF-8 encoded.{reset}
-            """,  # noqa: E501
-    )
-    assert result.stderr == expected_stderr
-
-
 def test_main_entry_point() -> None:
     """
     It is possible to run the main entry point.
@@ -1060,7 +1020,7 @@ def test_skip_no_arguments(tmp_path: Path) -> None:
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_stderr = textwrap.dedent(
         text=f"""\
-        {fg.red}Skipping '{rst_file}' because it could not be parsed: missing arguments to skip doccmd[all]{reset}
+        {fg.red}Could not parse {rst_file}: missing arguments to skip doccmd[all]{reset}
         """,  # noqa: E501
     )
 
@@ -1099,7 +1059,7 @@ def test_skip_bad_arguments(tmp_path: Path) -> None:
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_stderr = textwrap.dedent(
         text=f"""\
-        {fg.red}Skipping '{rst_file}' because it could not be parsed: malformed arguments to skip doccmd[all]: '!!!'{reset}
+        {fg.red}Could not parse {rst_file}: malformed arguments to skip doccmd[all]: '!!!'{reset}
         """,  # noqa: E501
     )
 
@@ -2527,8 +2487,8 @@ def test_lexing_exception(tmp_path: Path) -> None:
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_stderr = textwrap.dedent(
         text=f"""\
-        {fg.yellow}Skipping '{source_file}' because it could not be lexed: Could not find end of '    <!-- code -->\\n', starting at line 1, column 1, looking for '(?:(?<=\\n)    )?--+>' in {source_file}:
-        '    '.{reset}
+        {fg.red}Could not find end of '    <!-- code -->\\n', starting at line 1, column 1, looking for '(?:(?<=\\n)    )?--+>' in {source_file}:
+        '    '{reset}
         """,  # noqa: E501
     )
     assert result.stderr == expected_stderr

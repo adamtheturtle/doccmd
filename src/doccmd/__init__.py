@@ -232,15 +232,6 @@ def _log_info(message: str) -> None:
 
 
 @beartype
-def _log_warning(message: str) -> None:
-    """
-    Log a warning message.
-    """
-    styled_message = click.style(text=message, fg="yellow")
-    click.echo(message=styled_message, err=True)
-
-
-@beartype
 def _log_error(message: str) -> None:
     """
     Log an error message.
@@ -334,6 +325,40 @@ def _evaluate_document(
         sys.exit(exc.errno)
 
 
+class _ParseError(Exception):
+    """
+    Error raised when a file could not be parsed.
+    """
+
+    def __init__(self, message: str) -> None:
+        """
+        Initialize the error.
+        """
+        super().__init__(message)
+
+
+@beartype
+def _parse_file(
+    *,
+    sybil: Sybil,
+    path: Path,
+) -> Document:
+    """Parse the file.
+
+    Raises:
+        _ParseError: If the file could not be parsed.
+    """
+    try:
+        return sybil.parse(path=path)
+    except UnicodeError:
+        msg = f"{path} is not UTF-8 encoded."
+    except LexingException as exc:
+        msg = f"{exc}"
+    except ValueError as exc:
+        msg = f"Could not parse {path}: {exc}"
+    raise _ParseError(message=msg)
+
+
 @beartype
 def _run_args_against_docs(
     *,
@@ -389,26 +414,11 @@ def _run_args_against_docs(
 
     parsers: Sequence[Parser] = [*code_block_parsers, *skip_parsers]
     sybil = Sybil(parsers=parsers)
+
     try:
-        document = sybil.parse(path=document_path)
-    except UnicodeError:
-        if verbose:
-            unicode_error_message = (
-                f"Skipping '{document_path}' because it is not UTF-8 encoded."
-            )
-            _log_warning(message=unicode_error_message)
-        return
-    except LexingException as exc:
-        lexing_error_message = (
-            f"Skipping '{document_path}' because it could not be lexed: {exc}."
-        )
-        _log_warning(message=lexing_error_message)
-        return
-    except ValueError as exc:
-        value_error_message = (
-            f"Skipping '{document_path}' because it could not be parsed: {exc}"
-        )
-        _log_error(message=value_error_message)
+        document = _parse_file(sybil=sybil, path=document_path)
+    except _ParseError as exc:
+        _log_error(message=str(object=exc))
         return
 
     _evaluate_document(document=document, args=args)
