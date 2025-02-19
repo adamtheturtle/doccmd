@@ -3,6 +3,7 @@ CLI to run commands on the given files.
 """
 
 import platform
+import re
 import shlex
 import subprocess
 import sys
@@ -290,7 +291,7 @@ def _get_skip_directives(skip_markers: Iterable[str]) -> Sequence[str]:
     skip_directives: Sequence[str] = []
 
     for skip_marker in skip_markers:
-        skip_directive = rf"skip doccmd\[{skip_marker}\]"
+        skip_directive = rf"skip doccmd[{skip_marker}]"
         skip_directives = [*skip_directives, skip_directive]
     return skip_directives
 
@@ -375,7 +376,9 @@ def _run_args_against_docs(
     skip_markers = {*skip_markers, "all"}
     skip_directives = _get_skip_directives(skip_markers=skip_markers)
     skip_parsers = [
-        markup_language.skip_parser_cls(directive=skip_directive)
+        markup_language.skip_parser_cls(
+            directive=re.escape(pattern=skip_directive)
+        )
         for skip_directive in skip_directives
     ]
     code_block_parsers = [
