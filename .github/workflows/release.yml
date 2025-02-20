@@ -107,6 +107,26 @@ jobs:
           max_attempts: 50
           command: uv pip install --refresh doccmd==${{ steps.calver.outputs.release }}
 
+      # We have a race condition.
+      # In particular, we push to PyPI and then immediately try to install
+      # the pushed version.
+      # Here, we give PyPI time to propagate the package.
+      - name: Install package from PyPI (uv)
+        uses: nick-fields/retry@v3
+        with:
+          timeout_seconds: 5
+          max_attempts: 50
+          command: uv pip install --refresh doccmd==${{ steps.calver.outputs.release }}
+
+      # Also get our package into the pip cache - it is later used to create
+      # a PyInstaller binary.
+      - name: Install package from PyPI (pip)
+        uses: nick-fields/retry@v3
+        with:
+          timeout_seconds: 5
+          max_attempts: 50
+          command: uv pip install pip && uv run pip install doccmd==${{ steps.calver.outputs.release }}
+
       - name: Set up Homebrew filename
         id: set-homebrew-filename
         run: |
@@ -161,10 +181,16 @@ jobs:
           branch: main
           file_pattern: README.rst
 
-      - name: Create Linux binaries
-        run: |
-          rm -rf dist/*
-          PYTHONPATH=. uv run --extra=dev admin/release.py
+      - name: Create Linux binary
+        uses: sayyid5416/pyinstaller@v1
+        with:
+          python_ver: '3.13'
+          pyinstaller_ver: ==6.12.0
+          spec: bin/doccmd-wrapper.py
+          requirements: '`echo doccmd==${{ steps.tag_version.outputs.new_tag }} >
+            requirements.txt && echo requirements.txt`'
+          options: --onefile, --name "doccmd-linux"
+          upload_exe_with_name: doccmd-linux
 
       - name: Create a GitHub release
         uses: ncipollo/release-action@v1
