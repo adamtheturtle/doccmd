@@ -92,7 +92,9 @@ jobs:
       - name: Create a GitHub release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: dist/*
+          # Use a specific artifact name (not a glob) so that we get a clear
+          # error if the artifact does not exist for some reason.
+          artifacts: dist/doccmd-linux
           artifactErrorsFailBuild: true
           tag: ${{ steps.tag_version.outputs.new_tag }}
           name: Release ${{ steps.tag_version.outputs.new_tag }}
