@@ -167,10 +167,10 @@ jobs:
           python_ver: '3.13'
           pyinstaller_ver: ==6.12.0
           spec: bin/doccmd-wrapper.py
-          requirements: '`echo doccmd==${{ steps.tag_version.outputs.new_tag }} >
-            requirements.txt && echo requirements.txt`'
+          requirements: '`echo . > requirements.txt && echo requirements.txt`'
           options: --onefile, --name "doccmd-linux"
           upload_exe_with_name: doccmd-linux
+          clean_checkout: false
 
       - name: Create a GitHub release
         uses: ncipollo/release-action@v1
