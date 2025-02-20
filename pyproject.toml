@@ -80,7 +80,7 @@ optional-dependencies.dev = [
     "sphinx-copybutton==0.5.2",
     "sphinx-inline-tabs==2023.4.21",
     "sphinx-lint==1.0.0",
-    "sphinx-substitution-extensions==2025.1.2",
+    "sphinx-substitution-extensions==2025.2.19",
     "sphinxcontrib-spelling==8.0.1",
     "types-docker==7.1.0.20241229",
     "types-pygments==2.19.0.20250107",
