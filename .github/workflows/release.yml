@@ -119,24 +119,31 @@ jobs:
       - name: Install doccmd from PyPI
         uses: nick-fields/retry@v3
         with:
-          timeout_seconds: 20
-          max_attempts: 20
+          timeout_seconds: 5
+          max_attempts: 50
           command: uv pip install --refresh doccmd==${{ steps.calver.outputs.release }}
 
+      - name: Set up Homebrew filename
+        id: set-homebrew-filename
+        run: |
+          echo "filename=doccmd.rb" >> "$GITHUB_OUTPUT"
+
+      # We still hit the race condition, so we have a retry here too.
       - name: Create a Homebrew recipe
         id: homebrew-create
-        env:
-          FILENAME: doccmd.rb
-        run: |
-          uv run --extra=release --with="doccmd==${{ steps.calver.outputs.release }}" poet --formula doccmd > ${{ env.FILENAME }}
-          echo "HOMEBREW_RECIPE_FILE=${{ env.FILENAME }}" >> "$GITHUB_OUTPUT"
+        uses: nick-fields/retry@v3
+        with:
+          timeout_seconds: 5
+          max_attempts: 50
+          command: |
+            uv run --no-cache --with="doccmd==${{ steps.calver.outputs.release }}" --extra=release poet --formula doccmd > ${{ steps.set-homebrew-filename.outputs.filename }}
 
       - name: Update Homebrew description
         uses: jacobtomlinson/gha-find-replace@v3
         with:
           find: desc "Shiny new formula"
           replace: desc "Run tools against code blocks in documentation"
-          include: ${{ steps.homebrew-create.outputs.HOMEBREW_RECIPE_FILE }}
+          include: ${{ steps.set-homebrew-filename.outputs.filename }}
           regex: false
 
       - name: Push Homebrew Recipe
@@ -149,7 +156,7 @@ jobs:
           API_TOKEN_GITHUB: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}
         with:
           destination_branch: main
-          source_file: ${{ steps.homebrew-create.outputs.HOMEBREW_RECIPE_FILE }}
+          source_file: ${{ steps.set-homebrew-filename.outputs.filename }}
           destination_repo: adamtheturtle/homebrew-doccmd
           user_email: adamdangoor@gmail.com
           user_name: adamtheturtle
