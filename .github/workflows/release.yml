@@ -93,6 +93,7 @@ jobs:
           artifacts: dist/doccmd-linux
           artifactErrorsFailBuild: true
           tag: ${{ steps.tag_version.outputs.new_tag }}
+          makeLatest: true
           name: Release ${{ steps.tag_version.outputs.new_tag }}
           body: ${{ steps.tag_version.outputs.changelog }}
 
