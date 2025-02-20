@@ -88,7 +88,7 @@ jobs:
           git fetch --tags
           git checkout ${{ steps.tag_version.outputs.new_tag }}
           uv build --sdist --wheel --out-dir dist/
-          WHEEL=dist/doccmd-${{ steps.calver.outputs.release }}-py2.py3-none-any.whl
+          WHEEL="$(ls dist/*.whl)"
           uv run --extra=release check-wheel-contents "${WHEEL}"
           echo "wheel_filename=${WHEEL}" >> "$GITHUB_OUTPUT"
 
