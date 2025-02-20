@@ -7,6 +7,7 @@ Configuration for Sphinx.
 import importlib.metadata
 
 from packaging.specifiers import SpecifierSet
+from packaging.version import Version
 
 project = "doccmd"
 author = "Adam Dangoor"
@@ -30,16 +31,16 @@ project_copyright = f"%Y, {author}"
 copybutton_exclude = ".linenos, .gp"
 
 # The version info for the project you're documenting, acts as replacement for
-# |version| and |release|, also used in various other places throughout the
+# |release|, also used in various other places throughout the
 # built documents.
 #
 # Use ``importlib.metadata.version`` as per
 # https://setuptools-scm.readthedocs.io/en/latest/usage/#usage-from-sphinx.
-version = importlib.metadata.version(distribution_name=project)
-# This method of getting the release from the version goes hand in hand with
-# the ``post-release`` versioning scheme chosen in the ``setuptools-scm``
-# configuration.
-release = version.split(sep=".post")[0]
+_version_string = importlib.metadata.version(distribution_name=project)
+_version = Version(version=_version_string)
+# GitHub release tags have the format YYYY.MM.DD, while Python requirement
+# versions may have the format YYYY.M.D for single digit months and days.
+release = ".".join(f"{part:02d}" for part in _version.release)
 
 project_metadata = importlib.metadata.metadata(distribution_name=project)
 requires_python = project_metadata["Requires-Python"]
