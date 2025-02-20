@@ -82,12 +82,15 @@ jobs:
           commit_sha: ${{ steps.commit.outputs.commit_hash }}
 
       - name: Build a binary wheel and a source tarball
+        id: build-wheel
         run: |
           sudo rm -rf dist/ build/
           git fetch --tags
           git checkout ${{ steps.tag_version.outputs.new_tag }}
           uv build --sdist --wheel --out-dir dist/
-          uv run --extra=release check-wheel-contents dist/*.whl
+          WHEEL=dist/doccmd-${{ steps.calver.outputs.release }}-py2.py3-none-any.whl
+          uv run --extra=release check-wheel-contents "${WHEEL}"
+          echo "wheel_filename=${WHEEL}" >> "$GITHUB_OUTPUT"
 
       - name: Publish distribution 📦 to PyPI
         # We use PyPI trusted publishing rather than a PyPI API token.
@@ -167,7 +170,8 @@ jobs:
           python_ver: '3.13'
           pyinstaller_ver: ==6.12.0
           spec: bin/doccmd-wrapper.py
-          requirements: '`echo . > requirements.txt && echo requirements.txt`'
+          requirements: '`echo ${{ steps.build-wheel.outputs.wheel_filename }} > requirements.txt
+            && echo requirements.txt`'
           options: --onefile, --name "doccmd-linux"
           upload_exe_with_name: doccmd-linux
           clean_checkout: false
