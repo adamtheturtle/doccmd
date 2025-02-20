@@ -81,22 +81,6 @@ jobs:
           tag_prefix: ''
           commit_sha: ${{ steps.commit.outputs.commit_hash }}
 
-      - name: Create Linux binaries
-        run: |
-          PYTHONPATH=. uv run --extra=dev admin/release.py
-
-      - name: Create a GitHub release
-        uses: ncipollo/release-action@v1
-        with:
-          # Use a specific artifact name (not a glob) so that we get a clear
-          # error if the artifact does not exist for some reason.
-          artifacts: dist/doccmd-linux
-          artifactErrorsFailBuild: true
-          tag: ${{ steps.tag_version.outputs.new_tag }}
-          makeLatest: true
-          name: Release ${{ steps.tag_version.outputs.new_tag }}
-          body: ${{ steps.tag_version.outputs.changelog }}
-
       - name: Build a binary wheel and a source tarball
         run: |
           sudo rm -rf dist/ build/
@@ -176,3 +160,20 @@ jobs:
           commit_message: Replace version in README
           branch: main
           file_pattern: README.rst
+
+      - name: Create Linux binaries
+        run: |
+          rm -rf dist/*
+          PYTHONPATH=. uv run --extra=dev admin/release.py
+
+      - name: Create a GitHub release
+        uses: ncipollo/release-action@v1
+        with:
+          # Use a specific artifact name (not a glob) so that we get a clear
+          # error if the artifact does not exist for some reason.
+          artifacts: dist/doccmd-linux
+          artifactErrorsFailBuild: true
+          tag: ${{ steps.tag_version.outputs.new_tag }}
+          makeLatest: true
+          name: Release ${{ steps.tag_version.outputs.new_tag }}
+          body: ${{ steps.tag_version.outputs.changelog }}
