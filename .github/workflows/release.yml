@@ -125,7 +125,8 @@ jobs:
         with:
           timeout_seconds: 5
           max_attempts: 50
-          command: uv pip install pip && uv run pip install doccmd==${{ steps.calver.outputs.release }}
+          command: uv pip install pip && uv run pip uninstall doccmd && uv run pip
+            install doccmd==${{ steps.calver.outputs.release }}
 
       - name: Set up Homebrew filename
         id: set-homebrew-filename
