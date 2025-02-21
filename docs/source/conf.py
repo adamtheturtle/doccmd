@@ -5,12 +5,20 @@ Configuration for Sphinx.
 # pylint: disable=invalid-name
 
 import importlib.metadata
+from pathlib import Path
 
 from packaging.specifiers import SpecifierSet
 from packaging.version import Version
+from sphinx_pyproject import SphinxConfig
 
-project = "doccmd"
-author = "Adam Dangoor"
+_pyproject_file = Path(__file__).parent.parent.parent / "pyproject.toml"
+_pyproject_config = SphinxConfig(
+    pyproject_file=_pyproject_file,
+    config_overrides={"version": None},
+)
+
+project = _pyproject_config.name
+author = _pyproject_config.author
 
 extensions = [
     "sphinx_copybutton",
