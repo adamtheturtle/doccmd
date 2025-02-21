@@ -40,7 +40,13 @@ _version_string = importlib.metadata.version(distribution_name=project)
 _version = Version(version=_version_string)
 # GitHub release tags have the format YYYY.MM.DD, while Python requirement
 # versions may have the format YYYY.M.D for single digit months and days.
-release = ".".join(f"{part:02d}" for part in _version.release)
+_num_date_parts = 3
+release = ".".join(
+    [
+        f"{part:02d}" if index < _num_date_parts else str(object=part)
+        for index, part in enumerate(iterable=_version.release)
+    ]
+)
 
 project_metadata = importlib.metadata.metadata(distribution_name=project)
 requires_python = project_metadata["Requires-Python"]
