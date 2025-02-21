@@ -71,6 +71,8 @@ jobs:
         with:
           commit_message: Bump CHANGELOG
           file_pattern: CHANGELOG.rst
+          # Error if there are no changes.
+          skip_dirty_check: true
 
       - name: Bump version and push tag
         id: tag_version
@@ -163,6 +165,8 @@ jobs:
           commit_message: Replace version in README
           branch: main
           file_pattern: README.rst
+          # Error if there are no changes.
+          skip_dirty_check: true
 
       - name: Create Linux binary
         uses: sayyid5416/pyinstaller@v1
