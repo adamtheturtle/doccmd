@@ -28,7 +28,7 @@ Pre-built Linux binaries
 .. code-block:: console
    :substitutions:
 
-   $ curl --fail -L "https://github.com/|github-owner|/|github-repository|/releases/download/|release|/doccmd" -o /usr/local/bin/doccmd &&
+   $ curl --fail -L "https://github.com/|github-owner|/|github-repository|/releases/download/|release|/doccmd-linux" -o /usr/local/bin/doccmd &&
        chmod +x /usr/local/bin/doccmd
 
 Using ``doccmd`` as a pre-commit hook
