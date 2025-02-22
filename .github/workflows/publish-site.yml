@@ -1,0 +1,27 @@
+---
+name: Deploy documentation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  pages:
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.ref_name == 'main' && 'github-pages' || 'development' }}
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - id: deployment
+        uses: sphinx-notes/pages@v3
+        with:
+          documentation_path: docs/source
+          pyproject_extras: dev
+          python_version: '3.13'
+          sphinx_build_options: -W
+          publish: ${{ github.ref_name == 'main' }}

@@ -93,7 +93,7 @@ optional-dependencies.release = [
     "check-wheel-contents==0.6.1",
     "homebrew-pypi-poet==0.10",
 ]
-urls.Documentation = "https://doccmd.readthedocs.io/en/latest/"
+urls.Documentation = "https://adamtheturtle.github.io/doccmd/"
 urls.Source = "https://github.com/adamtheturtle/doccmd"
 scripts.doccmd = "doccmd:main"
 
@@ -309,7 +309,7 @@ ignore = [
     "docs",
     "docs/**",
     "lint.mk",
-    "readthedocs.yaml",
+
     "spelling_private_dict.txt",
     "src/*/_setuptools_scm_version.py",
     "tests",
