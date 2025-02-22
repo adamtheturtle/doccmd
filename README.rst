@@ -1,4 +1,4 @@
-|Build Status| |codecov| |PyPI| |Documentation Status|
+|Build Status| |codecov| |PyPI|
 
 doccmd
 ======
@@ -200,7 +200,7 @@ To skip a code block for each of multiple markers, for example to skip a code bl
 Full documentation
 ------------------
 
-See the `full documentation <https://doccmd.readthedocs.io/en/latest>`__.
+See the `full documentation <https://adamtheturtle.github.io/doccmd/>`__.
 
 .. |Build Status| image:: https://github.com/adamtheturtle/doccmd/actions/workflows/ci.yml/badge.svg?branch=main
    :target: https://github.com/adamtheturtle/doccmd/actions
@@ -208,7 +208,4 @@ See the `full documentation <https://doccmd.readthedocs.io/en/latest>`__.
    :target: https://codecov.io/gh/adamtheturtle/doccmd
 .. |PyPI| image:: https://badge.fury.io/py/doccmd.svg
    :target: https://badge.fury.io/py/doccmd
-.. |Documentation Status| image:: https://readthedocs.org/projects/doccmd/badge/?version=latest
-   :target: https://doccmd.readthedocs.io/en/latest/?badge=latest
-   :alt: Documentation Status
 .. |minimum-python-version| replace:: 3.11
