@@ -46,6 +46,15 @@ copybutton_exclude = ".linenos, .gp"
 # https://setuptools-scm.readthedocs.io/en/latest/usage/#usage-from-sphinx.
 _version_string = importlib.metadata.version(distribution_name=project)
 _version = Version(version=_version_string)
+if _version.major == 0:
+    msg = (
+        f"The version is {_version_string}. "
+        "This indicates that the version is not set correctly. "
+        "This is likely because the project was built without having all "
+        "Git tags available."
+    )
+    raise ValueError(msg)
+
 # GitHub release tags have the format YYYY.MM.DD, while Python requirement
 # versions may have the format YYYY.M.D for single digit months and days.
 _num_date_parts = 3

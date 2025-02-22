@@ -17,6 +17,13 @@ jobs:
       pages: write
       id-token: write
     steps:
+      - uses: actions/checkout@v4
+        # We need our tags in order to calculate the version
+        # in the Sphinx setup.
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
       - id: deployment
         uses: sphinx-notes/pages@v3
         with:
@@ -25,3 +32,4 @@ jobs:
           python_version: '3.13'
           sphinx_build_options: -W
           publish: ${{ github.ref_name == 'main' }}
+          checkout: false
