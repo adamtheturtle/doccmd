@@ -6,24 +6,24 @@ With ``pip``
 
 Requires Python |minimum-python-version|\+.
 
-.. code-block:: shell
+.. code-block:: console
 
-   pip install doccmd
+   $ pip install doccmd
 
 With Homebrew (macOS, Linux, WSL)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Requires `Homebrew`_.
 
-.. code-block:: shell
+.. code-block:: console
 
-   brew tap adamtheturtle/doccmd
-   brew install doccmd
+   $ brew tap adamtheturtle/doccmd
+   $ brew install doccmd
 
 .. _Homebrew: https://docs.brew.sh/Installation
 
-Pre-built Linux binaries
-~~~~~~~~~~~~~~~~~~~~~~~~
+Pre-built Linux (x86) binaries
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: console
    :substitutions:
