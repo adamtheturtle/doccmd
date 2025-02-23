@@ -350,8 +350,6 @@ def _parse_file(
     """
     try:
         return sybil.parse(path=path)
-    except UnicodeError:
-        msg = f"{path} is not UTF-8 encoded."
     except LexingException as exc:
         msg = f"{exc}"
     except ValueError as exc:
