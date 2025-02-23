@@ -147,7 +147,7 @@ def test_file_does_not_exist() -> None:
 
 def test_not_utf_8_file_given(tmp_path: Path) -> None:
     """
-    An error is given if a file is passed in which is not UTF-8.
+    No error is given if a file is passed in which is not UTF-8.
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
@@ -171,9 +171,9 @@ def test_not_utf_8_file_given(tmp_path: Path) -> None:
         color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
-    expected_output = ""
-    expected_stderr = f"{fg.red}{rst_file} is not UTF-8 encoded.{reset}\n"
-    assert result.stdout == expected_output
+    expected_output_bytes = b'print("\xc0\x80")'
+    expected_stderr = ""
+    assert result.stdout_bytes.strip() == expected_output_bytes
     assert result.stderr == expected_stderr
 
 

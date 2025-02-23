@@ -12,6 +12,7 @@ from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from typing import TYPE_CHECKING, TypeVar, overload
 
+import charset_normalizer
 import click
 from beartype import beartype
 from pygments.lexers import get_all_lexers
@@ -241,11 +242,10 @@ def _log_error(message: str) -> None:
 
 
 @beartype
-def _detect_newline(file_path: Path) -> str | None:
+def _detect_newline(content_bytes: bytes) -> str | None:
     """
-    Detect the newline character used in the given file.
+    Detect the newline character used in the content.
     """
-    content_bytes = file_path.read_bytes()
     for newline in (b"\r\n", b"\n", b"\r"):
         if newline in content_bytes:
             return newline.decode(encoding="utf-8")
@@ -350,8 +350,6 @@ def _parse_file(
     """
     try:
         return sybil.parse(path=path)
-    except UnicodeError:
-        msg = f"{path} is not UTF-8 encoded."
     except LexingException as exc:
         msg = f"{exc}"
     except ValueError as exc:
@@ -380,7 +378,12 @@ def _run_args_against_docs(
         language=code_block_language,
         given_file_extension=temporary_file_extension,
     )
-    newline = _detect_newline(file_path=document_path)
+    content_bytes = document_path.read_bytes()
+    newline = _detect_newline(content_bytes=content_bytes)
+
+    charset_matches = charset_normalizer.from_bytes(sequences=content_bytes)
+    best_match = charset_matches[0]
+    encoding = best_match.encoding
 
     shell_command_evaluator = ShellCommandEvaluator(
         args=args,
@@ -390,6 +393,7 @@ def _run_args_against_docs(
         tempfile_name_prefix=temporary_file_name_prefix or "",
         newline=newline,
         use_pty=use_pty,
+        encoding=encoding,
     )
 
     evaluators: Sequence[Evaluator] = [shell_command_evaluator]
@@ -413,7 +417,7 @@ def _run_args_against_docs(
     ]
 
     parsers: Sequence[Parser] = [*code_block_parsers, *skip_parsers]
-    sybil = Sybil(parsers=parsers)
+    sybil = Sybil(parsers=parsers, encoding=encoding)
 
     try:
         document = _parse_file(sybil=sybil, path=document_path)
