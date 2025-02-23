@@ -382,7 +382,9 @@ def _run_args_against_docs(
     newline = _detect_newline(content_bytes=content_bytes)
 
     charset_matches = charset_normalizer.from_bytes(sequences=content_bytes)
-    best_match = charset_matches[0]
+    best_match = charset_matches.best()
+    if best_match is None:
+        _log_error(message="Could not detect encoding.")
     encoding = best_match.encoding
 
     shell_command_evaluator = ShellCommandEvaluator(
