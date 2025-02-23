@@ -242,13 +242,13 @@ def _log_error(message: str) -> None:
 
 
 @beartype
-def _detect_newline(content_bytes: bytes) -> str | None:
+def _detect_newline(content_bytes: bytes) -> bytes | None:
     """
     Detect the newline character used in the content.
     """
     for newline in (b"\r\n", b"\n", b"\r"):
         if newline in content_bytes:
-            return newline.decode(encoding="utf-8")
+            return newline
     return None
 
 
@@ -379,11 +379,14 @@ def _run_args_against_docs(
         given_file_extension=temporary_file_extension,
     )
     content_bytes = document_path.read_bytes()
-    newline = _detect_newline(content_bytes=content_bytes)
 
     charset_matches = charset_normalizer.from_bytes(sequences=content_bytes)
     best_match = charset_matches[0]
     encoding = best_match.encoding
+    newline_bytes = _detect_newline(content_bytes=content_bytes)
+    newline = (
+        newline_bytes.decode(encoding=encoding) if newline_bytes else None
+    )
 
     shell_command_evaluator = ShellCommandEvaluator(
         args=args,
