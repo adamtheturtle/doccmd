@@ -2513,7 +2513,7 @@ def test_lexing_exception(tmp_path: Path) -> None:
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_stderr = textwrap.dedent(
         text=f"""\
-        {fg.red}Could not find end of '    <!-- code -->\\n', starting at line 1, column 1, looking for '(?:(?<=\\n)    )?--+>' in {source_file}:
+        {fg.red}Could not parse {source_file}: Could not find end of '    <!-- code -->\\n', starting at line 1, column 1, looking for '(?:(?<=\\n)    )?--+>' in {source_file}:
         '    '{reset}
         """,  # noqa: E501
     )
