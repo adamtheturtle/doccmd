@@ -177,6 +177,32 @@ def test_not_utf_8_file_given(tmp_path: Path) -> None:
     assert result.stderr == expected_stderr
 
 
+def test_unknown_encoding(tmp_path: Path) -> None:
+    """
+    An error is shown when a file cannot be decoded.
+    """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    rst_file.write_bytes(data=Path(sys.executable).read_bytes())
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    expected_stderr = f"Error: {fg.red}Could not detect encoding.{reset}\n"
+    assert result.exit_code != 0
+    assert result.stdout == ""
+    assert result.stderr == expected_stderr
+
+
 def test_multiple_code_blocks(tmp_path: Path) -> None:
     """
     It is possible to run a command against multiple code blocks in a document.
