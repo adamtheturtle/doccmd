@@ -330,10 +330,11 @@ class _ParseError(Exception):
     Error raised when a file could not be parsed.
     """
 
-    def __init__(self, message: str) -> None:
+    def __init__(self, path: Path, reason: str) -> None:
         """
         Initialize the error.
         """
+        message = f"Could not parse {path}: {reason}"
         super().__init__(message)
 
 
@@ -350,11 +351,9 @@ def _parse_file(
     """
     try:
         return sybil.parse(path=path)
-    except LexingException as exc:
-        msg = f"{exc}"
-    except ValueError as exc:
-        msg = f"Could not parse {path}: {exc}"
-    raise _ParseError(message=msg)
+    except (LexingException, ValueError) as exc:
+        reason = str(object=exc)
+        raise _ParseError(path=path, reason=reason) from exc
 
 
 @beartype
