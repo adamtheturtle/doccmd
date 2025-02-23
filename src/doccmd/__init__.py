@@ -382,7 +382,12 @@ def _run_args_against_docs(
     charset_matches = charset_normalizer.from_bytes(sequences=content_bytes)
     best_match = charset_matches.best()
     if best_match is None:
-        _log_error(message="Could not detect encoding.")
+        no_encoding_message = click.style(
+            text="Could not detect encoding.",
+            fg="red",
+        )
+        raise click.ClickException(message=no_encoding_message)
+
     encoding = best_match.encoding
     newline_bytes = _detect_newline(content_bytes=content_bytes)
     newline = (

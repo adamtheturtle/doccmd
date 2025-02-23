@@ -197,7 +197,7 @@ def test_unknown_encoding(tmp_path: Path) -> None:
         catch_exceptions=False,
         color=True,
     )
-    expected_stderr = "TODO"
+    expected_stderr = f"Error: {fg.red}Could not detect encoding.{reset}\n"
     assert result.exit_code != 0
     assert result.stdout == ""
     assert result.stderr == expected_stderr
