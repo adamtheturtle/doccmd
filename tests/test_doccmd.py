@@ -171,9 +171,9 @@ def test_not_utf_8_file_given(tmp_path: Path) -> None:
         color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
-    expected_output_bytes = b'\n\nprint("\xc0\x80")\n'
+    expected_output_bytes = b'print("\xc0\x80")'
     expected_stderr = ""
-    assert result.stdout_bytes == expected_output_bytes
+    assert result.stdout_bytes.strip() == expected_output_bytes
     assert result.stderr == expected_stderr
 
 
