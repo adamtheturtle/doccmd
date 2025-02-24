@@ -460,8 +460,8 @@ def _run_args_against_docs(
 
     group_parsers = [
         markup_language.group_parser_cls(
-            "group",
-            evaluator,
+            directive="group doccmd[all]",
+            evaluator=evaluator,
         )
     ]
     parsers: Sequence[Parser] = [
