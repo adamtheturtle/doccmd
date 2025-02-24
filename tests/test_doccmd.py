@@ -177,7 +177,18 @@ def test_not_utf_8_file_given(tmp_path: Path) -> None:
     assert result.stderr == expected_stderr
 
 
-def test_unknown_encoding(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    argnames=("fail_on_parse_error_options", "expected_exit_code"),
+    argvalues=[
+        ([], 0),
+        (["--fail-on-parse-error"], 1),
+    ],
+)
+def test_unknown_encoding(
+    tmp_path: Path,
+    fail_on_parse_error_options: Sequence[str],
+    expected_exit_code: int,
+) -> None:
     """
     An error is shown when a file cannot be decoded.
     """
@@ -185,6 +196,7 @@ def test_unknown_encoding(tmp_path: Path) -> None:
     rst_file = tmp_path / "example.rst"
     rst_file.write_bytes(data=Path(sys.executable).read_bytes())
     arguments = [
+        *fail_on_parse_error_options,
         "--language",
         "python",
         "--command",
@@ -197,8 +209,11 @@ def test_unknown_encoding(tmp_path: Path) -> None:
         catch_exceptions=False,
         color=True,
     )
-    expected_stderr = f"Error: {fg.red}Could not detect encoding.{reset}\n"
-    assert result.exit_code != 0
+    expected_stderr = (
+        f"{fg.red}Could not parse {rst_file}: "
+        f"Could not detect encoding.{reset}\n"
+    )
+    assert result.exit_code == expected_exit_code
     assert result.stdout == ""
     assert result.stderr == expected_stderr
 
@@ -1015,7 +1030,18 @@ def test_default_skip_rst(tmp_path: Path) -> None:
     assert result.stderr == ""
 
 
-def test_skip_no_arguments(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    argnames=("fail_on_parse_error_options", "expected_exit_code"),
+    argvalues=[
+        ([], 0),
+        (["--fail-on-parse-error"], 1),
+    ],
+)
+def test_skip_no_arguments(
+    tmp_path: Path,
+    fail_on_parse_error_options: Sequence[str],
+    expected_exit_code: int,
+) -> None:
     """
     An error is shown if a skip is given with no arguments.
     """
@@ -1030,6 +1056,7 @@ def test_skip_no_arguments(tmp_path: Path) -> None:
     """
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
+        *fail_on_parse_error_options,
         "--no-pad-file",
         "--language",
         "python",
@@ -1043,7 +1070,10 @@ def test_skip_no_arguments(tmp_path: Path) -> None:
         catch_exceptions=False,
         color=True,
     )
-    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert result.exit_code == expected_exit_code, (
+        result.stdout,
+        result.stderr,
+    )
     expected_stderr = textwrap.dedent(
         text=f"""\
         {fg.red}Could not parse {rst_file}: missing arguments to skip doccmd[all]{reset}
@@ -1054,7 +1084,18 @@ def test_skip_no_arguments(tmp_path: Path) -> None:
     assert result.stderr == expected_stderr
 
 
-def test_skip_bad_arguments(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    argnames=("fail_on_parse_error_options", "expected_exit_code"),
+    argvalues=[
+        ([], 0),
+        (["--fail-on-parse-error"], 1),
+    ],
+)
+def test_skip_bad_arguments(
+    tmp_path: Path,
+    fail_on_parse_error_options: Sequence[str],
+    expected_exit_code: int,
+) -> None:
     """
     An error is shown if a skip is given with bad arguments.
     """
@@ -1069,6 +1110,7 @@ def test_skip_bad_arguments(tmp_path: Path) -> None:
     """
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
+        *fail_on_parse_error_options,
         "--no-pad-file",
         "--language",
         "python",
@@ -1082,7 +1124,10 @@ def test_skip_bad_arguments(tmp_path: Path) -> None:
         catch_exceptions=False,
         color=True,
     )
-    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert result.exit_code == expected_exit_code, (
+        result.stdout,
+        result.stderr,
+    )
     expected_stderr = textwrap.dedent(
         text=f"""\
         {fg.red}Could not parse {rst_file}: malformed arguments to skip doccmd[all]: '!!!'{reset}
@@ -2485,7 +2530,18 @@ def test_multiple_exclude_patterns(tmp_path: Path) -> None:
     assert result.stderr == ""
 
 
-def test_lexing_exception(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    argnames=("fail_on_parse_error_options", "expected_exit_code"),
+    argvalues=[
+        ([], 0),
+        (["--fail-on-parse-error"], 1),
+    ],
+)
+def test_lexing_exception(
+    tmp_path: Path,
+    fail_on_parse_error_options: Sequence[str],
+    expected_exit_code: int,
+) -> None:
     """
     Lexing exceptions are handled when an invalid source file is given.
     """
@@ -2498,6 +2554,7 @@ def test_lexing_exception(tmp_path: Path) -> None:
     """
     source_file.write_text(data=invalid_content, encoding="utf-8")
     arguments = [
+        *fail_on_parse_error_options,
         "--language",
         "python",
         "--command",
@@ -2510,7 +2567,10 @@ def test_lexing_exception(tmp_path: Path) -> None:
         catch_exceptions=False,
         color=True,
     )
-    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert result.exit_code == expected_exit_code, (
+        result.stdout,
+        result.stderr,
+    )
     expected_stderr = textwrap.dedent(
         text=f"""\
         {fg.red}Could not parse {source_file}: Could not find end of '    <!-- code -->\\n', starting at line 1, column 1, looking for '(?:(?<=\\n)    )?--+>' in {source_file}:
