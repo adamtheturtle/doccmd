@@ -310,7 +310,7 @@ def _evaluate_document(
     """Evaluate the document.
 
     Raises:
-        _ParseError: The file could not be parsed.
+        _EvaluateError: An example in the document could not be evaluated.
     """
     try:
         for example in document.examples():
@@ -351,7 +351,7 @@ class _ParseError(Exception):
 
 class _EvaluateError(Exception):
     """
-    Error raised when a file could not be evaluated.
+    Error raised when an example could not be evaluated.
     """
 
     @beartype
