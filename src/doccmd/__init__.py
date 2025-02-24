@@ -307,22 +307,32 @@ def _evaluate_document(
     document: Document,
     args: Sequence[str | Path],
 ) -> None:
-    """
-    Evaluate the document.
+    """Evaluate the document.
+
+    Raises:
+        _ParseError: The file could not be parsed.
     """
     try:
         for example in document.examples():
             example.evaluate()
     except ValueError as exc:
-        value_error_message = f"Error running command '{args[0]}': {exc}"
-        _log_error(message=value_error_message)
-        sys.exit(1)
+        raise _EvaluateError(
+            command_args=args,
+            reason=str(object=exc),
+            exit_code=1,
+        ) from exc
     except subprocess.CalledProcessError as exc:
-        sys.exit(exc.returncode)
+        raise _EvaluateError(
+            command_args=args,
+            reason=None,
+            exit_code=exc.returncode,
+        ) from exc
     except OSError as exc:
-        os_error_message = f"Error running command '{args[0]}': {exc}"
-        _log_error(message=os_error_message)
-        sys.exit(exc.errno)
+        raise _EvaluateError(
+            command_args=args,
+            reason=str(object=exc),
+            exit_code=exc.errno,
+        ) from exc
 
 
 class _ParseError(Exception):
@@ -330,12 +340,34 @@ class _ParseError(Exception):
     Error raised when a file could not be parsed.
     """
 
+    @beartype
     def __init__(self, path: Path, reason: str) -> None:
         """
         Initialize the error.
         """
         message = f"Could not parse {path}: {reason}"
         super().__init__(message)
+
+
+class _EvaluateError(Exception):
+    """
+    Error raised when a file could not be evaluated.
+    """
+
+    @beartype
+    def __init__(
+        self,
+        command_args: Sequence[str | Path],
+        reason: str | None,
+        exit_code: int | None,
+    ) -> None:
+        """
+        Initialize the error.
+        """
+        self.exit_code = exit_code
+        self.reason = reason
+        self.command_args = command_args
+        super().__init__()
 
 
 @beartype
@@ -347,7 +379,7 @@ def _parse_file(
     """Parse the file.
 
     Raises:
-        _ParseError: If the file could not be parsed.
+        _ParseError: The file could not be parsed.
     """
     try:
         return sybil.parse(path=path)
@@ -434,7 +466,15 @@ def _run_args_against_docs(
         _log_error(message=str(object=exc))
         return
 
-    _evaluate_document(document=document, args=args)
+    try:
+        _evaluate_document(document=document, args=args)
+    except _EvaluateError as exc:
+        if exc.reason:
+            message = (
+                f"Error running command '{exc.command_args[0]}': {exc.reason}"
+            )
+            _log_error(message=message)
+        sys.exit(exc.exit_code)
 
 
 @click.command(name="doccmd")
