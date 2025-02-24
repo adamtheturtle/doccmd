@@ -402,8 +402,10 @@ def _run_args_against_docs(
     use_pty: bool,
     markup_language: MarkupLanguage,
 ) -> None:
-    """
-    Run commands on the given file.
+    """Run commands on the given file.
+
+    Raises:
+        _ParseError: The file could not be parsed.
     """
     temporary_file_extension = _get_temporary_file_extension(
         language=code_block_language,
@@ -414,11 +416,10 @@ def _run_args_against_docs(
     charset_matches = charset_normalizer.from_bytes(sequences=content_bytes)
     best_match = charset_matches.best()
     if best_match is None:
-        no_encoding_message = click.style(
-            text="Could not detect encoding.",
-            fg="red",
+        raise _ParseError(
+            path=document_path,
+            reason="Could not detect encoding.",
         )
-        raise click.ClickException(message=no_encoding_message)
 
     encoding = best_match.encoding
     newline_bytes = _detect_newline(content_bytes=content_bytes)
@@ -460,11 +461,7 @@ def _run_args_against_docs(
     parsers: Sequence[Parser] = [*code_block_parsers, *skip_parsers]
     sybil = Sybil(parsers=parsers, encoding=encoding)
 
-    try:
-        document = _parse_file(sybil=sybil, path=document_path)
-    except _ParseError as exc:
-        _log_error(message=str(object=exc))
-        return
+    document = _parse_file(sybil=sybil, path=document_path)
 
     try:
         _evaluate_document(document=document, args=args)
@@ -679,6 +676,16 @@ def _run_args_against_docs(
         "Use forward slashes on all platforms."
     ),
 )
+@click.option(
+    "--fail-on-parse-error/--no-fail-on-parse-error",
+    "fail_on_parse_error",
+    default=False,
+    show_default=True,
+    type=bool,
+    help=(
+        "Whether to fail (with exit code 1) if a given file cannot be parsed."
+    ),
+)
 @beartype
 def main(
     *,
@@ -696,6 +703,7 @@ def main(
     markdown_suffixes: Sequence[str],
     max_depth: int,
     exclude_patterns: Sequence[str],
+    fail_on_parse_error: bool,
 ) -> None:
     """Run commands against code blocks in the given documentation files.
 
@@ -742,15 +750,20 @@ def main(
     for file_path in file_paths:
         for code_block_language in languages:
             markup_language = suffix_map[file_path.suffix]
-            _run_args_against_docs(
-                args=args,
-                document_path=file_path,
-                code_block_language=code_block_language,
-                pad_temporary_file=pad_file,
-                verbose=verbose,
-                temporary_file_extension=temporary_file_extension,
-                temporary_file_name_prefix=temporary_file_name_prefix,
-                skip_markers=skip_markers,
-                use_pty=use_pty,
-                markup_language=markup_language,
-            )
+            try:
+                _run_args_against_docs(
+                    args=args,
+                    document_path=file_path,
+                    code_block_language=code_block_language,
+                    pad_temporary_file=pad_file,
+                    verbose=verbose,
+                    temporary_file_extension=temporary_file_extension,
+                    temporary_file_name_prefix=temporary_file_name_prefix,
+                    skip_markers=skip_markers,
+                    use_pty=use_pty,
+                    markup_language=markup_language,
+                )
+            except _ParseError as exc:
+                _log_error(message=str(object=exc))
+                if fail_on_parse_error:
+                    sys.exit(1)
