@@ -12,6 +12,7 @@ from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from typing import TYPE_CHECKING, TypeVar, overload
 
+import charset_normalizer
 import click
 from beartype import beartype
 from pygments.lexers import get_all_lexers
@@ -232,15 +233,6 @@ def _log_info(message: str) -> None:
 
 
 @beartype
-def _log_warning(message: str) -> None:
-    """
-    Log a warning message.
-    """
-    styled_message = click.style(text=message, fg="yellow")
-    click.echo(message=styled_message, err=True)
-
-
-@beartype
 def _log_error(message: str) -> None:
     """
     Log an error message.
@@ -250,14 +242,13 @@ def _log_error(message: str) -> None:
 
 
 @beartype
-def _detect_newline(file_path: Path) -> str | None:
+def _detect_newline(content_bytes: bytes) -> bytes | None:
     """
-    Detect the newline character used in the given file.
+    Detect the newline character used in the content.
     """
-    content_bytes = file_path.read_bytes()
     for newline in (b"\r\n", b"\n", b"\r"):
         if newline in content_bytes:
-            return newline.decode(encoding="utf-8")
+            return newline
     return None
 
 
@@ -316,22 +307,85 @@ def _evaluate_document(
     document: Document,
     args: Sequence[str | Path],
 ) -> None:
-    """
-    Evaluate the document.
+    """Evaluate the document.
+
+    Raises:
+        _EvaluateError: An example in the document could not be evaluated.
     """
     try:
         for example in document.examples():
             example.evaluate()
     except ValueError as exc:
-        value_error_message = f"Error running command '{args[0]}': {exc}"
-        _log_error(message=value_error_message)
-        sys.exit(1)
+        raise _EvaluateError(
+            command_args=args,
+            reason=str(object=exc),
+            exit_code=1,
+        ) from exc
     except subprocess.CalledProcessError as exc:
-        sys.exit(exc.returncode)
+        raise _EvaluateError(
+            command_args=args,
+            reason=None,
+            exit_code=exc.returncode,
+        ) from exc
     except OSError as exc:
-        os_error_message = f"Error running command '{args[0]}': {exc}"
-        _log_error(message=os_error_message)
-        sys.exit(exc.errno)
+        raise _EvaluateError(
+            command_args=args,
+            reason=str(object=exc),
+            exit_code=exc.errno,
+        ) from exc
+
+
+class _ParseError(Exception):
+    """
+    Error raised when a file could not be parsed.
+    """
+
+    @beartype
+    def __init__(self, path: Path, reason: str) -> None:
+        """
+        Initialize the error.
+        """
+        message = f"Could not parse {path}: {reason}"
+        super().__init__(message)
+
+
+class _EvaluateError(Exception):
+    """
+    Error raised when an example could not be evaluated.
+    """
+
+    @beartype
+    def __init__(
+        self,
+        command_args: Sequence[str | Path],
+        reason: str | None,
+        exit_code: int | None,
+    ) -> None:
+        """
+        Initialize the error.
+        """
+        self.exit_code = exit_code
+        self.reason = reason
+        self.command_args = command_args
+        super().__init__()
+
+
+@beartype
+def _parse_file(
+    *,
+    sybil: Sybil,
+    path: Path,
+) -> Document:
+    """Parse the file.
+
+    Raises:
+        _ParseError: The file could not be parsed.
+    """
+    try:
+        return sybil.parse(path=path)
+    except (LexingException, ValueError) as exc:
+        reason = str(object=exc)
+        raise _ParseError(path=path, reason=reason) from exc
 
 
 @beartype
@@ -355,7 +409,22 @@ def _run_args_against_docs(
         language=code_block_language,
         given_file_extension=temporary_file_extension,
     )
-    newline = _detect_newline(file_path=document_path)
+    content_bytes = document_path.read_bytes()
+
+    charset_matches = charset_normalizer.from_bytes(sequences=content_bytes)
+    best_match = charset_matches.best()
+    if best_match is None:
+        no_encoding_message = click.style(
+            text="Could not detect encoding.",
+            fg="red",
+        )
+        raise click.ClickException(message=no_encoding_message)
+
+    encoding = best_match.encoding
+    newline_bytes = _detect_newline(content_bytes=content_bytes)
+    newline = (
+        newline_bytes.decode(encoding=encoding) if newline_bytes else None
+    )
 
     shell_command_evaluator = ShellCommandEvaluator(
         args=args,
@@ -365,6 +434,7 @@ def _run_args_against_docs(
         tempfile_name_prefix=temporary_file_name_prefix or "",
         newline=newline,
         use_pty=use_pty,
+        encoding=encoding,
     )
 
     evaluators: Sequence[Evaluator] = [shell_command_evaluator]
@@ -398,30 +468,22 @@ def _run_args_against_docs(
         *skip_parsers,
         *group_parsers,
     ]
-    sybil = Sybil(parsers=parsers)
+    sybil = Sybil(parsers=parsers, encoding=encoding)
     try:
-        document = sybil.parse(path=document_path)
-    except UnicodeError:
-        if verbose:
-            unicode_error_message = (
-                f"Skipping '{document_path}' because it is not UTF-8 encoded."
-            )
-            _log_warning(message=unicode_error_message)
-        return
-    except LexingException as exc:
-        lexing_error_message = (
-            f"Skipping '{document_path}' because it could not be lexed: {exc}."
-        )
-        _log_warning(message=lexing_error_message)
-        return
-    except ValueError as exc:
-        value_error_message = (
-            f"Skipping '{document_path}' because it could not be parsed: {exc}"
-        )
-        _log_error(message=value_error_message)
+        document = _parse_file(sybil=sybil, path=document_path)
+    except _ParseError as exc:
+        _log_error(message=str(object=exc))
         return
 
-    _evaluate_document(document=document, args=args)
+    try:
+        _evaluate_document(document=document, args=args)
+    except _EvaluateError as exc:
+        if exc.reason:
+            message = (
+                f"Error running command '{exc.command_args[0]}': {exc.reason}"
+            )
+            _log_error(message=message)
+        sys.exit(exc.exit_code)
 
 
 @click.command(name="doccmd")

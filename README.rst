@@ -1,4 +1,4 @@
-|Build Status| |codecov| |PyPI| |Documentation Status|
+|Build Status| |codecov| |PyPI|
 
 doccmd
 ======
@@ -19,7 +19,7 @@ Requires Python |minimum-python-version|\+.
 
 .. code-block:: shell
 
-   pip install doccmd
+   $ pip install doccmd
 
 With Homebrew (macOS, Linux, WSL)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -28,17 +28,17 @@ Requires `Homebrew`_.
 
 .. code-block:: shell
 
-   brew tap adamtheturtle/doccmd
-   brew install doccmd
+   $ brew tap adamtheturtle/doccmd
+   $ brew install doccmd
 
 .. _Homebrew: https://docs.brew.sh/Installation
 
-Pre-built Linux binaries
-~~~~~~~~~~~~~~~~~~~~~~~~
+Pre-built Linux (x86) binaries
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: console
 
-   $ curl --fail -L https://github.com/adamtheturtle/doccmd/releases/download/2025.02.19/doccmd -o /usr/local/bin/doccmd &&
+   $ curl --fail -L https://github.com/adamtheturtle/doccmd/releases/download/2025.02.20.7/doccmd-linux -o /usr/local/bin/doccmd &&
        chmod +x /usr/local/bin/doccmd
 
 Using ``doccmd`` as a pre-commit hook
@@ -49,7 +49,7 @@ To run ``doccmd`` with `pre-commit`_, add hooks like the following to your ``.pr
 .. code-block:: yaml
 
    -   repo: https://github.com/adamtheturtle/doccmd-pre-commit
-       rev: v2025.02.19
+       rev: v2025.02.20.7
        hooks:
        -   id: doccmd
            args: ["--language", "shell", "--command", "shellcheck --shell=bash"]
@@ -238,7 +238,7 @@ To treat a
 Full documentation
 ------------------
 
-See the `full documentation <https://doccmd.readthedocs.io/en/latest>`__.
+See the `full documentation <https://adamtheturtle.github.io/doccmd/>`__.
 
 .. |Build Status| image:: https://github.com/adamtheturtle/doccmd/actions/workflows/ci.yml/badge.svg?branch=main
    :target: https://github.com/adamtheturtle/doccmd/actions
@@ -246,7 +246,4 @@ See the `full documentation <https://doccmd.readthedocs.io/en/latest>`__.
    :target: https://codecov.io/gh/adamtheturtle/doccmd
 .. |PyPI| image:: https://badge.fury.io/py/doccmd.svg
    :target: https://badge.fury.io/py/doccmd
-.. |Documentation Status| image:: https://readthedocs.org/projects/doccmd/badge/?version=latest
-   :target: https://doccmd.readthedocs.io/en/latest/?badge=latest
-   :alt: Documentation Status
-.. |minimum-python-version| replace:: 3.10
+.. |minimum-python-version| replace:: 3.11

@@ -4,8 +4,7 @@ Changelog
 Next
 ----
 
-2025.02.19
-----------
+* Support files which are not UTF-8 encoded.
 
 2025.02.18
 ----------

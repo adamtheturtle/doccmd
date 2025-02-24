@@ -20,7 +20,7 @@ license = { file = "LICENSE" }
 authors = [
     { name = "Adam Dangoor", email = "adamdangoor@gmail.com" },
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Environment :: Web Environment",
@@ -28,7 +28,6 @@ classifiers = [
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -38,13 +37,14 @@ dynamic = [
 ]
 dependencies = [
     "beartype>=0.19.0",
+    "charset-normalizer>=3.4.1",
     "click>=8.1.7",
     "pygments>=2.18.0",
     "sybil>=9.1.0,<10.0.0",
     # Pin this dependency as we expect:
     # * It might have breaking changes
     # * It is not a direct dependency of the user
-    "sybil-extras==2025.2.19.1",
+    "sybil-extras==2025.2.23",
 ]
 optional-dependencies.dev = [
     "actionlint-py==1.7.7.23",
@@ -53,7 +53,6 @@ optional-dependencies.dev = [
     "deptry==0.23.0",
     "doc8==1.1.2",
     "docformatter==1.7.5",
-    "docker==7.1.0",
     "furo==2024.8.6",
     "interrogate==1.7.0",
     "mypy[faster-cache]==1.15.0",
@@ -63,28 +62,28 @@ optional-dependencies.dev = [
     "pyenchant==3.3.0rc1",
     "pygments==2.19.1",
     "pylint==3.3.4",
-    "pyproject-fmt==2.5.0",
+    "pyproject-fmt==2.5.1",
     "pyright==1.1.393",
     "pyroma==4.2",
     "pytest==8.3.4",
     "pytest-cov==6.0.0",
     "pytest-regressions==2.7.0",
     "pyyaml==6.0.2",
-    "ruff==0.9.6",
+    "ruff==0.9.7",
     # We add shellcheck-py not only for shell scripts and shell code blocks,
     # but also because having it installed means that ``actionlint-py`` will
     # use it to lint shell commands in GitHub workflow files.
     "shellcheck-py==0.10.0.1",
     "shfmt-py==3.7.0.1",
-    "sphinx==8.1.3",
+    "sphinx==8.2.1",
     "sphinx-click==6.0.0",
     "sphinx-copybutton==0.5.2",
     "sphinx-inline-tabs==2023.4.21",
     "sphinx-lint==1.0.0",
-    "sphinx-substitution-extensions==2025.1.2",
+    "sphinx-pyproject==0.3.0",
+    "sphinx-substitution-extensions==2025.2.19",
     "sphinxcontrib-spelling==8.0.1",
-    "types-docker==7.1.0.20241229",
-    "types-pygments==2.19.0.20250107",
+    "types-pygments==2.19.0.20250219",
     "vulture==2.14",
     "yamlfix==1.17.0",
 ]
@@ -95,7 +94,7 @@ optional-dependencies.release = [
     "check-wheel-contents==0.6.1",
     "homebrew-pypi-poet==0.10",
 ]
-urls.Documentation = "https://doccmd.readthedocs.io/en/latest/"
+urls.Documentation = "https://adamtheturtle.github.io/doccmd/"
 urls.Source = "https://github.com/adamtheturtle/doccmd"
 scripts.doccmd = "doccmd:main"
 
@@ -311,7 +310,7 @@ ignore = [
     "docs",
     "docs/**",
     "lint.mk",
-    "readthedocs.yaml",
+
     "spelling_private_dict.txt",
     "src/*/_setuptools_scm_version.py",
     "tests",

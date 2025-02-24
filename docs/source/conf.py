@@ -5,11 +5,20 @@ Configuration for Sphinx.
 # pylint: disable=invalid-name
 
 import importlib.metadata
+from pathlib import Path
 
 from packaging.specifiers import SpecifierSet
+from packaging.version import Version
+from sphinx_pyproject import SphinxConfig
 
-project = "doccmd"
-author = "Adam Dangoor"
+_pyproject_file = Path(__file__).parent.parent.parent / "pyproject.toml"
+_pyproject_config = SphinxConfig(
+    pyproject_file=_pyproject_file,
+    config_overrides={"version": None},
+)
+
+project = _pyproject_config.name
+author = _pyproject_config.author
 
 extensions = [
     "sphinx_copybutton",
@@ -30,16 +39,31 @@ project_copyright = f"%Y, {author}"
 copybutton_exclude = ".linenos, .gp"
 
 # The version info for the project you're documenting, acts as replacement for
-# |version| and |release|, also used in various other places throughout the
+# |release|, also used in various other places throughout the
 # built documents.
 #
 # Use ``importlib.metadata.version`` as per
 # https://setuptools-scm.readthedocs.io/en/latest/usage/#usage-from-sphinx.
-version = importlib.metadata.version(distribution_name=project)
-# This method of getting the release from the version goes hand in hand with
-# the ``post-release`` versioning scheme chosen in the ``setuptools-scm``
-# configuration.
-release = version.split(sep=".post")[0]
+_version_string = importlib.metadata.version(distribution_name=project)
+_version = Version(version=_version_string)
+if _version.major == 0:
+    msg = (
+        f"The version is {_version_string}. "
+        "This indicates that the version is not set correctly. "
+        "This is likely because the project was built without having all "
+        "Git tags available."
+    )
+    raise ValueError(msg)
+
+# GitHub release tags have the format YYYY.MM.DD, while Python requirement
+# versions may have the format YYYY.M.D for single digit months and days.
+_num_date_parts = 3
+release = ".".join(
+    [
+        f"{part:02d}" if index < _num_date_parts else str(object=part)
+        for index, part in enumerate(iterable=_version.release)
+    ]
+)
 
 project_metadata = importlib.metadata.metadata(distribution_name=project)
 requires_python = project_metadata["Requires-Python"]
@@ -59,7 +83,6 @@ pygments_style = "sphinx"
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = "doccmd"
-autoclass_content = "init"
 intersphinx_mapping = {
     "python": (f"https://docs.python.org/{minimum_python_version}", None),
 }

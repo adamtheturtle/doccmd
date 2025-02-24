@@ -17,16 +17,24 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ['3.10', '3.11', '3.12', '3.13']
+        python-version: ['3.11', '3.12', '3.13']
         platform: [ubuntu-latest, windows-latest]
 
     runs-on: ${{ matrix.platform }}
 
     steps:
       - uses: actions/checkout@v4
+        # We need our tags in order to calculate the version
+        # in the Sphinx setup.
+        with:
+          fetch-depth: 0
+          fetch-tags: true
 
       - name: Install uv
         uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: '**/pyproject.toml'
 
       - name: Lint
         run: |
