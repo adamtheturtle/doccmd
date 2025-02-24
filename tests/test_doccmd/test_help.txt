@@ -87,4 +87,8 @@ Options:
                                   in directories. This option can be used
                                   multiple times. Use forward slashes on all
                                   platforms.
+  --fail-on-parse-error / --no-fail-on-parse-error
+                                  Whether to fail (with exit code 1) if a given
+                                  file cannot be parsed.  [default: no-fail-on-
+                                  parse-error]
   --help                          Show this message and exit.
