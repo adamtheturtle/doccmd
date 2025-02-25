@@ -2658,3 +2658,16 @@ def test_group_blocks(tmp_path: Path) -> None:
     assert result.exit_code == 0, (result.stdout, result.stderr)
     assert result.stdout == expected_output
     assert result.stderr == ""
+
+
+"""
+TASKS:
+
+* Change to be `.. doccmd[all]: start` and `.. doccmd[all]: end` by default
+    - Might need support of GroupParser to re.escape like the SkipParser
+* Test group without --no-pad-file
+* Test group with writing to a file
+* Add options for custom group markers
+* Document in README
+* Document in Sphinx
+"""
