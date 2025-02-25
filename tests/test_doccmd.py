@@ -2594,7 +2594,7 @@ def test_group_blocks(tmp_path: Path) -> None:
 
        block_1
 
-    .. group: start
+    .. group doccmd[all]: start
 
     .. code-block:: python
 
@@ -2604,7 +2604,7 @@ def test_group_blocks(tmp_path: Path) -> None:
 
        block_group_2
 
-    .. group: end
+    .. group doccmd[all]: end
 
     .. code-block:: python
 
