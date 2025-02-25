@@ -190,7 +190,7 @@ For example:
    echo "This will run"
    ```
 
-To skip multiple code blocks in a row, use ``skip doccmd[all]: start`` and ``skip doccmd[all]: end`` surrounding the code blocks to skip.
+To skip multiple code blocks in a row, use ``skip doccmd[all]: start`` and ``skip doccmd[all]: end`` comments surrounding the code blocks to skip.
 
 Use the ``--skip-marker`` option to set a marker for this particular command which will work as well as ``"all"``.
 For example, use ``--skip-marker="type-check"`` to skip code blocks which come just after a comment matching ``skip doccmd[type-check]: next``.
@@ -233,7 +233,9 @@ and:
 and wish to type check the two code blocks as if they were one.
 By default, this will error as in the second code block, ``my_function`` is not defined.
 
-To treat a
+To treat code blocks as one, use ``group doccmd[all]: start`` and ``group doccmd[all]: end`` comments surrounding the code blocks to group.
+Grouped code blocks will not have their contents updated in the documentation file.
+Error messages for grouped code blocks may include lines which do not match the document.
 
 Full documentation
 ------------------
