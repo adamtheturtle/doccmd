@@ -2588,34 +2588,50 @@ def test_group_blocks(tmp_path: Path) -> None:
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
+    print_underlined_script_file = tmp_path / "print_underlined.py"
     content = """\
     .. code-block:: python
 
-        block_1
+       block_1
 
-    .. group doccmd[all]: start
-
-    .. code-block:: python
-
-        block_group_1
+    .. group: start
 
     .. code-block:: python
 
-        block_group_2
-
-    .. group doccmd[all]: end
+       block_group_1
 
     .. code-block:: python
 
-        block_3
+       block_group_2
+
+    .. group: end
+
+    .. code-block:: python
+
+       block_3
     """
     rst_file.write_text(data=content, encoding="utf-8")
+
+    print_underlined_script = textwrap.dedent(
+        text="""\
+        import sys
+        import pathlib
+
+        print(pathlib.Path(sys.argv[1]).read_text())
+        print("-------")
+        """,
+    )
+    print_underlined_script_file.write_text(
+        data=print_underlined_script,
+        encoding="utf-8",
+    )
+
     arguments = [
         "--no-pad-file",
         "--language",
         "python",
         "--command",
-        "cat",
+        f"{sys.executable} {print_underlined_script_file}",
         str(object=rst_file),
     ]
     result = runner.invoke(
@@ -2628,8 +2644,15 @@ def test_group_blocks(tmp_path: Path) -> None:
     expected_output = textwrap.dedent(
         text="""\
         block_1
-        block_group_1 block_group_2
+
+        -------
+        block_group_1
+        block_group_2
+
+        -------
         block_3
+
+        -------
         """,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
