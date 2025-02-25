@@ -412,6 +412,7 @@ def _run_args_against_docs(
     pad_temporary_file: bool,
     verbose: bool,
     skip_markers: Iterable[str],
+    group_markers: Iterable[str],
     use_pty: bool,
     markup_language: MarkupLanguage,
 ) -> None:
@@ -471,7 +472,7 @@ def _run_args_against_docs(
         )
     ]
 
-    group_markers = {"all"}
+    group_markers = {*group_markers, "all"}
     group_directives = _get_group_directives(markers=group_markers)
     group_parsers = [
         markup_language.group_parser_cls(
@@ -564,6 +565,33 @@ def _run_args_against_docs(
         To skip a code block for each of multiple markers, for example to skip
         a code block for the ``type-check`` and ``lint`` markers but not all
         markers, add multiple ``skip doccmd`` comments above the code block.
+        """
+    ),
+    multiple=True,
+    callback=_deduplicate,
+)
+@click.option(
+    "group_markers",
+    "--group-marker",
+    type=str,
+    default=None,
+    show_default=True,
+    required=False,
+    help=(
+        """\
+        The marker used to identify code blocks to be grouped.
+
+        By default, code blocks which come just between comments matching
+        'group doccmd[all]: start' and 'group doccmd[all]: end' are grouped
+        (e.g. `.. group doccmd[all]: start` in reStructuredText, `<!--- group
+        doccmd[all]: start -->` in Markdown, or `% group doccmd[all]: start` in
+        MyST).
+
+        When using this option, those, and code blocks which arge grouped by
+        a comment including the given marker are ignored. For example, if the
+        given marker is 'type-check', code blocks which come within comments
+        matching 'group doccmd[type-check]: start' and
+        'group doccmd[type-check]: end' are also skipped.
         """
     ),
     multiple=True,
@@ -723,6 +751,7 @@ def main(
     pad_file: bool,
     verbose: bool,
     skip_markers: Sequence[str],
+    group_markers: Sequence[str],
     use_pty_option: _UsePty,
     rst_suffixes: Sequence[str],
     myst_suffixes: Sequence[str],
@@ -786,6 +815,7 @@ def main(
                     temporary_file_extension=temporary_file_extension,
                     temporary_file_name_prefix=temporary_file_name_prefix,
                     skip_markers=skip_markers,
+                    group_markers=group_markers,
                     use_pty=use_pty,
                     markup_language=markup_language,
                 )

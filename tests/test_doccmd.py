@@ -2587,9 +2587,18 @@ def test_lexing_exception(
         ["--no-pad-file"],
     ],
 )
+@pytest.mark.parametrize(
+    argnames=("group_marker", "group_marker_options"),
+    argvalues=[
+        ("all", []),
+        ("custom-marker", ["--group-marker", "custom-marker"]),
+    ],
+)
 def test_group_blocks(
     tmp_path: Path,
     file_padding_options: Sequence[str],
+    group_marker: str,
+    group_marker_options: Sequence[str],
 ) -> None:
     """It is possible to group some blocks together.
 
@@ -2599,12 +2608,12 @@ def test_group_blocks(
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
     print_underlined_script_file = tmp_path / "print_underlined.py"
-    content = """\
+    content = f"""\
     .. code-block:: python
 
        block_1
 
-    .. group doccmd[all]: start
+    .. group doccmd[{group_marker}]: start
 
     .. code-block:: python
 
@@ -2614,7 +2623,7 @@ def test_group_blocks(
 
        block_group_2
 
-    .. group doccmd[all]: end
+    .. group doccmd[{group_marker}]: end
 
     .. code-block:: python
 
@@ -2640,6 +2649,7 @@ def test_group_blocks(
 
     arguments = [
         *file_padding_options,
+        *group_marker_options,
         "--language",
         "python",
         "--command",
