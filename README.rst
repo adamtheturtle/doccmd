@@ -212,37 +212,12 @@ For example, if we used ``doccmd`` with ``--language=shell`` and ``--skip-marker
    echo "This will run"
    ```
 
-To skip multiple code blocks in a row, use ``skip doccmd[all]: start`` and ``skip doccmd[all]: end`` comments surrounding the code blocks to skip.
-
-Use the ``--skip-marker`` option to set a marker for this particular command which will work as well as ``"all"``.
-For example, use ``--skip-marker="type-check"`` to skip code blocks which come just after a comment matching ``skip doccmd[type-check]: next``.
-
-To skip a code block for each of multiple markers, for example to skip a code block for the ``type-check`` and ``lint`` markers but not all markers, add multiple ``skip doccmd`` comments above the code block.
-
-The skip marker will skip the next code block which would otherwise be run.
-This means that if you run ``doccmd`` with ``--language=python``, the Python code block in the following example will be skipped:
-
-.. code-block:: markdown
-
-   <-- skip doccmd[all]: next -->
-
-   ```{code-block} shell
-   echo "This will not run because the shell language was not selected"
-   ```
-
-   ```{code-block} python
-   print("This will be skipped!")
-   ```
-
 Combining code blocks
 ---------------------
 
 You might have two code blocks like this:
 
-.. TODO: CAN WE COMBINE WHEN RUNNING MYPY BUT NOT RUFF FORMAT?
-.. EG ``.. group doccmd[mypy] start/end`` to group this command with the ones below, but just for mypy+ruff and use ``--group-marker``
-
-.. group doccmd: start
+.. group doccmd[all]: start
 
 .. code-block:: python
 
@@ -250,14 +225,6 @@ You might have two code blocks like this:
       """Do nothing."""
       pass
 
-and:
-
-.. TODO: Later use the combine command, not the skip
-.. TODO: Maybe error if write_to_file is True and combine is used? or only if the file is written to?
-
-.. skip doccmd[ruff]: next
-.. skip doccmd[mypy]: next
-.. skip doccmd[pyright]: next
 
 .. code-block:: python
 
