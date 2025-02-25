@@ -146,7 +146,7 @@ Skipping code blocks
 Code blocks which come just after a comment matching
 ``skip doccmd[all]: next`` are skipped.
 
-For example:
+For example, if we used ``doccmd`` with ``--language=shell``, the following examples show how to skip code blocks in different formats:
 
 * reStructuredText (``.rst``)
 
