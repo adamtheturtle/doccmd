@@ -63,6 +63,7 @@ Reference
    commands
    file-names-and-linter-ignores
    skip-code-blocks
+   group-code-blocks
    contributing
    release-process
    changelog

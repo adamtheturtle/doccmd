@@ -212,8 +212,8 @@ For example, if we used ``doccmd`` with ``--language=shell`` and ``--skip-marker
    echo "This will run"
    ```
 
-Combining code blocks
----------------------
+Grouping code blocks
+--------------------
 
 You might have two code blocks like this:
 
