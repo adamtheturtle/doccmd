@@ -2580,7 +2580,17 @@ def test_lexing_exception(
     assert result.stderr == expected_stderr
 
 
-def test_group_blocks(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    argnames="file_padding_options",
+    argvalues=[
+        [],
+        ["--no-pad-file"],
+    ],
+)
+def test_group_blocks(
+    tmp_path: Path,
+    file_padding_options: Sequence[str],
+) -> None:
     """It is possible to group some blocks together.
 
     Code blocks between a group start and end marker are concatenated
@@ -2617,7 +2627,9 @@ def test_group_blocks(tmp_path: Path) -> None:
         import sys
         import pathlib
 
-        print(pathlib.Path(sys.argv[1]).read_text())
+        # We strip here so that we don't have to worry about
+        # the file padding.
+        print(pathlib.Path(sys.argv[1]).read_text().strip())
         print("-------")
         """,
     )
@@ -2627,7 +2639,7 @@ def test_group_blocks(tmp_path: Path) -> None:
     )
 
     arguments = [
-        "--no-pad-file",
+        *file_padding_options,
         "--language",
         "python",
         "--command",
@@ -2644,14 +2656,11 @@ def test_group_blocks(tmp_path: Path) -> None:
     expected_output = textwrap.dedent(
         text="""\
         block_1
-
         -------
         block_group_1
         block_group_2
-
         -------
         block_3
-
         -------
         """,
     )
@@ -2663,7 +2672,6 @@ def test_group_blocks(tmp_path: Path) -> None:
 """
 TASKS:
 
-* Test group without --no-pad-file
 * Test group with writing to a file
 * Add options for custom group markers
 * Document in README
