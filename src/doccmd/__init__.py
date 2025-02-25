@@ -587,7 +587,7 @@ def _run_args_against_docs(
         doccmd[all]: start -->` in Markdown, or `% group doccmd[all]: start` in
         MyST).
 
-        When using this option, those, and code blocks which arge grouped by
+        When using this option, those, and code blocks which are grouped by
         a comment including the given marker are ignored. For example, if the
         given marker is 'type-check', code blocks which come within comments
         matching 'group doccmd[type-check]: start' and
