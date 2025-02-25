@@ -2653,7 +2653,7 @@ def test_group_blocks(
         "--language",
         "python",
         "--command",
-        f"{sys.executable} {print_underlined_script_file}",
+        f"{sys.executable} {print_underlined_script_file.as_posix()}",
         str(object=rst_file),
     ]
     result = runner.invoke(
