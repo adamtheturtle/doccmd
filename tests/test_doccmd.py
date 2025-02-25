@@ -473,7 +473,7 @@ def test_multiple_files_multiple_types(tmp_path: Path) -> None:
 
 def test_modify_file(tmp_path: Path) -> None:
     """
-    Commands can modify files.
+    Commands (outside of groups) can modify files.
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
@@ -2669,10 +2669,57 @@ def test_group_blocks(
     assert result.stderr == ""
 
 
+def test_modify_file_group_command(tmp_path: Path) -> None:
+    """
+    Commands in groups cannot modify files.
+    """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    content = """\
+    .. group doccmd[all]: start
+
+    .. code-block:: python
+
+        a = 1
+        b = 1
+        c = 1
+
+    .. group doccmd[all]: end
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    modify_code_script = textwrap.dedent(
+        text="""\
+        #!/usr/bin/env python
+
+        import sys
+
+        with open(sys.argv[1], "w") as file:
+            file.write("foobar")
+        """,
+    )
+    modify_code_file = tmp_path / "modify_code.py"
+    modify_code_file.write_text(data=modify_code_script, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        f"python {modify_code_file.as_posix()}",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    new_content = rst_file.read_text(encoding="utf-8")
+    assert new_content == content
+
+
 """
 TASKS:
 
-* Test group with writing to a file
 * Add options for custom group markers
 * Document in README
 * Document in Sphinx
