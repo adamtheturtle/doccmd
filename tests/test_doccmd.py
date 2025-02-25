@@ -473,7 +473,7 @@ def test_multiple_files_multiple_types(tmp_path: Path) -> None:
 
 def test_modify_file(tmp_path: Path) -> None:
     """
-    Commands can modify files.
+    Commands (outside of groups) can modify files.
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
@@ -2578,3 +2578,147 @@ def test_lexing_exception(
         """,  # noqa: E501
     )
     assert result.stderr == expected_stderr
+
+
+@pytest.mark.parametrize(
+    argnames="file_padding_options",
+    argvalues=[
+        [],
+        ["--no-pad-file"],
+    ],
+)
+@pytest.mark.parametrize(
+    argnames=("group_marker", "group_marker_options"),
+    argvalues=[
+        ("all", []),
+        ("custom-marker", ["--group-marker", "custom-marker"]),
+    ],
+)
+def test_group_blocks(
+    tmp_path: Path,
+    file_padding_options: Sequence[str],
+    group_marker: str,
+    group_marker_options: Sequence[str],
+) -> None:
+    """It is possible to group some blocks together.
+
+    Code blocks between a group start and end marker are concatenated
+    and passed as a single input to the command.
+    """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    script = tmp_path / "print_underlined.py"
+    content = f"""\
+    .. code-block:: python
+
+       block_1
+
+    .. group doccmd[{group_marker}]: start
+
+    .. code-block:: python
+
+       block_group_1
+
+    .. code-block:: python
+
+       block_group_2
+
+    .. group doccmd[{group_marker}]: end
+
+    .. code-block:: python
+
+       block_3
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+
+    print_underlined_script = textwrap.dedent(
+        text="""\
+        import sys
+        import pathlib
+
+        # We strip here so that we don't have to worry about
+        # the file padding.
+        print(pathlib.Path(sys.argv[1]).read_text().strip())
+        print("-------")
+        """,
+    )
+    script.write_text(data=print_underlined_script, encoding="utf-8")
+
+    arguments = [
+        *file_padding_options,
+        *group_marker_options,
+        "--language",
+        "python",
+        "--command",
+        f"{Path(sys.executable).as_posix()} {script.as_posix()}",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    # The expected output is that the content outside the group remains
+    # unchanged, while the contents inside the group are merged.
+    expected_output = textwrap.dedent(
+        text="""\
+        block_1
+        -------
+        block_group_1
+        block_group_2
+        -------
+        block_3
+        -------
+        """,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
+def test_modify_file_group_command(tmp_path: Path) -> None:
+    """
+    Commands in groups cannot modify files.
+    """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    content = """\
+    .. group doccmd[all]: start
+
+    .. code-block:: python
+
+        a = 1
+        b = 1
+        c = 1
+
+    .. group doccmd[all]: end
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    modify_code_script = textwrap.dedent(
+        text="""\
+        #!/usr/bin/env python
+
+        import sys
+
+        with open(sys.argv[1], "w") as file:
+            file.write("foobar")
+        """,
+    )
+    modify_code_file = tmp_path / "modify_code.py"
+    modify_code_file.write_text(data=modify_code_script, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        f"{Path(sys.executable).as_posix()} {modify_code_file.as_posix()}",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    new_content = rst_file.read_text(encoding="utf-8")
+    assert new_content == content

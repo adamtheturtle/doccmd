@@ -10,8 +10,11 @@ import sybil.parsers.markdown
 import sybil.parsers.myst
 import sybil.parsers.rest
 import sybil_extras.parsers.markdown.custom_directive_skip
+import sybil_extras.parsers.markdown.grouped_code_block
 import sybil_extras.parsers.myst.custom_directive_skip
+import sybil_extras.parsers.myst.grouped_code_block
 import sybil_extras.parsers.rest.custom_directive_skip
+import sybil_extras.parsers.rest.grouped_code_block
 from beartype import beartype
 from sybil import Document, Region
 from sybil.typing import Evaluator
@@ -34,6 +37,29 @@ class _SkipParser(Protocol):
     def __call__(self, document: Document) -> Iterable[Region]:
         """
         Call the skip parser.
+        """
+        # We disable a pylint warning here because the ellipsis is required
+        # for pyright to recognize this as a protocol.
+        ...  # pylint: disable=unnecessary-ellipsis
+
+
+@runtime_checkable
+class _GroupedCodeBlockParser(Protocol):
+    """
+    A parser for grouping code blocks.
+    """
+
+    def __init__(self, directive: str, evaluator: Evaluator) -> None:
+        """
+        Construct a grouped code block parser.
+        """
+        # We disable a pylint warning here because the ellipsis is required
+        # for pyright to recognize this as a protocol.
+        ...  # pylint: disable=unnecessary-ellipsis
+
+    def __call__(self, document: Document) -> Iterable[Region]:
+        """
+        Call the grouped code block parser.
         """
         # We disable a pylint warning here because the ellipsis is required
         # for pyright to recognize this as a protocol.
@@ -77,6 +103,7 @@ class MarkupLanguage:
     name: str
     skip_parser_cls: type[_SkipParser]
     code_block_parser_cls: type[_CodeBlockParser]
+    group_parser_cls: type[_GroupedCodeBlockParser]
 
 
 MyST = MarkupLanguage(
@@ -85,16 +112,19 @@ MyST = MarkupLanguage(
         sybil_extras.parsers.myst.custom_directive_skip.CustomDirectiveSkipParser
     ),
     code_block_parser_cls=sybil.parsers.myst.CodeBlockParser,
+    group_parser_cls=sybil_extras.parsers.myst.grouped_code_block.GroupedCodeBlockParser,
 )
 
 ReStructuredText = MarkupLanguage(
     name="reStructuredText",
     skip_parser_cls=sybil_extras.parsers.rest.custom_directive_skip.CustomDirectiveSkipParser,
     code_block_parser_cls=sybil.parsers.rest.CodeBlockParser,
+    group_parser_cls=sybil_extras.parsers.rest.grouped_code_block.GroupedCodeBlockParser,
 )
 
 Markdown = MarkupLanguage(
     name="Markdown",
     skip_parser_cls=sybil_extras.parsers.markdown.custom_directive_skip.CustomDirectiveSkipParser,
     code_block_parser_cls=sybil.parsers.markdown.CodeBlockParser,
+    group_parser_cls=sybil_extras.parsers.markdown.grouped_code_block.GroupedCodeBlockParser,
 )

@@ -5,6 +5,7 @@ Next
 ----
 
 * Support files which are not UTF-8 encoded.
+* Support grouping code blocks with ``doccmd group[all]: start`` and ``doccmd group[all]: end`` comments.
 
 2025.02.18
 ----------
@@ -15,6 +16,7 @@ Next
 ----------
 
 * Add support for Markdown (not MyST) files.
+* Add support for treating groups of code blocks as one.
 * Drop support for Python 3.10.
 
 2025.01.11

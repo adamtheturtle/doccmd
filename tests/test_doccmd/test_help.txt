@@ -43,6 +43,24 @@ Options:
                                   the ``type-check`` and ``lint`` markers but
                                   not all markers, add multiple ``skip doccmd``
                                   comments above the code block.
+  --group-marker TEXT             The marker used to identify code blocks to be
+                                  grouped.
+                                  
+                                  By default, code blocks which come just
+                                  between comments matching 'group doccmd[all]:
+                                  start' and 'group doccmd[all]: end' are
+                                  grouped (e.g. `.. group doccmd[all]: start` in
+                                  reStructuredText, `<!--- group doccmd[all]:
+                                  start -->` in Markdown, or `% group
+                                  doccmd[all]: start` in MyST).
+                                  
+                                  When using this option, those, and code blocks
+                                  which are grouped by a comment including the
+                                  given marker are ignored. For example, if the
+                                  given marker is 'type-check', code blocks
+                                  which come within comments matching 'group
+                                  doccmd[type-check]: start' and 'group
+                                  doccmd[type-check]: end' are also skipped.
   --pad-file / --no-pad-file      Run the command against a temporary file
                                   padded with newlines. This is useful for
                                   matching line numbers from the output to the
