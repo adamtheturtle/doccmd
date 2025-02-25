@@ -2663,8 +2663,6 @@ def test_group_blocks(tmp_path: Path) -> None:
 """
 TASKS:
 
-* Change to be `.. doccmd[all]: start` and `.. doccmd[all]: end` by default
-    - Might need support of GroupParser to re.escape like the SkipParser
 * Test group without --no-pad-file
 * Test group with writing to a file
 * Add options for custom group markers
