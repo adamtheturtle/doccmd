@@ -10,13 +10,10 @@ You might have two code blocks like this:
    """Example function which is used in a future code block."""
 
    def my_function() -> None:
-      """Do nothing."""
-      pass
+       """Do nothing."""
 
 
 .. code-block:: python
-
-   """Run a function which is defined in the previous code block."""
 
    my_function()
 

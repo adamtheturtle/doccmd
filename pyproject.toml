@@ -62,6 +62,7 @@ optional-dependencies.dev = [
     "pyenchant==3.3.0rc1",
     "pygments==2.19.1",
     "pylint==3.3.4",
+    "pylint-per-file-ignores==1.4.0",
     "pyproject-fmt==2.5.1",
     "pyright==1.1.393",
     "pyroma==4.2",
@@ -194,6 +195,7 @@ load-plugins = [
     'pylint.extensions.redefined_variable_type',
     'pylint.extensions.set_membership',
     'pylint.extensions.typing',
+    "pylint_per_file_ignores",
 ]
 
 # Allow loading of arbitrary C extensions. Extensions are imported into the
@@ -252,6 +254,10 @@ disable = [
     'wrong-import-order',
     # mypy does not want untyped parameters.
     'useless-type-doc',
+]
+
+per-file-ignores = [
+    "doccmd_README_rst.*.py:invalid-name",
 ]
 
 [tool.pylint.'FORMAT']
