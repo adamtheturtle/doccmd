@@ -197,6 +197,21 @@ For example, use ``--skip-marker="type-check"`` to skip code blocks which come j
 
 To skip a code block for each of multiple markers, for example to skip a code block for the ``type-check`` and ``lint`` markers but not all markers, add multiple ``skip doccmd`` comments above the code block.
 
+The skip marker will skip the next code block which would otherwise be run.
+This means that if you run ``doccmd`` with ``--language=python``, the Python code block in the following example will be skipped:
+
+.. code-block:: markdown
+
+   <-- skip doccmd[all]: next -->
+
+   ```{code-block} shell
+   echo "This will not run because the shell language was not selected"
+   ```
+
+   ```{code-block} python
+   print("This will be skipped!")
+   ```
+
 Combining code blocks
 ---------------------
 
