@@ -274,16 +274,16 @@ def _map_languages_to_suffix() -> dict[str, str]:
 
 
 @beartype
-def _get_skip_directives(skip_markers: Iterable[str]) -> Sequence[str]:
+def _get_skip_directives(markers: Iterable[str]) -> Sequence[str]:
     """
     Skip directives based on the provided skip markers.
     """
-    skip_directives: Sequence[str] = []
+    directives: Sequence[str] = []
 
-    for skip_marker in skip_markers:
-        skip_directive = rf"skip doccmd[{skip_marker}]"
-        skip_directives = [*skip_directives, skip_directive]
-    return skip_directives
+    for marker in markers:
+        skip_directive = rf"skip doccmd[{marker}]"
+        directives = [*directives, skip_directive]
+    return directives
 
 
 @beartype
@@ -444,7 +444,7 @@ def _run_args_against_docs(
     evaluator = MultiEvaluator(evaluators=evaluators)
 
     skip_markers = {*skip_markers, "all"}
-    skip_directives = _get_skip_directives(skip_markers=skip_markers)
+    skip_directives = _get_skip_directives(markers=skip_markers)
     skip_parsers = [
         markup_language.skip_parser_cls(
             directive=skip_directive,
