@@ -2607,7 +2607,7 @@ def test_group_blocks(
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
-    print_underlined_script_file = tmp_path / "print_underlined.py"
+    script = tmp_path / "print_underlined.py"
     content = f"""\
     .. code-block:: python
 
@@ -2642,10 +2642,7 @@ def test_group_blocks(
         print("-------")
         """,
     )
-    print_underlined_script_file.write_text(
-        data=print_underlined_script,
-        encoding="utf-8",
-    )
+    script.write_text(data=print_underlined_script, encoding="utf-8")
 
     arguments = [
         *file_padding_options,
@@ -2653,7 +2650,7 @@ def test_group_blocks(
         "--language",
         "python",
         "--command",
-        f"{sys.executable} {print_underlined_script_file.as_posix()}",
+        f"{Path(sys.executable).as_posix()} {script.as_posix()}",
         str(object=rst_file),
     ]
     result = runner.invoke(
@@ -2713,7 +2710,7 @@ def test_modify_file_group_command(tmp_path: Path) -> None:
         "--language",
         "python",
         "--command",
-        f"python {modify_code_file.as_posix()}",
+        f"{Path(sys.executable).as_posix()} {modify_code_file.as_posix()}",
         str(object=rst_file),
     ]
     result = runner.invoke(
