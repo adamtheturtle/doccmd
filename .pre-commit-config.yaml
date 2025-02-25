@@ -129,7 +129,7 @@ repos:
       - id: mypy-docs
         name: mypy-docs
         stages: [pre-push]
-        entry: uv run --extra=dev doccmd --language=python --command="mypy" --skip-marker="mypy"
+        entry: uv run --extra=dev doccmd --language=python --command="mypy"
         language: python
         types_or: [markdown, rst]
         additional_dependencies: [uv==0.5.20]
@@ -154,7 +154,7 @@ repos:
       - id: pyright-docs
         name: pyright-docs
         stages: [pre-push]
-        entry: uv run --extra=dev doccmd --language=python --command="pyright" --skip-marker="pyright"
+        entry: uv run --extra=dev doccmd --language=python --command="pyright"
         language: python
         types_or: [markdown, rst]
         additional_dependencies: [uv==0.5.20]
@@ -214,8 +214,7 @@ repos:
 
       - id: ruff-check-fix-docs
         name: Ruff check fix docs
-        entry: |
-          uv run --extra=dev doccmd --language=python --command="ruff check --fix" --skip-marker="ruff"
+        entry: uv run --extra=dev doccmd --language=python --command="ruff check --fix"
         language: python
         types_or: [markdown, rst]
         additional_dependencies: [uv==0.5.20]
