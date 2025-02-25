@@ -2715,15 +2715,3 @@ def test_modify_file_group_command(tmp_path: Path) -> None:
     assert result.exit_code == 0, (result.stdout, result.stderr)
     new_content = rst_file.read_text(encoding="utf-8")
     assert new_content == content
-
-
-"""
-TASKS:
-
-* Add options for custom group markers
-* Document in README
-* Document in Sphinx
-* How about newlines wanted between blocks?
-- maybe have a ".. doccmd[all]: 4" to add 4 newlines between blocks
-- or keep original line numbers and add that many newlines?
-"""
