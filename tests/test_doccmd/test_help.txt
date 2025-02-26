@@ -61,6 +61,10 @@ Options:
                                   which come within comments matching 'group
                                   doccmd[type-check]: start' and 'group
                                   doccmd[type-check]: end' are also skipped.
+                                  
+                                  Error messages for grouped code blocks may
+                                  include lines which do not match the document,
+                                  so code formatters will not work on them.
   --pad-file / --no-pad-file      Run the command against a temporary file
                                   padded with newlines. This is useful for
                                   matching line numbers from the output to the
