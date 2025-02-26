@@ -441,21 +441,41 @@ def _run_args_against_docs(
         newline_bytes.decode(encoding=encoding) if newline_bytes else None
     )
 
+    tempfile_suffixes = (temporary_file_extension,)
+    temporary_file_name_prefix = temporary_file_name_prefix or ""
+
     shell_command_evaluator = ShellCommandEvaluator(
         args=args,
-        tempfile_suffixes=(temporary_file_extension,),
+        tempfile_suffixes=tempfile_suffixes,
         pad_file=pad_temporary_file,
         write_to_file=True,
-        tempfile_name_prefix=temporary_file_name_prefix or "",
+        tempfile_name_prefix=temporary_file_name_prefix,
+        newline=newline,
+        use_pty=use_pty,
+        encoding=encoding,
+    )
+
+    shell_command_group_evaluator = ShellCommandEvaluator(
+        args=args,
+        tempfile_suffixes=tempfile_suffixes,
+        pad_file=pad_temporary_file,
+        # We do not write to file for grouped code blocks.
+        write_to_file=False,
+        tempfile_name_prefix=temporary_file_name_prefix,
         newline=newline,
         use_pty=use_pty,
         encoding=encoding,
     )
 
     evaluators: Sequence[Evaluator] = [shell_command_evaluator]
+    group_evaluators: Sequence[Evaluator] = [shell_command_group_evaluator]
     if verbose:
-        evaluators = [*evaluators, _LogCommandEvaluator(args=args)]
+        log_command_evaluator = _LogCommandEvaluator(args=args)
+        evaluators = [*evaluators, log_command_evaluator]
+        group_evaluators = [*group_evaluators, log_command_evaluator]
+
     evaluator = MultiEvaluator(evaluators=evaluators)
+    group_evaluator = MultiEvaluator(evaluators=group_evaluators)
 
     skip_markers = {*skip_markers, "all"}
     skip_directives = _get_skip_directives(markers=skip_markers)
@@ -477,7 +497,7 @@ def _run_args_against_docs(
     group_parsers = [
         markup_language.group_parser_cls(
             directive=group_directive,
-            evaluator=evaluator,
+            evaluator=group_evaluator,
         )
         for group_directive in group_directives
     ]
@@ -592,6 +612,9 @@ def _run_args_against_docs(
         given marker is 'type-check', code blocks which come within comments
         matching 'group doccmd[type-check]: start' and
         'group doccmd[type-check]: end' are also skipped.
+
+        Error messages for grouped code blocks may include lines which do not
+        match the document, so code formatters will not work on them.
         """
     ),
     multiple=True,

@@ -2665,6 +2665,9 @@ def test_group_blocks(
         block_1
         -------
         block_group_1
+
+
+
         block_group_2
         -------
         block_3
@@ -2676,9 +2679,9 @@ def test_group_blocks(
     assert result.stderr == ""
 
 
-def test_modify_file_group_command(tmp_path: Path) -> None:
+def test_modify_file_single_group_block(tmp_path: Path) -> None:
     """
-    Commands in groups cannot modify files.
+    Commands in groups cannot modify files in single grouped blocks.
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
@@ -2721,4 +2724,57 @@ def test_modify_file_group_command(tmp_path: Path) -> None:
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     new_content = rst_file.read_text(encoding="utf-8")
-    assert new_content == content
+    expected_content = content
+    assert new_content == expected_content
+
+
+def test_modify_file_multiple_group_blocks(tmp_path: Path) -> None:
+    """
+    Commands in groups can modify files in single grouped commands.
+    """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    content = """\
+    .. group doccmd[all]: start
+
+    .. code-block:: python
+
+        a = 1
+        b = 1
+
+    .. code-block:: python
+
+        c = 1
+
+    .. group doccmd[all]: end
+    """
+    rst_file.write_text(data=content, encoding="utf-8")
+    modify_code_script = textwrap.dedent(
+        text="""\
+        #!/usr/bin/env python
+
+        import sys
+
+        with open(sys.argv[1], "w") as file:
+            file.write("foobar")
+        """,
+    )
+    modify_code_file = tmp_path / "modify_code.py"
+    modify_code_file.write_text(data=modify_code_script, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        f"{Path(sys.executable).as_posix()} {modify_code_file.as_posix()}",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    new_content = rst_file.read_text(encoding="utf-8")
+    expected_content = content
+    assert new_content == expected_content
