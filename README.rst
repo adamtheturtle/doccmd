@@ -118,7 +118,7 @@ Formatters and padding
 Running linters with ``doccmd`` gives you errors and warnings with line numbers that match the documentation file.
 It does this by adding padding to the code blocks before running the command.
 
-Some tools do not work well with this padding, and you can choose to obscure the line numbers in order to give the tool the original code block's content without padding, by using the ``--no-pad-file`` flag.
+Some tools do not work well with this padding, and you can choose to obscure the line numbers in order to give the tool the original code block's content without padding, by using the ``--no-pad-file`` and ``--no-pad-groups`` flag.
 
 File names and linter ignores
 -----------------------------
@@ -222,6 +222,7 @@ You might have two code blocks like this:
 .. code-block:: python
 
    """Example function which is used in a future code block."""
+
 
    def my_function() -> None:
        """Do nothing."""

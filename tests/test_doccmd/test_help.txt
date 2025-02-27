@@ -72,6 +72,13 @@ Options:
                                   pad-file for formatters - they generally need
                                   to look at the file without padding.
                                   [default: pad-file]
+  --pad-groups / --no-pad-groups  Maintain line spacing between groups from the
+                                  source file in the temporary file. This is
+                                  useful for matching line numbers from the
+                                  output to the relevant location in the
+                                  document. Use --no-pad-groups for formatters -
+                                  they generally need to look at the file
+                                  without padding.  [default: pad-groups]
   --version                       Show the version and exit.
   -v, --verbose                   Enable verbose output.
   --use-pty                       Use a pseudo-terminal for running commands.

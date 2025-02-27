@@ -410,6 +410,7 @@ def _run_args_against_docs(
     temporary_file_extension: str | None,
     temporary_file_name_prefix: str | None,
     pad_temporary_file: bool,
+    pad_groups: bool,
     verbose: bool,
     skip_markers: Iterable[str],
     group_markers: Iterable[str],
@@ -498,7 +499,7 @@ def _run_args_against_docs(
         markup_language.group_parser_cls(
             directive=group_directive,
             evaluator=group_evaluator,
-            pad_groups=True,
+            pad_groups=pad_groups,
         )
         for group_directive in group_directives
     ]
@@ -631,6 +632,20 @@ def _run_args_against_docs(
         "This is useful for matching line numbers from the output to "
         "the relevant location in the document. "
         "Use --no-pad-file for formatters - "
+        "they generally need to look at the file without padding."
+    ),
+)
+@click.option(
+    "--pad-groups/--no-pad-groups",
+    is_flag=True,
+    default=True,
+    show_default=True,
+    help=(
+        "Maintain line spacing between groups from the source file in the "
+        "temporary file. "
+        "This is useful for matching line numbers from the output to "
+        "the relevant location in the document. "
+        "Use --no-pad-groups for formatters - "
         "they generally need to look at the file without padding."
     ),
 )
@@ -773,6 +788,7 @@ def main(
     temporary_file_extension: str | None,
     temporary_file_name_prefix: str | None,
     pad_file: bool,
+    pad_groups: bool,
     verbose: bool,
     skip_markers: Sequence[str],
     group_markers: Sequence[str],
@@ -835,6 +851,7 @@ def main(
                     document_path=file_path,
                     code_block_language=code_block_language,
                     pad_temporary_file=pad_file,
+                    pad_groups=pad_groups,
                     verbose=verbose,
                     temporary_file_extension=temporary_file_extension,
                     temporary_file_name_prefix=temporary_file_name_prefix,
