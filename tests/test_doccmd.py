@@ -43,12 +43,14 @@ def test_run_command(tmp_path: Path) -> None:
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
-    content = """\
-    .. code-block:: python
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-        x = 2 + 2
-        assert x == 4
-    """
+            x = 2 + 2
+            assert x == 4
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
@@ -85,12 +87,14 @@ def test_double_language(tmp_path: Path) -> None:
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
-    content = """\
-    .. code-block:: python
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-        x = 2 + 2
-        assert x == 4
-    """
+            x = 2 + 2
+            assert x == 4
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
@@ -151,11 +155,13 @@ def test_not_utf_8_file_given(tmp_path: Path) -> None:
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
-    content = """\
-    .. code-block:: python
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-       print("\xc0\x80")
-    """
+           print("\xc0\x80")
+        """,
+    )
     rst_file.write_text(data=content, encoding="latin1")
     arguments = [
         "--language",
@@ -224,17 +230,19 @@ def test_multiple_code_blocks(tmp_path: Path) -> None:
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
-    content = """\
-    .. code-block:: python
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-        x = 2 + 2
-        assert x == 4
+            x = 2 + 2
+            assert x == 4
 
-    .. code-block:: python
+        .. code-block:: python
 
-        y = 3 + 3
-        assert y == 6
-    """
+            y = 3 + 3
+            assert y == 6
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
@@ -278,17 +286,19 @@ def test_language_filters(tmp_path: Path) -> None:
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
-    content = """\
-    .. code-block:: python
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-        x = 2 + 2
-        assert x == 4
+            x = 2 + 2
+            assert x == 4
 
-    .. code-block:: javascript
+        .. code-block:: javascript
 
-        var y = 3 + 3;
-        console.assert(y === 6);
-    """
+            var y = 3 + 3;
+            console.assert(y === 6);
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
@@ -323,12 +333,14 @@ def test_run_command_no_pad_file(tmp_path: Path) -> None:
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
-    content = """\
-    .. code-block:: python
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-        x = 2 + 2
-        assert x == 4
-    """
+            x = 2 + 2
+            assert x == 4
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
@@ -417,28 +429,32 @@ def test_multiple_files_multiple_types(tmp_path: Path) -> None:
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
     md_file = tmp_path / "example.md"
-    rst_content = """\
-    .. code-block:: python
+    rst_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-       print("In reStructuredText code-block")
+            print("In reStructuredText code-block")
 
-    .. code:: python
+        .. code:: python
 
-       print("In reStructuredText code")
-    """
-    md_content = """\
-    ```python
-    print("In simple markdown code block")
-    ```
+            print("In reStructuredText code")
+        """,
+    )
+    md_content = textwrap.dedent(
+        text="""\
+        ```python
+        print("In simple markdown code block")
+        ```
 
-    ```{code-block} python
-    print("In MyST code-block")
-    ```
+        ```{code-block} python
+        print("In MyST code-block")
+        ```
 
-    ```{code} python
-    print("In MyST code")
-    ```
-    """
+        ```{code} python
+        print("In MyST code")
+        ```
+        """,
+    )
     rst_file.write_text(data=rst_content, encoding="utf-8")
     md_file.write_text(data=md_content, encoding="utf-8")
     arguments = [
@@ -477,13 +493,15 @@ def test_modify_file(tmp_path: Path) -> None:
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
-    content = """\
-    .. code-block:: python
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-        a = 1
-        b = 1
-        c = 1
-    """
+            a = 1
+            b = 1
+            c = 1
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8")
     modify_code_script = textwrap.dedent(
         text="""\
@@ -512,11 +530,13 @@ def test_modify_file(tmp_path: Path) -> None:
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     modified_content = rst_file.read_text(encoding="utf-8")
-    expected_modified_content = """\
-    .. code-block:: python
+    expected_modified_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-        foobar
-    """
+            foobar
+        """,
+    )
     assert modified_content == expected_modified_content
 
 
@@ -527,12 +547,14 @@ def test_exit_code(tmp_path: Path) -> None:
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
     exit_code = 25
-    content = f"""\
-    .. code-block:: python
+    content = textwrap.dedent(
+        text=f"""\
+        .. code-block:: python
 
-        import sys
-        sys.exit({exit_code})
-    """
+            import sys
+            sys.exit({exit_code})
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
@@ -567,12 +589,14 @@ def test_file_extension(
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
-    content = f"""\
-    .. code-block:: {language}
+    content = textwrap.dedent(
+        text=f"""\
+        .. code-block:: {language}
 
-        x = 2 + 2
-        assert x == 4
-    """
+            x = 2 + 2
+            assert x == 4
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
@@ -599,12 +623,14 @@ def test_given_temporary_file_extension(tmp_path: Path) -> None:
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
-    content = """\
-    .. code-block:: python
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-        x = 2 + 2
-        assert x == 4
-    """
+            x = 2 + 2
+            assert x == 4
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
@@ -636,12 +662,14 @@ def test_given_temporary_file_extension_no_leading_period(
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
-    content = """\
-    .. code-block:: python
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-        x = 2 + 2
-        assert x == 4
-    """
+            x = 2 + 2
+            assert x == 4
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
@@ -677,12 +705,14 @@ def test_given_prefix(tmp_path: Path) -> None:
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
-    content = """\
-    .. code-block:: python
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-        x = 2 + 2
-        assert x == 4
-    """
+            x = 2 + 2
+            assert x == 4
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
@@ -712,12 +742,14 @@ def test_file_extension_unknown_language(tmp_path: Path) -> None:
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
-    content = """\
-    .. code-block:: unknown
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: unknown
 
-        x = 2 + 2
-        assert x == 4
-    """
+            x = 2 + 2
+            assert x == 4
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
@@ -745,16 +777,20 @@ def test_file_given_multiple_times(tmp_path: Path) -> None:
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
     other_rst_file = tmp_path / "other_example.rst"
-    content = """\
-    .. code-block:: python
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-        block
-    """
-    other_content = """\
-    .. code-block:: python
+            block
+        """,
+    )
+    other_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-        other_block
-    """
+            other_block
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8")
     other_rst_file.write_text(data=other_content, encoding="utf-8")
     arguments = [
@@ -794,23 +830,25 @@ def test_verbose_running(tmp_path: Path) -> None:
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
-    content = """\
-    .. code-block:: python
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-        x = 2 + 2
-        assert x == 4
+            x = 2 + 2
+            assert x == 4
 
-    .. skip doccmd[all]: next
+        .. skip doccmd[all]: next
 
-    .. code-block:: python
+        .. code-block:: python
 
-        x = 3 + 3
-        assert x == 6
+            x = 3 + 3
+            assert x == 6
 
-    .. code-block:: shell
+        .. code-block:: shell
 
-        echo 1
-    """
+            echo 1
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
@@ -866,12 +904,14 @@ def test_command_not_found(tmp_path: Path) -> None:
     rst_file = tmp_path / "example.rst"
     non_existent_command = uuid.uuid4().hex
     non_existent_command_with_args = f"{non_existent_command} --help"
-    content = """\
-    .. code-block:: python
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-        x = 2 + 2
-        assert x == 4
-    """
+            x = 2 + 2
+            assert x == 4
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
@@ -905,12 +945,14 @@ def test_not_executable(tmp_path: Path) -> None:
     not_executable_command_with_args = (
         f"{not_executable_command.as_posix()} --help"
     )
-    content = """\
-    .. code-block:: python
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-        x = 2 + 2
-        assert x == 4
-    """
+            x = 2 + 2
+            assert x == 4
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
@@ -939,17 +981,19 @@ def test_multiple_languages(tmp_path: Path) -> None:
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
-    content = """\
-    .. code-block:: python
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-        x = 2 + 2
-        assert x == 4
+            x = 2 + 2
+            assert x == 4
 
-    .. code-block:: javascript
+        .. code-block:: javascript
 
-        var y = 3 + 3;
-        console.assert(y === 6);
-    """
+            var y = 3 + 3;
+            console.assert(y === 6);
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--no-pad-file",
@@ -988,21 +1032,23 @@ def test_default_skip_rst(tmp_path: Path) -> None:
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
-    content = """\
-    .. code-block:: python
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-       block_1
+           block_1
 
-    .. skip doccmd[all]: next
+        .. skip doccmd[all]: next
 
-    .. code-block:: python
+        .. code-block:: python
 
-        block_2
+            block_2
 
-    .. code-block:: python
+        .. code-block:: python
 
-        block_3
-    """
+            block_3
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--no-pad-file",
@@ -1047,13 +1093,15 @@ def test_skip_no_arguments(
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
-    content = """\
-    .. skip doccmd[all]:
+    content = textwrap.dedent(
+        text="""\
+        .. skip doccmd[all]:
 
-    .. code-block:: python
+        .. code-block:: python
 
-        block_2
-    """
+            block_2
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         *fail_on_parse_error_options,
@@ -1101,13 +1149,15 @@ def test_skip_bad_arguments(
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
-    content = """\
-    .. skip doccmd[all]: !!!
+    content = textwrap.dedent(
+        text="""\
+        .. skip doccmd[all]: !!!
 
-    .. code-block:: python
+        .. code-block:: python
 
-        block_2
-    """
+            block_2
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         *fail_on_parse_error_options,
@@ -1146,21 +1196,23 @@ def test_custom_skip_markers_rst(tmp_path: Path) -> None:
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
     skip_marker = uuid.uuid4().hex
-    content = f"""\
-    .. code-block:: python
+    content = textwrap.dedent(
+        text=f"""\
+        .. code-block:: python
 
-       block_1
+            block_1
 
-    .. skip doccmd[{skip_marker}]: next
+        .. skip doccmd[{skip_marker}]: next
 
-    .. code-block:: python
+        .. code-block:: python
 
-        block_2
+            block_2
 
-    .. code-block:: python
+        .. code-block:: python
 
-        block_3
-    """
+            block_3
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--no-pad-file",
@@ -1197,29 +1249,31 @@ def test_default_skip_myst(tmp_path: Path) -> None:
     """
     runner = CliRunner(mix_stderr=False)
     myst_file = tmp_path / "example.md"
-    content = """\
-    Example
+    content = textwrap.dedent(
+        text="""\
+        Example
 
-    ```python
-    block_1
-    ```
+        ```python
+        block_1
+        ```
 
-    <!--- skip doccmd[all]: next -->
+        <!--- skip doccmd[all]: next -->
 
-    ```python
-    block_2
-    ```
+        ```python
+        block_2
+        ```
 
-    ```python
-    block_3
-    ```
+        ```python
+        block_3
+        ```
 
-    % skip doccmd[all]: next
+        % skip doccmd[all]: next
 
-    ```python
-    block_4
-    ```
-    """
+        ```python
+        block_4
+        ```
+        """,
+    )
     myst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--no-pad-file",
@@ -1255,29 +1309,31 @@ def test_custom_skip_markers_myst(tmp_path: Path) -> None:
     runner = CliRunner(mix_stderr=False)
     myst_file = tmp_path / "example.md"
     skip_marker = uuid.uuid4().hex
-    content = f"""\
-    Example
+    content = textwrap.dedent(
+        text=f"""\
+        Example
 
-    ```python
-    block_1
-    ```
+        ```python
+        block_1
+        ```
 
-    <!--- skip doccmd[{skip_marker}]: next -->
+        <!--- skip doccmd[{skip_marker}]: next -->
 
-    ```python
-    block_2
-    ```
+        ```python
+        block_2
+        ```
 
-    ```python
-    block_3
-    ```
+        ```python
+        block_3
+        ```
 
-    % skip doccmd[{skip_marker}]: next
+        % skip doccmd[{skip_marker}]: next
 
-    ```python
-    block_4
-    ```
-    """
+        ```python
+        block_4
+        ```
+        """,
+    )
     myst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--no-pad-file",
@@ -1315,29 +1371,31 @@ def test_multiple_skip_markers(tmp_path: Path) -> None:
     rst_file = tmp_path / "example.rst"
     skip_marker_1 = uuid.uuid4().hex
     skip_marker_2 = uuid.uuid4().hex
-    content = f"""\
-    .. code-block:: python
+    content = textwrap.dedent(
+        text=f"""\
+        .. code-block:: python
 
-       block_1
+            block_1
 
-    .. skip doccmd[{skip_marker_1}]: next
+        .. skip doccmd[{skip_marker_1}]: next
 
-    .. code-block:: python
+        .. code-block:: python
 
-        block_2
+            block_2
 
-    .. skip doccmd[{skip_marker_2}]: next
+        .. skip doccmd[{skip_marker_2}]: next
 
-    .. code-block:: python
+        .. code-block:: python
 
-        block_3
+            block_3
 
-    .. skip doccmd[all]: next
+        .. skip doccmd[all]: next
 
-    .. code-block:: python
+        .. code-block:: python
 
-        block_4
-    """
+            block_4
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--no-pad-file",
@@ -1376,27 +1434,29 @@ def test_skip_start_end(tmp_path: Path) -> None:
     rst_file = tmp_path / "example.rst"
     skip_marker_1 = uuid.uuid4().hex
     skip_marker_2 = uuid.uuid4().hex
-    content = """\
-    .. code-block:: python
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-       block_1
+            block_1
 
-    .. skip doccmd[all]: start
+        .. skip doccmd[all]: start
 
-    .. code-block:: python
+        .. code-block:: python
 
-        block_2
+            block_2
 
-    .. code-block:: python
+        .. code-block:: python
 
-        block_3
+            block_3
 
-    .. skip doccmd[all]: end
+        .. skip doccmd[all]: end
 
-    .. code-block:: python
+        .. code-block:: python
 
-        block_4
-    """
+            block_4
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--no-pad-file",
@@ -1435,23 +1495,25 @@ def test_duplicate_skip_marker(tmp_path: Path) -> None:
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
     skip_marker = uuid.uuid4().hex
-    content = f"""\
-    .. code-block:: python
+    content = textwrap.dedent(
+        text=f"""\
+        .. code-block:: python
 
-       block_1
+            block_1
 
-    .. skip doccmd[{skip_marker}]: next
+        .. skip doccmd[{skip_marker}]: next
 
-    .. code-block:: python
+        .. code-block:: python
 
-        block_2
+            block_2
 
-    .. skip doccmd[{skip_marker}]: next
+        .. skip doccmd[{skip_marker}]: next
 
-    .. code-block:: python
+        .. code-block:: python
 
-        block_3
-    """
+            block_3
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--no-pad-file",
@@ -1489,23 +1551,25 @@ def test_default_skip_marker_given(tmp_path: Path) -> None:
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
     skip_marker = "all"
-    content = f"""\
-    .. code-block:: python
+    content = textwrap.dedent(
+        text=f"""\
+        .. code-block:: python
 
-       block_1
+            block_1
 
-    .. skip doccmd[{skip_marker}]: next
+        .. skip doccmd[{skip_marker}]: next
 
-    .. code-block:: python
+        .. code-block:: python
 
-        block_2
+            block_2
 
-    .. skip doccmd[{skip_marker}]: next
+        .. skip doccmd[{skip_marker}]: next
 
-    .. code-block:: python
+        .. code-block:: python
 
-        block_3
-    """
+            block_3
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--no-pad-file",
@@ -1542,18 +1606,20 @@ def test_skip_multiple(tmp_path: Path) -> None:
     rst_file = tmp_path / "example.rst"
     skip_marker_1 = uuid.uuid4().hex
     skip_marker_2 = uuid.uuid4().hex
-    content = f"""\
-    .. code-block:: python
+    content = textwrap.dedent(
+        text=f"""\
+        .. code-block:: python
 
-       block_1
+            block_1
 
-    .. skip doccmd[{skip_marker_1}]: next
-    .. skip doccmd[{skip_marker_2}]: next
+        .. skip doccmd[{skip_marker_1}]: next
+        .. skip doccmd[{skip_marker_2}]: next
 
-    .. code-block:: python
+        .. code-block:: python
 
-        block_2
-    """
+            block_2
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--no-pad-file",
@@ -1615,13 +1681,15 @@ def test_bad_skips(tmp_path: Path) -> None:
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
     skip_marker_1 = uuid.uuid4().hex
-    content = f"""\
-    .. skip doccmd[{skip_marker_1}]: end
+    content = textwrap.dedent(
+        text=f"""\
+        .. skip doccmd[{skip_marker_1}]: end
 
-    .. code-block:: python
+        .. code-block:: python
 
-        block_2
-    """
+            block_2
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--no-pad-file",
@@ -1697,11 +1765,13 @@ def test_detect_line_endings(
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
-    content = """\
-    .. code-block:: python
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-       block_1
-    """
+            block_1
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8", newline=source_newline)
     arguments = [
         "--no-pad-file",
@@ -1731,15 +1801,17 @@ def test_one_supported_markup_in_another_extension(tmp_path: Path) -> None:
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
-    content = """\
-    ```python
-    print("In simple markdown code block")
-    ```
+    content = textwrap.dedent(
+        text="""\
+        ```python
+        print("In simple markdown code block")
+        ```
 
-    ```{code-block} python
-    print("In MyST code-block")
-    ```
-    """
+        ```{code-block} python
+        print("In MyST code-block")
+        ```
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
@@ -1768,12 +1840,14 @@ def test_unknown_file_suffix(extension: str, tmp_path: Path) -> None:
     """
     runner = CliRunner(mix_stderr=False)
     document_file = tmp_path / ("example" + extension)
-    content = """\
-    .. code-block:: python
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-        x = 2 + 2
-        assert x == 4
-    """
+            x = 2 + 2
+            assert x == 4
+        """,
+    )
     document_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
@@ -1808,11 +1882,13 @@ def test_custom_rst_file_suffixes(tmp_path: Path) -> None:
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.customrst"
-    content = """\
-    .. code-block:: python
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-        x = 1
-    """
+            x = 1
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8")
     rst_file_2 = tmp_path / "example.customrst2"
     content_2 = """\
@@ -1857,11 +1933,13 @@ def test_custom_myst_file_suffixes(tmp_path: Path) -> None:
     """
     runner = CliRunner(mix_stderr=False)
     myst_file = tmp_path / "example.custommyst"
-    content = """\
-    ```python
-    x = 1
-    ```
-    """
+    content = textwrap.dedent(
+        text="""\
+        ```python
+        x = 1
+        ```
+        """,
+    )
     myst_file.write_text(data=content, encoding="utf-8")
     myst_file_2 = tmp_path / "example.custommyst2"
     content_2 = """\
@@ -1935,11 +2013,13 @@ def test_pty(
     script = tmp_path / "my_script.py"
     script.write_text(data=tty_test)
     script.chmod(mode=stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR)
-    content = """\
-    .. code-block:: python
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-       block_1
-    """
+            block_1
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         *options,
@@ -2012,11 +2092,13 @@ def test_overlapping_extensions(tmp_path: Path) -> None:
     """
     runner = CliRunner(mix_stderr=False)
     source_file = tmp_path / "example.custom"
-    content = """\
-    .. code-block:: python
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-        x = 1
-    """
+            x = 1
+        """,
+    )
     source_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
@@ -2058,11 +2140,13 @@ def test_overlapping_extensions_dot(tmp_path: Path) -> None:
     """
     runner = CliRunner(mix_stderr=False)
     source_file = tmp_path / "example.custom"
-    content = """\
-    .. code-block:: python
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-        x = 1
-    """
+            x = 1
+        """,
+    )
     source_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
@@ -2100,23 +2184,25 @@ def test_markdown(tmp_path: Path) -> None:
     """
     runner = CliRunner(mix_stderr=False)
     source_file = tmp_path / "example.md"
-    content = """\
-    % skip doccmd[all]: next
+    content = textwrap.dedent(
+        text="""\
+        % skip doccmd[all]: next
 
-    ```python
-        x = 1
-    ```
+        ```python
+            x = 1
+        ```
 
-    <!--- skip doccmd[all]: next -->
+        <!--- skip doccmd[all]: next -->
 
-    ```python
-        x = 2
-    ```
+        ```python
+            x = 2
+        ```
 
-    ```python
-        x = 3
-    ```
-    """
+        ```python
+            x = 3
+        ```
+        """,
+    )
     source_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
@@ -2163,27 +2249,33 @@ def test_directory(tmp_path: Path) -> None:
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
-    rst_content = """\
-    .. code-block:: python
+    rst_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-       rst_1_block
-    """
+            rst_1_block
+        """,
+    )
     rst_file.write_text(data=rst_content, encoding="utf-8")
     md_file = tmp_path / "example.md"
-    md_content = """\
-    ```python
-    md_1_block
-    ```
-    """
+    md_content = textwrap.dedent(
+        text="""\
+        ```python
+        md_1_block
+        ```
+        """,
+    )
     md_file.write_text(data=md_content, encoding="utf-8")
     sub_directory = tmp_path / "subdir"
     sub_directory.mkdir()
     rst_file_in_sub_directory = sub_directory / "subdir_example.rst"
-    subdir_rst_content = """\
-    .. code-block:: python
+    subdir_rst_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-       rst_subdir_1_block
-    """
+            rst_subdir_1_block
+        """,
+    )
     rst_file_in_sub_directory.write_text(
         data=subdir_rst_content,
         encoding="utf-8",
@@ -2226,20 +2318,24 @@ def test_de_duplication_source_files_and_dirs(tmp_path: Path) -> None:
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
-    rst_content = """\
-    .. code-block:: python
+    rst_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-       rst_1_block
-    """
+            rst_1_block
+        """,
+    )
     rst_file.write_text(data=rst_content, encoding="utf-8")
     sub_directory = tmp_path / "subdir"
     sub_directory.mkdir()
     rst_file_in_sub_directory = sub_directory / "subdir_example.rst"
-    subdir_rst_content = """\
-    .. code-block:: python
+    subdir_rst_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-       rst_subdir_1_block
-    """
+            rst_subdir_1_block
+        """,
+    )
     rst_file_in_sub_directory.write_text(
         data=subdir_rst_content,
         encoding="utf-8",
@@ -2279,21 +2375,25 @@ def test_max_depth(tmp_path: Path) -> None:
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
-    rst_content = """\
-    .. code-block:: python
+    rst_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-        rst_1_block
-    """
+            rst_1_block
+        """,
+    )
     rst_file.write_text(data=rst_content, encoding="utf-8")
 
     sub_directory = tmp_path / "subdir"
     sub_directory.mkdir()
     rst_file_in_sub_directory = sub_directory / "subdir_example.rst"
-    subdir_rst_content = """\
-    .. code-block:: python
+    subdir_rst_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-        rst_subdir_1_block
-    """
+            rst_subdir_1_block
+        """,
+    )
     rst_file_in_sub_directory.write_text(
         data=subdir_rst_content,
         encoding="utf-8",
@@ -2302,11 +2402,13 @@ def test_max_depth(tmp_path: Path) -> None:
     sub_sub_directory = sub_directory / "subsubdir"
     sub_sub_directory.mkdir()
     rst_file_in_sub_sub_directory = sub_sub_directory / "subsubdir_example.rst"
-    subsubdir_rst_content = """\
-    .. code-block:: python
+    subsubdir_rst_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-        rst_subsubdir_1_block
-    """
+            rst_subsubdir_1_block
+        """,
+    )
     rst_file_in_sub_sub_directory.write_text(
         data=subsubdir_rst_content,
         encoding="utf-8",
@@ -2401,32 +2503,38 @@ def test_exclude_files_from_recursed_directories(tmp_path: Path) -> None:
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
-    rst_content = """\
-    .. code-block:: python
+    rst_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-        rst_1_block
-    """
+            rst_1_block
+        """,
+    )
     rst_file.write_text(data=rst_content, encoding="utf-8")
 
     sub_directory = tmp_path / "subdir"
     sub_directory.mkdir()
     rst_file_in_sub_directory = sub_directory / "subdir_example.rst"
-    subdir_rst_content = """\
-    .. code-block:: python
+    subdir_rst_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-        rst_subdir_1_block
-    """
+            rst_subdir_1_block
+        """,
+    )
     rst_file_in_sub_directory.write_text(
         data=subdir_rst_content,
         encoding="utf-8",
     )
 
     excluded_file = sub_directory / "exclude_me.rst"
-    excluded_content = """\
-    .. code-block:: python
+    excluded_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-        excluded_block
-    """
+            excluded_block
+        """,
+    )
     excluded_file.write_text(data=excluded_content, encoding="utf-8")
 
     arguments = [
@@ -2464,21 +2572,25 @@ def test_multiple_exclude_patterns(tmp_path: Path) -> None:
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
-    rst_content = """\
-    .. code-block:: python
+    rst_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-        rst_1_block
-    """
+            rst_1_block
+        """,
+    )
     rst_file.write_text(data=rst_content, encoding="utf-8")
 
     sub_directory = tmp_path / "subdir"
     sub_directory.mkdir()
     rst_file_in_sub_directory = sub_directory / "subdir_example.rst"
-    subdir_rst_content = """\
-    .. code-block:: python
+    subdir_rst_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-        rst_subdir_1_block
-    """
+            rst_subdir_1_block
+        """,
+    )
     rst_file_in_sub_directory.write_text(
         data=subdir_rst_content,
         encoding="utf-8",
@@ -2549,9 +2661,11 @@ def test_lexing_exception(
     source_file = tmp_path / "invalid_example.md"
     # Lexing error as there is a hyphen in the comment
     # or... because of the word code!
-    invalid_content = """\
-    <!-- code -->
-    """
+    invalid_content = textwrap.dedent(
+        text="""\
+        <!-- code -->
+        """,
+    )
     source_file.write_text(data=invalid_content, encoding="utf-8")
     arguments = [
         *fail_on_parse_error_options,
@@ -2573,8 +2687,8 @@ def test_lexing_exception(
     )
     expected_stderr = textwrap.dedent(
         text=f"""\
-        {fg.red}Could not parse {source_file}: Could not find end of '    <!-- code -->\\n', starting at line 1, column 1, looking for '(?:(?<=\\n)    )?--+>' in {source_file}:
-        '    '{reset}
+        {fg.red}Could not parse {source_file}: Could not find end of '<!-- code -->\\n', starting at line 1, column 1, looking for '(?:(?<=\\n))?--+>' in {source_file}:
+        ''{reset}
         """,  # noqa: E501
     )
     assert result.stderr == expected_stderr
@@ -2608,27 +2722,29 @@ def test_group_blocks(
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
     script = tmp_path / "print_underlined.py"
-    content = f"""\
-    .. code-block:: python
+    content = textwrap.dedent(
+        text=f"""\
+        .. code-block:: python
 
-       block_1
+            block_1
 
-    .. group doccmd[{group_marker}]: start
+        .. group doccmd[{group_marker}]: start
 
-    .. code-block:: python
+        .. code-block:: python
 
-       block_group_1
+            block_group_1
 
-    .. code-block:: python
+        .. code-block:: python
 
-       block_group_2
+            block_group_2
 
-    .. group doccmd[{group_marker}]: end
+        .. group doccmd[{group_marker}]: end
 
-    .. code-block:: python
+        .. code-block:: python
 
-       block_3
-    """
+            block_3
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8")
 
     print_underlined_script = textwrap.dedent(
@@ -2685,17 +2801,19 @@ def test_modify_file_single_group_block(tmp_path: Path) -> None:
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
-    content = """\
-    .. group doccmd[all]: start
+    content = textwrap.dedent(
+        text="""\
+        .. group doccmd[all]: start
 
-    .. code-block:: python
+        .. code-block:: python
 
-        a = 1
-        b = 1
-        c = 1
+            a = 1
+            b = 1
+            c = 1
 
-    .. group doccmd[all]: end
-    """
+        .. group doccmd[all]: end
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8")
     modify_code_script = textwrap.dedent(
         text="""\
@@ -2734,20 +2852,22 @@ def test_modify_file_multiple_group_blocks(tmp_path: Path) -> None:
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
-    content = """\
-    .. group doccmd[all]: start
+    content = textwrap.dedent(
+        text="""\
+        .. group doccmd[all]: start
 
-    .. code-block:: python
+        .. code-block:: python
 
-        a = 1
-        b = 1
+            a = 1
+            b = 1
 
-    .. code-block:: python
+        .. code-block:: python
 
-        c = 1
+            c = 1
 
-    .. group doccmd[all]: end
-    """
+        .. group doccmd[all]: end
+        """,
+    )
     rst_file.write_text(data=content, encoding="utf-8")
     modify_code_script = textwrap.dedent(
         text="""\
