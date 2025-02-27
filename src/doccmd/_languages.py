@@ -49,7 +49,13 @@ class _GroupedCodeBlockParser(Protocol):
     A parser for grouping code blocks.
     """
 
-    def __init__(self, directive: str, evaluator: Evaluator) -> None:
+    def __init__(
+        self,
+        *,
+        directive: str,
+        evaluator: Evaluator,
+        pad_groups: bool,
+    ) -> None:
         """
         Construct a grouped code block parser.
         """

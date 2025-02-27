@@ -498,6 +498,7 @@ def _run_args_against_docs(
         markup_language.group_parser_cls(
             directive=group_directive,
             evaluator=group_evaluator,
+            pad_groups=True,
         )
         for group_directive in group_directives
     ]

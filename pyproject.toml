@@ -44,7 +44,7 @@ dependencies = [
     # Pin this dependency as we expect:
     # * It might have breaking changes
     # * It is not a direct dependency of the user
-    "sybil-extras==2025.2.27",
+    "sybil-extras==2025.2.27.1",
 ]
 optional-dependencies.dev = [
     "actionlint-py==1.7.7.23",
@@ -432,6 +432,7 @@ ignore_names = [
     # Ignore Protocol method arguments
     # see https://github.com/jendrikseipp/vulture/issues/309
     "directive",
+    "pad_groups",
 ]
 
 exclude = [
