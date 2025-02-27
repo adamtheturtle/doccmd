@@ -983,7 +983,7 @@ def test_multiple_languages(tmp_path: Path) -> None:
 
 def test_default_skip_rst(tmp_path: Path) -> None:
     """
-    By default, the next code block after a 'doccmd skip: next' comment in a
+    By default, the next code block after a 'skip doccmd: next' comment in a
     rST document is not run.
     """
     runner = CliRunner(mix_stderr=False)
@@ -1192,7 +1192,7 @@ def test_custom_skip_markers_rst(tmp_path: Path) -> None:
 
 def test_default_skip_myst(tmp_path: Path) -> None:
     """
-    By default, the next code block after a 'doccmd skip: next' comment in a
+    By default, the next code block after a 'skip doccmd: next' comment in a
     MyST document is not run.
     """
     runner = CliRunner(mix_stderr=False)
