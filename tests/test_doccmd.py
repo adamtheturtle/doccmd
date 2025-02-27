@@ -2708,11 +2708,21 @@ def test_lexing_exception(
         ("custom-marker", ["--group-marker", "custom-marker"]),
     ],
 )
+@pytest.mark.parametrize(
+    argnames=("group_padding_options", "expect_padding"),
+    argvalues=[
+        ([], True),
+        (["--no-pad-groups"], False),
+    ],
+)
 def test_group_blocks(
+    *,
     tmp_path: Path,
     file_padding_options: Sequence[str],
     group_marker: str,
     group_marker_options: Sequence[str],
+    group_padding_options: Sequence[str],
+    expect_padding: bool,
 ) -> None:
     """It is possible to group some blocks together.
 
@@ -2762,6 +2772,7 @@ def test_group_blocks(
 
     arguments = [
         *file_padding_options,
+        *group_padding_options,
         *group_marker_options,
         "--language",
         "python",
@@ -2776,20 +2787,34 @@ def test_group_blocks(
     )
     # The expected output is that the content outside the group remains
     # unchanged, while the contents inside the group are merged.
-    expected_output = textwrap.dedent(
-        text="""\
-        block_1
-        -------
-        block_group_1
+    if expect_padding:
+        expected_output = textwrap.dedent(
+            text="""\
+            block_1
+            -------
+            block_group_1
 
 
 
-        block_group_2
-        -------
-        block_3
-        -------
-        """,
-    )
+            block_group_2
+            -------
+            block_3
+            -------
+            """,
+        )
+    else:
+        expected_output = textwrap.dedent(
+            text="""\
+            block_1
+            -------
+            block_group_1
+
+            block_group_2
+            -------
+            block_3
+            -------
+            """,
+        )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     assert result.stdout == expected_output
     assert result.stderr == ""
