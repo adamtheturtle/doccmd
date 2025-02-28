@@ -49,6 +49,7 @@ Running linters with ``doccmd`` gives you errors and warnings with line numbers 
 It does this by adding padding to the code blocks before running the command.
 
 Some tools do not work well with this padding, and you can choose to obscure the line numbers in order to give the tool the original code block's content without padding, by using the ``--no-pad-file`` and ``--no-pad-groups`` flags.
+See :ref:`using_groups_with_formatters` for more information.
 
 .. include:: file-names-and-linter-ignores.rst
 
