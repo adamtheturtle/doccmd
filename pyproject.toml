@@ -44,7 +44,7 @@ dependencies = [
     # Pin this dependency as we expect:
     # * It might have breaking changes
     # * It is not a direct dependency of the user
-    "sybil-extras==2025.2.28.1",
+    "sybil-extras==2025.2.28.2",
 ]
 optional-dependencies.dev = [
     "actionlint-py==1.7.7.23",
@@ -70,7 +70,7 @@ optional-dependencies.dev = [
     "pytest-cov==6.0.0",
     "pytest-regressions==2.7.0",
     "pyyaml==6.0.2",
-    "ruff==0.9.8",
+    "ruff==0.9.9",
     # We add shellcheck-py not only for shell scripts and shell code blocks,
     # but also because having it installed means that ``actionlint-py`` will
     # use it to lint shell commands in GitHub workflow files.
