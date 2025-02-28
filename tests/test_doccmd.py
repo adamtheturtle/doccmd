@@ -2870,6 +2870,9 @@ def test_modify_file_single_group_block(tmp_path: Path) -> None:
     expected_content = content
     assert new_content == expected_content
 
+    expected_stderr = "FOO"
+    assert result.stderr == expected_stderr
+
 
 def test_modify_file_multiple_group_blocks(tmp_path: Path) -> None:
     """
@@ -2923,3 +2926,6 @@ def test_modify_file_multiple_group_blocks(tmp_path: Path) -> None:
     new_content = rst_file.read_text(encoding="utf-8")
     expected_content = content
     assert new_content == expected_content
+
+    expected_stderr = "FOO"
+    assert result.stderr == expected_stderr
