@@ -47,12 +47,12 @@ For example:
 
 .. code-block:: rst
 
-   .. invisible-code-block: python
+   .. invisible-code-block: java
 
 * Markdown (``.md``)
 
 .. code-block:: markdown
 
-   <!-- invisible-code-block: python
+   <!-- invisible-code-block: java
 
    -->
