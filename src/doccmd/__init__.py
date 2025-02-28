@@ -233,6 +233,15 @@ def _log_info(message: str) -> None:
 
 
 @beartype
+def _log_warning(message: str) -> None:
+    """
+    Log an error message.
+    """
+    styled_message = click.style(text=message, fg="yellow")
+    click.echo(message=styled_message, err=True)
+
+
+@beartype
 def _log_error(message: str) -> None:
     """
     Log an error message.
@@ -402,6 +411,23 @@ def _parse_file(
 
 
 @beartype
+def _warn_write_to_code_block_in_group(
+    example: Example,
+    document_content: str,
+) -> None:
+    """
+    Warn that writing to a group is not supported.
+    """
+    del document_content
+    message = (
+        f"Writing to a group is not supported. "
+        f"A command modified the contents of examples in the group "
+        f"ending on line {example.line} in {Path(example.path).as_posix()}."
+    )
+    _log_warning(message=message)
+
+
+@beartype
 def _run_args_against_docs(
     *,
     document_path: Path,
@@ -466,6 +492,13 @@ def _run_args_against_docs(
         newline=newline,
         use_pty=use_pty,
         encoding=encoding,
+    )
+
+    shell_command_group_evaluator.on_write_to_non_empty_code_block = (
+        _warn_write_to_code_block_in_group
+    )
+    shell_command_evaluator.on_write_to_empty_code_block = (
+        _warn_write_to_code_block_in_group
     )
 
     evaluators: Sequence[Evaluator] = [shell_command_evaluator]

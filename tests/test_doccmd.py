@@ -2870,7 +2870,11 @@ def test_modify_file_single_group_block(tmp_path: Path) -> None:
     expected_content = content
     assert new_content == expected_content
 
-    expected_stderr = "FOO"
+    expected_stderr = (
+        f"{fg.yellow}Writing to a group is not supported. "
+        f"A command modified the contents of examples in the group ending on "
+        f"line 3 in {rst_file.as_posix()}.{reset}\n"
+    )
     assert result.stderr == expected_stderr
 
 
@@ -2927,5 +2931,9 @@ def test_modify_file_multiple_group_blocks(tmp_path: Path) -> None:
     expected_content = content
     assert new_content == expected_content
 
-    expected_stderr = "FOO"
+    expected_stderr = (
+        f"{fg.yellow}Writing to a group is not supported. "
+        f"A command modified the contents of examples in the group ending on "
+        f"line 3 in {rst_file.as_posix()}.{reset}\n"
+    )
     assert result.stderr == expected_stderr
