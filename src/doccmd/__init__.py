@@ -2,10 +2,12 @@
 CLI to run commands on the given files.
 """
 
+import difflib
 import platform
 import shlex
 import subprocess
 import sys
+import textwrap
 from collections.abc import Iterable, Mapping, Sequence
 from enum import Enum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
@@ -413,17 +415,32 @@ def _parse_file(
 @beartype
 def _warn_write_to_code_block_in_group(
     example: Example,
-    document_content: str,
+    new_document_content: str,
+    original_tempfile_content: str,
+    new_tempfile_content: str,
 ) -> None:
     """
     Warn that writing to a group is not supported.
     """
-    del document_content
-    message = (
-        f"Writing to a group is not supported. "
-        f"A command modified the contents of examples in the group "
-        f"ending on line {example.line} in {Path(example.path).as_posix()}."
+    # TODO: This needs the original and changed tempfile contents
+    unified_diff = difflib.unified_diff(
+        a=original_tempfile_content.lstrip().splitlines(),
+        b=new_tempfile_content.lstrip().splitlines(),
+        fromfile="original",
+        tofile="modified",
     )
+    message = textwrap.dedent(
+        text=f"""\
+        Writing to a group is not supported.
+
+        A command modified the contents of examples in the group ending on line {example.line} in {Path(example.path).as_posix()}.
+        """,  # noqa: E501
+    )
+
+    diff_items = list(unified_diff)
+    if diff_items:
+        message += "\nDiff:\n\n"
+        message += "\n".join(diff_items)
     _log_warning(message=message)
 
 
@@ -486,14 +503,17 @@ def _run_args_against_docs(
         args=args,
         tempfile_suffixes=tempfile_suffixes,
         pad_file=pad_temporary_file,
-        # We do not write to file for grouped code blocks.
-        write_to_file=False,
+        # We don't actually write to the group, but we need to set this
+        # to be able to get the warning.
+        write_to_file=True,
         tempfile_name_prefix=temporary_file_name_prefix,
         newline=newline,
         use_pty=use_pty,
         encoding=encoding,
     )
 
+    # TODO: Have just one callable?
+    # TODO: Add a method for this?
     shell_command_group_evaluator.on_write_to_non_empty_code_block = (
         _warn_write_to_code_block_in_group
     )
