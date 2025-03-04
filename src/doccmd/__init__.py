@@ -501,8 +501,6 @@ def _run_args_against_docs(
         args=args,
         tempfile_suffixes=tempfile_suffixes,
         pad_file=pad_temporary_file,
-        # We don't actually write to the group, but we need to set this
-        # to be able to get the warning.
         write_to_file=True,
         tempfile_name_prefix=temporary_file_name_prefix,
         newline=newline,
