@@ -2822,7 +2822,7 @@ def test_group_blocks(
 
 def test_modify_file_single_group_block(tmp_path: Path) -> None:
     """
-    Commands in groups cannot modify files in single grouped blocks.
+    Commands in groups can modify files in single grouped blocks.
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
@@ -2867,15 +2867,18 @@ def test_modify_file_single_group_block(tmp_path: Path) -> None:
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     new_content = rst_file.read_text(encoding="utf-8")
-    expected_content = content
-    assert new_content == expected_content
+    expected_content = textwrap.dedent(
+        text="""\
+        .. group doccmd[all]: start
 
-    expected_stderr = (
-        f"{fg.yellow}Writing to a group is not supported.\n\n"
-        f"A command modified the contents of examples in the group ending on "
-        f"line 3 in {rst_file.as_posix()}.\n{reset}\n"
+        .. code-block:: python
+
+            foobar
+
+        .. group doccmd[all]: end
+        """,
     )
-    assert result.stderr == expected_stderr
+    assert new_content == expected_content
 
 
 def test_modify_file_multiple_group_blocks(tmp_path: Path) -> None:
@@ -2931,9 +2934,27 @@ def test_modify_file_multiple_group_blocks(tmp_path: Path) -> None:
     expected_content = content
     assert new_content == expected_content
 
-    expected_stderr = (
-        f"{fg.yellow}Writing to a group is not supported.\n\n"
-        f"A command modified the contents of examples in the group ending on "
-        f"line 3 in {rst_file.as_posix()}.\n{reset}\n"
+    expected_stderr = textwrap.dedent(
+        text=f"""\
+            {fg.yellow}Writing to a group is not supported.
+
+            A command modified the contents of examples in the group ending on line 3 in {rst_file.as_posix()}.
+
+            Diff:
+
+            --- original
+
+            +++ modified
+
+            @@ -1,6 +1 @@
+
+            -a = 1
+            -b = 1
+            -
+            -
+            -
+            -c = 1
+            +foobar{reset}
+            """,  # noqa: E501
     )
     assert result.stderr == expected_stderr

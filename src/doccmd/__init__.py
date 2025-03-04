@@ -414,16 +414,16 @@ def _parse_file(
 
 @beartype
 def _warn_write_to_code_block_in_group(
+    *,
     example: Example,
-    original_tempfile_content: str,
-    new_tempfile_content: str,
+    modified_example_content: str,
 ) -> None:
     """
     Warn that writing to a group is not supported.
     """
     unified_diff = difflib.unified_diff(
-        a=original_tempfile_content.lstrip().splitlines(),
-        b=new_tempfile_content.lstrip().splitlines(),
+        a=str(object=example.parsed).lstrip().splitlines(),
+        b=modified_example_content.lstrip().splitlines(),
         fromfile="original",
         tofile="modified",
     )
@@ -508,11 +508,7 @@ def _run_args_against_docs(
         newline=newline,
         use_pty=use_pty,
         encoding=encoding,
-    )
-
-    # TODO: Add a parameter for this?
-    shell_command_group_evaluator.on_write_to_non_empty_code_block = (
-        _warn_write_to_code_block_in_group
+        on_modify=_warn_write_to_code_block_in_group,
     )
 
     evaluators: Sequence[Evaluator] = [shell_command_evaluator]
