@@ -2873,7 +2873,7 @@ def test_modify_file_single_group_block(tmp_path: Path) -> None:
 
 def test_modify_file_multiple_group_blocks(tmp_path: Path) -> None:
     """
-    Commands in groups can modify files in single grouped commands.
+    Commands in groups cannot modify files in multiple grouped commands.
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
