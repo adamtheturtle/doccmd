@@ -415,14 +415,12 @@ def _parse_file(
 @beartype
 def _warn_write_to_code_block_in_group(
     example: Example,
-    new_document_content: str,
     original_tempfile_content: str,
     new_tempfile_content: str,
 ) -> None:
     """
     Warn that writing to a group is not supported.
     """
-    # TODO: This needs the original and changed tempfile contents
     unified_diff = difflib.unified_diff(
         a=original_tempfile_content.lstrip().splitlines(),
         b=new_tempfile_content.lstrip().splitlines(),
@@ -512,12 +510,8 @@ def _run_args_against_docs(
         encoding=encoding,
     )
 
-    # TODO: Have just one callable?
-    # TODO: Add a method for this?
+    # TODO: Add a parameter for this?
     shell_command_group_evaluator.on_write_to_non_empty_code_block = (
-        _warn_write_to_code_block_in_group
-    )
-    shell_command_evaluator.on_write_to_empty_code_block = (
         _warn_write_to_code_block_in_group
     )
 
