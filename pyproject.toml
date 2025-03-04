@@ -44,7 +44,7 @@ dependencies = [
     # Pin this dependency as we expect:
     # * It might have breaking changes
     # * It is not a direct dependency of the user
-    "sybil-extras==2025.2.28.3",
+    "sybil-extras==2025.3.2",
 ]
 optional-dependencies.dev = [
     "actionlint-py==1.7.7.23",
@@ -66,7 +66,7 @@ optional-dependencies.dev = [
     "pyproject-fmt==2.5.1",
     "pyright==1.1.393",
     "pyroma==4.2",
-    "pytest==8.3.4",
+    "pytest==8.3.5",
     "pytest-cov==6.0.0",
     "pytest-regressions==2.7.0",
     "pyyaml==6.0.2",
@@ -76,13 +76,13 @@ optional-dependencies.dev = [
     # use it to lint shell commands in GitHub workflow files.
     "shellcheck-py==0.10.0.1",
     "shfmt-py==3.7.0.1",
-    "sphinx==8.2.1",
+    "sphinx==8.2.3",
     "sphinx-click==6.0.0",
     "sphinx-copybutton==0.5.2",
     "sphinx-inline-tabs==2023.4.21",
     "sphinx-lint==1.0.0",
     "sphinx-pyproject==0.3.0",
-    "sphinx-substitution-extensions==2025.2.19",
+    "sphinx-substitution-extensions==2025.3.3",
     "sphinxcontrib-spelling==8.0.1",
     "types-pygments==2.19.0.20250219",
     "vulture==2.14",
@@ -445,7 +445,3 @@ exclude = [
 [tool.yamlfix]
 section_whitelines = 1
 whitelines = 1
-
-
-[tool.uv.sources]
-sybil_extras = { path = "../sybil-extras" }
