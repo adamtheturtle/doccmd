@@ -2,10 +2,12 @@
 CLI to run commands on the given files.
 """
 
+import difflib
 import platform
 import shlex
 import subprocess
 import sys
+import textwrap
 from collections.abc import Iterable, Mapping, Sequence
 from enum import Enum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
@@ -233,6 +235,15 @@ def _log_info(message: str) -> None:
 
 
 @beartype
+def _log_warning(message: str) -> None:
+    """
+    Log an error message.
+    """
+    styled_message = click.style(text=message, fg="yellow")
+    click.echo(message=styled_message, err=True)
+
+
+@beartype
 def _log_error(message: str) -> None:
     """
     Log an error message.
@@ -402,6 +413,36 @@ def _parse_file(
 
 
 @beartype
+def _warn_write_to_code_block_in_group(
+    *,
+    example: Example,
+    modified_example_content: str,
+) -> None:
+    """
+    Warn that writing to a group is not supported.
+    """
+    unified_diff = difflib.unified_diff(
+        a=str(object=example.parsed).lstrip().splitlines(),
+        b=modified_example_content.lstrip().splitlines(),
+        fromfile="original",
+        tofile="modified",
+    )
+    message = textwrap.dedent(
+        text=f"""\
+        Writing to a group is not supported.
+
+        A command modified the contents of examples in the group ending on line {example.line} in {Path(example.path).as_posix()}.
+
+        Diff:
+
+        """,  # noqa: E501
+    )
+
+    message += "\n".join(unified_diff)
+    _log_warning(message=message)
+
+
+@beartype
 def _run_args_against_docs(
     *,
     document_path: Path,
@@ -466,6 +507,7 @@ def _run_args_against_docs(
         newline=newline,
         use_pty=use_pty,
         encoding=encoding,
+        on_modify=_warn_write_to_code_block_in_group,
     )
 
     evaluators: Sequence[Evaluator] = [shell_command_evaluator]
