@@ -436,9 +436,8 @@ def _warn_write_to_code_block_in_group(
     )
 
     diff_items = list(unified_diff)
-    if diff_items:
-        message += "\nDiff:\n\n"
-        message += "\n".join(diff_items)
+    message += "\nDiff:\n\n"
+    message += "\n".join(diff_items)
     _log_warning(message=message)
 
 
