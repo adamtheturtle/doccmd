@@ -432,12 +432,13 @@ def _warn_write_to_code_block_in_group(
         Writing to a group is not supported.
 
         A command modified the contents of examples in the group ending on line {example.line} in {Path(example.path).as_posix()}.
+
+        Diff:
+
         """,  # noqa: E501
     )
 
-    diff_items = list(unified_diff)
-    message += "\nDiff:\n\n"
-    message += "\n".join(diff_items)
+    message += "\n".join(unified_diff)
     _log_warning(message=message)
 
 
