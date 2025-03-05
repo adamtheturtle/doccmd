@@ -501,7 +501,8 @@ def _run_args_against_docs(
         args=args,
         tempfile_suffixes=tempfile_suffixes,
         pad_file=pad_temporary_file,
-        write_to_file=True,
+        # We do not write to file for grouped code blocks.
+        write_to_file=False,
         tempfile_name_prefix=temporary_file_name_prefix,
         newline=newline,
         use_pty=use_pty,

@@ -2822,7 +2822,7 @@ def test_group_blocks(
 
 def test_modify_file_single_group_block(tmp_path: Path) -> None:
     """
-    Commands in groups can modify files in single grouped blocks.
+    Commands in groups cannot modify files in single grouped blocks.
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
@@ -2867,17 +2867,7 @@ def test_modify_file_single_group_block(tmp_path: Path) -> None:
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     new_content = rst_file.read_text(encoding="utf-8")
-    expected_content = textwrap.dedent(
-        text="""\
-        .. group doccmd[all]: start
-
-        .. code-block:: python
-
-            foobar
-
-        .. group doccmd[all]: end
-        """,
-    )
+    expected_content = content
     assert new_content == expected_content
 
 
