@@ -273,6 +273,10 @@ For example:
 
    -->
 
+Tools which change the code block content cannot change the content of code blocks inside groups.
+By default this will error.
+Use the ``--no-fail-on-group-write`` option to emit a warning but not error in this case.
+
 Full documentation
 ------------------
 
