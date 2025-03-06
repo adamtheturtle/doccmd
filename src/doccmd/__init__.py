@@ -359,6 +359,7 @@ def _evaluate_document(
         ) from exc
 
 
+@beartype
 class _ParseError(Exception):
     """
     Error raised when a file could not be parsed.
@@ -373,6 +374,7 @@ class _ParseError(Exception):
         super().__init__(message)
 
 
+@beartype
 class _EvaluateError(Exception):
     """
     Error raised when an example could not be evaluated.
@@ -392,6 +394,37 @@ class _EvaluateError(Exception):
         self.reason = reason
         self.command_args = command_args
         super().__init__()
+
+
+@beartype
+class _GroupModifiedError(Exception):
+    """
+    Error raised when there was an attempt to modify a code block in a group.
+    """
+
+    def __init__(
+        self,
+        example: Example,
+        modified_example_content: str,
+    ) -> None:
+        """
+        Initialize the error.
+        """
+        self.example = example
+        self.modified_example_content = modified_example_content
+
+
+@beartype
+def _raise_group_modified(
+    *, example: Example, modified_example_content: str
+) -> None:
+    """
+    Raise an error when there was an attempt to modify a code block in a group.
+    """
+    raise _GroupModifiedError(
+        example=example,
+        modified_example_content=modified_example_content,
+    )
 
 
 @beartype
@@ -507,7 +540,7 @@ def _run_args_against_docs(
         newline=newline,
         use_pty=use_pty,
         encoding=encoding,
-        on_modify=_warn_write_to_code_block_in_group,
+        on_modify=_raise_group_modified,
     )
 
     evaluators: Sequence[Evaluator] = [shell_command_evaluator]
@@ -853,6 +886,7 @@ def main(
     max_depth: int,
     exclude_patterns: Sequence[str],
     fail_on_parse_error: bool,
+    fail_on_group_write: bool,
 ) -> None:
     """Run commands against code blocks in the given documentation files.
 
@@ -917,4 +951,11 @@ def main(
             except _ParseError as exc:
                 _log_error(message=str(object=exc))
                 if fail_on_parse_error:
+                    sys.exit(1)
+            except _GroupModifiedError as exc:
+                _warn_write_to_code_block_in_group(
+                    example=exc.example,
+                    modified_example_content=exc.modified_example_content,
+                )
+                if fail_on_group_write:
                     sys.exit(1)
