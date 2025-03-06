@@ -57,3 +57,7 @@ For example:
    <!-- invisible-code-block: java
 
    -->
+
+Tools which change the code block content cannot change the content of code blocks inside groups.
+By default this will error.
+Use the :option:`doccmd --no-fail-on-group-write` option to emit a warning but not error in this case.
