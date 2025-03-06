@@ -821,6 +821,18 @@ def _run_args_against_docs(
         "Whether to fail (with exit code 1) if a given file cannot be parsed."
     ),
 )
+@click.option(
+    "--fail-on-group-write/--no-fail-on-group-write",
+    "fail_on_group_write",
+    default=True,
+    show_default=True,
+    type=bool,
+    help=(
+        "Whether to fail (with exit code 1) if a command (e.g. a formatter) "
+        "tries to change code within a grouped code block. "
+        "``doccmd`` does not support writing to grouped code blocks."
+    ),
+)
 @beartype
 def main(
     *,

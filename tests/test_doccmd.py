@@ -2865,10 +2865,35 @@ def test_modify_file_single_group_block(tmp_path: Path) -> None:
         catch_exceptions=False,
         color=True,
     )
-    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert result.exit_code == 1, (result.stdout, result.stderr)
     new_content = rst_file.read_text(encoding="utf-8")
     expected_content = content
     assert new_content == expected_content
+
+    expected_stderr = textwrap.dedent(
+        text=f"""\
+            {fg.yellow}Writing to a group is not supported.
+
+            A command modified the contents of examples in the group ending on line 3 in {rst_file.as_posix()}.
+
+            Diff:
+
+            --- original
+
+            +++ modified
+
+            @@ -1,6 +1 @@
+
+            -a = 1
+            -b = 1
+            -
+            -
+            -
+            -c = 1
+            +foobar{reset}
+            """,  # noqa: E501
+    )
+    assert result.stderr == expected_stderr
 
 
 def test_modify_file_multiple_group_blocks(tmp_path: Path) -> None:
@@ -2919,7 +2944,7 @@ def test_modify_file_multiple_group_blocks(tmp_path: Path) -> None:
         catch_exceptions=False,
         color=True,
     )
-    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert result.exit_code == 1, (result.stdout, result.stderr)
     new_content = rst_file.read_text(encoding="utf-8")
     expected_content = content
     assert new_content == expected_content
@@ -2948,3 +2973,9 @@ def test_modify_file_multiple_group_blocks(tmp_path: Path) -> None:
             """,  # noqa: E501
     )
     assert result.stderr == expected_stderr
+
+
+def test_fail_on_group_write(*, tmp_path: Path) -> None:
+    """
+    The command fails when a group block is modified.
+    """
