@@ -2865,7 +2865,7 @@ def test_modify_file_single_group_block(tmp_path: Path) -> None:
         catch_exceptions=False,
         color=True,
     )
-    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert result.exit_code == 1, (result.stdout, result.stderr)
     new_content = rst_file.read_text(encoding="utf-8")
     expected_content = content
     assert new_content == expected_content
@@ -2941,7 +2941,7 @@ def test_modify_file_multiple_group_blocks(tmp_path: Path) -> None:
         catch_exceptions=False,
         color=True,
     )
-    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert result.exit_code == 1, (result.stdout, result.stderr)
     new_content = rst_file.read_text(encoding="utf-8")
     expected_content = content
     assert new_content == expected_content

@@ -228,7 +228,6 @@ You might have two code blocks like this:
    def my_function() -> None:
        """Do nothing."""
 
-.. invisible-code-block: python
 
 .. code-block:: python
 

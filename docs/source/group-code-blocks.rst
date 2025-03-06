@@ -9,6 +9,7 @@ You might have two code blocks like this:
 
    """Example function which is used in a future code block."""
 
+
    def my_function() -> None:
        """Do nothing."""
 
