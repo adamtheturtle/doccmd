@@ -12,6 +12,7 @@ from pathlib import Path
 
 import pytest
 from ansi.colour import fg
+from ansi.colour.base import Graphic
 from ansi.colour.fx import reset
 from click.testing import CliRunner
 from pytest_regressions.file_regression import FileRegressionFixture
@@ -2821,11 +2822,15 @@ def test_group_blocks(
 
 
 @pytest.mark.parametrize(
-    argnames=("fail_on_group_write_options", "expected_exit_code"),
+    argnames=(
+        "fail_on_group_write_options",
+        "expected_exit_code",
+        "message_colour",
+    ),
     argvalues=[
-        ([], 1),
-        (["--fail-on-group-write"], 1),
-        (["--no-fail-on-group-write"], 0),
+        ([], 1, fg.red),
+        (["--fail-on-group-write"], 1, fg.red),
+        (["--no-fail-on-group-write"], 0, fg.yellow),
     ],
 )
 def test_modify_file_single_group_block(
@@ -2833,6 +2838,7 @@ def test_modify_file_single_group_block(
     tmp_path: Path,
     fail_on_group_write_options: Sequence[str],
     expected_exit_code: int,
+    message_colour: Graphic,
 ) -> None:
     """
     Commands in groups cannot modify files in single grouped blocks.
@@ -2889,7 +2895,7 @@ def test_modify_file_single_group_block(
 
     expected_stderr = textwrap.dedent(
         text=f"""\
-            {fg.yellow}Writing to a group is not supported.
+            {message_colour}Writing to a group is not supported.
 
             A command modified the contents of examples in the group ending on line 3 in {rst_file.as_posix()}.
 
@@ -2911,11 +2917,15 @@ def test_modify_file_single_group_block(
 
 
 @pytest.mark.parametrize(
-    argnames=("fail_on_group_write_options", "expected_exit_code"),
+    argnames=(
+        "fail_on_group_write_options",
+        "expected_exit_code",
+        "message_colour",
+    ),
     argvalues=[
-        ([], 1),
-        (["--fail-on-group-write"], 1),
-        (["--no-fail-on-group-write"], 0),
+        ([], 1, fg.red),
+        (["--fail-on-group-write"], 1, fg.red),
+        (["--no-fail-on-group-write"], 0, fg.yellow),
     ],
 )
 def test_modify_file_multiple_group_blocks(
@@ -2923,6 +2933,7 @@ def test_modify_file_multiple_group_blocks(
     tmp_path: Path,
     fail_on_group_write_options: Sequence[str],
     expected_exit_code: int,
+    message_colour: Graphic,
 ) -> None:
     """
     Commands in groups cannot modify files in multiple grouped commands.
@@ -2982,7 +2993,7 @@ def test_modify_file_multiple_group_blocks(
 
     expected_stderr = textwrap.dedent(
         text=f"""\
-            {fg.yellow}Writing to a group is not supported.
+            {message_colour}Writing to a group is not supported.
 
             A command modified the contents of examples in the group ending on line 3 in {rst_file.as_posix()}.
 

@@ -446,36 +446,6 @@ def _parse_file(
 
 
 @beartype
-def _warn_write_to_code_block_in_group(
-    *,
-    example: Example,
-    modified_example_content: str,
-) -> None:
-    """
-    Warn that writing to a group is not supported.
-    """
-    unified_diff = difflib.unified_diff(
-        a=str(object=example.parsed).lstrip().splitlines(),
-        b=modified_example_content.lstrip().splitlines(),
-        fromfile="original",
-        tofile="modified",
-    )
-    message = textwrap.dedent(
-        text=f"""\
-        Writing to a group is not supported.
-
-        A command modified the contents of examples in the group ending on line {example.line} in {Path(example.path).as_posix()}.
-
-        Diff:
-
-        """,  # noqa: E501
-    )
-
-    message += "\n".join(unified_diff)
-    _log_warning(message=message)
-
-
-@beartype
 def _run_args_against_docs(
     *,
     document_path: Path,
@@ -964,9 +934,25 @@ def main(
                 if fail_on_parse_error:
                     sys.exit(1)
             except _GroupModifiedError as exc:
-                _warn_write_to_code_block_in_group(
-                    example=exc.example,
-                    modified_example_content=exc.modified_example_content,
+                unified_diff = difflib.unified_diff(
+                    a=str(object=exc.example.parsed).lstrip().splitlines(),
+                    b=exc.modified_example_content.lstrip().splitlines(),
+                    fromfile="original",
+                    tofile="modified",
                 )
+                message = textwrap.dedent(
+                    text=f"""\
+                    Writing to a group is not supported.
+
+                    A command modified the contents of examples in the group ending on line {exc.example.line} in {Path(exc.example.path).as_posix()}.
+
+                    Diff:
+
+                    """,  # noqa: E501
+                )
+
+                message += "\n".join(unified_diff)
                 if fail_on_group_write:
+                    _log_error(message=message)
                     sys.exit(1)
+                _log_warning(message=message)
