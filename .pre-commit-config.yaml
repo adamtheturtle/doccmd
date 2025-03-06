@@ -228,8 +228,8 @@ repos:
 
       - id: ruff-format-fix-docs
         name: Ruff format docs
-        entry: uv run --extra=dev doccmd --language=python --no-pad-file --command="ruff
-          format"
+        entry: |
+          uv run --extra=dev doccmd --language=python --no-pad-file --no-pad-groups --command="ruff format"
         language: python
         types_or: [markdown, rst]
         additional_dependencies: [uv==0.6.3]
