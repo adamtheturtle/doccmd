@@ -854,6 +854,18 @@ def _run_args_against_docs(
         "Whether to fail (with exit code 1) if a given file cannot be parsed."
     ),
 )
+@click.option(
+    "--fail-on-group-write/--no-fail-on-group-write",
+    "fail_on_group_write",
+    default=True,
+    show_default=True,
+    type=bool,
+    help=(
+        "Whether to fail (with exit code 1) if a command (e.g. a formatter) "
+        "tries to change code within a grouped code block. "
+        "``doccmd`` does not support writing to grouped code blocks."
+    ),
+)
 @beartype
 def main(
     *,
@@ -874,6 +886,7 @@ def main(
     max_depth: int,
     exclude_patterns: Sequence[str],
     fail_on_parse_error: bool,
+    fail_on_group_write: bool,
 ) -> None:
     """Run commands against code blocks in the given documentation files.
 
@@ -890,6 +903,26 @@ def main(
 
     _validate_file_suffix_overlaps(suffix_groups=suffix_groups)
 
+    suffix_map = {
+        value: key for key, values in suffix_groups.items() for value in values
+    }
+
+    given_files = [
+        document_path
+        for document_path in document_paths
+        if document_path.is_file()
+    ]
+
+    given_files_unknown_suffix = [
+        document_path
+        for document_path in given_files
+        if document_path.suffix not in suffix_map
+    ]
+
+    for given_file_unknown_suffix in given_files_unknown_suffix:
+        message = f"Markup language not known for {given_file_unknown_suffix}."
+        raise click.UsageError(message=message)
+
     file_paths = _get_file_paths(
         document_paths=document_paths,
         file_suffixes=[
@@ -900,15 +933,6 @@ def main(
         max_depth=max_depth,
         exclude_patterns=exclude_patterns,
     )
-
-    suffix_map = {
-        value: key for key, values in suffix_groups.items() for value in values
-    }
-
-    for document_path in document_paths:
-        if document_path.is_file() and document_path.suffix not in suffix_map:
-            message = f"Markup language not known for {document_path}."
-            raise click.UsageError(message=message)
 
     if verbose:
         _log_info(
@@ -944,4 +968,5 @@ def main(
                     example=exc.example,
                     modified_example_content=exc.modified_example_content,
                 )
-                sys.exit(1)
+                if fail_on_group_write:
+                    sys.exit(1)

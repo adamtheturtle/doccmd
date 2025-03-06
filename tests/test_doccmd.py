@@ -2820,7 +2820,20 @@ def test_group_blocks(
     assert result.stderr == ""
 
 
-def test_modify_file_single_group_block(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    argnames=("fail_on_group_write_options", "expected_exit_code"),
+    argvalues=[
+        ([], 1),
+        (["--fail-on-group-write"], 1),
+        (["--no-fail-on-group-write"], 0),
+    ],
+)
+def test_modify_file_single_group_block(
+    *,
+    tmp_path: Path,
+    fail_on_group_write_options: Sequence[str],
+    expected_exit_code: int,
+) -> None:
     """
     Commands in groups cannot modify files in single grouped blocks.
     """
@@ -2853,6 +2866,7 @@ def test_modify_file_single_group_block(tmp_path: Path) -> None:
     modify_code_file = tmp_path / "modify_code.py"
     modify_code_file.write_text(data=modify_code_script, encoding="utf-8")
     arguments = [
+        *fail_on_group_write_options,
         "--language",
         "python",
         "--command",
@@ -2865,7 +2879,10 @@ def test_modify_file_single_group_block(tmp_path: Path) -> None:
         catch_exceptions=False,
         color=True,
     )
-    assert result.exit_code == 1, (result.stdout, result.stderr)
+    assert result.exit_code == expected_exit_code, (
+        result.stdout,
+        result.stderr,
+    )
     new_content = rst_file.read_text(encoding="utf-8")
     expected_content = content
     assert new_content == expected_content
@@ -2893,7 +2910,20 @@ def test_modify_file_single_group_block(tmp_path: Path) -> None:
     assert result.stderr == expected_stderr
 
 
-def test_modify_file_multiple_group_blocks(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    argnames=("fail_on_group_write_options", "expected_exit_code"),
+    argvalues=[
+        ([], 1),
+        (["--fail-on-group-write"], 1),
+        (["--no-fail-on-group-write"], 0),
+    ],
+)
+def test_modify_file_multiple_group_blocks(
+    *,
+    tmp_path: Path,
+    fail_on_group_write_options: Sequence[str],
+    expected_exit_code: int,
+) -> None:
     """
     Commands in groups cannot modify files in multiple grouped commands.
     """
@@ -2929,6 +2959,7 @@ def test_modify_file_multiple_group_blocks(tmp_path: Path) -> None:
     modify_code_file = tmp_path / "modify_code.py"
     modify_code_file.write_text(data=modify_code_script, encoding="utf-8")
     arguments = [
+        *fail_on_group_write_options,
         "--language",
         "python",
         "--command",
@@ -2941,7 +2972,10 @@ def test_modify_file_multiple_group_blocks(tmp_path: Path) -> None:
         catch_exceptions=False,
         color=True,
     )
-    assert result.exit_code == 1, (result.stdout, result.stderr)
+    assert result.exit_code == expected_exit_code, (
+        result.stdout,
+        result.stderr,
+    )
     new_content = rst_file.read_text(encoding="utf-8")
     expected_content = content
     assert new_content == expected_content

@@ -120,4 +120,10 @@ Options:
                                   Whether to fail (with exit code 1) if a given
                                   file cannot be parsed.  [default: no-fail-on-
                                   parse-error]
+  --fail-on-group-write / --no-fail-on-group-write
+                                  Whether to fail (with exit code 1) if a
+                                  command (e.g. a formatter) tries to change
+                                  code within a grouped code block. ``doccmd``
+                                  does not support writing to grouped code
+                                  blocks.  [default: fail-on-group-write]
   --help                          Show this message and exit.
