@@ -4,6 +4,9 @@ Changelog
 Next
 ----
 
+2025.03.06
+----------
+
 * Support files which are not UTF-8 encoded.
 * Support grouping code blocks with ``doccmd group[all]: start`` and ``doccmd group[all]: end`` comments.
 
