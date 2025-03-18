@@ -34,7 +34,7 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           # Avoid https://github.com/astral-sh/uv/issues/12260.
-          version: ==0.6.6
+          version: 0.6.6
           enable-cache: true
           cache-dependency-glob: '**/pyproject.toml'
 
