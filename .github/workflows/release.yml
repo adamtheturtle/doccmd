@@ -38,6 +38,8 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: '**/pyproject.toml'
+          # Avoid https://github.com/astral-sh/uv/issues/12260.
+          version: '!=0.6.7'
 
       - name: Get current version
         id: get_current_version
