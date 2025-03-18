@@ -33,6 +33,7 @@ reStructuredText
 reco
 recursing
 rst
+stderr
 txt
 typeshed
 ubuntu
