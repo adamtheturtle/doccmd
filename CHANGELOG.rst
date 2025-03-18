@@ -4,6 +4,9 @@ Changelog
 Next
 ----
 
+2025.03.18
+----------
+
 * With ``--verbose``, show the command that will be run before the command is run, not after.
 
 2025.03.06
