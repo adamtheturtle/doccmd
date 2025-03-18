@@ -884,12 +884,14 @@ def test_verbose_running(tmp_path: Path) -> None:
     assert result.stderr == expected_stderr
 
 
-def test_verbose_running_with_error(tmp_path: Path) -> None:
+def test_verbose_running_with_stderr(tmp_path: Path) -> None:
     """
-    ``--verbose`` shows what is running even when there is an error.
+    ``--verbose`` shows what is running before any stderr output.
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
+    # We include a group as well to ensure that the verbose output is shown
+    # in the right place for groups.
     content = textwrap.dedent(
         text="""\
         .. code-block:: python
@@ -907,14 +909,25 @@ def test_verbose_running_with_error(tmp_path: Path) -> None:
         .. code-block:: shell
 
             echo 1
+
+        .. group doccmd[all]: start
+
+        .. code-block:: python
+
+            block_group_1
+
+        .. group doccmd[all]: end
         """,
+    )
+    command = (
+        f"{sys.executable} -c 'import sys; sys.stderr.write(\"error\\n\")'"
     )
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
         "--command",
-        "exit 1",
+        command,
         "--verbose",
         str(object=rst_file),
     ]
@@ -924,13 +937,15 @@ def test_verbose_running_with_error(tmp_path: Path) -> None:
         catch_exceptions=False,
         color=True,
     )
-    assert result.exit_code != 0, (result.stdout, result.stderr)
+    assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = ""
     expected_stderr = textwrap.dedent(
         text=f"""\
         {fg.green}Not using PTY for running commands.{reset}
-        {fg.green}Running 'exit 1' on code block at {rst_file} line 1{reset}
-        {fg.red}Error running command 'exit': [Errno 2] No such file or directory: 'exit'{reset}
+        {fg.green}Running '{command}' on code block at {rst_file} line 1{reset}
+        error
+        {fg.green}Running '{command}' on code block at {rst_file} line 19{reset}
+        error
         """,  # noqa: E501
     )
     assert result.stdout == expected_output

@@ -518,7 +518,7 @@ def _run_args_against_docs(
     if verbose:
         log_command_evaluator = _LogCommandEvaluator(args=args)
         evaluators = [log_command_evaluator, *evaluators]
-        group_evaluators = [*group_evaluators, log_command_evaluator]
+        group_evaluators = [log_command_evaluator, *group_evaluators]
 
     evaluator = MultiEvaluator(evaluators=evaluators)
     group_evaluator = MultiEvaluator(evaluators=group_evaluators)
