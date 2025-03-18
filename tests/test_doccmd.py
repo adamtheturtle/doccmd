@@ -920,7 +920,8 @@ def test_verbose_running_with_stderr(tmp_path: Path) -> None:
         """,
     )
     command = (
-        f"{sys.executable} -c 'import sys; sys.stderr.write(\"error\\n\")'"
+        f"{Path(sys.executable).as_posix()} -c "
+        "'import sys; sys.stderr.write(\"error\\n\")'"
     )
     rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
