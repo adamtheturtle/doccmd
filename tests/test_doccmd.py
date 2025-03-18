@@ -827,7 +827,7 @@ def test_file_given_multiple_times(tmp_path: Path) -> None:
 
 def test_verbose_running(tmp_path: Path) -> None:
     """
-    Verbose output is shown showing what is running.
+    ``--verbose`` shows what is running.
     """
     runner = CliRunner(mix_stderr=False)
     rst_file = tmp_path / "example.rst"
@@ -879,6 +879,75 @@ def test_verbose_running(tmp_path: Path) -> None:
         {fg.green}Not using PTY for running commands.{reset}
         {fg.green}Running 'cat' on code block at {rst_file} line 1{reset}
         """,
+    )
+    assert result.stdout == expected_output
+    assert result.stderr == expected_stderr
+
+
+def test_verbose_running_with_stderr(tmp_path: Path) -> None:
+    """
+    ``--verbose`` shows what is running before any stderr output.
+    """
+    runner = CliRunner(mix_stderr=False)
+    rst_file = tmp_path / "example.rst"
+    # We include a group as well to ensure that the verbose output is shown
+    # in the right place for groups.
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            x = 2 + 2
+            assert x == 4
+
+        .. skip doccmd[all]: next
+
+        .. code-block:: python
+
+            x = 3 + 3
+            assert x == 6
+
+        .. code-block:: shell
+
+            echo 1
+
+        .. group doccmd[all]: start
+
+        .. code-block:: python
+
+            block_group_1
+
+        .. group doccmd[all]: end
+        """,
+    )
+    command = (
+        f"{Path(sys.executable).as_posix()} -c "
+        "'import sys; sys.stderr.write(\"error\\n\")'"
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        command,
+        "--verbose",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    expected_output = ""
+    expected_stderr = textwrap.dedent(
+        text=f"""\
+        {fg.green}Not using PTY for running commands.{reset}
+        {fg.green}Running '{command}' on code block at {rst_file} line 1{reset}
+        error
+        {fg.green}Running '{command}' on code block at {rst_file} line 19{reset}
+        error
+        """,  # noqa: E501
     )
     assert result.stdout == expected_output
     assert result.stderr == expected_stderr
