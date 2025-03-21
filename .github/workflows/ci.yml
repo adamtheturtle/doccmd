@@ -77,3 +77,15 @@ jobs:
         # line endings.
         # We only need to run the changes from one runner in any case.
         if: always()
+
+  completion-ci:
+    needs: build
+    runs-on: ubuntu-latest
+    if: always()  # Run even if one matrix job fails
+    steps:
+      - name: Check matrix job status
+        run: |-
+          if ! ${{ needs.build.result == 'success' }}; then
+            echo "One or more matrix jobs failed"
+            exit 1
+          fi
