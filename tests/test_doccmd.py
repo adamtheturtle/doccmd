@@ -3084,3 +3084,46 @@ def test_modify_file_multiple_group_blocks(
             """,  # noqa: E501
     )
     assert result.stderr == expected_stderr
+
+
+def test_jinja2(*, tmp_path: Path) -> None:
+    """
+    It is possible to run commands against Sphinx-Jinja2 blocks.
+    """
+    runner = CliRunner(mix_stderr=False)
+    source_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. jinja2::
+
+            {% set x = 1 %}
+            {{ x }}
+
+            .. Nested code block
+
+            .. code-block:: python
+
+               x = 2
+               print(x)
+        """,
+    )
+    source_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        "--rst-extension",
+        ".rst",
+        str(object=source_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    expected_output = "1\n"
+    assert result.stdout == expected_output
+    assert result.stderr == ""
