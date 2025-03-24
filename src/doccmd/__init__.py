@@ -150,26 +150,53 @@ def _validate_file_extensions(
 
 
 @beartype
-def _validate_no_empty_strings(
+def _validate_no_empty_string(
     ctx: click.Context | None,
     param: click.Parameter | None,
-    value: Sequence[str],
-) -> Sequence[str]:
+    value: str,
+) -> str:
     """
     Validate that the input strings are not empty.
     """
-    for item in value:
-        if not item:
-            msg = "This value cannot be empty."
-            raise click.BadParameter(message=msg, ctx=ctx, param=param)
+    if not value:
+        msg = "This value cannot be empty."
+        raise click.BadParameter(message=msg, ctx=ctx, param=param)
     return value
 
 
-Validator = Callable[[click.Context | None, click.Parameter | None, T], T]
+_Validator = Callable[[click.Context | None, click.Parameter | None, T], T]
 
 
 @beartype
-def _combined_validators(validators: Sequence[Validator[T]]) -> Validator[T]:
+def _sequence_validator(validator: _Validator[T]) -> _Validator[Sequence[T]]:
+    """
+    Wrap a single-value validator to apply it to a sequence of values.
+    """
+
+    def callback(
+        ctx: click.Context | None,
+        param: click.Parameter | None,
+        value: Sequence[T],
+    ) -> Sequence[T]:
+        """
+        Apply the validators to the value.
+        """
+        for item in value:
+            original_value = item
+            returned_value = validator(ctx, param, item)
+            if returned_value != original_value:  # pragma: no cover
+                msg = (
+                    "This function only works with validators that do not "
+                    "modify the value."
+                )
+                raise ValueError(msg)
+        return value
+
+    return callback
+
+
+@beartype
+def _combined_validators(validators: Sequence[_Validator[T]]) -> _Validator[T]:
     """
     Create a Click-compatible callback that applies a sequence of validators to
     an option value.
@@ -622,7 +649,10 @@ def _run_args_against_docs(
     ),
     multiple=True,
     callback=_combined_validators(
-        validators=[_deduplicate, _validate_no_empty_strings]
+        validators=[
+            _deduplicate,
+            _sequence_validator(validator=_validate_no_empty_string),
+        ]
     ),
 )
 @click.option("command", "-c", "--command", type=str, required=True)
