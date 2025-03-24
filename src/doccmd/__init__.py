@@ -193,10 +193,8 @@ def _click_multi_callback(
         """
         Apply the validators to the value.
         """
-        modified_values: list[T] = []
         for callback in callbacks:
-            modified_value = callback(ctx, param, value)
-            modified_values.append(modified_value)
+            value = callback(ctx, param, value)
         return value
 
     return callback
