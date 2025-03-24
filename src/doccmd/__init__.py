@@ -162,16 +162,11 @@ def _sequence_validator(
         """
         Apply the validators to the value.
         """
+        return_values: tuple[T, ...] = ()
         for item in value:
-            original_value = item
             returned_value = validator(ctx, param, item)
-            if returned_value != original_value:  # pragma: no cover
-                msg = (
-                    "This function only works with validators that do not "
-                    "modify the value."
-                )
-                raise ValueError(msg)
-        return value
+            return_values = (*return_values, returned_value)
+        return return_values
 
     return callback
 
