@@ -3084,3 +3084,37 @@ def test_modify_file_multiple_group_blocks(
             """,  # noqa: E501
     )
     assert result.stderr == expected_stderr
+
+
+def test_empty_language_given(*, tmp_path: Path) -> None:
+    """
+    An error is shown when an empty language is given.
+    """
+    runner = CliRunner(mix_stderr=False)
+    source_file = tmp_path / "example.rst"
+    content = ""
+    source_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--command",
+        "cat",
+        "--language",
+        "",
+        str(object=source_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code != 0, (result.stdout, result.stderr)
+    expected_stderr = textwrap.dedent(
+        text="""\
+            Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...
+            Try 'doccmd --help' for help.
+
+            Error: Invalid value for '-l' / '--language': This value cannot be empty.
+            """,  # noqa: E501
+    )
+    assert result.stdout == ""
+    assert result.stderr == expected_stderr
