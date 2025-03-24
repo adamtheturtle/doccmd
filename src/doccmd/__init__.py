@@ -80,8 +80,8 @@ class _LogCommandEvaluator:
 
 @beartype
 def _deduplicate(
-    ctx: click.Context,
-    param: click.Parameter,
+    ctx: click.Context | None,
+    param: click.Parameter | None,
     sequence: Sequence[T],
 ) -> Sequence[T]:
     """
@@ -151,8 +151,8 @@ def _validate_file_extensions(
 
 @beartype
 def _validate_no_empty_strings(
-    ctx: click.Context,
-    param: click.Parameter,
+    ctx: click.Context | None,
+    param: click.Parameter | None,
     value: Sequence[str],
 ) -> Sequence[str]:
     """
