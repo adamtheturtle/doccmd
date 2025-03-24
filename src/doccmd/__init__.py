@@ -8,7 +8,7 @@ import shlex
 import subprocess
 import sys
 import textwrap
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from enum import Enum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
@@ -147,6 +147,47 @@ def _validate_file_extensions(
         _validate_file_extension(ctx=ctx, param=param, value=value)
         for value in values
     )
+
+
+@beartype
+def _validate_no_empty_strings(
+    ctx: click.Context,
+    param: click.Parameter,
+    value: Sequence[str],
+) -> Sequence[str]:
+    """
+    Validate that the input strings are not empty.
+    """
+    for item in value:
+        if not item:
+            msg = "This value cannot be empty."
+            raise click.BadParameter(message=msg, ctx=ctx, param=param)
+    return value
+
+
+Validator = Callable[[click.Context | None, click.Parameter | None, T], T]
+
+
+@beartype
+def _combined_validators(validators: Sequence[Validator[T]]) -> Validator[T]:
+    """
+    Create a Click-compatible callback that applies a sequence of validators to
+    an option value.
+    """
+
+    def callback(
+        ctx: click.Context | None,
+        param: click.Parameter | None,
+        value: T,
+    ) -> T:
+        """
+        Apply the validators to the value.
+        """
+        for validator in validators:
+            value = validator(ctx, param, value)
+        return value
+
+    return callback
 
 
 @beartype
@@ -580,7 +621,9 @@ def _run_args_against_docs(
         "Give multiple times for multiple languages."
     ),
     multiple=True,
-    callback=_deduplicate,
+    callback=_combined_validators(
+        validators=[_deduplicate, _validate_no_empty_strings]
+    ),
 )
 @click.option("command", "-c", "--command", type=str, required=True)
 @click.option(
