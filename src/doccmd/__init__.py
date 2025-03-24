@@ -96,24 +96,24 @@ def _deduplicate(
 
 @overload
 def _validate_file_extension(
-    ctx: click.Context,
-    param: click.Parameter,
+    ctx: click.Context | None,
+    param: click.Parameter | None,
     value: str,
 ) -> str: ...
 
 
 @overload
 def _validate_file_extension(
-    ctx: click.Context,
-    param: click.Parameter,
+    ctx: click.Context | None,
+    param: click.Parameter | None,
     value: None,
 ) -> None: ...
 
 
 @beartype
 def _validate_file_extension(
-    ctx: click.Context,
-    param: click.Parameter,
+    ctx: click.Context | None,
+    param: click.Parameter | None,
     value: str | None,
 ) -> str | None:
     """
@@ -126,27 +126,6 @@ def _validate_file_extension(
         message = f"'{value}' does not start with a '.'."
         raise click.BadParameter(message=message, ctx=ctx, param=param)
     return value
-
-
-@beartype
-def _validate_file_extensions(
-    ctx: click.Context,
-    param: click.Parameter,
-    values: Sequence[str],
-) -> Sequence[str]:
-    """
-    Validate that the input strings start with a dot.
-    """
-    # This is not necessary but it saves us later working with
-    # duplicate values.
-    values = _deduplicate(ctx=ctx, param=param, sequence=values)
-    # We could just return `values` as we know that `_validate_file_extension`
-    # does not modify the given value, but to be safe, we use the returned
-    # values.
-    return tuple(
-        _validate_file_extension(ctx=ctx, param=param, value=value)
-        for value in values
-    )
 
 
 @beartype
@@ -215,6 +194,14 @@ def _combined_validators(validators: Sequence[_Validator[T]]) -> _Validator[T]:
         return value
 
     return callback
+
+
+_validate_file_extensions: _Validator[Sequence[str]] = _combined_validators(
+    validators=[
+        _deduplicate,
+        _sequence_validator(validator=_validate_file_extension),
+    ]
+)
 
 
 @beartype
