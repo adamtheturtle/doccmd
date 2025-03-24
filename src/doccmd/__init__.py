@@ -143,11 +143,13 @@ def _validate_no_empty_string(
     return value
 
 
-_Validator = Callable[[click.Context | None, click.Parameter | None, T], T]
+_ClickCallback = Callable[[click.Context | None, click.Parameter | None, T], T]
 
 
 @beartype
-def _sequence_validator(validator: _Validator[T]) -> _Validator[Sequence[T]]:
+def _sequence_validator(
+    validator: _ClickCallback[T],
+) -> _ClickCallback[Sequence[T]]:
     """
     Wrap a single-value validator to apply it to a sequence of values.
     """
@@ -175,9 +177,11 @@ def _sequence_validator(validator: _Validator[T]) -> _Validator[Sequence[T]]:
 
 
 @beartype
-def _combined_validators(validators: Sequence[_Validator[T]]) -> _Validator[T]:
+def _click_multi_callback(
+    callbacks: Sequence[_ClickCallback[T]],
+) -> _ClickCallback[T]:
     """
-    Create a Click-compatible callback that applies a sequence of validators to
+    Create a Click-compatible callback that applies a sequence of callbacks to
     an option value.
     """
 
@@ -189,18 +193,20 @@ def _combined_validators(validators: Sequence[_Validator[T]]) -> _Validator[T]:
         """
         Apply the validators to the value.
         """
-        for validator in validators:
-            value = validator(ctx, param, value)
+        for callback in callbacks:
+            value = callback(ctx, param, value)
         return value
 
     return callback
 
 
-_validate_file_extensions: _Validator[Sequence[str]] = _combined_validators(
-    validators=[
-        _deduplicate,
-        _sequence_validator(validator=_validate_file_extension),
-    ]
+_validate_file_extensions: _ClickCallback[Sequence[str]] = (
+    _click_multi_callback(
+        callbacks=[
+            _deduplicate,
+            _sequence_validator(validator=_validate_file_extension),
+        ]
+    )
 )
 
 
@@ -635,8 +641,8 @@ def _run_args_against_docs(
         "Give multiple times for multiple languages."
     ),
     multiple=True,
-    callback=_combined_validators(
-        validators=[
+    callback=_click_multi_callback(
+        callbacks=[
             _deduplicate,
             _sequence_validator(validator=_validate_no_empty_string),
         ]
