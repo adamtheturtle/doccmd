@@ -502,7 +502,7 @@ def _parse_file(
 
 
 @beartype
-def _run_args_against_docs(
+def _run_args_against_document_blocks(
     *,
     document_path: Path,
     args: Sequence[str | Path],
@@ -521,6 +521,7 @@ def _run_args_against_docs(
 
     Raises:
         _ParseError: The file could not be parsed.
+        _EvaluateError: An example in the document could not be evaluated.
     """
     temporary_file_extension = _get_temporary_file_extension(
         language=code_block_language,
@@ -613,15 +614,7 @@ def _run_args_against_docs(
 
     document = _parse_file(sybil=sybil, path=document_path)
 
-    try:
-        _evaluate_document(document=document, args=args)
-    except _EvaluateError as exc:
-        if exc.reason:
-            message = (
-                f"Error running command '{exc.command_args[0]}': {exc.reason}"
-            )
-            _log_error(message=message)
-        sys.exit(exc.exit_code)
+    _evaluate_document(document=document, args=args)
 
 
 @click.command(name="doccmd")
@@ -976,7 +969,7 @@ def main(
         for code_block_language in languages:
             markup_language = suffix_map[file_path.suffix]
             try:
-                _run_args_against_docs(
+                _run_args_against_document_blocks(
                     args=args,
                     document_path=file_path,
                     code_block_language=code_block_language,
@@ -1017,3 +1010,11 @@ def main(
                     _log_error(message=message)
                     sys.exit(1)
                 _log_warning(message=message)
+            except _EvaluateError as exc:
+                if exc.reason:
+                    message = (
+                        f"Error running command '{exc.command_args[0]}': "
+                        f"{exc.reason}"
+                    )
+                    _log_error(message=message)
+                sys.exit(exc.exit_code)
