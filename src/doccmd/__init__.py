@@ -460,6 +460,7 @@ class _GroupModifiedError(Exception):
 
     def __init__(
         self,
+        *,
         example: Example,
         modified_example_content: str,
     ) -> None:
@@ -496,7 +497,9 @@ class _GroupModifiedError(Exception):
 
 @beartype
 def _raise_group_modified(
-    *, example: Example, modified_example_content: str
+    *,
+    example: Example,
+    modified_example_content: str,
 ) -> None:
     """
     Raise an error when there was an attempt to modify a code block in a group.
@@ -526,7 +529,7 @@ def _parse_file(
 
 
 @beartype
-def _run_args_against_docs(
+def _run_args_against_document_blocks(
     *,
     document_path: Path,
     args: Sequence[str | Path],
@@ -1000,7 +1003,7 @@ def main(
         for code_block_language in languages:
             markup_language = suffix_map[file_path.suffix]
             try:
-                _run_args_against_docs(
+                _run_args_against_document_blocks(
                     args=args,
                     document_path=file_path,
                     code_block_language=code_block_language,
