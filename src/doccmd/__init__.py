@@ -129,6 +129,26 @@ def _validate_file_extension(
 
 
 @beartype
+def _validate_given_files_have_known_suffixes(
+    *,
+    given_files: Iterable[Path],
+    known_suffixes: Iterable[str],
+) -> None:
+    """
+    Validate that the given files have known suffixes.
+    """
+    given_files_unknown_suffix = [
+        document_path
+        for document_path in given_files
+        if document_path.suffix not in known_suffixes
+    ]
+
+    for given_file_unknown_suffix in given_files_unknown_suffix:
+        message = f"Markup language not known for {given_file_unknown_suffix}."
+        raise click.UsageError(message=message)
+
+
+@beartype
 def _validate_no_empty_string(
     ctx: click.Context | None,
     param: click.Parameter | None,
@@ -964,15 +984,10 @@ def main(
         if document_path.is_file()
     ]
 
-    given_files_unknown_suffix = [
-        document_path
-        for document_path in given_files
-        if document_path.suffix not in suffix_map
-    ]
-
-    for given_file_unknown_suffix in given_files_unknown_suffix:
-        message = f"Markup language not known for {given_file_unknown_suffix}."
-        raise click.UsageError(message=message)
+    _validate_given_files_have_known_suffixes(
+        given_files=given_files,
+        known_suffixes=suffix_map.keys(),
+    )
 
     file_paths = _get_file_paths(
         document_paths=document_paths,
