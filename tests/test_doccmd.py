@@ -570,7 +570,9 @@ def test_exit_code(tmp_path: Path) -> None:
         catch_exceptions=False,
         color=True,
     )
-    assert result.exit_code == exit_code
+    assert result.exit_code == exit_code, (result.stdout, result.stderr)
+    assert result.stdout == ""
+    assert result.stderr == ""
 
 
 @pytest.mark.parametrize(
