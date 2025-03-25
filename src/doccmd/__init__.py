@@ -460,6 +460,7 @@ class _GroupModifiedError(Exception):
 
     def __init__(
         self,
+        *,
         example: Example,
         modified_example_content: str,
     ) -> None:
@@ -496,7 +497,9 @@ class _GroupModifiedError(Exception):
 
 @beartype
 def _raise_group_modified(
-    *, example: Example, modified_example_content: str
+    *,
+    example: Example,
+    modified_example_content: str,
 ) -> None:
     """
     Raise an error when there was an attempt to modify a code block in a group.
