@@ -493,30 +493,6 @@ class _GroupModifiedError(Exception):
         message += "\n".join(unified_diff)
         return message
 
-    def __str__(self) -> str:
-        """
-        Get the string representation of the error.
-        """
-        unified_diff = difflib.unified_diff(
-            a=str(object=self.example.parsed).lstrip().splitlines(),
-            b=self.modified_example_content.lstrip().splitlines(),
-            fromfile="original",
-            tofile="modified",
-        )
-        message = textwrap.dedent(
-            text=f"""\
-            Writing to a group is not supported.
-
-            A command modified the contents of examples in the group ending on line {self.example.line} in {Path(self.example.path).as_posix()}.
-
-            Diff:
-
-            """,  # noqa: E501
-        )
-
-        message += "\n".join(unified_diff)
-        return message
-
 
 @beartype
 def _raise_group_modified(
