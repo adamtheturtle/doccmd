@@ -549,7 +549,7 @@ def _parse_file(
 
 
 @beartype
-def _run_args_against_document_blocks(
+def _get_sybil(
     *,
     document_path: Path,
     args: Sequence[str | Path],
@@ -563,12 +563,11 @@ def _run_args_against_document_blocks(
     group_markers: Iterable[str],
     use_pty: bool,
     markup_language: MarkupLanguage,
-) -> None:
-    """Run commands on the given file.
+) -> Sybil:
+    """Get a Sybil for running commands on the given file.
 
     Raises:
-        _ParseError: The file could not be parsed.
-        _EvaluateError: An example in the document could not be evaluated.
+        _ParseError: The file encoding could not be detected.
     """
     temporary_file_extension = _get_temporary_file_extension(
         language=code_block_language,
@@ -657,11 +656,7 @@ def _run_args_against_document_blocks(
         *skip_parsers,
         *group_parsers,
     ]
-    sybil = Sybil(parsers=parsers, encoding=encoding)
-
-    document = _parse_file(sybil=sybil, path=document_path)
-
-    _evaluate_document(document=document, args=args)
+    return Sybil(parsers=parsers, encoding=encoding)
 
 
 @click.command(name="doccmd")
@@ -1010,7 +1005,7 @@ def main(
     for file_path, code_block_language in file_path_code_block_language_pairs:
         markup_language = suffix_map[file_path.suffix]
         try:
-            _run_args_against_document_blocks(
+            sybil = _get_sybil(
                 args=args,
                 document_path=file_path,
                 code_block_language=code_block_language,
@@ -1024,15 +1019,17 @@ def main(
                 use_pty=use_pty,
                 markup_language=markup_language,
             )
-        except _ParseError as exc:
-            _log_error(message=str(object=exc))
-            if fail_on_parse_error:
-                sys.exit(1)
+            document = _parse_file(sybil=sybil, path=file_path)
+            _evaluate_document(document=document, args=args)
         except _GroupModifiedError as exc:
             if fail_on_group_write:
                 _log_error(message=str(object=exc))
                 sys.exit(1)
             _log_warning(message=str(object=exc))
+        except _ParseError as exc:
+            _log_error(message=str(object=exc))
+            if fail_on_parse_error:
+                sys.exit(1)
         except _EvaluateError as exc:
             if exc.reason:
                 message = (
