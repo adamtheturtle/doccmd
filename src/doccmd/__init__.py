@@ -12,7 +12,7 @@ from collections.abc import Callable, Iterable, Mapping, Sequence
 from enum import Enum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
-from typing import TYPE_CHECKING, TypeVar, overload
+from typing import TypeVar, overload
 
 import charset_normalizer
 import click
@@ -31,9 +31,6 @@ from ._languages import (
     MyST,
     ReStructuredText,
 )
-
-if TYPE_CHECKING:
-    from sybil.typing import Evaluator, Parser
 
 try:
     __version__ = version(distribution_name=__name__)
@@ -585,17 +582,12 @@ def _get_sybil(
         on_modify=_raise_group_modified,
     )
 
-    evaluators: Sequence[Evaluator] = [
-        *log_command_evaluators,
-        shell_command_evaluator,
-    ]
-    group_evaluators: Sequence[Evaluator] = [
-        *log_command_evaluators,
-        shell_command_group_evaluator,
-    ]
-
-    evaluator = MultiEvaluator(evaluators=evaluators)
-    group_evaluator = MultiEvaluator(evaluators=group_evaluators)
+    evaluator = MultiEvaluator(
+        evaluators=[*log_command_evaluators, shell_command_evaluator],
+    )
+    group_evaluator = MultiEvaluator(
+        evaluators=[*log_command_evaluators, shell_command_group_evaluator],
+    )
 
     skip_parsers = [
         markup_language.skip_parser_cls(
@@ -618,12 +610,10 @@ def _get_sybil(
         )
         for group_directive in group_directives
     ]
-    parsers: Sequence[Parser] = [
-        *code_block_parsers,
-        *skip_parsers,
-        *group_parsers,
-    ]
-    return Sybil(parsers=parsers, encoding=encoding)
+    return Sybil(
+        parsers=(*code_block_parsers, *skip_parsers, *group_parsers),
+        encoding=encoding,
+    )
 
 
 @click.command(name="doccmd")
