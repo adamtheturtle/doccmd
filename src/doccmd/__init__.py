@@ -436,21 +436,6 @@ def _evaluate_document(
 
 
 @beartype
-class _ParseError(Exception):
-    """
-    Error raised when a file could not be parsed.
-    """
-
-    @beartype
-    def __init__(self, path: Path, reason: str) -> None:
-        """
-        Initialize the error.
-        """
-        message = f"Could not parse {path}: {reason}"
-        super().__init__(message)
-
-
-@beartype
 class _EvaluateError(Exception):
     """
     Error raised when an example could not be evaluated.
@@ -528,24 +513,6 @@ def _raise_group_modified(
         example=example,
         modified_example_content=modified_example_content,
     )
-
-
-@beartype
-def _parse_file(
-    *,
-    sybil: Sybil,
-    path: Path,
-) -> Document:
-    """Parse the file.
-
-    Raises:
-        _ParseError: The file could not be parsed.
-    """
-    try:
-        return sybil.parse(path=path)
-    except (LexingException, ValueError) as exc:
-        reason = str(object=exc)
-        raise _ParseError(path=path, reason=reason) from exc
 
 
 @beartype
@@ -1029,15 +996,16 @@ def main(
                     encoding=encoding,
                     log_command_evaluators=log_command_evaluators,
                 )
-                document = _parse_file(sybil=sybil, path=file_path)
+                document = sybil.parse(path=file_path)
                 _evaluate_document(document=document, args=args)
             except _GroupModifiedError as exc:
                 if fail_on_group_write:
                     _log_error(message=str(object=exc))
                     sys.exit(1)
                 _log_warning(message=str(object=exc))
-            except _ParseError as exc:
-                _log_error(message=str(object=exc))
+            except (LexingException, ValueError) as exc:
+                message = f"Could not parse {file_path}: {exc}"
+                _log_error(message=message)
                 if fail_on_parse_error:
                     sys.exit(1)
             except _EvaluateError as exc:
