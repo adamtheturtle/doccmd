@@ -466,8 +466,32 @@ class _GroupModifiedError(Exception):
         """
         Initialize the error.
         """
-        self.example = example
-        self.modified_example_content = modified_example_content
+        self._example = example
+        self._modified_example_content = modified_example_content
+
+    def __str__(self) -> str:
+        """
+        Get the string representation of the error.
+        """
+        unified_diff = difflib.unified_diff(
+            a=str(object=self._example.parsed).lstrip().splitlines(),
+            b=self._modified_example_content.lstrip().splitlines(),
+            fromfile="original",
+            tofile="modified",
+        )
+        message = textwrap.dedent(
+            text=f"""\
+            Writing to a group is not supported.
+
+            A command modified the contents of examples in the group ending on line {self._example.line} in {Path(self._example.path).as_posix()}.
+
+            Diff:
+
+            """,  # noqa: E501
+        )
+
+        message += "\n".join(unified_diff)
+        return message
 
 
 @beartype
@@ -995,25 +1019,7 @@ def main(
                 if fail_on_parse_error:
                     sys.exit(1)
             except _GroupModifiedError as exc:
-                unified_diff = difflib.unified_diff(
-                    a=str(object=exc.example.parsed).lstrip().splitlines(),
-                    b=exc.modified_example_content.lstrip().splitlines(),
-                    fromfile="original",
-                    tofile="modified",
-                )
-                message = textwrap.dedent(
-                    text=f"""\
-                    Writing to a group is not supported.
-
-                    A command modified the contents of examples in the group ending on line {exc.example.line} in {Path(exc.example.path).as_posix()}.
-
-                    Diff:
-
-                    """,  # noqa: E501
-                )
-
-                message += "\n".join(unified_diff)
                 if fail_on_group_write:
-                    _log_error(message=message)
+                    _log_error(message=str(object=exc))
                     sys.exit(1)
-                _log_warning(message=message)
+                _log_warning(message=str(object=exc))
