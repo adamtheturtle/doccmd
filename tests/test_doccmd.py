@@ -217,8 +217,7 @@ def test_unknown_encoding(
         color=True,
     )
     expected_stderr = (
-        f"{fg.red}Could not parse {rst_file}: "
-        f"Could not detect encoding.{reset}\n"
+        f"{fg.red}Could not determine encoding for {rst_file}.{reset}\n"
     )
     assert result.exit_code == expected_exit_code
     assert result.stdout == ""

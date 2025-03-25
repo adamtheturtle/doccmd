@@ -549,20 +549,15 @@ def _parse_file(
 
 
 @beartype
-def _get_encoding(*, document_path: Path) -> str:
-    """Get the encoding of the file.
-
-    Raises:
-        _ParseError: The file encoding could not be detected.
+def _get_encoding(*, document_path: Path) -> str | None:
+    """
+    Get the encoding of the file.
     """
     content_bytes = document_path.read_bytes()
     charset_matches = charset_normalizer.from_bytes(sequences=content_bytes)
     best_match = charset_matches.best()
     if best_match is None:
-        raise _ParseError(
-            path=document_path,
-            reason="Could not detect encoding.",
-        )
+        return None
     return best_match.encoding
 
 
@@ -1006,47 +1001,50 @@ def main(
     group_markers = {*group_markers, "all"}
     group_directives = _get_group_directives(markers=group_markers)
 
-    file_path_code_block_language_pairs = [
-        (file_path, language)
-        for file_path in file_paths
-        for language in languages
-    ]
-
-    for file_path, code_block_language in file_path_code_block_language_pairs:
+    for file_path in file_paths:
         markup_language = suffix_map[file_path.suffix]
-        try:
-            encoding = _get_encoding(document_path=file_path)
-            sybil = _get_sybil(
-                args=args,
-                document_path=file_path,
-                code_block_language=code_block_language,
-                pad_temporary_file=pad_file,
-                pad_groups=pad_groups,
-                temporary_file_extension=temporary_file_extension,
-                temporary_file_name_prefix=temporary_file_name_prefix,
-                skip_directives=skip_directives,
-                group_directives=group_directives,
-                use_pty=use_pty,
-                markup_language=markup_language,
-                encoding=encoding,
-                log_command_evaluators=log_command_evaluators,
+        encoding = _get_encoding(document_path=file_path)
+        if encoding is None:
+            _log_error(
+                message=f"Could not determine encoding for {file_path}."
             )
-            document = _parse_file(sybil=sybil, path=file_path)
-            _evaluate_document(document=document, args=args)
-        except _GroupModifiedError as exc:
-            if fail_on_group_write:
-                _log_error(message=str(object=exc))
-                sys.exit(1)
-            _log_warning(message=str(object=exc))
-        except _ParseError as exc:
-            _log_error(message=str(object=exc))
             if fail_on_parse_error:
                 sys.exit(1)
-        except _EvaluateError as exc:
-            if exc.reason:
-                message = (
-                    f"Error running command '{exc.command_args[0]}': "
-                    f"{exc.reason}"
+            continue
+
+        for code_block_language in languages:
+            try:
+                sybil = _get_sybil(
+                    args=args,
+                    document_path=file_path,
+                    code_block_language=code_block_language,
+                    pad_temporary_file=pad_file,
+                    pad_groups=pad_groups,
+                    temporary_file_extension=temporary_file_extension,
+                    temporary_file_name_prefix=temporary_file_name_prefix,
+                    skip_directives=skip_directives,
+                    group_directives=group_directives,
+                    use_pty=use_pty,
+                    markup_language=markup_language,
+                    encoding=encoding,
+                    log_command_evaluators=log_command_evaluators,
                 )
-                _log_error(message=message)
-            sys.exit(exc.exit_code)
+                document = _parse_file(sybil=sybil, path=file_path)
+                _evaluate_document(document=document, args=args)
+            except _GroupModifiedError as exc:
+                if fail_on_group_write:
+                    _log_error(message=str(object=exc))
+                    sys.exit(1)
+                _log_warning(message=str(object=exc))
+            except _ParseError as exc:
+                _log_error(message=str(object=exc))
+                if fail_on_parse_error:
+                    sys.exit(1)
+            except _EvaluateError as exc:
+                if exc.reason:
+                    message = (
+                        f"Error running command '{exc.command_args[0]}': "
+                        f"{exc.reason}"
+                    )
+                    _log_error(message=message)
+                sys.exit(exc.exit_code)
