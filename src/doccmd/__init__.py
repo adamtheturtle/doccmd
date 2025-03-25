@@ -229,9 +229,9 @@ _validate_file_extensions: _ClickCallback[Sequence[str]] = (
 def _get_file_paths(
     *,
     document_paths: Sequence[Path],
-    file_suffixes: Sequence[str],
+    file_suffixes: Iterable[str],
     max_depth: int,
-    exclude_patterns: Sequence[str],
+    exclude_patterns: Iterable[str],
 ) -> Sequence[Path]:
     """
     Get the file paths from the given document paths (files and directories).
@@ -985,24 +985,18 @@ def main(
         value: key for key, values in suffix_groups.items() for value in values
     }
 
-    given_files = [
-        document_path
-        for document_path in document_paths
-        if document_path.is_file()
-    ]
-
     _validate_given_files_have_known_suffixes(
-        given_files=given_files,
+        given_files=[
+            document_path
+            for document_path in document_paths
+            if document_path.is_file()
+        ],
         known_suffixes=suffix_map.keys(),
     )
 
     file_paths = _get_file_paths(
         document_paths=document_paths,
-        file_suffixes=[
-            suffix
-            for suffixes in suffix_groups.values()
-            for suffix in suffixes
-        ],
+        file_suffixes=suffix_map.keys(),
         max_depth=max_depth,
         exclude_patterns=exclude_patterns,
     )
