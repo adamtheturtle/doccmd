@@ -585,11 +585,14 @@ def _get_sybil(
         on_modify=_raise_group_modified,
     )
 
-    evaluators: Sequence[Evaluator] = [shell_command_evaluator]
-    group_evaluators: Sequence[Evaluator] = [shell_command_group_evaluator]
-
-    evaluators = [*log_command_evaluators, *evaluators]
-    group_evaluators = [*log_command_evaluators, *group_evaluators]
+    evaluators: Sequence[Evaluator] = [
+        *log_command_evaluators,
+        shell_command_evaluator,
+    ]
+    group_evaluators: Sequence[Evaluator] = [
+        *log_command_evaluators,
+        shell_command_group_evaluator,
+    ]
 
     evaluator = MultiEvaluator(evaluators=evaluators)
     group_evaluator = MultiEvaluator(evaluators=group_evaluators)
