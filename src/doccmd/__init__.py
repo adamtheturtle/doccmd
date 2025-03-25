@@ -229,9 +229,9 @@ _validate_file_extensions: _ClickCallback[Sequence[str]] = (
 def _get_file_paths(
     *,
     document_paths: Sequence[Path],
-    file_suffixes: Sequence[str],
+    file_suffixes: Iterable[str],
     max_depth: int,
-    exclude_patterns: Sequence[str],
+    exclude_patterns: Iterable[str],
 ) -> Sequence[Path]:
     """
     Get the file paths from the given document paths (files and directories).
@@ -978,24 +978,18 @@ def main(
         value: key for key, values in suffix_groups.items() for value in values
     }
 
-    given_files = [
-        document_path
-        for document_path in document_paths
-        if document_path.is_file()
-    ]
-
     _validate_given_files_have_known_suffixes(
-        given_files=given_files,
+        given_files=[
+            document_path
+            for document_path in document_paths
+            if document_path.is_file()
+        ],
         known_suffixes=suffix_map.keys(),
     )
 
     file_paths = _get_file_paths(
         document_paths=document_paths,
-        file_suffixes=[
-            suffix
-            for suffixes in suffix_groups.values()
-            for suffix in suffixes
-        ],
+        file_suffixes=suffix_map.keys(),
         max_depth=max_depth,
         exclude_patterns=exclude_patterns,
     )
@@ -1007,38 +1001,43 @@ def main(
             else "Not using PTY for running commands."
         )
 
-    for file_path in file_paths:
-        for code_block_language in languages:
-            markup_language = suffix_map[file_path.suffix]
-            try:
-                _run_args_against_document_blocks(
-                    args=args,
-                    document_path=file_path,
-                    code_block_language=code_block_language,
-                    pad_temporary_file=pad_file,
-                    pad_groups=pad_groups,
-                    verbose=verbose,
-                    temporary_file_extension=temporary_file_extension,
-                    temporary_file_name_prefix=temporary_file_name_prefix,
-                    skip_markers=skip_markers,
-                    group_markers=group_markers,
-                    use_pty=use_pty,
-                    markup_language=markup_language,
-                )
-            except _ParseError as exc:
+    file_path_code_block_language_pairs = [
+        (file_path, language)
+        for file_path in file_paths
+        for language in languages
+    ]
+
+    for file_path, code_block_language in file_path_code_block_language_pairs:
+        markup_language = suffix_map[file_path.suffix]
+        try:
+            _run_args_against_document_blocks(
+                args=args,
+                document_path=file_path,
+                code_block_language=code_block_language,
+                pad_temporary_file=pad_file,
+                pad_groups=pad_groups,
+                verbose=verbose,
+                temporary_file_extension=temporary_file_extension,
+                temporary_file_name_prefix=temporary_file_name_prefix,
+                skip_markers=skip_markers,
+                group_markers=group_markers,
+                use_pty=use_pty,
+                markup_language=markup_language,
+            )
+        except _ParseError as exc:
+            _log_error(message=str(object=exc))
+            if fail_on_parse_error:
+                sys.exit(1)
+        except _GroupModifiedError as exc:
+            if fail_on_group_write:
                 _log_error(message=str(object=exc))
-                if fail_on_parse_error:
-                    sys.exit(1)
-            except _GroupModifiedError as exc:
-                if fail_on_group_write:
-                    _log_error(message=str(object=exc))
-                    sys.exit(1)
-                _log_warning(message=str(object=exc))
-            except _EvaluateError as exc:
-                if exc.reason:
-                    message = (
-                        f"Error running command '{exc.command_args[0]}': "
-                        f"{exc.reason}"
-                    )
-                    _log_error(message=message)
-                sys.exit(exc.exit_code)
+                sys.exit(1)
+            _log_warning(message=str(object=exc))
+        except _EvaluateError as exc:
+            if exc.reason:
+                message = (
+                    f"Error running command '{exc.command_args[0]}': "
+                    f"{exc.reason}"
+                )
+                _log_error(message=message)
+            sys.exit(exc.exit_code)
