@@ -135,6 +135,8 @@ lint.select = [
     "ALL",
 ]
 lint.ignore = [
+    # We can manage our own complexity.
+    "C901",
     # Ruff warns that this conflicts with the formatter.
     "COM812",
     # Allow our chosen docstring line-style - no one-line summary.
@@ -232,6 +234,7 @@ enable = [
 # --disable=W"
 
 disable = [
+    'too-complex',
     'too-few-public-methods',
     'too-many-locals',
     'too-many-arguments',
