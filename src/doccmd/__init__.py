@@ -577,11 +577,11 @@ def _get_sybil(
     temporary_file_name_prefix: str | None,
     pad_temporary_file: bool,
     pad_groups: bool,
-    verbose: bool,
     skip_directives: Iterable[str],
     group_directives: Iterable[str],
     use_pty: bool,
     markup_language: MarkupLanguage,
+    log_command_evaluators: Sequence[_LogCommandEvaluator],
 ) -> Sybil:
     """
     Get a Sybil for running commands on the given file.
@@ -625,10 +625,9 @@ def _get_sybil(
 
     evaluators: Sequence[Evaluator] = [shell_command_evaluator]
     group_evaluators: Sequence[Evaluator] = [shell_command_group_evaluator]
-    if verbose:
-        log_command_evaluator = _LogCommandEvaluator(args=args)
-        evaluators = [log_command_evaluator, *evaluators]
-        group_evaluators = [log_command_evaluator, *group_evaluators]
+
+    evaluators = [*log_command_evaluators, *evaluators]
+    group_evaluators = [*log_command_evaluators, *group_evaluators]
 
     evaluator = MultiEvaluator(evaluators=evaluators)
     group_evaluator = MultiEvaluator(evaluators=group_evaluators)
@@ -992,12 +991,14 @@ def main(
         exclude_patterns=exclude_patterns,
     )
 
+    log_command_evaluators = []
     if verbose:
         _log_info(
             message="Using PTY for running commands."
             if use_pty
             else "Not using PTY for running commands."
         )
+        log_command_evaluators = [_LogCommandEvaluator(args=args)]
 
     skip_markers = {*skip_markers, "all"}
     skip_directives = _get_skip_directives(markers=skip_markers)
@@ -1021,7 +1022,6 @@ def main(
                 code_block_language=code_block_language,
                 pad_temporary_file=pad_file,
                 pad_groups=pad_groups,
-                verbose=verbose,
                 temporary_file_extension=temporary_file_extension,
                 temporary_file_name_prefix=temporary_file_name_prefix,
                 skip_directives=skip_directives,
@@ -1029,6 +1029,7 @@ def main(
                 use_pty=use_pty,
                 markup_language=markup_language,
                 encoding=encoding,
+                log_command_evaluators=log_command_evaluators,
             )
             document = _parse_file(sybil=sybil, path=file_path)
             _evaluate_document(document=document, args=args)
