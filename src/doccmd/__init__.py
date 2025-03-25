@@ -374,7 +374,7 @@ def _get_group_directives(markers: Iterable[str]) -> Sequence[str]:
 
 
 @beartype
-def _get_skip_directives(markers: Iterable[str]) -> Sequence[str]:
+def _get_skip_directives(markers: Iterable[str]) -> Iterable[str]:
     """
     Skip directives based on the provided markers.
     """
@@ -578,8 +578,8 @@ def _get_sybil(
     pad_temporary_file: bool,
     pad_groups: bool,
     verbose: bool,
-    skip_markers: Iterable[str],
-    group_markers: Iterable[str],
+    skip_directives: Iterable[str],
+    group_directives: Iterable[str],
     use_pty: bool,
     markup_language: MarkupLanguage,
 ) -> Sybil:
@@ -633,8 +633,6 @@ def _get_sybil(
     evaluator = MultiEvaluator(evaluators=evaluators)
     group_evaluator = MultiEvaluator(evaluators=group_evaluators)
 
-    skip_markers = {*skip_markers, "all"}
-    skip_directives = _get_skip_directives(markers=skip_markers)
     skip_parsers = [
         markup_language.skip_parser_cls(
             directive=skip_directive,
@@ -648,8 +646,6 @@ def _get_sybil(
         )
     ]
 
-    group_markers = {*group_markers, "all"}
-    group_directives = _get_group_directives(markers=group_markers)
     group_parsers = [
         markup_language.group_parser_cls(
             directive=group_directive,
@@ -950,8 +946,8 @@ def main(
     pad_file: bool,
     pad_groups: bool,
     verbose: bool,
-    skip_markers: Sequence[str],
-    group_markers: Sequence[str],
+    skip_markers: Iterable[str],
+    group_markers: Iterable[str],
     use_pty_option: _UsePty,
     rst_suffixes: Sequence[str],
     myst_suffixes: Sequence[str],
@@ -1003,6 +999,12 @@ def main(
             else "Not using PTY for running commands."
         )
 
+    skip_markers = {*skip_markers, "all"}
+    skip_directives = _get_skip_directives(markers=skip_markers)
+
+    group_markers = {*group_markers, "all"}
+    group_directives = _get_group_directives(markers=group_markers)
+
     file_path_code_block_language_pairs = [
         (file_path, language)
         for file_path in file_paths
@@ -1022,8 +1024,8 @@ def main(
                 verbose=verbose,
                 temporary_file_extension=temporary_file_extension,
                 temporary_file_name_prefix=temporary_file_name_prefix,
-                skip_markers=skip_markers,
-                group_markers=group_markers,
+                skip_directives=skip_directives,
+                group_directives=group_directives,
                 use_pty=use_pty,
                 markup_language=markup_language,
                 encoding=encoding,
