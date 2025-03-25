@@ -1008,30 +1008,35 @@ def main(
             else "Not using PTY for running commands."
         )
 
-    for file_path in file_paths:
-        for code_block_language in languages:
-            markup_language = suffix_map[file_path.suffix]
-            try:
-                _run_args_against_document_blocks(
-                    args=args,
-                    document_path=file_path,
-                    code_block_language=code_block_language,
-                    pad_temporary_file=pad_file,
-                    pad_groups=pad_groups,
-                    verbose=verbose,
-                    temporary_file_extension=temporary_file_extension,
-                    temporary_file_name_prefix=temporary_file_name_prefix,
-                    skip_markers=skip_markers,
-                    group_markers=group_markers,
-                    use_pty=use_pty,
-                    markup_language=markup_language,
-                )
-            except _ParseError as exc:
+    file_path_code_block_language_pairs = [
+        (file_path, language)
+        for file_path in file_paths
+        for language in languages
+    ]
+
+    for file_path, code_block_language in file_path_code_block_language_pairs:
+        markup_language = suffix_map[file_path.suffix]
+        try:
+            _run_args_against_document_blocks(
+                args=args,
+                document_path=file_path,
+                code_block_language=code_block_language,
+                pad_temporary_file=pad_file,
+                pad_groups=pad_groups,
+                verbose=verbose,
+                temporary_file_extension=temporary_file_extension,
+                temporary_file_name_prefix=temporary_file_name_prefix,
+                skip_markers=skip_markers,
+                group_markers=group_markers,
+                use_pty=use_pty,
+                markup_language=markup_language,
+            )
+        except _ParseError as exc:
+            _log_error(message=str(object=exc))
+            if fail_on_parse_error:
+                sys.exit(1)
+        except _GroupModifiedError as exc:
+            if fail_on_group_write:
                 _log_error(message=str(object=exc))
-                if fail_on_parse_error:
-                    sys.exit(1)
-            except _GroupModifiedError as exc:
-                if fail_on_group_write:
-                    _log_error(message=str(object=exc))
-                    sys.exit(1)
-                _log_warning(message=str(object=exc))
+                sys.exit(1)
+            _log_warning(message=str(object=exc))
