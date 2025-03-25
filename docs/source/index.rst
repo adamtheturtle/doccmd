@@ -51,6 +51,12 @@ It does this by adding padding to the code blocks before running the command.
 Some tools do not work well with this padding, and you can choose to obscure the line numbers in order to give the tool the original code block's content without padding, by using the :option:`doccmd --no-pad-file` and :option:`doccmd --no-pad-groups` flags.
 See :ref:`using_groups_with_formatters` for more information.
 
+For example, to run ``ruff format`` against the code blocks in a Markdown file, use the following command:
+
+.. code-block:: shell
+
+   $ doccmd --language=python --no-pad-file --no-pad-groups --command="ruff format"
+
 .. include:: file-names-and-linter-ignores.rst
 
 Reference

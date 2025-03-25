@@ -37,4 +37,6 @@ stderr
 txt
 typeshed
 ubuntu
+validator
+validators
 versioned

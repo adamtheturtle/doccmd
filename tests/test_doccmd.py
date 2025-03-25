@@ -570,7 +570,9 @@ def test_exit_code(tmp_path: Path) -> None:
         catch_exceptions=False,
         color=True,
     )
-    assert result.exit_code == exit_code
+    assert result.exit_code == exit_code, (result.stdout, result.stderr)
+    assert result.stdout == ""
+    assert result.stderr == ""
 
 
 @pytest.mark.parametrize(
@@ -3115,7 +3117,6 @@ def test_jinja2(*, tmp_path: Path) -> None:
         "cat",
         "--rst-extension",
         ".rst",
-        str(object=source_file),
     ]
     result = runner.invoke(
         cli=main,
@@ -3127,3 +3128,37 @@ def test_jinja2(*, tmp_path: Path) -> None:
     expected_output = "1\n"
     assert result.stdout == expected_output
     assert result.stderr == ""
+
+
+def test_empty_language_given(*, tmp_path: Path) -> None:
+    """
+    An error is shown when an empty language is given.
+    """
+    runner = CliRunner(mix_stderr=False)
+    source_file = tmp_path / "example.rst"
+    content = ""
+    source_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--command",
+        "cat",
+        "--language",
+        "",
+        str(object=source_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code != 0, (result.stdout, result.stderr)
+    expected_stderr = textwrap.dedent(
+        text="""\
+            Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...
+            Try 'doccmd --help' for help.
+
+            Error: Invalid value for '-l' / '--language': This value cannot be empty.
+            """,  # noqa: E501
+    )
+    assert result.stdout == ""
+    assert result.stderr == expected_stderr

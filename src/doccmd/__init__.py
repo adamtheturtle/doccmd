@@ -8,7 +8,7 @@ import shlex
 import subprocess
 import sys
 import textwrap
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from enum import Enum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
@@ -80,8 +80,8 @@ class _LogCommandEvaluator:
 
 @beartype
 def _deduplicate(
-    ctx: click.Context,
-    param: click.Parameter,
+    ctx: click.Context | None,
+    param: click.Parameter | None,
     sequence: Sequence[T],
 ) -> Sequence[T]:
     """
@@ -96,24 +96,24 @@ def _deduplicate(
 
 @overload
 def _validate_file_extension(
-    ctx: click.Context,
-    param: click.Parameter,
+    ctx: click.Context | None,
+    param: click.Parameter | None,
     value: str,
 ) -> str: ...
 
 
 @overload
 def _validate_file_extension(
-    ctx: click.Context,
-    param: click.Parameter,
+    ctx: click.Context | None,
+    param: click.Parameter | None,
     value: None,
 ) -> None: ...
 
 
 @beartype
 def _validate_file_extension(
-    ctx: click.Context,
-    param: click.Parameter,
+    ctx: click.Context | None,
+    param: click.Parameter | None,
     value: str | None,
 ) -> str | None:
     """
@@ -129,33 +129,109 @@ def _validate_file_extension(
 
 
 @beartype
-def _validate_file_extensions(
-    ctx: click.Context,
-    param: click.Parameter,
-    values: Sequence[str],
-) -> Sequence[str]:
+def _validate_given_files_have_known_suffixes(
+    *,
+    given_files: Iterable[Path],
+    known_suffixes: Iterable[str],
+) -> None:
     """
-    Validate that the input strings start with a dot.
+    Validate that the given files have known suffixes.
     """
-    # This is not necessary but it saves us later working with
-    # duplicate values.
-    values = _deduplicate(ctx=ctx, param=param, sequence=values)
-    # We could just return `values` as we know that `_validate_file_extension`
-    # does not modify the given value, but to be safe, we use the returned
-    # values.
-    return tuple(
-        _validate_file_extension(ctx=ctx, param=param, value=value)
-        for value in values
+    given_files_unknown_suffix = [
+        document_path
+        for document_path in given_files
+        if document_path.suffix not in known_suffixes
+    ]
+
+    for given_file_unknown_suffix in given_files_unknown_suffix:
+        message = f"Markup language not known for {given_file_unknown_suffix}."
+        raise click.UsageError(message=message)
+
+
+@beartype
+def _validate_no_empty_string(
+    ctx: click.Context | None,
+    param: click.Parameter | None,
+    value: str,
+) -> str:
+    """
+    Validate that the input strings are not empty.
+    """
+    if not value:
+        msg = "This value cannot be empty."
+        raise click.BadParameter(message=msg, ctx=ctx, param=param)
+    return value
+
+
+_ClickCallback = Callable[[click.Context | None, click.Parameter | None, T], T]
+
+
+@beartype
+def _sequence_validator(
+    validator: _ClickCallback[T],
+) -> _ClickCallback[Sequence[T]]:
+    """
+    Wrap a single-value validator to apply it to a sequence of values.
+    """
+
+    def callback(
+        ctx: click.Context | None,
+        param: click.Parameter | None,
+        value: Sequence[T],
+    ) -> Sequence[T]:
+        """
+        Apply the validators to the value.
+        """
+        return_values: tuple[T, ...] = ()
+        for item in value:
+            returned_value = validator(ctx, param, item)
+            return_values = (*return_values, returned_value)
+        return return_values
+
+    return callback
+
+
+@beartype
+def _click_multi_callback(
+    callbacks: Sequence[_ClickCallback[T]],
+) -> _ClickCallback[T]:
+    """
+    Create a Click-compatible callback that applies a sequence of callbacks to
+    an option value.
+    """
+
+    def callback(
+        ctx: click.Context | None,
+        param: click.Parameter | None,
+        value: T,
+    ) -> T:
+        """
+        Apply the validators to the value.
+        """
+        for callback in callbacks:
+            value = callback(ctx, param, value)
+        return value
+
+    return callback
+
+
+_validate_file_extensions: _ClickCallback[Sequence[str]] = (
+    _click_multi_callback(
+        callbacks=[
+            _deduplicate,
+            _sequence_validator(validator=_validate_file_extension),
+        ]
     )
+)
 
 
 @beartype
 def _get_file_paths(
     *,
     document_paths: Sequence[Path],
-    file_suffixes: Sequence[str],
+    file_suffixes: Iterable[str],
     max_depth: int,
-    exclude_patterns: Sequence[str],
+    exclude_patterns: Iterable[str],
 ) -> Sequence[Path]:
     """
     Get the file paths from the given document paths (files and directories).
@@ -404,19 +480,46 @@ class _GroupModifiedError(Exception):
 
     def __init__(
         self,
+        *,
         example: Example,
         modified_example_content: str,
     ) -> None:
         """
         Initialize the error.
         """
-        self.example = example
-        self.modified_example_content = modified_example_content
+        self._example = example
+        self._modified_example_content = modified_example_content
+
+    def __str__(self) -> str:
+        """
+        Get the string representation of the error.
+        """
+        unified_diff = difflib.unified_diff(
+            a=str(object=self._example.parsed).lstrip().splitlines(),
+            b=self._modified_example_content.lstrip().splitlines(),
+            fromfile="original",
+            tofile="modified",
+        )
+        message = textwrap.dedent(
+            text=f"""\
+            Writing to a group is not supported.
+
+            A command modified the contents of examples in the group ending on line {self._example.line} in {Path(self._example.path).as_posix()}.
+
+            Diff:
+
+            """,  # noqa: E501
+        )
+
+        message += "\n".join(unified_diff)
+        return message
 
 
 @beartype
 def _raise_group_modified(
-    *, example: Example, modified_example_content: str
+    *,
+    example: Example,
+    modified_example_content: str,
 ) -> None:
     """
     Raise an error when there was an attempt to modify a code block in a group.
@@ -446,7 +549,7 @@ def _parse_file(
 
 
 @beartype
-def _run_args_against_docs(
+def _run_args_against_document_blocks(
     *,
     document_path: Path,
     args: Sequence[str | Path],
@@ -465,6 +568,7 @@ def _run_args_against_docs(
 
     Raises:
         _ParseError: The file could not be parsed.
+        _EvaluateError: An example in the document could not be evaluated.
     """
     temporary_file_extension = _get_temporary_file_extension(
         language=code_block_language,
@@ -557,15 +661,7 @@ def _run_args_against_docs(
 
     document = _parse_file(sybil=sybil, path=document_path)
 
-    try:
-        _evaluate_document(document=document, args=args)
-    except _EvaluateError as exc:
-        if exc.reason:
-            message = (
-                f"Error running command '{exc.command_args[0]}': {exc.reason}"
-            )
-            _log_error(message=message)
-        sys.exit(exc.exit_code)
+    _evaluate_document(document=document, args=args)
 
 
 @click.command(name="doccmd")
@@ -580,7 +676,12 @@ def _run_args_against_docs(
         "Give multiple times for multiple languages."
     ),
     multiple=True,
-    callback=_deduplicate,
+    callback=_click_multi_callback(
+        callbacks=[
+            _deduplicate,
+            _sequence_validator(validator=_validate_no_empty_string),
+        ]
+    ),
 )
 @click.option("command", "-c", "--command", type=str, required=True)
 @click.option(
@@ -877,29 +978,18 @@ def main(
         value: key for key, values in suffix_groups.items() for value in values
     }
 
-    given_files = [
-        document_path
-        for document_path in document_paths
-        if document_path.is_file()
-    ]
-
-    given_files_unknown_suffix = [
-        document_path
-        for document_path in given_files
-        if document_path.suffix not in suffix_map
-    ]
-
-    for given_file_unknown_suffix in given_files_unknown_suffix:
-        message = f"Markup language not known for {given_file_unknown_suffix}."
-        raise click.UsageError(message=message)
+    _validate_given_files_have_known_suffixes(
+        given_files=[
+            document_path
+            for document_path in document_paths
+            if document_path.is_file()
+        ],
+        known_suffixes=suffix_map.keys(),
+    )
 
     file_paths = _get_file_paths(
         document_paths=document_paths,
-        file_suffixes=[
-            suffix
-            for suffixes in suffix_groups.values()
-            for suffix in suffixes
-        ],
+        file_suffixes=suffix_map.keys(),
         max_depth=max_depth,
         exclude_patterns=exclude_patterns,
     )
@@ -911,48 +1001,43 @@ def main(
             else "Not using PTY for running commands."
         )
 
-    for file_path in file_paths:
-        for code_block_language in languages:
-            markup_language = suffix_map[file_path.suffix]
-            try:
-                _run_args_against_docs(
-                    args=args,
-                    document_path=file_path,
-                    code_block_language=code_block_language,
-                    pad_temporary_file=pad_file,
-                    pad_groups=pad_groups,
-                    verbose=verbose,
-                    temporary_file_extension=temporary_file_extension,
-                    temporary_file_name_prefix=temporary_file_name_prefix,
-                    skip_markers=skip_markers,
-                    group_markers=group_markers,
-                    use_pty=use_pty,
-                    markup_language=markup_language,
-                )
-            except _ParseError as exc:
+    file_path_code_block_language_pairs = [
+        (file_path, language)
+        for file_path in file_paths
+        for language in languages
+    ]
+
+    for file_path, code_block_language in file_path_code_block_language_pairs:
+        markup_language = suffix_map[file_path.suffix]
+        try:
+            _run_args_against_document_blocks(
+                args=args,
+                document_path=file_path,
+                code_block_language=code_block_language,
+                pad_temporary_file=pad_file,
+                pad_groups=pad_groups,
+                verbose=verbose,
+                temporary_file_extension=temporary_file_extension,
+                temporary_file_name_prefix=temporary_file_name_prefix,
+                skip_markers=skip_markers,
+                group_markers=group_markers,
+                use_pty=use_pty,
+                markup_language=markup_language,
+            )
+        except _ParseError as exc:
+            _log_error(message=str(object=exc))
+            if fail_on_parse_error:
+                sys.exit(1)
+        except _GroupModifiedError as exc:
+            if fail_on_group_write:
                 _log_error(message=str(object=exc))
-                if fail_on_parse_error:
-                    sys.exit(1)
-            except _GroupModifiedError as exc:
-                unified_diff = difflib.unified_diff(
-                    a=str(object=exc.example.parsed).lstrip().splitlines(),
-                    b=exc.modified_example_content.lstrip().splitlines(),
-                    fromfile="original",
-                    tofile="modified",
+                sys.exit(1)
+            _log_warning(message=str(object=exc))
+        except _EvaluateError as exc:
+            if exc.reason:
+                message = (
+                    f"Error running command '{exc.command_args[0]}': "
+                    f"{exc.reason}"
                 )
-                message = textwrap.dedent(
-                    text=f"""\
-                    Writing to a group is not supported.
-
-                    A command modified the contents of examples in the group ending on line {exc.example.line} in {Path(exc.example.path).as_posix()}.
-
-                    Diff:
-
-                    """,  # noqa: E501
-                )
-
-                message += "\n".join(unified_diff)
-                if fail_on_group_write:
-                    _log_error(message=message)
-                    sys.exit(1)
-                _log_warning(message=message)
+                _log_error(message=message)
+            sys.exit(exc.exit_code)
