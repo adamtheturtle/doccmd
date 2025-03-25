@@ -549,9 +549,28 @@ def _parse_file(
 
 
 @beartype
+def _get_encoding(*, document_path: Path) -> str:
+    """Get the encoding of the file.
+
+    Raises:
+        _ParseError: The file encoding could not be detected.
+    """
+    content_bytes = document_path.read_bytes()
+    charset_matches = charset_normalizer.from_bytes(sequences=content_bytes)
+    best_match = charset_matches.best()
+    if best_match is None:
+        raise _ParseError(
+            path=document_path,
+            reason="Could not detect encoding.",
+        )
+    return best_match.encoding
+
+
+@beartype
 def _get_sybil(
     *,
     document_path: Path,
+    encoding: str,
     args: Sequence[str | Path],
     code_block_language: str,
     temporary_file_extension: str | None,
@@ -564,26 +583,14 @@ def _get_sybil(
     use_pty: bool,
     markup_language: MarkupLanguage,
 ) -> Sybil:
-    """Get a Sybil for running commands on the given file.
-
-    Raises:
-        _ParseError: The file encoding could not be detected.
+    """
+    Get a Sybil for running commands on the given file.
     """
     temporary_file_extension = _get_temporary_file_extension(
         language=code_block_language,
         given_file_extension=temporary_file_extension,
     )
     content_bytes = document_path.read_bytes()
-
-    charset_matches = charset_normalizer.from_bytes(sequences=content_bytes)
-    best_match = charset_matches.best()
-    if best_match is None:
-        raise _ParseError(
-            path=document_path,
-            reason="Could not detect encoding.",
-        )
-
-    encoding = best_match.encoding
     newline_bytes = _detect_newline(content_bytes=content_bytes)
     newline = (
         newline_bytes.decode(encoding=encoding) if newline_bytes else None
@@ -1005,6 +1012,7 @@ def main(
     for file_path, code_block_language in file_path_code_block_language_pairs:
         markup_language = suffix_map[file_path.suffix]
         try:
+            encoding = _get_encoding(document_path=file_path)
             sybil = _get_sybil(
                 args=args,
                 document_path=file_path,
@@ -1018,6 +1026,7 @@ def main(
                 group_markers=group_markers,
                 use_pty=use_pty,
                 markup_language=markup_language,
+                encoding=encoding,
             )
             document = _parse_file(sybil=sybil, path=file_path)
             _evaluate_document(document=document, args=args)
