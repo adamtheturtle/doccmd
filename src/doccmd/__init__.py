@@ -568,6 +568,7 @@ def _run_args_against_document_blocks(
 
     Raises:
         _ParseError: The file could not be parsed.
+        _EvaluateError: An example in the document could not be evaluated.
     """
     temporary_file_extension = _get_temporary_file_extension(
         language=code_block_language,
@@ -660,15 +661,7 @@ def _run_args_against_document_blocks(
 
     document = _parse_file(sybil=sybil, path=document_path)
 
-    try:
-        _evaluate_document(document=document, args=args)
-    except _EvaluateError as exc:
-        if exc.reason:
-            message = (
-                f"Error running command '{exc.command_args[0]}': {exc.reason}"
-            )
-            _log_error(message=message)
-        sys.exit(exc.exit_code)
+    _evaluate_document(document=document, args=args)
 
 
 @click.command(name="doccmd")
@@ -1040,3 +1033,11 @@ def main(
                 _log_error(message=str(object=exc))
                 sys.exit(1)
             _log_warning(message=str(object=exc))
+        except _EvaluateError as exc:
+            if exc.reason:
+                message = (
+                    f"Error running command '{exc.command_args[0]}': "
+                    f"{exc.reason}"
+                )
+                _log_error(message=message)
+            sys.exit(exc.exit_code)
