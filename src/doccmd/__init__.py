@@ -526,38 +526,13 @@ def _get_encoding(*, document_path: Path) -> str | None:
 
 
 @beartype
-def _get_evaluator(
-    *,
-    args: Sequence[str | Path],
-    tempfile_suffixes: Sequence[str],
-    pad_temporary_file: bool,
-    temporary_file_name_prefix: str,
-    newline: str | None,
-    use_pty: bool,
-    encoding: str,
-    group: bool,
-) -> ShellCommandEvaluator:
-    return ShellCommandEvaluator(
-        args=args,
-        tempfile_suffixes=tempfile_suffixes,
-        pad_file=pad_temporary_file,
-        write_to_file=not group,
-        tempfile_name_prefix=temporary_file_name_prefix,
-        newline=newline,
-        use_pty=use_pty,
-        encoding=encoding,
-        on_modify=_raise_group_modified if group else None,
-    )
-
-
-@beartype
 def _get_sybil(
     *,
     document_path: Path,
     encoding: str,
     args: Sequence[str | Path],
     code_block_language: str,
-    temporary_file_extension: str | None,
+    temporary_file_extension: str,
     temporary_file_name_prefix: str | None,
     pad_temporary_file: bool,
     pad_groups: bool,
@@ -570,10 +545,6 @@ def _get_sybil(
     """
     Get a Sybil for running commands on the given file.
     """
-    temporary_file_extension = _get_temporary_file_extension(
-        language=code_block_language,
-        given_file_extension=temporary_file_extension,
-    )
     content_bytes = document_path.read_bytes()
     newline_bytes = _detect_newline(content_bytes=content_bytes)
     newline = (
@@ -583,26 +554,28 @@ def _get_sybil(
     tempfile_suffixes = (temporary_file_extension,)
     temporary_file_name_prefix = temporary_file_name_prefix or ""
 
-    shell_command_evaluator = _get_evaluator(
+    shell_command_evaluator = ShellCommandEvaluator(
         args=args,
         tempfile_suffixes=tempfile_suffixes,
-        pad_temporary_file=pad_temporary_file,
-        temporary_file_name_prefix=temporary_file_name_prefix,
+        pad_file=pad_temporary_file,
+        write_to_file=True,
+        tempfile_name_prefix=temporary_file_name_prefix,
         newline=newline,
         use_pty=use_pty,
         encoding=encoding,
-        group=False,
     )
 
-    shell_command_group_evaluator = _get_evaluator(
+    shell_command_group_evaluator = ShellCommandEvaluator(
         args=args,
         tempfile_suffixes=tempfile_suffixes,
-        pad_temporary_file=pad_temporary_file,
-        temporary_file_name_prefix=temporary_file_name_prefix,
+        pad_file=pad_temporary_file,
+        # We do not write to file for grouped code blocks.
+        write_to_file=False,
+        tempfile_name_prefix=temporary_file_name_prefix,
         newline=newline,
         use_pty=use_pty,
         encoding=encoding,
-        group=True,
+        on_modify=_raise_group_modified,
     )
 
     evaluator = MultiEvaluator(
@@ -1012,6 +985,10 @@ def main(
             continue
 
         for code_block_language in languages:
+            temporary_file_extension = _get_temporary_file_extension(
+                language=code_block_language,
+                given_file_extension=temporary_file_extension,
+            )
             sybil = _get_sybil(
                 args=args,
                 document_path=file_path,
