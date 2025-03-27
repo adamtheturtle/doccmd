@@ -983,6 +983,8 @@ def main(
     group_markers = {*group_markers, "all"}
     group_directives = _get_group_directives(markers=group_markers)
 
+    given_temporary_file_extension = temporary_file_extension
+
     for file_path in file_paths:
         markup_language = suffix_map[file_path.suffix]
         encoding = _get_encoding(document_path=file_path)
@@ -1003,7 +1005,7 @@ def main(
         for code_block_language in languages:
             temporary_file_extension = _get_temporary_file_extension(
                 language=code_block_language,
-                given_file_extension=temporary_file_extension,
+                given_file_extension=given_temporary_file_extension,
             )
             sybil = _get_sybil(
                 args=args,
@@ -1011,7 +1013,7 @@ def main(
                 pad_temporary_file=pad_file,
                 pad_groups=pad_groups,
                 temporary_file_extension=temporary_file_extension,
-                temporary_file_name_prefix=temporary_file_name_prefix or "",
+                temporary_file_name_prefix=temporary_file_name_prefix,
                 skip_directives=skip_directives,
                 group_directives=group_directives,
                 use_pty=use_pty,
@@ -1024,13 +1026,16 @@ def main(
             sybils = [*sybils, sybil]
 
         if sphinx_jinja2:
+            temporary_file_extension = (
+                given_temporary_file_extension or ".jinja"
+            )
             sybil = _get_sybil(
                 args=args,
                 code_block_languages=[],
                 pad_temporary_file=pad_file,
                 pad_groups=pad_groups,
                 temporary_file_extension=".jinja",
-                temporary_file_name_prefix=temporary_file_name_prefix or "",
+                temporary_file_name_prefix=temporary_file_name_prefix,
                 skip_directives=skip_directives,
                 group_directives=group_directives,
                 use_pty=use_pty,
