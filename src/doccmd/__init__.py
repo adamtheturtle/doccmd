@@ -904,7 +904,7 @@ def _get_sybil(
     default=False,
     show_default=True,
     help=(
-        "Whether to parse sphinx-jinja2 blocks. "
+        "Whether to parse `sphinx-jinja2` blocks. "
         "This is useful for evaluating code blocks with Jinja2 "
         "templates used in Sphinx documentation. "
         "This is supported for MyST and reStructuredText files only."
@@ -1034,7 +1034,7 @@ def main(
                 code_block_languages=[],
                 pad_temporary_file=pad_file,
                 pad_groups=pad_groups,
-                temporary_file_extension=".jinja",
+                temporary_file_extension=temporary_file_extension,
                 temporary_file_name_prefix=temporary_file_name_prefix,
                 skip_directives=skip_directives,
                 group_directives=group_directives,
