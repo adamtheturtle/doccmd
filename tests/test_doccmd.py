@@ -3095,7 +3095,7 @@ def test_jinja2(*, tmp_path: Path) -> None:
     source_file = tmp_path / "example.rst"
     content = textwrap.dedent(
         text="""\
-        .. jinja2::
+        .. jinja::
 
             {% set x = 1 %}
             {{ x }}
@@ -3124,7 +3124,21 @@ def test_jinja2(*, tmp_path: Path) -> None:
         color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
-    expected_output = "1\n"
+    expected_output = textwrap.dedent(
+        text="""\
+
+
+        {% set x = 1 %}
+        {{ x }}
+
+        .. Nested code block
+
+        .. code-block:: python
+
+           x = 2
+           print(x)
+        """
+    )
     assert result.stdout == expected_output
     assert result.stderr == ""
 
