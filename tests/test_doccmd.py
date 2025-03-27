@@ -3110,12 +3110,10 @@ def test_jinja2(*, tmp_path: Path) -> None:
     )
     source_file.write_text(data=content, encoding="utf-8")
     arguments = [
-        "--language",
-        "python",
+        "--sphinx-jinja2",
         "--command",
         "cat",
-        "--rst-extension",
-        ".rst",
+        str(object=source_file),
     ]
     result = runner.invoke(
         cli=main,
