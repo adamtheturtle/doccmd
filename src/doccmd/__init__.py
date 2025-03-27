@@ -1037,7 +1037,7 @@ def main(
                 encoding=encoding,
                 log_command_evaluators=log_command_evaluators,
                 newline=newline,
-                parse_sphinx_jinja2=False,
+                parse_sphinx_jinja2=True,
             )
             sybils = [*sybils, sybil]
 
