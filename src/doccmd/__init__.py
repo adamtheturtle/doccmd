@@ -988,19 +988,23 @@ def main(
                 encoding=encoding,
                 log_command_evaluators=log_command_evaluators,
             )
+
             try:
                 document = sybil.parse(path=file_path)
+            except (LexingException, ValueError) as exc:
+                message = f"Could not parse {file_path}: {exc}"
+                _log_error(message=message)
+                if fail_on_parse_error:
+                    sys.exit(1)
+                continue
+
+            try:
                 _evaluate_document(document=document, args=args)
             except _GroupModifiedError as exc:
                 if fail_on_group_write:
                     _log_error(message=str(object=exc))
                     sys.exit(1)
                 _log_warning(message=str(object=exc))
-            except (LexingException, ValueError) as exc:
-                message = f"Could not parse {file_path}: {exc}"
-                _log_error(message=message)
-                if fail_on_parse_error:
-                    sys.exit(1)
             except _EvaluateError as exc:
                 if exc.reason:
                     message = (
