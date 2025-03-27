@@ -3089,7 +3089,7 @@ def test_modify_file_multiple_group_blocks(
 
 def test_jinja2(*, tmp_path: Path) -> None:
     """
-    It is possible to run commands against Sphinx-Jinja2 blocks.
+    It is possible to run commands against sphinx-jinja2 blocks.
     """
     runner = CliRunner(mix_stderr=False)
     source_file = tmp_path / "example.rst"

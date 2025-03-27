@@ -610,8 +610,24 @@ def _get_sybil(
         )
         for group_directive in group_directives
     ]
+
+    sphinx_jinja2_parsers = (
+        [
+            markup_language.sphinx_jinja_parser_cls(
+                evaluator=evaluator,
+            )
+        ]
+        if markup_language.sphinx_jinja_parser_cls
+        else []
+    )
+
     return Sybil(
-        parsers=(*code_block_parsers, *skip_parsers, *group_parsers),
+        parsers=(
+            *code_block_parsers,
+            *sphinx_jinja2_parsers,
+            *skip_parsers,
+            *group_parsers,
+        ),
         encoding=encoding,
     )
 

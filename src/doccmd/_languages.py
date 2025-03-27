@@ -13,11 +13,36 @@ import sybil_extras.parsers.markdown.custom_directive_skip
 import sybil_extras.parsers.markdown.grouped_source
 import sybil_extras.parsers.myst.custom_directive_skip
 import sybil_extras.parsers.myst.grouped_source
+import sybil_extras.parsers.myst.sphinx_jinja2
 import sybil_extras.parsers.rest.custom_directive_skip
 import sybil_extras.parsers.rest.grouped_source
+import sybil_extras.parsers.rest.sphinx_jinja2
 from beartype import beartype
 from sybil import Document, Region
 from sybil.typing import Evaluator
+
+
+@runtime_checkable
+class _SphinxJinja2Parser(Protocol):
+    """
+    A parser for sphinx-jinja2 blocks.
+    """
+
+    def __init__(self, *, evaluator: Evaluator) -> None:
+        """
+        Construct a sphinx-jinja2 parser.
+        """
+        # We disable a pylint warning here because the ellipsis is required
+        # for pyright to recognize this as a protocol.
+        ...  # pylint: disable=unnecessary-ellipsis
+
+    def __call__(self, document: Document) -> Iterable[Region]:
+        """
+        Call the sphinx-jinja2 parser.
+        """
+        # We disable a pylint warning here because the ellipsis is required
+        # for pyright to recognize this as a protocol.
+        ...  # pylint: disable=unnecessary-ellipsis
 
 
 @runtime_checkable
@@ -110,6 +135,7 @@ class MarkupLanguage:
     skip_parser_cls: type[_SkipParser]
     code_block_parser_cls: type[_CodeBlockParser]
     group_parser_cls: type[_GroupedSourceParser]
+    sphinx_jinja_parser_cls: type[_SphinxJinja2Parser] | None
 
 
 MyST = MarkupLanguage(
@@ -119,6 +145,7 @@ MyST = MarkupLanguage(
     ),
     code_block_parser_cls=sybil.parsers.myst.CodeBlockParser,
     group_parser_cls=sybil_extras.parsers.myst.grouped_source.GroupedSourceParser,
+    sphinx_jinja_parser_cls=sybil_extras.parsers.myst.sphinx_jinja2.SphinxJinja2Parser,
 )
 
 ReStructuredText = MarkupLanguage(
@@ -126,6 +153,7 @@ ReStructuredText = MarkupLanguage(
     skip_parser_cls=sybil_extras.parsers.rest.custom_directive_skip.CustomDirectiveSkipParser,
     code_block_parser_cls=sybil.parsers.rest.CodeBlockParser,
     group_parser_cls=sybil_extras.parsers.rest.grouped_source.GroupedSourceParser,
+    sphinx_jinja_parser_cls=sybil_extras.parsers.rest.sphinx_jinja2.SphinxJinja2Parser,
 )
 
 Markdown = MarkupLanguage(
@@ -133,4 +161,5 @@ Markdown = MarkupLanguage(
     skip_parser_cls=sybil_extras.parsers.markdown.custom_directive_skip.CustomDirectiveSkipParser,
     code_block_parser_cls=sybil.parsers.markdown.CodeBlockParser,
     group_parser_cls=sybil_extras.parsers.markdown.grouped_source.GroupedSourceParser,
+    sphinx_jinja_parser_cls=None,
 )
