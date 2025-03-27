@@ -44,7 +44,7 @@ dependencies = [
     # Pin this dependency as we expect:
     # * It might have breaking changes
     # * It is not a direct dependency of the user
-    "sybil-extras==2025.3.6",
+    "sybil-extras==2025.3.27",
 ]
 optional-dependencies.dev = [
     "actionlint-py==1.7.7.23",
@@ -135,6 +135,8 @@ lint.select = [
     "ALL",
 ]
 lint.ignore = [
+    # We can manage our own complexity.
+    "C901",
     # Ruff warns that this conflicts with the formatter.
     "COM812",
     # Allow our chosen docstring line-style - no one-line summary.
@@ -232,6 +234,7 @@ enable = [
 # --disable=W"
 
 disable = [
+    'too-complex',
     'too-few-public-methods',
     'too-many-locals',
     'too-many-arguments',

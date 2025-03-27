@@ -12,7 +12,7 @@ from collections.abc import Callable, Iterable, Mapping, Sequence
 from enum import Enum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
-from typing import TYPE_CHECKING, TypeVar, overload
+from typing import TypeVar, overload
 
 import charset_normalizer
 import click
@@ -31,9 +31,6 @@ from ._languages import (
     MyST,
     ReStructuredText,
 )
-
-if TYPE_CHECKING:
-    from sybil.typing import Evaluator, Parser
 
 try:
     __version__ = version(distribution_name=__name__)
@@ -374,7 +371,7 @@ def _get_group_directives(markers: Iterable[str]) -> Sequence[str]:
 
 
 @beartype
-def _get_skip_directives(markers: Iterable[str]) -> Sequence[str]:
+def _get_skip_directives(markers: Iterable[str]) -> Iterable[str]:
     """
     Skip directives based on the provided markers.
     """
@@ -433,21 +430,6 @@ def _evaluate_document(
             reason=str(object=exc),
             exit_code=exc.errno,
         ) from exc
-
-
-@beartype
-class _ParseError(Exception):
-    """
-    Error raised when a file could not be parsed.
-    """
-
-    @beartype
-    def __init__(self, path: Path, reason: str) -> None:
-        """
-        Initialize the error.
-        """
-        message = f"Could not parse {path}: {reason}"
-        super().__init__(message)
 
 
 @beartype
@@ -531,60 +513,43 @@ def _raise_group_modified(
 
 
 @beartype
-def _parse_file(
-    *,
-    sybil: Sybil,
-    path: Path,
-) -> Document:
-    """Parse the file.
-
-    Raises:
-        _ParseError: The file could not be parsed.
+def _get_encoding(*, document_path: Path) -> str | None:
     """
-    try:
-        return sybil.parse(path=path)
-    except (LexingException, ValueError) as exc:
-        reason = str(object=exc)
-        raise _ParseError(path=path, reason=reason) from exc
+    Get the encoding of the file.
+    """
+    content_bytes = document_path.read_bytes()
+    charset_matches = charset_normalizer.from_bytes(sequences=content_bytes)
+    best_match = charset_matches.best()
+    if best_match is None:
+        return None
+    return best_match.encoding
 
 
 @beartype
-def _run_args_against_document_blocks(
+def _get_sybil(
     *,
     document_path: Path,
+    encoding: str,
     args: Sequence[str | Path],
     code_block_language: str,
     temporary_file_extension: str | None,
     temporary_file_name_prefix: str | None,
     pad_temporary_file: bool,
     pad_groups: bool,
-    verbose: bool,
-    skip_markers: Iterable[str],
-    group_markers: Iterable[str],
+    skip_directives: Iterable[str],
+    group_directives: Iterable[str],
     use_pty: bool,
     markup_language: MarkupLanguage,
-) -> None:
-    """Run commands on the given file.
-
-    Raises:
-        _ParseError: The file could not be parsed.
-        _EvaluateError: An example in the document could not be evaluated.
+    log_command_evaluators: Sequence[_LogCommandEvaluator],
+) -> Sybil:
+    """
+    Get a Sybil for running commands on the given file.
     """
     temporary_file_extension = _get_temporary_file_extension(
         language=code_block_language,
         given_file_extension=temporary_file_extension,
     )
     content_bytes = document_path.read_bytes()
-
-    charset_matches = charset_normalizer.from_bytes(sequences=content_bytes)
-    best_match = charset_matches.best()
-    if best_match is None:
-        raise _ParseError(
-            path=document_path,
-            reason="Could not detect encoding.",
-        )
-
-    encoding = best_match.encoding
     newline_bytes = _detect_newline(content_bytes=content_bytes)
     newline = (
         newline_bytes.decode(encoding=encoding) if newline_bytes else None
@@ -617,18 +582,13 @@ def _run_args_against_document_blocks(
         on_modify=_raise_group_modified,
     )
 
-    evaluators: Sequence[Evaluator] = [shell_command_evaluator]
-    group_evaluators: Sequence[Evaluator] = [shell_command_group_evaluator]
-    if verbose:
-        log_command_evaluator = _LogCommandEvaluator(args=args)
-        evaluators = [log_command_evaluator, *evaluators]
-        group_evaluators = [log_command_evaluator, *group_evaluators]
+    evaluator = MultiEvaluator(
+        evaluators=[*log_command_evaluators, shell_command_evaluator],
+    )
+    group_evaluator = MultiEvaluator(
+        evaluators=[*log_command_evaluators, shell_command_group_evaluator],
+    )
 
-    evaluator = MultiEvaluator(evaluators=evaluators)
-    group_evaluator = MultiEvaluator(evaluators=group_evaluators)
-
-    skip_markers = {*skip_markers, "all"}
-    skip_directives = _get_skip_directives(markers=skip_markers)
     skip_parsers = [
         markup_language.skip_parser_cls(
             directive=skip_directive,
@@ -642,8 +602,6 @@ def _run_args_against_document_blocks(
         )
     ]
 
-    group_markers = {*group_markers, "all"}
-    group_directives = _get_group_directives(markers=group_markers)
     group_parsers = [
         markup_language.group_parser_cls(
             directive=group_directive,
@@ -652,16 +610,10 @@ def _run_args_against_document_blocks(
         )
         for group_directive in group_directives
     ]
-    parsers: Sequence[Parser] = [
-        *code_block_parsers,
-        *skip_parsers,
-        *group_parsers,
-    ]
-    sybil = Sybil(parsers=parsers, encoding=encoding)
-
-    document = _parse_file(sybil=sybil, path=document_path)
-
-    _evaluate_document(document=document, args=args)
+    return Sybil(
+        parsers=(*code_block_parsers, *skip_parsers, *group_parsers),
+        encoding=encoding,
+    )
 
 
 @click.command(name="doccmd")
@@ -948,8 +900,8 @@ def main(
     pad_file: bool,
     pad_groups: bool,
     verbose: bool,
-    skip_markers: Sequence[str],
-    group_markers: Sequence[str],
+    skip_markers: Iterable[str],
+    group_markers: Iterable[str],
     use_pty_option: _UsePty,
     rst_suffixes: Sequence[str],
     myst_suffixes: Sequence[str],
@@ -994,50 +946,66 @@ def main(
         exclude_patterns=exclude_patterns,
     )
 
+    log_command_evaluators = []
     if verbose:
         _log_info(
             message="Using PTY for running commands."
             if use_pty
             else "Not using PTY for running commands."
         )
+        log_command_evaluators = [_LogCommandEvaluator(args=args)]
 
-    file_path_code_block_language_pairs = [
-        (file_path, language)
-        for file_path in file_paths
-        for language in languages
-    ]
+    skip_markers = {*skip_markers, "all"}
+    skip_directives = _get_skip_directives(markers=skip_markers)
 
-    for file_path, code_block_language in file_path_code_block_language_pairs:
+    group_markers = {*group_markers, "all"}
+    group_directives = _get_group_directives(markers=group_markers)
+
+    for file_path in file_paths:
         markup_language = suffix_map[file_path.suffix]
-        try:
-            _run_args_against_document_blocks(
-                args=args,
-                document_path=file_path,
-                code_block_language=code_block_language,
-                pad_temporary_file=pad_file,
-                pad_groups=pad_groups,
-                verbose=verbose,
-                temporary_file_extension=temporary_file_extension,
-                temporary_file_name_prefix=temporary_file_name_prefix,
-                skip_markers=skip_markers,
-                group_markers=group_markers,
-                use_pty=use_pty,
-                markup_language=markup_language,
+        encoding = _get_encoding(document_path=file_path)
+        if encoding is None:
+            _log_error(
+                message=f"Could not determine encoding for {file_path}."
             )
-        except _ParseError as exc:
-            _log_error(message=str(object=exc))
             if fail_on_parse_error:
                 sys.exit(1)
-        except _GroupModifiedError as exc:
-            if fail_on_group_write:
-                _log_error(message=str(object=exc))
-                sys.exit(1)
-            _log_warning(message=str(object=exc))
-        except _EvaluateError as exc:
-            if exc.reason:
-                message = (
-                    f"Error running command '{exc.command_args[0]}': "
-                    f"{exc.reason}"
+            continue
+
+        for code_block_language in languages:
+            try:
+                sybil = _get_sybil(
+                    args=args,
+                    document_path=file_path,
+                    code_block_language=code_block_language,
+                    pad_temporary_file=pad_file,
+                    pad_groups=pad_groups,
+                    temporary_file_extension=temporary_file_extension,
+                    temporary_file_name_prefix=temporary_file_name_prefix,
+                    skip_directives=skip_directives,
+                    group_directives=group_directives,
+                    use_pty=use_pty,
+                    markup_language=markup_language,
+                    encoding=encoding,
+                    log_command_evaluators=log_command_evaluators,
                 )
+                document = sybil.parse(path=file_path)
+                _evaluate_document(document=document, args=args)
+            except _GroupModifiedError as exc:
+                if fail_on_group_write:
+                    _log_error(message=str(object=exc))
+                    sys.exit(1)
+                _log_warning(message=str(object=exc))
+            except (LexingException, ValueError) as exc:
+                message = f"Could not parse {file_path}: {exc}"
                 _log_error(message=message)
-            sys.exit(exc.exit_code)
+                if fail_on_parse_error:
+                    sys.exit(1)
+            except _EvaluateError as exc:
+                if exc.reason:
+                    message = (
+                        f"Error running command '{exc.command_args[0]}': "
+                        f"{exc.reason}"
+                    )
+                    _log_error(message=message)
+                sys.exit(exc.exit_code)

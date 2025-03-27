@@ -10,11 +10,11 @@ import sybil.parsers.markdown
 import sybil.parsers.myst
 import sybil.parsers.rest
 import sybil_extras.parsers.markdown.custom_directive_skip
-import sybil_extras.parsers.markdown.grouped_code_block
+import sybil_extras.parsers.markdown.grouped_source
 import sybil_extras.parsers.myst.custom_directive_skip
-import sybil_extras.parsers.myst.grouped_code_block
+import sybil_extras.parsers.myst.grouped_source
 import sybil_extras.parsers.rest.custom_directive_skip
-import sybil_extras.parsers.rest.grouped_code_block
+import sybil_extras.parsers.rest.grouped_source
 from beartype import beartype
 from sybil import Document, Region
 from sybil.typing import Evaluator
@@ -44,7 +44,7 @@ class _SkipParser(Protocol):
 
 
 @runtime_checkable
-class _GroupedCodeBlockParser(Protocol):
+class _GroupedSourceParser(Protocol):
     """
     A parser for grouping code blocks.
     """
@@ -109,7 +109,7 @@ class MarkupLanguage:
     name: str
     skip_parser_cls: type[_SkipParser]
     code_block_parser_cls: type[_CodeBlockParser]
-    group_parser_cls: type[_GroupedCodeBlockParser]
+    group_parser_cls: type[_GroupedSourceParser]
 
 
 MyST = MarkupLanguage(
@@ -118,19 +118,19 @@ MyST = MarkupLanguage(
         sybil_extras.parsers.myst.custom_directive_skip.CustomDirectiveSkipParser
     ),
     code_block_parser_cls=sybil.parsers.myst.CodeBlockParser,
-    group_parser_cls=sybil_extras.parsers.myst.grouped_code_block.GroupedCodeBlockParser,
+    group_parser_cls=sybil_extras.parsers.myst.grouped_source.GroupedSourceParser,
 )
 
 ReStructuredText = MarkupLanguage(
     name="reStructuredText",
     skip_parser_cls=sybil_extras.parsers.rest.custom_directive_skip.CustomDirectiveSkipParser,
     code_block_parser_cls=sybil.parsers.rest.CodeBlockParser,
-    group_parser_cls=sybil_extras.parsers.rest.grouped_code_block.GroupedCodeBlockParser,
+    group_parser_cls=sybil_extras.parsers.rest.grouped_source.GroupedSourceParser,
 )
 
 Markdown = MarkupLanguage(
     name="Markdown",
     skip_parser_cls=sybil_extras.parsers.markdown.custom_directive_skip.CustomDirectiveSkipParser,
     code_block_parser_cls=sybil.parsers.markdown.CodeBlockParser,
-    group_parser_cls=sybil_extras.parsers.markdown.grouped_code_block.GroupedCodeBlockParser,
+    group_parser_cls=sybil_extras.parsers.markdown.grouped_source.GroupedSourceParser,
 )
