@@ -3110,6 +3110,8 @@ def test_jinja2(*, tmp_path: Path) -> None:
     )
     source_file.write_text(data=content, encoding="utf-8")
     arguments = [
+        "--language",
+        "java",
         "--sphinx-jinja2",
         "--command",
         "cat",

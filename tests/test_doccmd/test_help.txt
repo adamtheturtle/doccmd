@@ -126,4 +126,10 @@ Options:
                                   code within a grouped code block. ``doccmd``
                                   does not support writing to grouped code
                                   blocks.  [default: fail-on-group-write]
+  --sphinx-jinja2 / --no-sphinx-jinja2
+                                  Whether to parse sphinx-jinja2 blocks. This is
+                                  useful for evaluating code blocks with Jinja2
+                                  templates used in Sphinx documentation. This
+                                  is supported for MyST and reStructuredText
+                                  files only.  [default: no-sphinx-jinja2]
   --help                          Show this message and exit.
