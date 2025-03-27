@@ -917,7 +917,7 @@ def main(
     command: str,
     document_paths: Sequence[Path],
     temporary_file_extension: str | None,
-    temporary_file_name_prefix: str | None,
+    temporary_file_name_prefix: str,
     pad_file: bool,
     pad_groups: bool,
     verbose: bool,
@@ -999,7 +999,6 @@ def main(
         newline = (
             newline_bytes.decode(encoding=encoding) if newline_bytes else None
         )
-
         sybils: Sequence[Sybil] = []
         for code_block_language in languages:
             temporary_file_extension = _get_temporary_file_extension(
