@@ -533,7 +533,7 @@ def _get_sybil(
     args: Sequence[str | Path],
     code_block_language: str,
     temporary_file_extension: str | None,
-    temporary_file_name_prefix: str | None,
+    temporary_file_name_prefix: str,
     pad_temporary_file: bool,
     pad_groups: bool,
     skip_directives: Iterable[str],
@@ -556,7 +556,6 @@ def _get_sybil(
     )
 
     tempfile_suffixes = (temporary_file_extension,)
-    temporary_file_name_prefix = temporary_file_name_prefix or ""
 
     shell_command_evaluator = ShellCommandEvaluator(
         args=args,
@@ -896,7 +895,7 @@ def main(
     command: str,
     document_paths: Sequence[Path],
     temporary_file_extension: str | None,
-    temporary_file_name_prefix: str | None,
+    temporary_file_name_prefix: str,
     pad_file: bool,
     pad_groups: bool,
     verbose: bool,
