@@ -526,6 +526,31 @@ def _get_encoding(*, document_path: Path) -> str | None:
 
 
 @beartype
+def _get_evaluator(
+    *,
+    args: Sequence[str | Path],
+    tempfile_suffixes: Sequence[str],
+    pad_temporary_file: bool,
+    temporary_file_name_prefix: str,
+    newline: str | None,
+    use_pty: bool,
+    encoding: str,
+    group: bool,
+) -> ShellCommandEvaluator:
+    return ShellCommandEvaluator(
+        args=args,
+        tempfile_suffixes=tempfile_suffixes,
+        pad_file=pad_temporary_file,
+        write_to_file=not group,
+        tempfile_name_prefix=temporary_file_name_prefix,
+        newline=newline,
+        use_pty=use_pty,
+        encoding=encoding,
+        on_modify=_raise_group_modified if group else None,
+    )
+
+
+@beartype
 def _get_sybil(
     *,
     document_path: Path,
@@ -558,28 +583,26 @@ def _get_sybil(
     tempfile_suffixes = (temporary_file_extension,)
     temporary_file_name_prefix = temporary_file_name_prefix or ""
 
-    shell_command_evaluator = ShellCommandEvaluator(
+    shell_command_evaluator = _get_evaluator(
         args=args,
         tempfile_suffixes=tempfile_suffixes,
-        pad_file=pad_temporary_file,
-        write_to_file=True,
-        tempfile_name_prefix=temporary_file_name_prefix,
+        pad_temporary_file=pad_temporary_file,
+        temporary_file_name_prefix=temporary_file_name_prefix,
         newline=newline,
         use_pty=use_pty,
         encoding=encoding,
+        group=False,
     )
 
-    shell_command_group_evaluator = ShellCommandEvaluator(
+    shell_command_group_evaluator = _get_evaluator(
         args=args,
         tempfile_suffixes=tempfile_suffixes,
-        pad_file=pad_temporary_file,
-        # We do not write to file for grouped code blocks.
-        write_to_file=False,
-        tempfile_name_prefix=temporary_file_name_prefix,
+        pad_temporary_file=pad_temporary_file,
+        temporary_file_name_prefix=temporary_file_name_prefix,
         newline=newline,
         use_pty=use_pty,
         encoding=encoding,
-        on_modify=_raise_group_modified,
+        group=True,
     )
 
     evaluator = MultiEvaluator(
