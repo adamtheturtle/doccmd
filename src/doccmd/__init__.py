@@ -531,7 +531,7 @@ def _get_sybil(
     encoding: str,
     args: Sequence[str | Path],
     code_block_language: str,
-    temporary_file_extension: str | None,
+    given_temporary_file_extension: str | None,
     temporary_file_name_prefix: str,
     pad_temporary_file: bool,
     pad_groups: bool,
@@ -547,7 +547,7 @@ def _get_sybil(
     """
     temporary_file_extension = _get_temporary_file_extension(
         language=code_block_language,
-        given_file_extension=temporary_file_extension,
+        given_file_extension=given_temporary_file_extension,
     )
 
     tempfile_suffixes = (temporary_file_extension,)
@@ -977,7 +977,7 @@ def main(
                 code_block_language=code_block_language,
                 pad_temporary_file=pad_file,
                 pad_groups=pad_groups,
-                temporary_file_extension=temporary_file_extension,
+                given_temporary_file_extension=temporary_file_extension,
                 temporary_file_name_prefix=temporary_file_name_prefix,
                 skip_directives=skip_directives,
                 group_directives=group_directives,
