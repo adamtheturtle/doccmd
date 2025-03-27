@@ -3087,6 +3087,60 @@ def test_modify_file_multiple_group_blocks(
     assert result.stderr == expected_stderr
 
 
+def test_jinja2(*, tmp_path: Path) -> None:
+    """
+    It is possible to run commands against sphinx-jinja2 blocks.
+    """
+    runner = CliRunner(mix_stderr=False)
+    source_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. jinja::
+
+            {% set x = 1 %}
+            {{ x }}
+
+            .. Nested code block
+
+            .. code-block:: python
+
+               x = 2
+               print(x)
+        """,
+    )
+    source_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--sphinx-jinja2",
+        "--command",
+        "cat",
+        str(object=source_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    expected_output = textwrap.dedent(
+        text="""\
+
+
+        {% set x = 1 %}
+        {{ x }}
+
+        .. Nested code block
+
+        .. code-block:: python
+
+           x = 2
+           print(x)
+        """
+    )
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
 def test_empty_language_given(*, tmp_path: Path) -> None:
     """
     An error is shown when an empty language is given.

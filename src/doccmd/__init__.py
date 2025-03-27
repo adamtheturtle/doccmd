@@ -530,8 +530,8 @@ def _get_sybil(
     *,
     encoding: str,
     args: Sequence[str | Path],
-    code_block_language: str,
-    given_temporary_file_extension: str | None,
+    code_block_languages: Sequence[str],
+    temporary_file_extension: str,
     temporary_file_name_prefix: str,
     pad_temporary_file: bool,
     pad_groups: bool,
@@ -541,15 +541,11 @@ def _get_sybil(
     markup_language: MarkupLanguage,
     log_command_evaluators: Sequence[_LogCommandEvaluator],
     newline: str | None,
+    parse_sphinx_jinja2: bool,
 ) -> Sybil:
     """
     Get a Sybil for running commands on the given file.
     """
-    temporary_file_extension = _get_temporary_file_extension(
-        language=code_block_language,
-        given_file_extension=given_temporary_file_extension,
-    )
-
     tempfile_suffixes = (temporary_file_extension,)
 
     shell_command_evaluator = ShellCommandEvaluator(
@@ -594,6 +590,7 @@ def _get_sybil(
             language=code_block_language,
             evaluator=evaluator,
         )
+        for code_block_language in code_block_languages
     ]
 
     group_parsers = [
@@ -604,8 +601,24 @@ def _get_sybil(
         )
         for group_directive in group_directives
     ]
+
+    sphinx_jinja2_parsers = (
+        [
+            markup_language.sphinx_jinja_parser_cls(
+                evaluator=evaluator,
+            )
+        ]
+        if markup_language.sphinx_jinja_parser_cls and parse_sphinx_jinja2
+        else []
+    )
+
     return Sybil(
-        parsers=(*code_block_parsers, *skip_parsers, *group_parsers),
+        parsers=(
+            *code_block_parsers,
+            *sphinx_jinja2_parsers,
+            *skip_parsers,
+            *group_parsers,
+        ),
         encoding=encoding,
     )
 
@@ -616,10 +629,12 @@ def _get_sybil(
     "-l",
     "--language",
     type=str,
-    required=True,
+    required=False,
     help=(
         "Run `command` against code blocks for this language. "
-        "Give multiple times for multiple languages."
+        "Give multiple times for multiple languages. "
+        "If this is not given, no code blocks are run, unless "
+        "`--sphinx-jinja2` is given."
     ),
     multiple=True,
     callback=_click_multi_callback(
@@ -883,6 +898,18 @@ def _get_sybil(
         "``doccmd`` does not support writing to grouped code blocks."
     ),
 )
+@click.option(
+    "--sphinx-jinja2/--no-sphinx-jinja2",
+    "sphinx_jinja2",
+    default=False,
+    show_default=True,
+    help=(
+        "Whether to parse `sphinx-jinja2` blocks. "
+        "This is useful for evaluating code blocks with Jinja2 "
+        "templates used in Sphinx documentation. "
+        "This is supported for MyST and reStructuredText files only."
+    ),
+)
 @beartype
 def main(
     *,
@@ -904,6 +931,7 @@ def main(
     exclude_patterns: Sequence[str],
     fail_on_parse_error: bool,
     fail_on_group_write: bool,
+    sphinx_jinja2: bool,
 ) -> None:
     """Run commands against code blocks in the given documentation files.
 
@@ -955,6 +983,8 @@ def main(
     group_markers = {*group_markers, "all"}
     group_directives = _get_group_directives(markers=group_markers)
 
+    given_temporary_file_extension = temporary_file_extension
+
     for file_path in file_paths:
         markup_language = suffix_map[file_path.suffix]
         encoding = _get_encoding(document_path=file_path)
@@ -971,13 +1001,18 @@ def main(
         newline = (
             newline_bytes.decode(encoding=encoding) if newline_bytes else None
         )
+        sybils: Sequence[Sybil] = []
         for code_block_language in languages:
+            temporary_file_extension = _get_temporary_file_extension(
+                language=code_block_language,
+                given_file_extension=given_temporary_file_extension,
+            )
             sybil = _get_sybil(
                 args=args,
-                code_block_language=code_block_language,
+                code_block_languages=[code_block_language],
                 pad_temporary_file=pad_file,
                 pad_groups=pad_groups,
-                given_temporary_file_extension=temporary_file_extension,
+                temporary_file_extension=temporary_file_extension,
                 temporary_file_name_prefix=temporary_file_name_prefix,
                 skip_directives=skip_directives,
                 group_directives=group_directives,
@@ -986,8 +1021,33 @@ def main(
                 encoding=encoding,
                 log_command_evaluators=log_command_evaluators,
                 newline=newline,
+                parse_sphinx_jinja2=False,
             )
+            sybils = [*sybils, sybil]
 
+        if sphinx_jinja2:
+            temporary_file_extension = (
+                given_temporary_file_extension or ".jinja"
+            )
+            sybil = _get_sybil(
+                args=args,
+                code_block_languages=[],
+                pad_temporary_file=pad_file,
+                pad_groups=pad_groups,
+                temporary_file_extension=temporary_file_extension,
+                temporary_file_name_prefix=temporary_file_name_prefix,
+                skip_directives=skip_directives,
+                group_directives=group_directives,
+                use_pty=use_pty,
+                markup_language=markup_language,
+                encoding=encoding,
+                log_command_evaluators=log_command_evaluators,
+                newline=newline,
+                parse_sphinx_jinja2=True,
+            )
+            sybils = [*sybils, sybil]
+
+        for sybil in sybils:
             try:
                 document = sybil.parse(path=file_path)
             except (LexingException, ValueError) as exc:
