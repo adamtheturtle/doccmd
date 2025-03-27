@@ -17,3 +17,6 @@ Usage example
    # Don't "pad" the code blocks with newlines - the formatter wouldn't like that.
    # See the documentation about groups for more information.
    $ doccmd --language=python --no-pad-file --no-pad-groups --command="ruff format" README.md
+
+   # Run j2lint against the sphinx-jinja2 code blocks in a MyST file
+   $ doccmd --sphinx-jinja2 --no-pad-file --no-pad-groups --command="j2lint" README.md
