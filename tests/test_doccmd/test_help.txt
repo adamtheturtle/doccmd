@@ -7,7 +7,9 @@ Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...
 Options:
   -l, --language TEXT             Run `command` against code blocks for this
                                   language. Give multiple times for multiple
-                                  languages.  [required]
+                                  languages. If this is not given, no code
+                                  blocks are run, unless `--sphinx-jinja2` is
+                                  given.
   -c, --command TEXT              [required]
   --temporary-file-extension TEXT
                                   The file extension to give to the temporary

@@ -629,10 +629,12 @@ def _get_sybil(
     "-l",
     "--language",
     type=str,
-    required=True,
+    required=False,
     help=(
         "Run `command` against code blocks for this language. "
-        "Give multiple times for multiple languages."
+        "Give multiple times for multiple languages. "
+        "If this is not given, no code blocks are run, unless "
+        "`--sphinx-jinja2` is given."
     ),
     multiple=True,
     callback=_click_multi_callback(

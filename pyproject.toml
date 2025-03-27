@@ -147,7 +147,9 @@ lint.ignore = [
     "ISC001",
     # Ignore "too-many-*" errors as they seem to get in the way more than
     # helping.
+    "PLR0912",
     "PLR0913",
+    "PLR0915",
 ]
 
 lint.per-file-ignores."tests/*.py" = [
