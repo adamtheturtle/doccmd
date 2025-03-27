@@ -973,22 +973,22 @@ def main(
             continue
 
         for code_block_language in languages:
+            sybil = _get_sybil(
+                args=args,
+                document_path=file_path,
+                code_block_language=code_block_language,
+                pad_temporary_file=pad_file,
+                pad_groups=pad_groups,
+                temporary_file_extension=temporary_file_extension,
+                temporary_file_name_prefix=temporary_file_name_prefix,
+                skip_directives=skip_directives,
+                group_directives=group_directives,
+                use_pty=use_pty,
+                markup_language=markup_language,
+                encoding=encoding,
+                log_command_evaluators=log_command_evaluators,
+            )
             try:
-                sybil = _get_sybil(
-                    args=args,
-                    document_path=file_path,
-                    code_block_language=code_block_language,
-                    pad_temporary_file=pad_file,
-                    pad_groups=pad_groups,
-                    temporary_file_extension=temporary_file_extension,
-                    temporary_file_name_prefix=temporary_file_name_prefix,
-                    skip_directives=skip_directives,
-                    group_directives=group_directives,
-                    use_pty=use_pty,
-                    markup_language=markup_language,
-                    encoding=encoding,
-                    log_command_evaluators=log_command_evaluators,
-                )
                 document = sybil.parse(path=file_path)
                 _evaluate_document(document=document, args=args)
             except _GroupModifiedError as exc:
