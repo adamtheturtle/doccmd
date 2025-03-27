@@ -4,6 +4,9 @@ Changelog
 Next
 ----
 
+2025.03.27
+----------
+
 * Add a ``--sphinx-jinja2`` option to evaluate `sphinx-jinja2 <https://sphinx-jinja2.readthedocs.io/en/latest/>`_ blocks.
 
 2025.03.18
