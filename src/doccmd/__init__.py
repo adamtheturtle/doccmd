@@ -528,7 +528,6 @@ def _get_encoding(*, document_path: Path) -> str | None:
 @beartype
 def _get_sybil(
     *,
-    document_path: Path,
     encoding: str,
     args: Sequence[str | Path],
     code_block_language: str,
@@ -541,6 +540,7 @@ def _get_sybil(
     use_pty: bool,
     markup_language: MarkupLanguage,
     log_command_evaluators: Sequence[_LogCommandEvaluator],
+    newline: str | None,
 ) -> Sybil:
     """
     Get a Sybil for running commands on the given file.
@@ -548,11 +548,6 @@ def _get_sybil(
     temporary_file_extension = _get_temporary_file_extension(
         language=code_block_language,
         given_file_extension=temporary_file_extension,
-    )
-    content_bytes = document_path.read_bytes()
-    newline_bytes = _detect_newline(content_bytes=content_bytes)
-    newline = (
-        newline_bytes.decode(encoding=encoding) if newline_bytes else None
     )
 
     tempfile_suffixes = (temporary_file_extension,)
@@ -971,10 +966,14 @@ def main(
                 sys.exit(1)
             continue
 
+        content_bytes = file_path.read_bytes()
+        newline_bytes = _detect_newline(content_bytes=content_bytes)
+        newline = (
+            newline_bytes.decode(encoding=encoding) if newline_bytes else None
+        )
         for code_block_language in languages:
             sybil = _get_sybil(
                 args=args,
-                document_path=file_path,
                 code_block_language=code_block_language,
                 pad_temporary_file=pad_file,
                 pad_groups=pad_groups,
@@ -986,6 +985,7 @@ def main(
                 markup_language=markup_language,
                 encoding=encoding,
                 log_command_evaluators=log_command_evaluators,
+                newline=newline,
             )
 
             try:
