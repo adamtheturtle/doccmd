@@ -45,7 +45,7 @@ dependencies = [
     # Pin this dependency as we expect:
     # * It might have breaking changes
     # * It is not a direct dependency of the user
-    "sybil-extras==2025.3.27",
+    "sybil-extras==2025.4.3",
 ]
 optional-dependencies.dev = [
     "actionlint-py==1.7.7.23",
@@ -57,7 +57,7 @@ optional-dependencies.dev = [
     "furo==2024.8.6",
     "interrogate==1.7.0",
     "mypy[faster-cache]==1.15.0",
-    "mypy-strict-kwargs==2025.3.28",
+    "mypy-strict-kwargs==2025.4.3",
     "pre-commit==4.2.0",
     "pydocstyle==6.3",
     "pyenchant==3.3.0rc1",
@@ -71,13 +71,13 @@ optional-dependencies.dev = [
     "pytest-cov==6.1.0",
     "pytest-regressions==2.7.0",
     "pyyaml==6.0.2",
-    "ruff==0.11.2",
+    "ruff==0.11.3",
     # We add shellcheck-py not only for shell scripts and shell code blocks,
     # but also because having it installed means that ``actionlint-py`` will
     # use it to lint shell commands in GitHub workflow files.
     "shellcheck-py==0.10.0.1",
     "shfmt-py==3.11.0.2",
-    "sphinx==8.2.3",
+    "sphinx>=8.1.3",
     "sphinx-click==6.0.0",
     "sphinx-copybutton==0.5.2",
     "sphinx-inline-tabs==2023.4.21",
