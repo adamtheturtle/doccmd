@@ -296,4 +296,4 @@ See the `full documentation <https://adamtheturtle.github.io/doccmd/>`__.
    :target: https://codecov.io/gh/adamtheturtle/doccmd
 .. |PyPI| image:: https://badge.fury.io/py/doccmd.svg
    :target: https://badge.fury.io/py/doccmd
-.. |minimum-python-version| replace:: 3.11
+.. |minimum-python-version| replace:: 3.10
