@@ -6,7 +6,7 @@ def say_hello(
         AuthContext,
     ],
 ):
-     pass
+    pass
 ```
 
 ```python
