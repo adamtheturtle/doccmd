@@ -31,11 +31,6 @@ Permissions = functools.partial(Requires, audience=MY_API)
 @app.get("/hi")
 async def say_hi(
     auth: Annotated[
-        AuthContext,
-        Permissions(
-            roles={Role.SW_ENGINEER},
-            scopes={"hello:listen",},
-        ),
     ],
 ):
     return {"msg": f"Hi, user: {auth.user_id}"}
