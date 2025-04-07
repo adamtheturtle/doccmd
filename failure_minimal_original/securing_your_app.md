@@ -12,6 +12,10 @@ This runs once when your app starts up and double-checks that all your routes ar
 ska_aaa_authhelpers.watchdog.SecurityHoleError: Route...does not have a Requires() dependency that defines scopes and roles to control access.
 ```
 
+## Step 4: Add Requires() to all your routes
+
+The `Requires()`utility leverages FastAPI's native [dependency-injection system](https://fastapi.tiangolo.com/tutorial/dependencies/) to create a [Security](https://fastapi.tiangolo.com/reference/security/) dependency that gets called on every request in order to automatically enforce authorisation restrictions. It will return an HTTP 403 error unless the request is accompanied by a signed access token valid for a certain audience, plus particular scopes and roles. If you've registered your app in [step 2](#step-2-register-your-application-with-entra-id), you'll already know what value you need for the `audience` but if not, that's fine and you can use a dummy value to get started developing and testing.
+
 ### Example: `AuthContext`  passed into your view
 
 If you're experienced with FastAPI and its use of `Depends()` then this should look pretty familiar to you:
