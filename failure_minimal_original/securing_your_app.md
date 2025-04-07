@@ -1,7 +1,7 @@
 ```python
 pass
 
-async def say_hello(
+def say_hello(
     auth: Annotated[
         AuthContext,
     ],
