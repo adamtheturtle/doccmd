@@ -42,12 +42,4 @@ operators_only = Requires(
     scopes={"telescope:operate"},
     roles={Role.LOW_OPERATOR, Role.MID_OPERATOR}
 )
-
-app.get('/array/')
-async def get_arrays(auth: Annotated[AuthContext, operators_only]):
-    return {"arrays": ["array1", "array2"]}
-
-app.get('/calibration/')
-async def get_calibration(auth: Annotated[AuthContext, operators_only]):
-    return {"calibration": "good"}
 ```
