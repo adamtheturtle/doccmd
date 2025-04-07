@@ -13,9 +13,6 @@ async def say_hello(
 
 ```python
 @app.get("/goodbye", dependencies=[Requires(
-            audience=MY_API,
-            roles={Role.SW_ENGINEER},
-            scopes={"hello:listen"},
         )])
 async def say_goodbye():
      return {"msg": "Goodbye"}
