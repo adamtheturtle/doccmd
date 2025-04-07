@@ -1,26 +1,3 @@
-``` python
-from ska_aaa_authhelpers import (
-    AuditLogFilter,
-    AuthContext,
-    AuthFailError,
-    Requires,
-    Role,
-    auth_watchdog_lifespan,
-)
-# You probably already have this somewhere:
-from ska_ser_logging import configure_logging
-```
-
-### Configure audit logging
-
-Wherever your app sets up logging, add the `AuditLogFilter`
-
-```python
-configure_logging(level="WARNING", tags_filter=AuditLogFilter)
-```
-
-This will automatically annotate log entries with a `user_id` and a `trace` to help us tie together log entries for auditing purposes.
-
 ### Unleash the watchdog
 
 When creating your FastAPI app instance, add the `auth_watchdog_lifespan()` [lifespan:](https://fastapi.tiangolo.com/advanced/events/#lifespan-events)
