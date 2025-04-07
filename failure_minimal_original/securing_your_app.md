@@ -24,16 +24,6 @@ async def say_goodbye():
 
 ```python
 import functools
-
-# The name 'Permissions' is arbitrary here, pick whatever name you like.
-Permissions = functools.partial(Requires, audience=MY_API)
-
-@app.get("/hi")
-async def say_hi(
-    auth: Annotated[
-    ],
-):
-    return {"msg": f"Hi, user: {auth.user_id}"}
 ```
 
 ```python
