@@ -34,12 +34,6 @@ async def say_hello(
      return {"msg": f"Hello, user: {auth.user_id}"}
 ```
 
-On every request, FastAPI will automatically attempt to satisfy the dependency by providing an `AuthContext` object that meets your requirements and passing it as a parameter for use in your view function.
-
-### Example: Using `Requires()` without accessing `AuthContext`
-
-For some simple cases, you might not need to use the `auth` object in your view function, but you can still use `Requires()` to secure your routes by passing it as one of the dependencies directly in [the FastAPI path operation decorator.](https://fastapi.tiangolo.com/tutorial/dependencies/dependencies-in-path-operation-decorators/) For example:
-
 ```python
 @app.get("/goodbye", dependencies=[Requires(
             audience=MY_API,
@@ -50,9 +44,6 @@ async def say_goodbye():
      return {"msg": "Goodbye"}
 ```
 
-### Example: DRY out your audience with functools.partial
-
-The audience field is always going to be the same for a single deployment of your app, so if you have many views, passing the same value can quickly get repetitive. I've found using Python's [functools.partial](https://docs.python.org/3/library/functools.html#functools.partial) to set it one time is a nice trick for removing duplication from your code:
 
 ```python
 import functools
@@ -73,8 +64,6 @@ async def say_hi(
     return {"msg": f"Hi, user: {auth.user_id}"}
 ```
 
-Going further, if you have a bunch of views that all require the same roles and scopes, you can simply pass the exact same object to multiple views.
-
 ```python
 operators_only = Requires(
     audience=MY_API,
@@ -90,5 +79,3 @@ app.get('/calibration/')
 async def get_calibration(auth: Annotated[AuthContext, operators_only]):
     return {"calibration": "good"}
 ```
-
-For some applications, you might be done here! If your app doesn't have any authorisation requirements more granular than controlling access to entire views based on scopes and roles, then you're all set. You can move on to [testing your application](testing.md).
