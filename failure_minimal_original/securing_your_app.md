@@ -1,20 +1,6 @@
-### Unleash the watchdog
-
-When creating your FastAPI app instance, add the `auth_watchdog_lifespan()` [lifespan:](https://fastapi.tiangolo.com/advanced/events/#lifespan-events)
-
 ```python
 app = FastAPI(lifespan=auth_watchdog_lifespan())
 ```
-
-This runs once when your app starts up and double-checks that all your routes are secured. Now, if you try to run your app, you should see the watchdog barking about security holes, and preventing it from starting...
-
-```
-ska_aaa_authhelpers.watchdog.SecurityHoleError: Route...does not have a Requires() dependency that defines scopes and roles to control access.
-```
-
-### Example: `AuthContext`  passed into your view
-
-If you're experienced with FastAPI and its use of `Depends()` then this should look pretty familiar to you:
 
 ```python
 # You get this value by registering in step 2:
