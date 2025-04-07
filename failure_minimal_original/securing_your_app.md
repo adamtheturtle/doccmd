@@ -17,8 +17,3 @@ async def say_hello(
 async def say_goodbye():
      return {"msg": "Goodbye"}
 ```
-
-```python
-operators_only = Requires(
-)
-```
