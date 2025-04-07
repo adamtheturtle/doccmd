@@ -18,11 +18,6 @@ async def say_goodbye():
      return {"msg": "Goodbye"}
 ```
 
-
-```python
-import functools
-```
-
 ```python
 operators_only = Requires(
 )
