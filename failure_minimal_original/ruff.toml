@@ -1,0 +1,18 @@
+# Custom ruff config to apply when linting
+# code examples in documentation
+# See Makefile python-do-lint
+
+# Shorter because people might
+# want the docs up next to code.
+line-length = 79
+
+[lint.isort]
+# Treat this library as third-party
+# because for consumers it will be
+known-third-party = ["ska_aaa_authhelpers"]
+
+[lint]
+# Don't complain about missing imports because
+# we don't want to have to reimport everything
+# in every example.
+ignore = ["F821"] # undefined-name
