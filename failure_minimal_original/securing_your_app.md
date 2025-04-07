@@ -6,11 +6,6 @@ MY_API = "api://3688e6c2-87c0-4584-a674-c11e63e9b442"
 async def say_hello(
     auth: Annotated[
         AuthContext,
-        Requires(
-            audience=MY_API,
-            roles={Role.SW_ENGINEER},
-            scopes={"hello:listen"},
-        ),
     ],
 ):
      return {"msg": f"Hello, user: {auth.user_id}"}
