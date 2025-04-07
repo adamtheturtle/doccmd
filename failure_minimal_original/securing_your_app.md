@@ -28,8 +28,5 @@ import functools
 
 ```python
 operators_only = Requires(
-    audience=MY_API,
-    scopes={"telescope:operate"},
-    roles={Role.LOW_OPERATOR, Role.MID_OPERATOR}
 )
 ```
