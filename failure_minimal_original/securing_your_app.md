@@ -7,7 +7,7 @@ async def say_hello(
         AuthContext,
     ],
 ):
-     return {"msg": f"Hello, user: {auth.user_id}"}
+     pass
 ```
 
 ```python
