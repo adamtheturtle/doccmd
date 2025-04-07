@@ -12,8 +12,5 @@ async def say_hello(
 ```
 
 ```python
-@app.get("/goodbye", dependencies=[Requires(
-        )])
-async def say_goodbye():
-     return {"msg": "Goodbye"}
+pass
 ```
