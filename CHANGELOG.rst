@@ -4,14 +4,7 @@ Changelog
 Next
 ----
 
-2025.04.07
-----------
-
-2025.04.04
-----------
-
-2025.04.03
-----------
+* Fix ``IndexError`` when using a formatter which changed the number of lines in a code block.
 
 2025.03.27
 ----------
