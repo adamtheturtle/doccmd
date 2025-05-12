@@ -26,7 +26,7 @@ def test_help(file_regression: FileRegressionFixture) -> None:
     This help text is defined in files.
     To update these files, run ``pytest`` with the ``--regen-all`` flag.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     arguments = ["--help"]
     result = runner.invoke(
         cli=main,
@@ -42,7 +42,7 @@ def test_run_command(tmp_path: Path) -> None:
     """
     It is possible to run a command against a code block in a document.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     content = textwrap.dedent(
         text="""\
@@ -86,7 +86,7 @@ def test_double_language(tmp_path: Path) -> None:
     """
     Giving the same language twice does not run the command twice.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     content = textwrap.dedent(
         text="""\
@@ -132,7 +132,7 @@ def test_file_does_not_exist() -> None:
     """
     An error is shown when a file does not exist.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     arguments = [
         "--language",
         "python",
@@ -154,7 +154,7 @@ def test_not_utf_8_file_given(tmp_path: Path) -> None:
     """
     No error is given if a file is passed in which is not UTF-8.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     content = textwrap.dedent(
         text="""\
@@ -199,7 +199,7 @@ def test_unknown_encoding(
     """
     An error is shown when a file cannot be decoded.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     rst_file.write_bytes(data=Path(sys.executable).read_bytes())
     arguments = [
@@ -228,7 +228,7 @@ def test_multiple_code_blocks(tmp_path: Path) -> None:
     """
     It is possible to run a command against multiple code blocks in a document.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     content = textwrap.dedent(
         text="""\
@@ -284,7 +284,7 @@ def test_language_filters(tmp_path: Path) -> None:
     """
     Languages not specified are not run.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     content = textwrap.dedent(
         text="""\
@@ -331,7 +331,7 @@ def test_run_command_no_pad_file(tmp_path: Path) -> None:
     """
     It is possible to not pad the file.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     content = textwrap.dedent(
         text="""\
@@ -372,7 +372,7 @@ def test_multiple_files(tmp_path: Path) -> None:
     """
     It is possible to run a command against multiple files.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file1 = tmp_path / "example1.rst"
     rst_file2 = tmp_path / "example2.rst"
     content1 = """\
@@ -426,7 +426,7 @@ def test_multiple_files_multiple_types(tmp_path: Path) -> None:
     It is possible to run a command against multiple files of multiple types
     (Markdown and rST).
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     md_file = tmp_path / "example.md"
     rst_content = textwrap.dedent(
@@ -491,7 +491,7 @@ def test_modify_file(tmp_path: Path) -> None:
     """
     Commands (outside of groups) can modify files.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     content = textwrap.dedent(
         text="""\
@@ -544,7 +544,7 @@ def test_exit_code(tmp_path: Path) -> None:
     """
     The exit code of the first failure is propagated.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     exit_code = 25
     content = textwrap.dedent(
@@ -589,7 +589,7 @@ def test_file_extension(
     """
     The file extension of the temporary file is appropriate for the language.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     content = textwrap.dedent(
         text=f"""\
@@ -623,7 +623,7 @@ def test_given_temporary_file_extension(tmp_path: Path) -> None:
     """
     It is possible to specify the file extension for created temporary files.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     content = textwrap.dedent(
         text="""\
@@ -662,7 +662,7 @@ def test_given_temporary_file_extension_no_leading_period(
     An error is shown when a given temporary file extension is given with no
     leading period.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     content = textwrap.dedent(
         text="""\
@@ -705,7 +705,7 @@ def test_given_prefix(tmp_path: Path) -> None:
     """
     It is possible to specify a prefix for the temporary file.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     content = textwrap.dedent(
         text="""\
@@ -742,7 +742,7 @@ def test_file_extension_unknown_language(tmp_path: Path) -> None:
     The file extension of the temporary file is `.txt` for any unknown
     language.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     content = textwrap.dedent(
         text="""\
@@ -776,7 +776,7 @@ def test_file_given_multiple_times(tmp_path: Path) -> None:
     """
     Files given multiple times are de-duplicated.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     other_rst_file = tmp_path / "other_example.rst"
     content = textwrap.dedent(
@@ -830,7 +830,7 @@ def test_verbose_running(tmp_path: Path) -> None:
     """
     ``--verbose`` shows what is running.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     content = textwrap.dedent(
         text="""\
@@ -889,7 +889,7 @@ def test_verbose_running_with_stderr(tmp_path: Path) -> None:
     """
     ``--verbose`` shows what is running before any stderr output.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     # We include a group as well to ensure that the verbose output is shown
     # in the right place for groups.
@@ -971,7 +971,7 @@ def test_command_not_found(tmp_path: Path) -> None:
     """
     An error is shown when the command is not found.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     non_existent_command = uuid.uuid4().hex
     non_existent_command_with_args = f"{non_existent_command} --help"
@@ -1009,7 +1009,7 @@ def test_not_executable(tmp_path: Path) -> None:
     """
     An error is shown when the command is a non-executable file.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     not_executable_command = tmp_path / "non_executable"
     not_executable_command.touch()
@@ -1050,7 +1050,7 @@ def test_multiple_languages(tmp_path: Path) -> None:
     It is possible to run a command against multiple code blocks in a document
     with different languages.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     content = textwrap.dedent(
         text="""\
@@ -1101,7 +1101,7 @@ def test_default_skip_rst(tmp_path: Path) -> None:
     By default, the next code block after a 'skip doccmd: next' comment in a
     rST document is not run.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     content = textwrap.dedent(
         text="""\
@@ -1162,7 +1162,7 @@ def test_skip_no_arguments(
     """
     An error is shown if a skip is given with no arguments.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     content = textwrap.dedent(
         text="""\
@@ -1218,7 +1218,7 @@ def test_skip_bad_arguments(
     """
     An error is shown if a skip is given with bad arguments.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     content = textwrap.dedent(
         text="""\
@@ -1264,7 +1264,7 @@ def test_custom_skip_markers_rst(tmp_path: Path) -> None:
     The next code block after a custom skip marker comment in a rST document is
     not run.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     skip_marker = uuid.uuid4().hex
     content = textwrap.dedent(
@@ -1318,7 +1318,7 @@ def test_default_skip_myst(tmp_path: Path) -> None:
     By default, the next code block after a 'skip doccmd: next' comment in a
     MyST document is not run.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     myst_file = tmp_path / "example.md"
     content = textwrap.dedent(
         text="""\
@@ -1377,7 +1377,7 @@ def test_custom_skip_markers_myst(tmp_path: Path) -> None:
     The next code block after a custom skip marker comment in a MyST document
     is not run.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     myst_file = tmp_path / "example.md"
     skip_marker = uuid.uuid4().hex
     content = textwrap.dedent(
@@ -1438,7 +1438,7 @@ def test_multiple_skip_markers(tmp_path: Path) -> None:
     """
     All given skip markers, including the default one, are respected.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     skip_marker_1 = uuid.uuid4().hex
     skip_marker_2 = uuid.uuid4().hex
@@ -1501,7 +1501,7 @@ def test_skip_start_end(tmp_path: Path) -> None:
     """
     Skip start and end markers are respected.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     skip_marker_1 = uuid.uuid4().hex
     skip_marker_2 = uuid.uuid4().hex
@@ -1563,7 +1563,7 @@ def test_duplicate_skip_marker(tmp_path: Path) -> None:
     """
     Duplicate skip markers are respected.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     skip_marker = uuid.uuid4().hex
     content = textwrap.dedent(
@@ -1619,7 +1619,7 @@ def test_default_skip_marker_given(tmp_path: Path) -> None:
     """
     No error is shown when the default skip marker is given.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     skip_marker = "all"
     content = textwrap.dedent(
@@ -1673,7 +1673,7 @@ def test_skip_multiple(tmp_path: Path) -> None:
     """
     It is possible to mark a code block as to be skipped by multiple markers.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     skip_marker_1 = uuid.uuid4().hex
     skip_marker_2 = uuid.uuid4().hex
@@ -1749,7 +1749,7 @@ def test_bad_skips(tmp_path: Path) -> None:
     """
     Bad skip orders are flagged.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     skip_marker_1 = uuid.uuid4().hex
     content = textwrap.dedent(
@@ -1793,7 +1793,7 @@ def test_empty_file(tmp_path: Path) -> None:
     """
     No error is shown when an empty file is given.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     rst_file.touch()
     arguments = [
@@ -1834,7 +1834,7 @@ def test_detect_line_endings(
     """
     The line endings of the original file are used in the new file.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     content = textwrap.dedent(
         text="""\
@@ -1870,7 +1870,7 @@ def test_one_supported_markup_in_another_extension(tmp_path: Path) -> None:
     Code blocks in a supported markup language in a file with an extension
     which matches another extension are not run.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     content = textwrap.dedent(
         text="""\
@@ -1909,7 +1909,7 @@ def test_unknown_file_suffix(extension: str, tmp_path: Path) -> None:
     """
     An error is shown when the file suffix is not known.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     document_file = tmp_path / ("example" + extension)
     content = textwrap.dedent(
         text="""\
@@ -1951,7 +1951,7 @@ def test_custom_rst_file_suffixes(tmp_path: Path) -> None:
     """
     ReStructuredText files with custom suffixes are recognized.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.customrst"
     content = textwrap.dedent(
         text="""\
@@ -2002,7 +2002,7 @@ def test_custom_myst_file_suffixes(tmp_path: Path) -> None:
     """
     MyST files with custom suffixes are recognized.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     myst_file = tmp_path / "example.custommyst"
     content = textwrap.dedent(
         text="""\
@@ -2069,7 +2069,7 @@ def test_pty(
     """
     Test options for using pseudo-terminal.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     tty_test = textwrap.dedent(
         text="""\
@@ -2124,7 +2124,7 @@ def test_source_given_extension_no_leading_period(
     An error is shown when a given source file extension is given with no
     leading period.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     source_file = tmp_path / "example.rst"
     content = "Hello world"
     source_file.write_text(data=content, encoding="utf-8")
@@ -2161,7 +2161,7 @@ def test_overlapping_extensions(tmp_path: Path) -> None:
     An error is shown if there are overlapping extensions between --rst-
     extension and --myst-extension.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     source_file = tmp_path / "example.custom"
     content = textwrap.dedent(
         text="""\
@@ -2209,7 +2209,7 @@ def test_overlapping_extensions_dot(tmp_path: Path) -> None:
     """
     No error is shown if multiple extension types are '.'.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     source_file = tmp_path / "example.custom"
     content = textwrap.dedent(
         text="""\
@@ -2253,7 +2253,7 @@ def test_markdown(tmp_path: Path) -> None:
     """
     It is possible to run a command against a Markdown file.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     source_file = tmp_path / "example.md"
     content = textwrap.dedent(
         text="""\
@@ -2318,7 +2318,7 @@ def test_directory(tmp_path: Path) -> None:
     """
     All source files in a given directory are worked on.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     rst_content = textwrap.dedent(
         text="""\
@@ -2387,7 +2387,7 @@ def test_de_duplication_source_files_and_dirs(tmp_path: Path) -> None:
     If a file is given which is within a directory that is also given, the file
     is de-duplicated.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     rst_content = textwrap.dedent(
         text="""\
@@ -2444,7 +2444,7 @@ def test_max_depth(tmp_path: Path) -> None:
     """
     The --max-depth option limits the depth of directories to search for files.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     rst_content = textwrap.dedent(
         text="""\
@@ -2572,7 +2572,7 @@ def test_exclude_files_from_recursed_directories(tmp_path: Path) -> None:
     Files with names matching the exclude pattern are not processed when
     recursing directories.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     rst_content = textwrap.dedent(
         text="""\
@@ -2641,7 +2641,7 @@ def test_multiple_exclude_patterns(tmp_path: Path) -> None:
     Files matching any of the exclude patterns are not processed when recursing
     directories.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     rst_content = textwrap.dedent(
         text="""\
@@ -2728,7 +2728,7 @@ def test_lexing_exception(
     """
     Lexing exceptions are handled when an invalid source file is given.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     source_file = tmp_path / "invalid_example.md"
     # Lexing error as there is a hyphen in the comment
     # or... because of the word code!
@@ -2800,7 +2800,7 @@ def test_group_blocks(
     Code blocks between a group start and end marker are concatenated
     and passed as a single input to the command.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     script = tmp_path / "print_underlined.py"
     content = textwrap.dedent(
@@ -2913,7 +2913,7 @@ def test_modify_file_single_group_block(
     """
     Commands in groups cannot modify files in single grouped blocks.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     content = textwrap.dedent(
         text="""\
@@ -3008,7 +3008,7 @@ def test_modify_file_multiple_group_blocks(
     """
     Commands in groups cannot modify files in multiple grouped commands.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     content = textwrap.dedent(
         text="""\
@@ -3091,7 +3091,7 @@ def test_jinja2(*, tmp_path: Path) -> None:
     """
     It is possible to run commands against sphinx-jinja2 blocks.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     source_file = tmp_path / "example.rst"
     content = textwrap.dedent(
         text="""\
@@ -3145,7 +3145,7 @@ def test_empty_language_given(*, tmp_path: Path) -> None:
     """
     An error is shown when an empty language is given.
     """
-    runner = CliRunner(mix_stderr=False)
+    runner = CliRunner()
     source_file = tmp_path / "example.rst"
     content = ""
     source_file.write_text(data=content, encoding="utf-8")
