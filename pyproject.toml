@@ -55,7 +55,7 @@ optional-dependencies.dev = [
     "docformatter==1.7.7",
     "furo==2024.8.6",
     "interrogate==1.7.0",
-    "mypy[faster-cache]==1.16.0",
+    "mypy[faster-cache]==1.16.1",
     "mypy-strict-kwargs==2025.4.3",
     "pre-commit==4.2.0",
     "pydocstyle==6.3",
