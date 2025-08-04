@@ -89,7 +89,7 @@ optional-dependencies.dev = [
     "yamlfix==1.17.0",
 ]
 optional-dependencies.release = [
-    "check-wheel-contents==0.6.2",
+    "check-wheel-contents==0.6.3",
     "homebrew-pypi-poet==0.10",
 ]
 urls.Documentation = "https://adamtheturtle.github.io/doccmd/"
