@@ -260,7 +260,7 @@ disable = [
 ]
 
 per-file-ignores = [
-    "doccmd_README_rst.*.py:invalid-name",
+    "doccmd_README_rst_*.py:invalid-name",
 ]
 
 [tool.pylint.'FORMAT']
