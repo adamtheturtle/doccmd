@@ -58,7 +58,6 @@ optional-dependencies.dev = [
     "mypy-strict-kwargs==2025.4.3",
     "pre-commit==4.3.0",
     "pydocstyle==6.3",
-    "pyenchant==3.3.0rc1",
     "pygments==2.19.2",
     "pylint==3.3.8",
     "pylint-per-file-ignores==2.0.3",
