@@ -329,7 +329,8 @@ repos:
       - id: pyright-verifytypes
         name: pyright-verifytypes
         stages: [pre-push]
-        entry: uv run --extra=dev -m pyright --verifytypes doccmd
+        # See https://github.com/pallets/click/issues/3067 for why we need to ignore external.
+        entry: uv run --extra=dev -m pyright --ignoreexternal --verifytypes doccmd
         language: python
         pass_filenames: false
         types_or: [python]
