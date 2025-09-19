@@ -776,7 +776,7 @@ def _get_sybil(
     is_flag=True,
     type=_UsePty,
     flag_value=_UsePty.YES,
-    default=False,
+    default=_UsePty.DETECT,
     show_default="--detect-use-pty",
     help=(
         "Use a pseudo-terminal for running commands. "
@@ -791,7 +791,7 @@ def _get_sybil(
     is_flag=True,
     type=_UsePty,
     flag_value=_UsePty.NO,
-    default=False,
+    default=_UsePty.DETECT,
     show_default="--detect-use-pty",
     help=(
         "Do not use a pseudo-terminal for running commands. "
@@ -805,7 +805,7 @@ def _get_sybil(
     is_flag=True,
     type=_UsePty,
     flag_value=_UsePty.DETECT,
-    default=True,
+    default=_UsePty.DETECT,
     show_default="True",
     help=(
         "Automatically determine whether to use a pseudo-terminal for running "
