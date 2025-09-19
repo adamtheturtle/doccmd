@@ -1,3 +1,4 @@
+Jinja
 admin
 api
 args
@@ -9,6 +10,7 @@ doccmd
 dockerfile
 dockerfiles
 dulwich
+formatter
 formatters
 gzip
 homebrew
@@ -34,6 +36,7 @@ reco
 recursing
 rst
 stderr
+strikethrough
 txt
 typeshed
 ubuntu
