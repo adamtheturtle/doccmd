@@ -312,7 +312,6 @@ ignore = [
     "bin/*",
     "ci",
     "ci/**",
-    "codecov.yaml",
     "conftest.py",
     "doc8.ini",
     "docs",

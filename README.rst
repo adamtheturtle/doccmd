@@ -1,4 +1,4 @@
-|Build Status| |codecov| |PyPI|
+|Build Status| |PyPI|
 
 doccmd
 ======
@@ -292,8 +292,6 @@ See the `full documentation <https://adamtheturtle.github.io/doccmd/>`__.
 
 .. |Build Status| image:: https://github.com/adamtheturtle/doccmd/actions/workflows/ci.yml/badge.svg?branch=main
    :target: https://github.com/adamtheturtle/doccmd/actions
-.. |codecov| image:: https://codecov.io/gh/adamtheturtle/doccmd/branch/main/graph/badge.svg
-   :target: https://codecov.io/gh/adamtheturtle/doccmd
 .. |PyPI| image:: https://badge.fury.io/py/doccmd.svg
    :target: https://badge.fury.io/py/doccmd
 .. |minimum-python-version| replace:: 3.10
