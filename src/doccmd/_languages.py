@@ -138,7 +138,7 @@ class MarkupLanguage:
     sphinx_jinja_parser_cls: type[_SphinxJinja2Parser] | None
 
 
-MyST = MarkupLanguage(
+MYST = MarkupLanguage(
     name="MyST",
     skip_parser_cls=(
         sybil_extras.parsers.myst.custom_directive_skip.CustomDirectiveSkipParser
@@ -148,7 +148,7 @@ MyST = MarkupLanguage(
     sphinx_jinja_parser_cls=sybil_extras.parsers.myst.sphinx_jinja2.SphinxJinja2Parser,
 )
 
-ReStructuredText = MarkupLanguage(
+RESTRUCTUREDTEXT = MarkupLanguage(
     name="reStructuredText",
     skip_parser_cls=sybil_extras.parsers.rest.custom_directive_skip.CustomDirectiveSkipParser,
     code_block_parser_cls=sybil.parsers.rest.CodeBlockParser,
@@ -156,7 +156,7 @@ ReStructuredText = MarkupLanguage(
     sphinx_jinja_parser_cls=sybil_extras.parsers.rest.sphinx_jinja2.SphinxJinja2Parser,
 )
 
-Markdown = MarkupLanguage(
+MARKDOWN = MarkupLanguage(
     name="Markdown",
     skip_parser_cls=sybil_extras.parsers.markdown.custom_directive_skip.CustomDirectiveSkipParser,
     code_block_parser_cls=sybil.parsers.markdown.CodeBlockParser,

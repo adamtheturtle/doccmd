@@ -26,10 +26,10 @@ from sybil_extras.evaluators.multi import MultiEvaluator
 from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
 
 from ._languages import (
-    Markdown,
+    MARKDOWN,
+    MYST,
+    RESTRUCTUREDTEXT,
     MarkupLanguage,
-    MyST,
-    ReStructuredText,
 )
 
 try:
@@ -941,9 +941,9 @@ def main(
     use_pty = use_pty_option.use_pty()
 
     suffix_groups: Mapping[MarkupLanguage, Sequence[str]] = {
-        MyST: myst_suffixes,
-        ReStructuredText: rst_suffixes,
-        Markdown: markdown_suffixes,
+        MYST: myst_suffixes,
+        RESTRUCTUREDTEXT: rst_suffixes,
+        MARKDOWN: markdown_suffixes,
     }
 
     _validate_file_suffix_overlaps(suffix_groups=suffix_groups)
