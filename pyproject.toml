@@ -60,7 +60,7 @@ optional-dependencies.dev = [
     "pydocstyle==6.3",
     "pygments==2.19.2",
     "pylint[spelling]==3.3.9",
-    "pylint-per-file-ignores==3.0.0",
+    "pylint-per-file-ignores==3.1.0",
     "pyproject-fmt==2.10.0",
     "pyright==1.1.406",
     "pyroma==5.0",
