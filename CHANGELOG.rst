@@ -4,6 +4,8 @@ Changelog
 Next
 ----
 
+* Add a ``--continue-on-error`` flag to collect and display all errors across files before exiting.
+
 2025.09.19
 ----------
 

@@ -9,6 +9,7 @@ import subprocess
 import sys
 import textwrap
 from collections.abc import Callable, Iterable, Mapping, Sequence
+from dataclasses import dataclass
 from enum import Enum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
@@ -495,6 +496,16 @@ class _GroupModifiedError(Exception):
 
         message += "\n".join(unified_diff)
         return message
+
+
+@dataclass
+class _CollectedError:
+    """
+    Error collected during continue-on-error mode.
+    """
+
+    message: str
+    exit_code: int
 
 
 @beartype
@@ -999,8 +1010,7 @@ def main(
 
     given_temporary_file_extension = temporary_file_extension
 
-    # Track errors when continue_on_error is enabled
-    collected_errors: list[tuple[str, int]] = []
+    collected_errors: list[_CollectedError] = []
 
     for file_path in file_paths:
         markup_language = suffix_map[file_path.suffix]
@@ -1012,7 +1022,10 @@ def main(
             if fail_on_parse_error:
                 if continue_on_error:
                     collected_errors.append(
-                        (f"Could not determine encoding for {file_path}.", 1)
+                        _CollectedError(
+                            message=f"Could not determine encoding for {file_path}.",
+                            exit_code=1,
+                        )
                     )
                     continue
                 sys.exit(1)
@@ -1077,7 +1090,9 @@ def main(
                 _log_error(message=message)
                 if fail_on_parse_error:
                     if continue_on_error:
-                        collected_errors.append((message, 1))
+                        collected_errors.append(
+                            _CollectedError(message=message, exit_code=1)
+                        )
                         continue
                     sys.exit(1)
                 continue
@@ -1089,7 +1104,9 @@ def main(
                     error_message = str(object=exc)
                     _log_error(message=error_message)
                     if continue_on_error:
-                        collected_errors.append((error_message, 1))
+                        collected_errors.append(
+                            _CollectedError(message=error_message, exit_code=1)
+                        )
                         continue
                     sys.exit(1)
                 _log_warning(message=str(object=exc))
@@ -1105,19 +1122,25 @@ def main(
                 if continue_on_error:
                     if error_msg:
                         collected_errors.append(
-                            (error_msg, exc.exit_code if exc.exit_code else 1)
+                            _CollectedError(
+                                message=error_msg,
+                                exit_code=exc.exit_code
+                                if exc.exit_code
+                                else 1,
+                            )
                         )
                     else:
                         collected_errors.append(
-                            (
-                                "Command failed",
-                                exc.exit_code if exc.exit_code else 1,
+                            _CollectedError(
+                                message="Command failed",
+                                exit_code=exc.exit_code
+                                if exc.exit_code
+                                else 1,
                             )
                         )
                 else:
                     sys.exit(exc.exit_code)
 
-    # If we collected errors while continuing, exit with the highest exit code
     if collected_errors:
-        max_exit_code = max(exit_code for _, exit_code in collected_errors)
+        max_exit_code = max(error.exit_code for error in collected_errors)
         sys.exit(max_exit_code)
