@@ -3185,7 +3185,6 @@ def test_continue_on_error_multiple_files(tmp_path: Path) -> None:
     highest_exit_code = 42
     lowest_exit_code = 7
 
-    # Create first file with error
     rst_file1 = tmp_path / "example1.rst"
     content1 = textwrap.dedent(
         text=f"""\
@@ -3197,7 +3196,6 @@ def test_continue_on_error_multiple_files(tmp_path: Path) -> None:
     )
     rst_file1.write_text(data=content1, encoding="utf-8")
 
-    # Create second file with success
     rst_file2 = tmp_path / "example2.rst"
     content2 = textwrap.dedent(
         text="""\
@@ -3209,7 +3207,6 @@ def test_continue_on_error_multiple_files(tmp_path: Path) -> None:
     )
     rst_file2.write_text(data=content2, encoding="utf-8")
 
-    # Create third file with error
     rst_file3 = tmp_path / "example3.rst"
     content3 = textwrap.dedent(
         text=f"""\
@@ -3237,7 +3234,6 @@ def test_continue_on_error_multiple_files(tmp_path: Path) -> None:
         catch_exceptions=False,
         color=True,
     )
-    # Should exit with the highest error code
     assert result.exit_code == highest_exit_code, (
         result.stdout,
         result.stderr,
@@ -3251,11 +3247,9 @@ def test_continue_on_error_encoding_error(tmp_path: Path) -> None:
     """
     runner = CliRunner()
 
-    # Create a file with encoding issues
     rst_file1 = tmp_path / "bad_encoding.rst"
     rst_file1.write_bytes(data=Path(sys.executable).read_bytes())
 
-    # Create a valid file that will succeed
     rst_file2 = tmp_path / "valid.rst"
     content2 = textwrap.dedent(
         text="""\
@@ -3282,7 +3276,6 @@ def test_continue_on_error_encoding_error(tmp_path: Path) -> None:
         catch_exceptions=False,
         color=True,
     )
-    # Should exit with error code 1 (from encoding error)
     assert result.exit_code == 1, (result.stdout, result.stderr)
     expected_stderr = (
         f"{fg.red}Could not determine encoding for {rst_file1}.{reset}\n"
@@ -3297,7 +3290,6 @@ def test_continue_on_error_parse_error(tmp_path: Path) -> None:
     """
     runner = CliRunner()
 
-    # Create a file with a lexing error
     source_file1 = tmp_path / "invalid_example.md"
     invalid_content = textwrap.dedent(
         text="""\
@@ -3306,7 +3298,6 @@ def test_continue_on_error_parse_error(tmp_path: Path) -> None:
     )
     source_file1.write_text(data=invalid_content, encoding="utf-8")
 
-    # Create a valid file
     source_file2 = tmp_path / "valid.rst"
     content2 = textwrap.dedent(
         text="""\
@@ -3333,7 +3324,6 @@ def test_continue_on_error_parse_error(tmp_path: Path) -> None:
         catch_exceptions=False,
         color=True,
     )
-    # Should exit with error code 1 (from parse error)
     assert result.exit_code == 1, (result.stdout, result.stderr)
     expected_stderr = textwrap.dedent(
         text=f"""\
@@ -3351,7 +3341,6 @@ def test_continue_on_error_group_write_error(tmp_path: Path) -> None:
     """
     runner = CliRunner()
 
-    # Create a file with a group that will be modified
     rst_file1 = tmp_path / "group_modified.rst"
     content1 = textwrap.dedent(
         text="""\
@@ -3366,7 +3355,6 @@ def test_continue_on_error_group_write_error(tmp_path: Path) -> None:
     )
     rst_file1.write_text(data=content1, encoding="utf-8")
 
-    # Create a valid file
     rst_file2 = tmp_path / "valid.rst"
     content2 = textwrap.dedent(
         text="""\
@@ -3377,7 +3365,6 @@ def test_continue_on_error_group_write_error(tmp_path: Path) -> None:
     )
     rst_file2.write_text(data=content2, encoding="utf-8")
 
-    # Create a script that modifies the file
     modify_code_script = textwrap.dedent(
         text="""\
         #!/usr/bin/env python
@@ -3407,7 +3394,6 @@ def test_continue_on_error_group_write_error(tmp_path: Path) -> None:
         catch_exceptions=False,
         color=True,
     )
-    # Should exit with error code 1 (from group write error)
     assert result.exit_code == 1, (result.stdout, result.stderr)
 
 
@@ -3419,7 +3405,6 @@ def test_continue_on_error_command_not_found(tmp_path: Path) -> None:
     """
     runner = CliRunner()
 
-    # Create two files - one with a non-existent command, one valid
     rst_file1 = tmp_path / "bad_command.rst"
     non_existent_command = uuid.uuid4().hex
     content1 = textwrap.dedent(
@@ -3456,9 +3441,7 @@ def test_continue_on_error_command_not_found(tmp_path: Path) -> None:
         catch_exceptions=False,
         color=True,
     )
-    # Should exit with error code from OSError
     assert result.exit_code != 0, (result.stdout, result.stderr)
-    # Should have error message about the command
     assert f"Error running command '{non_existent_command}'" in result.stderr
 
 
@@ -3471,7 +3454,6 @@ def test_continue_on_error_vs_default_behavior(tmp_path: Path) -> None:
     exit_code_42 = 42
     exit_code_7 = 7
 
-    # Create first file with error
     rst_file1 = tmp_path / "example1.rst"
     content1 = textwrap.dedent(
         text=f"""\
@@ -3483,7 +3465,6 @@ def test_continue_on_error_vs_default_behavior(tmp_path: Path) -> None:
     )
     rst_file1.write_text(data=content1, encoding="utf-8")
 
-    # Create second file with another error
     rst_file2 = tmp_path / "example2.rst"
     content2 = textwrap.dedent(
         text=f"""\
@@ -3495,7 +3476,6 @@ def test_continue_on_error_vs_default_behavior(tmp_path: Path) -> None:
     )
     rst_file2.write_text(data=content2, encoding="utf-8")
 
-    # Test without --continue-on-error: should stop at first file
     arguments_without_continue = [
         "--language",
         "python",
@@ -3515,7 +3495,6 @@ def test_continue_on_error_vs_default_behavior(tmp_path: Path) -> None:
         result_without_continue.stderr,
     )
 
-    # Test with --continue-on-error: should process both files
     arguments_with_continue = [
         "--language",
         "python",
@@ -3531,7 +3510,6 @@ def test_continue_on_error_vs_default_behavior(tmp_path: Path) -> None:
         catch_exceptions=False,
         color=True,
     )
-    # Should still exit with error code (the highest one)
     assert result_with_continue.exit_code == exit_code_42, (
         result_with_continue.stdout,
         result_with_continue.stderr,
