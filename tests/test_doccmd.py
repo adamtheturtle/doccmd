@@ -3244,6 +3244,224 @@ def test_continue_on_error_multiple_files(tmp_path: Path) -> None:
     )
 
 
+def test_continue_on_error_encoding_error(tmp_path: Path) -> None:
+    """
+    With --continue-on-error and --fail-on-parse-error, encoding errors are
+    collected and execution continues.
+    """
+    runner = CliRunner()
+
+    # Create a file with encoding issues
+    rst_file1 = tmp_path / "bad_encoding.rst"
+    rst_file1.write_bytes(data=Path(sys.executable).read_bytes())
+
+    # Create a valid file that will succeed
+    rst_file2 = tmp_path / "valid.rst"
+    content2 = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            x = 1 + 1
+        """,
+    )
+    rst_file2.write_text(data=content2, encoding="utf-8")
+
+    arguments = [
+        "--fail-on-parse-error",
+        "--continue-on-error",
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        str(object=rst_file1),
+        str(object=rst_file2),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    # Should exit with error code 1 (from encoding error)
+    assert result.exit_code == 1, (result.stdout, result.stderr)
+    expected_stderr = (
+        f"{fg.red}Could not determine encoding for {rst_file1}.{reset}\n"
+    )
+    assert result.stderr == expected_stderr
+
+
+def test_continue_on_error_parse_error(tmp_path: Path) -> None:
+    """
+    With --continue-on-error and --fail-on-parse-error, parse errors are
+    collected and execution continues.
+    """
+    runner = CliRunner()
+
+    # Create a file with a lexing error
+    source_file1 = tmp_path / "invalid_example.md"
+    invalid_content = textwrap.dedent(
+        text="""\
+        <!-- code -->
+        """,
+    )
+    source_file1.write_text(data=invalid_content, encoding="utf-8")
+
+    # Create a valid file
+    source_file2 = tmp_path / "valid.rst"
+    content2 = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            x = 1 + 1
+        """,
+    )
+    source_file2.write_text(data=content2, encoding="utf-8")
+
+    arguments = [
+        "--fail-on-parse-error",
+        "--continue-on-error",
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        str(object=source_file1),
+        str(object=source_file2),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    # Should exit with error code 1 (from parse error)
+    assert result.exit_code == 1, (result.stdout, result.stderr)
+    expected_stderr = textwrap.dedent(
+        text=f"""\
+        {fg.red}Could not parse {source_file1}: Could not find end of '<!-- code -->\\n', starting at line 1, column 1, looking for '(?:(?<=\\n))?--+>' in {source_file1}:
+        ''{reset}
+        """,  # noqa: E501
+    )
+    assert result.stderr == expected_stderr
+
+
+def test_continue_on_error_group_write_error(tmp_path: Path) -> None:
+    """
+    With --continue-on-error and --fail-on-group-write, group write errors are
+    collected and execution continues.
+    """
+    runner = CliRunner()
+
+    # Create a file with a group that will be modified
+    rst_file1 = tmp_path / "group_modified.rst"
+    content1 = textwrap.dedent(
+        text="""\
+        .. group doccmd[all]: start
+
+        .. code-block:: python
+
+            print("Hello")
+
+        .. group doccmd[all]: end
+        """,
+    )
+    rst_file1.write_text(data=content1, encoding="utf-8")
+
+    # Create a valid file
+    rst_file2 = tmp_path / "valid.rst"
+    content2 = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            x = 1 + 1
+        """,
+    )
+    rst_file2.write_text(data=content2, encoding="utf-8")
+
+    # Create a script that modifies the file
+    modify_code_script = textwrap.dedent(
+        text="""\
+        #!/usr/bin/env python
+
+        import sys
+
+        with open(sys.argv[1], "w") as file:
+            file.write("modified")
+        """,
+    )
+    modify_code_file = tmp_path / "modify_code.py"
+    modify_code_file.write_text(data=modify_code_script, encoding="utf-8")
+
+    arguments = [
+        "--fail-on-group-write",
+        "--continue-on-error",
+        "--language",
+        "python",
+        "--command",
+        f"{Path(sys.executable).as_posix()} {modify_code_file.as_posix()}",
+        str(object=rst_file1),
+        str(object=rst_file2),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    # Should exit with error code 1 (from group write error)
+    assert result.exit_code == 1, (result.stdout, result.stderr)
+
+
+def test_continue_on_error_command_not_found(tmp_path: Path) -> None:
+    """With --continue-on-error, OSError (command not found) is collected and
+    execution continues.
+
+    This covers the case where _EvaluateError is raised with a reason.
+    """
+    runner = CliRunner()
+
+    # Create two files - one with a non-existent command, one valid
+    rst_file1 = tmp_path / "bad_command.rst"
+    non_existent_command = uuid.uuid4().hex
+    content1 = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            x = 1 + 1
+        """,
+    )
+    rst_file1.write_text(data=content1, encoding="utf-8")
+
+    rst_file2 = tmp_path / "valid.rst"
+    content2 = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            y = 2 + 2
+        """,
+    )
+    rst_file2.write_text(data=content2, encoding="utf-8")
+
+    arguments = [
+        "--continue-on-error",
+        "--language",
+        "python",
+        "--command",
+        non_existent_command,
+        str(object=rst_file1),
+        str(object=rst_file2),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    # Should exit with error code from OSError
+    assert result.exit_code != 0, (result.stdout, result.stderr)
+    # Should have error message about the command
+    assert f"Error running command '{non_existent_command}'" in result.stderr
+
+
 def test_continue_on_error_vs_default_behavior(tmp_path: Path) -> None:
     """Without --continue-on-error, execution stops at first error.
 
