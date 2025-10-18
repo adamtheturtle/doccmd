@@ -1016,14 +1016,15 @@ def main(
         markup_language = suffix_map[file_path.suffix]
         encoding = _get_encoding(document_path=file_path)
         if encoding is None:
-            _log_error(
-                message=f"Could not determine encoding for {file_path}."
+            could_not_determine_encoding_msg = (
+                f"Could not determine encoding for {file_path}."
             )
+            _log_error(message=could_not_determine_encoding_msg)
             if fail_on_parse_error:
                 if continue_on_error:
                     collected_errors.append(
                         _CollectedError(
-                            message=f"Could not determine encoding for {file_path}.",
+                            message=could_not_determine_encoding_msg,
                             exit_code=1,
                         )
                     )
