@@ -9,6 +9,7 @@ import subprocess
 import sys
 import textwrap
 from collections.abc import Callable, Iterable, Mapping, Sequence
+from dataclasses import dataclass
 from enum import Enum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
@@ -497,6 +498,16 @@ class _GroupModifiedError(Exception):
         return message
 
 
+@dataclass
+class _CollectedError:
+    """
+    Error collected during continue-on-error mode.
+    """
+
+    message: str
+    exit_code: int
+
+
 @beartype
 def _raise_group_modified(
     *,
@@ -910,6 +921,19 @@ def _get_sybil(
         "This is supported for MyST and reStructuredText files only."
     ),
 )
+@click.option(
+    "--continue-on-error/--no-continue-on-error",
+    "continue_on_error",
+    default=False,
+    show_default=True,
+    type=bool,
+    help=(
+        "Continue executing across all files even when errors occur. "
+        "Collects and displays all errors found, then returns a non-zero "
+        "exit code if any command invocation failed. "
+        "Useful for seeing all linting errors in large projects."
+    ),
+)
 @beartype
 def main(
     *,
@@ -932,6 +956,7 @@ def main(
     fail_on_parse_error: bool,
     fail_on_group_write: bool,
     sphinx_jinja2: bool,
+    continue_on_error: bool,
 ) -> None:
     """Run commands against code blocks in the given documentation files.
 
@@ -985,14 +1010,25 @@ def main(
 
     given_temporary_file_extension = temporary_file_extension
 
+    collected_errors: list[_CollectedError] = []
+
     for file_path in file_paths:
         markup_language = suffix_map[file_path.suffix]
         encoding = _get_encoding(document_path=file_path)
         if encoding is None:
-            _log_error(
-                message=f"Could not determine encoding for {file_path}."
+            could_not_determine_encoding_msg = (
+                f"Could not determine encoding for {file_path}."
             )
+            _log_error(message=could_not_determine_encoding_msg)
             if fail_on_parse_error:
+                if continue_on_error:
+                    collected_errors.append(
+                        _CollectedError(
+                            message=could_not_determine_encoding_msg,
+                            exit_code=1,
+                        )
+                    )
+                    continue
                 sys.exit(1)
             continue
 
@@ -1054,6 +1090,11 @@ def main(
                 message = f"Could not parse {file_path}: {exc}"
                 _log_error(message=message)
                 if fail_on_parse_error:
+                    if continue_on_error:
+                        collected_errors.append(
+                            _CollectedError(message=message, exit_code=1)
+                        )
+                        continue
                     sys.exit(1)
                 continue
 
@@ -1061,14 +1102,46 @@ def main(
                 _evaluate_document(document=document, args=args)
             except _GroupModifiedError as exc:
                 if fail_on_group_write:
-                    _log_error(message=str(object=exc))
+                    error_message = str(object=exc)
+                    _log_error(message=error_message)
+                    if continue_on_error:
+                        collected_errors.append(
+                            _CollectedError(message=error_message, exit_code=1)
+                        )
+                        continue
                     sys.exit(1)
                 _log_warning(message=str(object=exc))
             except _EvaluateError as exc:
+                error_msg: str | None = None
                 if exc.reason:
-                    message = (
+                    error_msg = (
                         f"Error running command '{exc.command_args[0]}': "
                         f"{exc.reason}"
                     )
-                    _log_error(message=message)
-                sys.exit(exc.exit_code)
+                    _log_error(message=error_msg)
+
+                if continue_on_error:
+                    if error_msg:
+                        collected_errors.append(
+                            _CollectedError(
+                                message=error_msg,
+                                exit_code=exc.exit_code
+                                if exc.exit_code
+                                else 1,
+                            )
+                        )
+                    else:
+                        collected_errors.append(
+                            _CollectedError(
+                                message="Command failed",
+                                exit_code=exc.exit_code
+                                if exc.exit_code
+                                else 1,
+                            )
+                        )
+                else:
+                    sys.exit(exc.exit_code)
+
+    if collected_errors:
+        max_exit_code = max(error.exit_code for error in collected_errors)
+        sys.exit(max_exit_code)

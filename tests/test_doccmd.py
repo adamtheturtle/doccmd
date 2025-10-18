@@ -3173,3 +3173,344 @@ def test_empty_language_given(*, tmp_path: Path) -> None:
     )
     assert result.stdout == ""
     assert result.stderr == expected_stderr
+
+
+def test_continue_on_error_multiple_files(tmp_path: Path) -> None:
+    """With --continue-on-error, execution continues across files when errors
+    occur.
+
+    The tool collects all errors and exits with the highest error code.
+    """
+    runner = CliRunner()
+    highest_exit_code = 42
+    lowest_exit_code = 7
+
+    rst_file1 = tmp_path / "example1.rst"
+    content1 = textwrap.dedent(
+        text=f"""\
+        .. code-block:: python
+
+            import sys
+            sys.exit({highest_exit_code})
+        """,
+    )
+    rst_file1.write_text(data=content1, encoding="utf-8")
+
+    rst_file2 = tmp_path / "example2.rst"
+    content2 = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            x = 2 + 2
+            assert x == 4
+        """,
+    )
+    rst_file2.write_text(data=content2, encoding="utf-8")
+
+    rst_file3 = tmp_path / "example3.rst"
+    content3 = textwrap.dedent(
+        text=f"""\
+        .. code-block:: python
+
+            import sys
+            sys.exit({lowest_exit_code})
+        """,
+    )
+    rst_file3.write_text(data=content3, encoding="utf-8")
+
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        Path(sys.executable).as_posix(),
+        "--continue-on-error",
+        str(object=rst_file1),
+        str(object=rst_file2),
+        str(object=rst_file3),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == highest_exit_code, (
+        result.stdout,
+        result.stderr,
+    )
+
+
+def test_continue_on_error_encoding_error(tmp_path: Path) -> None:
+    """
+    With --continue-on-error and --fail-on-parse-error, encoding errors are
+    collected and execution continues.
+    """
+    runner = CliRunner()
+
+    rst_file1 = tmp_path / "bad_encoding.rst"
+    rst_file1.write_bytes(data=Path(sys.executable).read_bytes())
+
+    rst_file2 = tmp_path / "valid.rst"
+    content2 = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            x = 1 + 1
+        """,
+    )
+    rst_file2.write_text(data=content2, encoding="utf-8")
+
+    arguments = [
+        "--fail-on-parse-error",
+        "--continue-on-error",
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        str(object=rst_file1),
+        str(object=rst_file2),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 1, (result.stdout, result.stderr)
+    expected_stderr = (
+        f"{fg.red}Could not determine encoding for {rst_file1}.{reset}\n"
+    )
+    assert result.stderr == expected_stderr
+
+
+def test_continue_on_error_parse_error(tmp_path: Path) -> None:
+    """
+    With --continue-on-error and --fail-on-parse-error, parse errors are
+    collected and execution continues.
+    """
+    runner = CliRunner()
+
+    source_file1 = tmp_path / "invalid_example.md"
+    invalid_content = textwrap.dedent(
+        text="""\
+        <!-- code -->
+        """,
+    )
+    source_file1.write_text(data=invalid_content, encoding="utf-8")
+
+    source_file2 = tmp_path / "valid.rst"
+    content2 = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            x = 1 + 1
+        """,
+    )
+    source_file2.write_text(data=content2, encoding="utf-8")
+
+    arguments = [
+        "--fail-on-parse-error",
+        "--continue-on-error",
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        str(object=source_file1),
+        str(object=source_file2),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 1, (result.stdout, result.stderr)
+    expected_stderr = textwrap.dedent(
+        text=f"""\
+        {fg.red}Could not parse {source_file1}: Could not find end of '<!-- code -->\\n', starting at line 1, column 1, looking for '(?:(?<=\\n))?--+>' in {source_file1}:
+        ''{reset}
+        """,  # noqa: E501
+    )
+    assert result.stderr == expected_stderr
+
+
+def test_continue_on_error_group_write_error(tmp_path: Path) -> None:
+    """
+    With --continue-on-error and --fail-on-group-write, group write errors are
+    collected and execution continues.
+    """
+    runner = CliRunner()
+
+    rst_file1 = tmp_path / "group_modified.rst"
+    content1 = textwrap.dedent(
+        text="""\
+        .. group doccmd[all]: start
+
+        .. code-block:: python
+
+            print("Hello")
+
+        .. group doccmd[all]: end
+        """,
+    )
+    rst_file1.write_text(data=content1, encoding="utf-8")
+
+    rst_file2 = tmp_path / "valid.rst"
+    content2 = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            x = 1 + 1
+        """,
+    )
+    rst_file2.write_text(data=content2, encoding="utf-8")
+
+    modify_code_script = textwrap.dedent(
+        text="""\
+        #!/usr/bin/env python
+
+        import sys
+
+        with open(sys.argv[1], "w") as file:
+            file.write("modified")
+        """,
+    )
+    modify_code_file = tmp_path / "modify_code.py"
+    modify_code_file.write_text(data=modify_code_script, encoding="utf-8")
+
+    arguments = [
+        "--fail-on-group-write",
+        "--continue-on-error",
+        "--language",
+        "python",
+        "--command",
+        f"{Path(sys.executable).as_posix()} {modify_code_file.as_posix()}",
+        str(object=rst_file1),
+        str(object=rst_file2),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 1, (result.stdout, result.stderr)
+
+
+def test_continue_on_error_command_not_found(tmp_path: Path) -> None:
+    """With --continue-on-error, OSError (command not found) is collected and
+    execution continues.
+
+    This covers the case where _EvaluateError is raised with a reason.
+    """
+    runner = CliRunner()
+
+    rst_file1 = tmp_path / "bad_command.rst"
+    non_existent_command = uuid.uuid4().hex
+    content1 = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            x = 1 + 1
+        """,
+    )
+    rst_file1.write_text(data=content1, encoding="utf-8")
+
+    rst_file2 = tmp_path / "valid.rst"
+    content2 = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            y = 2 + 2
+        """,
+    )
+    rst_file2.write_text(data=content2, encoding="utf-8")
+
+    arguments = [
+        "--continue-on-error",
+        "--language",
+        "python",
+        "--command",
+        non_existent_command,
+        str(object=rst_file1),
+        str(object=rst_file2),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code != 0, (result.stdout, result.stderr)
+    assert f"Error running command '{non_existent_command}'" in result.stderr
+
+
+def test_continue_on_error_vs_default_behavior(tmp_path: Path) -> None:
+    """Without --continue-on-error, execution stops at first error.
+
+    With --continue-on-error, it continues.
+    """
+    runner = CliRunner()
+    exit_code_42 = 42
+    exit_code_7 = 7
+
+    rst_file1 = tmp_path / "example1.rst"
+    content1 = textwrap.dedent(
+        text=f"""\
+        .. code-block:: python
+
+            import sys
+            sys.exit({exit_code_42})
+        """,
+    )
+    rst_file1.write_text(data=content1, encoding="utf-8")
+
+    rst_file2 = tmp_path / "example2.rst"
+    content2 = textwrap.dedent(
+        text=f"""\
+        .. code-block:: python
+
+            import sys
+            sys.exit({exit_code_7})
+        """,
+    )
+    rst_file2.write_text(data=content2, encoding="utf-8")
+
+    arguments_without_continue = [
+        "--language",
+        "python",
+        "--command",
+        Path(sys.executable).as_posix(),
+        str(object=rst_file1),
+        str(object=rst_file2),
+    ]
+    result_without_continue = runner.invoke(
+        cli=main,
+        args=arguments_without_continue,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result_without_continue.exit_code == exit_code_42, (
+        result_without_continue.stdout,
+        result_without_continue.stderr,
+    )
+
+    arguments_with_continue = [
+        "--language",
+        "python",
+        "--command",
+        Path(sys.executable).as_posix(),
+        "--continue-on-error",
+        str(object=rst_file1),
+        str(object=rst_file2),
+    ]
+    result_with_continue = runner.invoke(
+        cli=main,
+        args=arguments_with_continue,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result_with_continue.exit_code == exit_code_42, (
+        result_with_continue.stdout,
+        result_with_continue.stderr,
+    )

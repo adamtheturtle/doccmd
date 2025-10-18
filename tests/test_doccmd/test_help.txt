@@ -135,4 +135,11 @@ Options:
                                   This is supported for MyST and
                                   reStructuredText files only.  [default: no-
                                   sphinx-jinja2]
+  --continue-on-error / --no-continue-on-error
+                                  Continue executing across all files even when
+                                  errors occur. Collects and displays all errors
+                                  found, then returns a non-zero exit code if
+                                  any command invocation failed. Useful for
+                                  seeing all linting errors in large projects.
+                                  [default: no-continue-on-error]
   --help                          Show this message and exit.
