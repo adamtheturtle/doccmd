@@ -3173,3 +3173,148 @@ def test_empty_language_given(*, tmp_path: Path) -> None:
     )
     assert result.stdout == ""
     assert result.stderr == expected_stderr
+
+
+def test_continue_on_error_multiple_files(tmp_path: Path) -> None:
+    """With --continue-on-error, execution continues across files when errors
+    occur.
+
+    The tool collects all errors and exits with the highest error code.
+    """
+    runner = CliRunner()
+    highest_exit_code = 42
+    lowest_exit_code = 7
+
+    # Create first file with error
+    rst_file1 = tmp_path / "example1.rst"
+    content1 = textwrap.dedent(
+        text=f"""\
+        .. code-block:: python
+
+            import sys
+            sys.exit({highest_exit_code})
+        """,
+    )
+    rst_file1.write_text(data=content1, encoding="utf-8")
+
+    # Create second file with success
+    rst_file2 = tmp_path / "example2.rst"
+    content2 = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            x = 2 + 2
+            assert x == 4
+        """,
+    )
+    rst_file2.write_text(data=content2, encoding="utf-8")
+
+    # Create third file with error
+    rst_file3 = tmp_path / "example3.rst"
+    content3 = textwrap.dedent(
+        text=f"""\
+        .. code-block:: python
+
+            import sys
+            sys.exit({lowest_exit_code})
+        """,
+    )
+    rst_file3.write_text(data=content3, encoding="utf-8")
+
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        Path(sys.executable).as_posix(),
+        "--continue-on-error",
+        str(object=rst_file1),
+        str(object=rst_file2),
+        str(object=rst_file3),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    # Should exit with the highest error code
+    assert result.exit_code == highest_exit_code, (
+        result.stdout,
+        result.stderr,
+    )
+
+
+def test_continue_on_error_vs_default_behavior(tmp_path: Path) -> None:
+    """Without --continue-on-error, execution stops at first error.
+
+    With --continue-on-error, it continues.
+    """
+    runner = CliRunner()
+    exit_code_42 = 42
+    exit_code_7 = 7
+
+    # Create first file with error
+    rst_file1 = tmp_path / "example1.rst"
+    content1 = textwrap.dedent(
+        text=f"""\
+        .. code-block:: python
+
+            import sys
+            sys.exit({exit_code_42})
+        """,
+    )
+    rst_file1.write_text(data=content1, encoding="utf-8")
+
+    # Create second file with another error
+    rst_file2 = tmp_path / "example2.rst"
+    content2 = textwrap.dedent(
+        text=f"""\
+        .. code-block:: python
+
+            import sys
+            sys.exit({exit_code_7})
+        """,
+    )
+    rst_file2.write_text(data=content2, encoding="utf-8")
+
+    # Test without --continue-on-error: should stop at first file
+    arguments_without_continue = [
+        "--language",
+        "python",
+        "--command",
+        Path(sys.executable).as_posix(),
+        str(object=rst_file1),
+        str(object=rst_file2),
+    ]
+    result_without_continue = runner.invoke(
+        cli=main,
+        args=arguments_without_continue,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result_without_continue.exit_code == exit_code_42, (
+        result_without_continue.stdout,
+        result_without_continue.stderr,
+    )
+
+    # Test with --continue-on-error: should process both files
+    arguments_with_continue = [
+        "--language",
+        "python",
+        "--command",
+        Path(sys.executable).as_posix(),
+        "--continue-on-error",
+        str(object=rst_file1),
+        str(object=rst_file2),
+    ]
+    result_with_continue = runner.invoke(
+        cli=main,
+        args=arguments_with_continue,
+        catch_exceptions=False,
+        color=True,
+    )
+    # Should still exit with error code (the highest one)
+    assert result_with_continue.exit_code == exit_code_42, (
+        result_with_continue.stdout,
+        result_with_continue.stderr,
+    )
