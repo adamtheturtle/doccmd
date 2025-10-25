@@ -84,10 +84,20 @@ Options:
   --version                       Show the version and exit.
   -v, --verbose                   Enable verbose output.
   --use-pty [yes|no|detect]       Whether to use a pseudo-terminal for running
-                                  commands. 'yes': Always use PTY (not supported
-                                  on Windows). 'no': Never use PTY. 'detect':
-                                  Automatically determine based on environment
-                                  (default).  [default: detect]
+                                  commands. Using a PTY can be useful for
+                                  getting color output from commands, but can
+                                  also break in some environments.
+                                  
+                                  'yes': Always use PTY (not supported on
+                                  Windows).
+                                  
+                                  'no': Never use PTY - useful when doccmd
+                                  detects that it is running in a TTY outside of
+                                  Windows but the environment does not support
+                                  PTYs.
+                                  
+                                  'detect': Automatically determine based on
+                                  environment (default).  [default: detect]
   --rst-extension TEXT            Treat files with this extension (suffix) as
                                   reStructuredText. Give this multiple times to
                                   look for multiple extensions. To avoid

@@ -792,8 +792,15 @@ def _get_sybil(
     show_default=True,
     help=(
         "Whether to use a pseudo-terminal for running commands. "
+        "Using a PTY can be useful for getting color output from commands, "
+        "but can also break in some environments. "
+        "\n\n"
         "'yes': Always use PTY (not supported on Windows). "
-        "'no': Never use PTY. "
+        "\n\n"
+        "'no': Never use PTY - useful when doccmd detects that it is running "
+        "in a TTY outside of Windows but the environment does not support "
+        "PTYs. "
+        "\n\n"
         "'detect': Automatically determine based on environment (default)."
     ),
 )
