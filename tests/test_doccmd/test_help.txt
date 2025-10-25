@@ -83,19 +83,21 @@ Options:
                                   without padding.  [default: pad-groups]
   --version                       Show the version and exit.
   -v, --verbose                   Enable verbose output.
-  --use-pty                       Use a pseudo-terminal for running commands.
-                                  This can be useful e.g. to get color output,
-                                  but can also break in some environments. Not
-                                  supported on Windows.  [default: (--detect-
-                                  use-pty)]
-  --no-use-pty                    Do not use a pseudo-terminal for running
-                                  commands. This is useful when ``doccmd``
+  --use-pty [yes|no|detect]       Whether to use a pseudo-terminal for running
+                                  commands. Using a PTY can be useful for
+                                  getting color output from commands, but can
+                                  also break in some environments.
+                                  
+                                  'yes': Always use PTY (not supported on
+                                  Windows).
+                                  
+                                  'no': Never use PTY - useful when doccmd
                                   detects that it is running in a TTY outside of
                                   Windows but the environment does not support
-                                  PTYs.  [default: (--detect-use-pty)]
-  --detect-use-pty                Automatically determine whether to use a
-                                  pseudo-terminal for running commands.
-                                  [default: (True)]
+                                  PTYs.
+                                  
+                                  'detect': Automatically determine based on
+                                  environment (default).  [default: DETECT]
   --rst-extension TEXT            Treat files with this extension (suffix) as
                                   reStructuredText. Give this multiple times to
                                   look for multiple extensions. To avoid

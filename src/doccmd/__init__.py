@@ -290,13 +290,32 @@ class _UsePty(Enum):
     NO = auto()
     DETECT = auto()
 
+    def __str__(self) -> str:  # pragma: no cover
+        """String representation of the value.
+
+        This is used by ``sphinx-click`` to render the default when used as a
+        ``click.Choices`` choice.
+        """
+        return self.name.lower()
+
+    def __repr__(self) -> str:  # pragma: no cover
+        """String representation of the value.
+
+        This is used by ``sphinx-click`` to render the option when used as a
+        ``click.Choices`` choice.
+        """
+        return self.name.lower()
+
     def use_pty(self) -> bool:
         """
         Whether to use a pseudo-terminal.
         """
         if self is _UsePty.DETECT:
             return sys.stdout.isatty() and platform.system() != "Windows"
-        return self is _UsePty.YES
+        return {
+            _UsePty.YES: True,
+            _UsePty.NO: False,
+        }[self]
 
 
 @beartype
@@ -784,43 +803,21 @@ def _get_sybil(
 @click.option(
     "--use-pty",
     "use_pty_option",
-    is_flag=True,
-    type=_UsePty,
-    flag_value=_UsePty.YES,
+    type=click.Choice(choices=_UsePty, case_sensitive=False),
     default=_UsePty.DETECT,
-    show_default="--detect-use-pty",
+    show_default=True,
     help=(
-        "Use a pseudo-terminal for running commands. "
-        "This can be useful e.g. to get color output, but can also break "
-        "in some environments. "
-        "Not supported on Windows."
-    ),
-)
-@click.option(
-    "--no-use-pty",
-    "use_pty_option",
-    is_flag=True,
-    type=_UsePty,
-    flag_value=_UsePty.NO,
-    default=_UsePty.DETECT,
-    show_default="--detect-use-pty",
-    help=(
-        "Do not use a pseudo-terminal for running commands. "
-        "This is useful when ``doccmd`` detects that it is running in a "
-        "TTY outside of Windows but the environment does not support PTYs."
-    ),
-)
-@click.option(
-    "--detect-use-pty",
-    "use_pty_option",
-    is_flag=True,
-    type=_UsePty,
-    flag_value=_UsePty.DETECT,
-    default=_UsePty.DETECT,
-    show_default="True",
-    help=(
-        "Automatically determine whether to use a pseudo-terminal for running "
-        "commands."
+        "Whether to use a pseudo-terminal for running commands. "
+        "Using a PTY can be useful for getting color output from commands, "
+        "but can also break in some environments. "
+        "\n\n"
+        "'yes': Always use PTY (not supported on Windows). "
+        "\n\n"
+        "'no': Never use PTY - useful when doccmd detects that it is running "
+        "in a TTY outside of Windows but the environment does not support "
+        "PTYs. "
+        "\n\n"
+        "'detect': Automatically determine based on environment (default)."
     ),
 )
 @click.option(
