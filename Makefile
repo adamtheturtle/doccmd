@@ -1,11 +1,8 @@
 SHELL := /bin/bash -euxo pipefail
 
-# Treat Sphinx warnings as errors
-SPHINXOPTS := -W
-
 .PHONY: docs
 docs:
-	make -C docs clean html SPHINXOPTS=$(SPHINXOPTS)
+	uv run --extra=dev sphinx-build -M html docs/source docs/build -W
 
 .PHONY: open-docs
 open-docs:
