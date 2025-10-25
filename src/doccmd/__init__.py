@@ -787,7 +787,7 @@ def _get_sybil(
 @click.option(
     "--use-pty",
     "use_pty_option",
-    type=click.Choice(_UsePty),
+    type=click.Choice(choices=_UsePty),
     default=_UsePty.detect,
     show_default=True,
     help=(
