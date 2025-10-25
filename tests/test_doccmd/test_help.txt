@@ -4,25 +4,16 @@ Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...
 
   This works with Markdown and reStructuredText files.
 
-Options:
+Required options:
+  -c, --command TEXT              The command to run against code blocks.
+                                  [required]
+
+Code block selection:
   -l, --language TEXT             Run `command` against code blocks for this
                                   language. Give multiple times for multiple
                                   languages. If this is not given, no code
                                   blocks are run, unless `--sphinx-jinja2` is
                                   given.
-  -c, --command TEXT              [required]
-  --temporary-file-extension TEXT
-                                  The file extension to give to the temporary
-                                  file made from the code block. By default, the
-                                  file extension is inferred from the language,
-                                  or it is '.txt' if the language is not
-                                  recognized.
-  --temporary-file-name-prefix TEXT
-                                  The prefix to give to the temporary file made
-                                  from the code block. This is useful for
-                                  distinguishing files created by this tool from
-                                  other files, e.g. for ignoring in linter
-                                  configurations.  [default: doccmd; required]
   --skip-marker TEXT              The marker used to identify code blocks to be
                                   skipped.
                                   
@@ -67,6 +58,27 @@ Options:
                                   Error messages for grouped code blocks may
                                   include lines which do not match the document,
                                   so code formatters will not work on them.
+  --sphinx-jinja2 / --no-sphinx-jinja2
+                                  Whether to parse `sphinx-jinja2` blocks. This
+                                  is useful for evaluating code blocks with
+                                  Jinja2 templates used in Sphinx documentation.
+                                  This is supported for MyST and
+                                  reStructuredText files only.  [default: no-
+                                  sphinx-jinja2]
+
+Temporary file options:
+  --temporary-file-extension TEXT
+                                  The file extension to give to the temporary
+                                  file made from the code block. By default, the
+                                  file extension is inferred from the language,
+                                  or it is '.txt' if the language is not
+                                  recognized.
+  --temporary-file-name-prefix TEXT
+                                  The prefix to give to the temporary file made
+                                  from the code block. This is useful for
+                                  distinguishing files created by this tool from
+                                  other files, e.g. for ignoring in linter
+                                  configurations.  [default: doccmd; required]
   --pad-file / --no-pad-file      Run the command against a temporary file
                                   padded with newlines. This is useful for
                                   matching line numbers from the output to the
@@ -81,21 +93,8 @@ Options:
                                   document. Use --no-pad-groups for formatters -
                                   they generally need to look at the file
                                   without padding.  [default: pad-groups]
-  --version                       Show the version and exit.
-  -v, --verbose                   Enable verbose output.
-  --use-pty                       Use a pseudo-terminal for running commands.
-                                  This can be useful e.g. to get color output,
-                                  but can also break in some environments. Not
-                                  supported on Windows.  [default: (--detect-
-                                  use-pty)]
-  --no-use-pty                    Do not use a pseudo-terminal for running
-                                  commands. This is useful when ``doccmd``
-                                  detects that it is running in a TTY outside of
-                                  Windows but the environment does not support
-                                  PTYs.  [default: (--detect-use-pty)]
-  --detect-use-pty                Automatically determine whether to use a
-                                  pseudo-terminal for running commands.
-                                  [default: (True)]
+
+File discovery options:
   --rst-extension TEXT            Treat files with this extension (suffix) as
                                   reStructuredText. Give this multiple times to
                                   look for multiple extensions. To avoid
@@ -118,6 +117,23 @@ Options:
                                   in directories. This option can be used
                                   multiple times. Use forward slashes on all
                                   platforms.
+
+Execution options:
+  --use-pty                       Use a pseudo-terminal for running commands.
+                                  This can be useful e.g. to get color output,
+                                  but can also break in some environments. Not
+                                  supported on Windows.  [default: (--detect-
+                                  use-pty)]
+  --no-use-pty                    Do not use a pseudo-terminal for running
+                                  commands. This is useful when ``doccmd``
+                                  detects that it is running in a TTY outside of
+                                  Windows but the environment does not support
+                                  PTYs.  [default: (--detect-use-pty)]
+  --detect-use-pty                Automatically determine whether to use a
+                                  pseudo-terminal for running commands.
+                                  [default: (True)]
+
+Error handling:
   --fail-on-parse-error / --no-fail-on-parse-error
                                   Whether to fail (with exit code 1) if a given
                                   file cannot be parsed.  [default: no-fail-on-
@@ -128,13 +144,6 @@ Options:
                                   code within a grouped code block. ``doccmd``
                                   does not support writing to grouped code
                                   blocks.  [default: fail-on-group-write]
-  --sphinx-jinja2 / --no-sphinx-jinja2
-                                  Whether to parse `sphinx-jinja2` blocks. This
-                                  is useful for evaluating code blocks with
-                                  Jinja2 templates used in Sphinx documentation.
-                                  This is supported for MyST and
-                                  reStructuredText files only.  [default: no-
-                                  sphinx-jinja2]
   --continue-on-error / --no-continue-on-error
                                   Continue executing across all files even when
                                   errors occur. Collects and displays all errors
@@ -142,4 +151,10 @@ Options:
                                   any command invocation failed. Useful for
                                   seeing all linting errors in large projects.
                                   [default: no-continue-on-error]
+
+Output options:
+  -v, --verbose                   Enable verbose output.
+
+Other options:
+  --version                       Show the version and exit.
   --help                          Show this message and exit.
