@@ -2054,12 +2054,12 @@ def test_custom_myst_file_suffixes(tmp_path: Path) -> None:
     argvalues=[
         # We cannot test the actual behavior of using a pseudo-terminal,
         # as CI (e.g. GitHub Actions) does not support it.
-        # Therefore we do not test the `--use-pty` option.
-        (["--no-use-pty"], "stdout is not a terminal."),
+        # Therefore we do not test the `--use-pty yes` option.
+        (["--use-pty", "no"], "stdout is not a terminal."),
         # We are not really testing the detection mechanism.
-        (["--detect-use-pty"], "stdout is not a terminal."),
+        (["--use-pty", "detect"], "stdout is not a terminal."),
     ],
-    ids=["no-use-pty", "detect-use-pty"],
+    ids=["use-pty-no", "use-pty-detect"],
 )
 def test_pty(
     tmp_path: Path,

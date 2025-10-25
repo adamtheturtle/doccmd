@@ -291,13 +291,32 @@ class _UsePty(Enum):
     NO = auto()
     DETECT = auto()
 
+    def __str__(self) -> str:  # pragma: no cover
+        """String representation of the value.
+
+        This is used by ``sphinx-click`` to render the default when used as a
+        ``click.Choices`` choice.
+        """
+        return self.name.lower()
+
+    def __repr__(self) -> str:  # pragma: no cover
+        """String representation of the value.
+
+        This is used by ``sphinx-click`` to render the option when used as a
+        ``click.Choices`` choice.
+        """
+        return self.name.lower()
+
     def use_pty(self) -> bool:
         """
         Whether to use a pseudo-terminal.
         """
         if self is _UsePty.DETECT:
             return sys.stdout.isatty() and platform.system() != "Windows"
-        return self is _UsePty.YES
+        return {
+            _UsePty.YES: True,
+            _UsePty.NO: False,
+        }[self]
 
 
 @beartype
