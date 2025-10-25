@@ -286,17 +286,20 @@ class _UsePty(Enum):
     Choices for the use of a pseudo-terminal.
     """
 
-    YES = auto()
-    NO = auto()
-    DETECT = auto()
+    yes = auto()
+    no = auto()
+    detect = auto()
 
     def use_pty(self) -> bool:
         """
         Whether to use a pseudo-terminal.
         """
-        if self is _UsePty.DETECT:
+        if self is _UsePty.detect:
             return sys.stdout.isatty() and platform.system() != "Windows"
-        return self is _UsePty.YES
+        return {
+            _UsePty.yes: True,
+            _UsePty.no: False,
+        }[self]
 
 
 @beartype
@@ -784,43 +787,14 @@ def _get_sybil(
 @click.option(
     "--use-pty",
     "use_pty_option",
-    is_flag=True,
-    type=_UsePty,
-    flag_value=_UsePty.YES,
-    default=_UsePty.DETECT,
-    show_default="--detect-use-pty",
+    type=click.Choice(_UsePty),
+    default=_UsePty.detect,
+    show_default=True,
     help=(
-        "Use a pseudo-terminal for running commands. "
-        "This can be useful e.g. to get color output, but can also break "
-        "in some environments. "
-        "Not supported on Windows."
-    ),
-)
-@click.option(
-    "--no-use-pty",
-    "use_pty_option",
-    is_flag=True,
-    type=_UsePty,
-    flag_value=_UsePty.NO,
-    default=_UsePty.DETECT,
-    show_default="--detect-use-pty",
-    help=(
-        "Do not use a pseudo-terminal for running commands. "
-        "This is useful when ``doccmd`` detects that it is running in a "
-        "TTY outside of Windows but the environment does not support PTYs."
-    ),
-)
-@click.option(
-    "--detect-use-pty",
-    "use_pty_option",
-    is_flag=True,
-    type=_UsePty,
-    flag_value=_UsePty.DETECT,
-    default=_UsePty.DETECT,
-    show_default="True",
-    help=(
-        "Automatically determine whether to use a pseudo-terminal for running "
-        "commands."
+        "Whether to use a pseudo-terminal for running commands. "
+        "'yes': Always use PTY (not supported on Windows). "
+        "'no': Never use PTY. "
+        "'detect': Automatically determine based on environment (default)."
     ),
 )
 @click.option(
