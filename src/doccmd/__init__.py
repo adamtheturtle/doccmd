@@ -17,6 +17,7 @@ from typing import TypeVar, overload
 
 import charset_normalizer
 import click
+import cloup
 from beartype import beartype
 from pygments.lexers import get_all_lexers
 from sybil import Sybil
@@ -653,137 +654,307 @@ def _get_sybil(
     )
 
 
-@click.command(name="doccmd")
-@click.option(
-    "languages",
-    "-l",
-    "--language",
-    type=str,
-    required=False,
-    help=(
-        "Run `command` against code blocks for this language. "
-        "Give multiple times for multiple languages. "
-        "If this is not given, no code blocks are run, unless "
-        "`--sphinx-jinja2` is given."
-    ),
-    multiple=True,
-    callback=_click_multi_callback(
-        callbacks=[
-            _deduplicate,
-            _sequence_validator(validator=_validate_no_empty_string),
-        ]
+@cloup.command(name="doccmd")
+@cloup.option_group(
+    "Required options",
+    cloup.option(
+        "command",
+        "-c",
+        "--command",
+        type=str,
+        required=True,
+        help="The command to run against code blocks.",
     ),
 )
-@click.option("command", "-c", "--command", type=str, required=True)
-@click.option(
-    "temporary_file_extension",
-    "--temporary-file-extension",
-    type=str,
-    required=False,
-    help=(
-        "The file extension to give to the temporary file made from the code "
-        "block. By default, the file extension is inferred from the language, "
-        "or it is '.txt' if the language is not recognized."
+@cloup.option_group(
+    "Code block selection",
+    cloup.option(
+        "languages",
+        "-l",
+        "--language",
+        type=str,
+        required=False,
+        help=(
+            "Run `command` against code blocks for this language. "
+            "Give multiple times for multiple languages. "
+            "If this is not given, no code blocks are run, unless "
+            "`--sphinx-jinja2` is given."
+        ),
+        multiple=True,
+        callback=_click_multi_callback(
+            callbacks=[
+                _deduplicate,
+                _sequence_validator(validator=_validate_no_empty_string),
+            ]
+        ),
     ),
-    callback=_validate_file_extension,
-)
-@click.option(
-    "temporary_file_name_prefix",
-    "--temporary-file-name-prefix",
-    type=str,
-    default="doccmd",
-    show_default=True,
-    required=True,
-    help=(
-        "The prefix to give to the temporary file made from the code block. "
-        "This is useful for distinguishing files created by this tool "
-        "from other files, e.g. for ignoring in linter configurations."
+    cloup.option(
+        "skip_markers",
+        "--skip-marker",
+        type=str,
+        default=None,
+        show_default=True,
+        required=False,
+        help=(
+            """\
+            The marker used to identify code blocks to be skipped.
+
+            By default, code blocks which come just after a comment matching
+            'skip doccmd[all]: next' are skipped (e.g. `.. skip doccmd[all]:
+            next` in reStructuredText, `<!--- skip doccmd[all]: next -->` in
+            Markdown, or `% skip doccmd[all]: next` in MyST).
+
+            When using this option, those, and code blocks which come just
+            after a comment including the given marker are ignored. For
+            example, if the given marker is 'type-check', code blocks which
+            come just after a comment matching 'skip doccmd[type-check]: next'
+            are also skipped.
+
+            To skip a code block for each of multiple markers, for example to
+            skip a code block for the ``type-check`` and ``lint`` markers but
+            not all markers, add multiple ``skip doccmd`` comments above the
+            code block.
+            """
+        ),
+        multiple=True,
+        callback=_deduplicate,
     ),
-)
-@click.option(
-    "skip_markers",
-    "--skip-marker",
-    type=str,
-    default=None,
-    show_default=True,
-    required=False,
-    help=(
-        """\
-        The marker used to identify code blocks to be skipped.
+    cloup.option(
+        "group_markers",
+        "--group-marker",
+        type=str,
+        default=None,
+        show_default=True,
+        required=False,
+        help=(
+            """\
+            The marker used to identify code blocks to be grouped.
 
-        By default, code blocks which come just after a comment matching 'skip
-        doccmd[all]: next' are skipped (e.g. `.. skip doccmd[all]: next` in
-        reStructuredText, `<!--- skip doccmd[all]: next -->` in Markdown, or
-        `% skip doccmd[all]: next` in MyST).
+            By default, code blocks which come just between comments matching
+            'group doccmd[all]: start' and 'group doccmd[all]: end' are
+            grouped (e.g. `.. group doccmd[all]: start` in reStructuredText,
+            `<!--- group doccmd[all]: start -->` in Markdown, or `% group
+            doccmd[all]: start` in MyST).
 
-        When using this option, those, and code blocks which come just after a
-        comment including the given marker are ignored. For example, if the
-        given marker is 'type-check', code blocks which come just after a
-        comment matching 'skip doccmd[type-check]: next' are also skipped.
+            When using this option, those, and code blocks which are grouped
+            by a comment including the given marker are ignored. For example,
+            if the given marker is 'type-check', code blocks which come within
+            comments matching 'group doccmd[type-check]: start' and
+            'group doccmd[type-check]: end' are also skipped.
 
-        To skip a code block for each of multiple markers, for example to skip
-        a code block for the ``type-check`` and ``lint`` markers but not all
-        markers, add multiple ``skip doccmd`` comments above the code block.
-        """
+            Error messages for grouped code blocks may include lines which do
+            not match the document, so code formatters will not work on them.
+            """
+        ),
+        multiple=True,
+        callback=_deduplicate,
     ),
-    multiple=True,
-    callback=_deduplicate,
-)
-@click.option(
-    "group_markers",
-    "--group-marker",
-    type=str,
-    default=None,
-    show_default=True,
-    required=False,
-    help=(
-        """\
-        The marker used to identify code blocks to be grouped.
-
-        By default, code blocks which come just between comments matching
-        'group doccmd[all]: start' and 'group doccmd[all]: end' are grouped
-        (e.g. `.. group doccmd[all]: start` in reStructuredText, `<!--- group
-        doccmd[all]: start -->` in Markdown, or `% group doccmd[all]: start` in
-        MyST).
-
-        When using this option, those, and code blocks which are grouped by
-        a comment including the given marker are ignored. For example, if the
-        given marker is 'type-check', code blocks which come within comments
-        matching 'group doccmd[type-check]: start' and
-        'group doccmd[type-check]: end' are also skipped.
-
-        Error messages for grouped code blocks may include lines which do not
-        match the document, so code formatters will not work on them.
-        """
-    ),
-    multiple=True,
-    callback=_deduplicate,
-)
-@click.option(
-    "--pad-file/--no-pad-file",
-    is_flag=True,
-    default=True,
-    show_default=True,
-    help=(
-        "Run the command against a temporary file padded with newlines. "
-        "This is useful for matching line numbers from the output to "
-        "the relevant location in the document. "
-        "Use --no-pad-file for formatters - "
-        "they generally need to look at the file without padding."
+    cloup.option(
+        "--sphinx-jinja2/--no-sphinx-jinja2",
+        "sphinx_jinja2",
+        default=False,
+        show_default=True,
+        help=(
+            "Whether to parse `sphinx-jinja2` blocks. "
+            "This is useful for evaluating code blocks with Jinja2 "
+            "templates used in Sphinx documentation. "
+            "This is supported for MyST and reStructuredText files only."
+        ),
     ),
 )
-@click.option(
-    "--pad-groups/--no-pad-groups",
-    is_flag=True,
-    default=True,
-    show_default=True,
-    help=(
-        "Maintain line spacing between groups from the source file in the "
-        "temporary file. "
-        "This is useful for matching line numbers from the output to "
-        "the relevant location in the document. "
-        "Use --no-pad-groups for formatters - "
-        "they generally need to look at the file without padding."
+@cloup.option_group(
+    "Temporary file options",
+    cloup.option(
+        "temporary_file_extension",
+        "--temporary-file-extension",
+        type=str,
+        required=False,
+        help=(
+            "The file extension to give to the temporary file made from the "
+            "code block. By default, the file extension is inferred from the "
+            "language, or it is '.txt' if the language is not recognized."
+        ),
+        callback=_validate_file_extension,
+    ),
+    cloup.option(
+        "temporary_file_name_prefix",
+        "--temporary-file-name-prefix",
+        type=str,
+        default="doccmd",
+        show_default=True,
+        required=True,
+        help=(
+            "The prefix to give to the temporary file made from the code "
+            "block. This is useful for distinguishing files created by this "
+            "tool from other files, e.g. for ignoring in linter "
+            "configurations."
+        ),
+    ),
+    cloup.option(
+        "--pad-file/--no-pad-file",
+        is_flag=True,
+        default=True,
+        show_default=True,
+        help=(
+            "Run the command against a temporary file padded with newlines. "
+            "This is useful for matching line numbers from the output to "
+            "the relevant location in the document. "
+            "Use --no-pad-file for formatters - "
+            "they generally need to look at the file without padding."
+        ),
+    ),
+    cloup.option(
+        "--pad-groups/--no-pad-groups",
+        is_flag=True,
+        default=True,
+        show_default=True,
+        help=(
+            "Maintain line spacing between groups from the source file in the "
+            "temporary file. "
+            "This is useful for matching line numbers from the output to "
+            "the relevant location in the document. "
+            "Use --no-pad-groups for formatters - "
+            "they generally need to look at the file without padding."
+        ),
+    ),
+)
+@cloup.option_group(
+    "File discovery options",
+    cloup.option(
+        "--rst-extension",
+        "rst_suffixes",
+        type=str,
+        help=(
+            "Treat files with this extension (suffix) as reStructuredText. "
+            "Give this multiple times to look for multiple extensions. "
+            "To avoid considering any files, "
+            "including the default, "
+            "as reStructuredText files, use `--rst-extension=.`."
+        ),
+        multiple=True,
+        default=(".rst",),
+        show_default=True,
+        callback=_validate_file_extensions,
+    ),
+    cloup.option(
+        "--myst-extension",
+        "myst_suffixes",
+        type=str,
+        help=(
+            "Treat files with this extension (suffix) as MyST. "
+            "Give this multiple times to look for multiple extensions. "
+            "To avoid considering any files, "
+            "including the default, "
+            "as MyST files, use `--myst-extension=.`."
+        ),
+        multiple=True,
+        default=(".md",),
+        show_default=True,
+        callback=_validate_file_extensions,
+    ),
+    cloup.option(
+        "--markdown-extension",
+        "markdown_suffixes",
+        type=str,
+        help=(
+            "Files with this extension (suffix) to treat as Markdown. "
+            "Give this multiple times to look for multiple extensions. "
+            "By default, `.md` is treated as MyST, not Markdown."
+        ),
+        multiple=True,
+        show_default=True,
+        callback=_validate_file_extensions,
+    ),
+    cloup.option(
+        "--max-depth",
+        type=click.IntRange(min=1),
+        default=sys.maxsize,
+        show_default=False,
+        help="Maximum depth to search for files in directories.",
+    ),
+    cloup.option(
+        "--exclude",
+        "exclude_patterns",
+        type=str,
+        multiple=True,
+        help=(
+            "A glob-style pattern that matches file paths to ignore while "
+            "recursively discovering files in directories. "
+            "This option can be used multiple times. "
+            "Use forward slashes on all platforms."
+        ),
+    ),
+)
+@cloup.option_group(
+    "Execution options",
+    cloup.option(
+        "--use-pty",
+        "use_pty_option",
+        type=click.Choice(choices=_UsePty, case_sensitive=False),
+        default=_UsePty.DETECT,
+        show_default=True,
+        help=(
+            "Whether to use a pseudo-terminal for running commands. "
+            "Using a PTY can be useful for getting color output from "
+            "commands, but can also break in some environments. "
+            "\n\n"
+            "'yes': Always use PTY (not supported on Windows). "
+            "\n\n"
+            "'no': Never use PTY - useful when doccmd detects that it is "
+            "running in a TTY outside of Windows but the environment does "
+            "not support PTYs. "
+            "\n\n"
+            "'detect': Automatically determine based on environment (default)."
+        ),
+    ),
+)
+@cloup.option_group(
+    "Error handling",
+    cloup.option(
+        "--fail-on-parse-error/--no-fail-on-parse-error",
+        "fail_on_parse_error",
+        default=False,
+        show_default=True,
+        type=bool,
+        help=(
+            "Whether to fail (with exit code 1) if a given file cannot be "
+            "parsed."
+        ),
+    ),
+    cloup.option(
+        "--fail-on-group-write/--no-fail-on-group-write",
+        "fail_on_group_write",
+        default=True,
+        show_default=True,
+        type=bool,
+        help=(
+            "Whether to fail (with exit code 1) if a command (e.g. a "
+            "formatter) tries to change code within a grouped code block. "
+            "``doccmd`` does not support writing to grouped code blocks."
+        ),
+    ),
+    cloup.option(
+        "--continue-on-error/--no-continue-on-error",
+        "continue_on_error",
+        default=False,
+        show_default=True,
+        type=bool,
+        help=(
+            "Continue executing across all files even when errors occur. "
+            "Collects and displays all errors found, then returns a non-zero "
+            "exit code if any command invocation failed. "
+            "Useful for seeing all linting errors in large projects."
+        ),
+    ),
+)
+@cloup.option_group(
+    "Output options",
+    cloup.option(
+        "--verbose",
+        "-v",
+        is_flag=True,
+        default=False,
+        help="Enable verbose output.",
     ),
 )
 @click.argument(
@@ -793,144 +964,6 @@ def _get_sybil(
     callback=_deduplicate,
 )
 @click.version_option(version=__version__)
-@click.option(
-    "--verbose",
-    "-v",
-    is_flag=True,
-    default=False,
-    help="Enable verbose output.",
-)
-@click.option(
-    "--use-pty",
-    "use_pty_option",
-    type=click.Choice(choices=_UsePty, case_sensitive=False),
-    default=_UsePty.DETECT,
-    show_default=True,
-    help=(
-        "Whether to use a pseudo-terminal for running commands. "
-        "Using a PTY can be useful for getting color output from commands, "
-        "but can also break in some environments. "
-        "\n\n"
-        "'yes': Always use PTY (not supported on Windows). "
-        "\n\n"
-        "'no': Never use PTY - useful when doccmd detects that it is running "
-        "in a TTY outside of Windows but the environment does not support "
-        "PTYs. "
-        "\n\n"
-        "'detect': Automatically determine based on environment (default)."
-    ),
-)
-@click.option(
-    "--rst-extension",
-    "rst_suffixes",
-    type=str,
-    help=(
-        "Treat files with this extension (suffix) as reStructuredText. "
-        "Give this multiple times to look for multiple extensions. "
-        "To avoid considering any files, "
-        "including the default, "
-        "as reStructuredText files, use `--rst-extension=.`."
-    ),
-    multiple=True,
-    default=(".rst",),
-    show_default=True,
-    callback=_validate_file_extensions,
-)
-@click.option(
-    "--myst-extension",
-    "myst_suffixes",
-    type=str,
-    help=(
-        "Treat files with this extension (suffix) as MyST. "
-        "Give this multiple times to look for multiple extensions. "
-        "To avoid considering any files, "
-        "including the default, "
-        "as MyST files, use `--myst-extension=.`."
-    ),
-    multiple=True,
-    default=(".md",),
-    show_default=True,
-    callback=_validate_file_extensions,
-)
-@click.option(
-    "--markdown-extension",
-    "markdown_suffixes",
-    type=str,
-    help=(
-        "Files with this extension (suffix) to treat as Markdown. "
-        "Give this multiple times to look for multiple extensions. "
-        "By default, `.md` is treated as MyST, not Markdown."
-    ),
-    multiple=True,
-    show_default=True,
-    callback=_validate_file_extensions,
-)
-@click.option(
-    "--max-depth",
-    type=click.IntRange(min=1),
-    default=sys.maxsize,
-    show_default=False,
-    help="Maximum depth to search for files in directories.",
-)
-@click.option(
-    "--exclude",
-    "exclude_patterns",
-    type=str,
-    multiple=True,
-    help=(
-        "A glob-style pattern that matches file paths to ignore while "
-        "recursively discovering files in directories. "
-        "This option can be used multiple times. "
-        "Use forward slashes on all platforms."
-    ),
-)
-@click.option(
-    "--fail-on-parse-error/--no-fail-on-parse-error",
-    "fail_on_parse_error",
-    default=False,
-    show_default=True,
-    type=bool,
-    help=(
-        "Whether to fail (with exit code 1) if a given file cannot be parsed."
-    ),
-)
-@click.option(
-    "--fail-on-group-write/--no-fail-on-group-write",
-    "fail_on_group_write",
-    default=True,
-    show_default=True,
-    type=bool,
-    help=(
-        "Whether to fail (with exit code 1) if a command (e.g. a formatter) "
-        "tries to change code within a grouped code block. "
-        "``doccmd`` does not support writing to grouped code blocks."
-    ),
-)
-@click.option(
-    "--sphinx-jinja2/--no-sphinx-jinja2",
-    "sphinx_jinja2",
-    default=False,
-    show_default=True,
-    help=(
-        "Whether to parse `sphinx-jinja2` blocks. "
-        "This is useful for evaluating code blocks with Jinja2 "
-        "templates used in Sphinx documentation. "
-        "This is supported for MyST and reStructuredText files only."
-    ),
-)
-@click.option(
-    "--continue-on-error/--no-continue-on-error",
-    "continue_on_error",
-    default=False,
-    show_default=True,
-    type=bool,
-    help=(
-        "Continue executing across all files even when errors occur. "
-        "Collects and displays all errors found, then returns a non-zero "
-        "exit code if any command invocation failed. "
-        "Useful for seeing all linting errors in large projects."
-    ),
-)
 @beartype
 def main(
     *,
