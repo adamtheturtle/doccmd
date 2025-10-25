@@ -290,6 +290,20 @@ class _UsePty(Enum):
     NO = auto()
     DETECT = auto()
 
+    def __str__(self) -> str:  # pragma: no cover
+        """String representation of the enum value.
+
+        This is used by ``sphinx-click`` to render the default as an argument.
+        """
+        return self.name.lower()
+
+    def __repr__(self) -> str:  # pragma: no cover
+        """String representation of the enum value.
+
+        This is used by ``sphinx-click`` to render the options as an argument.
+        """
+        return self.name.lower()
+
     def use_pty(self) -> bool:
         """
         Whether to use a pseudo-terminal.
