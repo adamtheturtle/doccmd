@@ -680,19 +680,21 @@ def _get_sybil(
             """\
             The marker used to identify code blocks to be skipped.
 
-            By default, code blocks which come just after a comment matching 'skip
-            doccmd[all]: next' are skipped (e.g. `.. skip doccmd[all]: next` in
-            reStructuredText, `<!--- skip doccmd[all]: next -->` in Markdown, or
-            `% skip doccmd[all]: next` in MyST).
+            By default, code blocks which come just after a comment matching
+            'skip doccmd[all]: next' are skipped (e.g. `.. skip doccmd[all]:
+            next` in reStructuredText, `<!--- skip doccmd[all]: next -->` in
+            Markdown, or `% skip doccmd[all]: next` in MyST).
 
-            When using this option, those, and code blocks which come just after a
-            comment including the given marker are ignored. For example, if the
-            given marker is 'type-check', code blocks which come just after a
-            comment matching 'skip doccmd[type-check]: next' are also skipped.
+            When using this option, those, and code blocks which come just
+            after a comment including the given marker are ignored. For
+            example, if the given marker is 'type-check', code blocks which
+            come just after a comment matching 'skip doccmd[type-check]: next'
+            are also skipped.
 
-            To skip a code block for each of multiple markers, for example to skip
-            a code block for the ``type-check`` and ``lint`` markers but not all
-            markers, add multiple ``skip doccmd`` comments above the code block.
+            To skip a code block for each of multiple markers, for example to
+            skip a code block for the ``type-check`` and ``lint`` markers but
+            not all markers, add multiple ``skip doccmd`` comments above the
+            code block.
             """
         ),
         multiple=True,
@@ -710,19 +712,19 @@ def _get_sybil(
             The marker used to identify code blocks to be grouped.
 
             By default, code blocks which come just between comments matching
-            'group doccmd[all]: start' and 'group doccmd[all]: end' are grouped
-            (e.g. `.. group doccmd[all]: start` in reStructuredText, `<!--- group
-            doccmd[all]: start -->` in Markdown, or `% group doccmd[all]: start` in
-            MyST).
+            'group doccmd[all]: start' and 'group doccmd[all]: end' are
+            grouped (e.g. `.. group doccmd[all]: start` in reStructuredText,
+            `<!--- group doccmd[all]: start -->` in Markdown, or `% group
+            doccmd[all]: start` in MyST).
 
-            When using this option, those, and code blocks which are grouped by
-            a comment including the given marker are ignored. For example, if the
-            given marker is 'type-check', code blocks which come within comments
-            matching 'group doccmd[type-check]: start' and
+            When using this option, those, and code blocks which are grouped
+            by a comment including the given marker are ignored. For example,
+            if the given marker is 'type-check', code blocks which come within
+            comments matching 'group doccmd[type-check]: start' and
             'group doccmd[type-check]: end' are also skipped.
 
-            Error messages for grouped code blocks may include lines which do not
-            match the document, so code formatters will not work on them.
+            Error messages for grouped code blocks may include lines which do
+            not match the document, so code formatters will not work on them.
             """
         ),
         multiple=True,
@@ -749,9 +751,9 @@ def _get_sybil(
         type=str,
         required=False,
         help=(
-            "The file extension to give to the temporary file made from the code "
-            "block. By default, the file extension is inferred from the language, "
-            "or it is '.txt' if the language is not recognized."
+            "The file extension to give to the temporary file made from the "
+            "code block. By default, the file extension is inferred from the "
+            "language, or it is '.txt' if the language is not recognized."
         ),
         callback=_validate_file_extension,
     ),
@@ -763,9 +765,10 @@ def _get_sybil(
         show_default=True,
         required=True,
         help=(
-            "The prefix to give to the temporary file made from the code block. "
-            "This is useful for distinguishing files created by this tool "
-            "from other files, e.g. for ignoring in linter configurations."
+            "The prefix to give to the temporary file made from the code "
+            "block. This is useful for distinguishing files created by this "
+            "tool from other files, e.g. for ignoring in linter "
+            "configurations."
         ),
     ),
     cloup.option(
@@ -903,8 +906,8 @@ def _get_sybil(
         default=_UsePty.DETECT,
         show_default="True",
         help=(
-            "Automatically determine whether to use a pseudo-terminal for running "
-            "commands."
+            "Automatically determine whether to use a pseudo-terminal for "
+            "running commands."
         ),
     ),
 )
@@ -917,7 +920,8 @@ def _get_sybil(
         show_default=True,
         type=bool,
         help=(
-            "Whether to fail (with exit code 1) if a given file cannot be parsed."
+            "Whether to fail (with exit code 1) if a given file cannot be "
+            "parsed."
         ),
     ),
     cloup.option(
@@ -927,8 +931,8 @@ def _get_sybil(
         show_default=True,
         type=bool,
         help=(
-            "Whether to fail (with exit code 1) if a command (e.g. a formatter) "
-            "tries to change code within a grouped code block. "
+            "Whether to fail (with exit code 1) if a command (e.g. a "
+            "formatter) tries to change code within a grouped code block. "
             "``doccmd`` does not support writing to grouped code blocks."
         ),
     ),
