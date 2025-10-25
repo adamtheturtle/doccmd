@@ -291,16 +291,18 @@ class _UsePty(Enum):
     DETECT = auto()
 
     def __str__(self) -> str:  # pragma: no cover
-        """String representation of the enum value.
+        """String representation of the value.
 
-        This is used by ``sphinx-click`` to render the default as an argument.
+        This is used by ``sphinx-click`` to render the default when used as a
+        ``click.Choices`` choice.
         """
         return self.name.lower()
 
     def __repr__(self) -> str:  # pragma: no cover
-        """String representation of the enum value.
+        """String representation of the value.
 
-        This is used by ``sphinx-click`` to render the options as an argument.
+        This is used by ``sphinx-click`` to render the option when used as a
+        ``click.Choices`` choice.
         """
         return self.name.lower()
 
