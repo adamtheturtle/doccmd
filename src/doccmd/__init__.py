@@ -286,19 +286,19 @@ class _UsePty(Enum):
     Choices for the use of a pseudo-terminal.
     """
 
-    yes = auto()
-    no = auto()
-    detect = auto()
+    YES = auto()
+    NO = auto()
+    DETECT = auto()
 
     def use_pty(self) -> bool:
         """
         Whether to use a pseudo-terminal.
         """
-        if self is _UsePty.detect:
+        if self is _UsePty.DETECT:
             return sys.stdout.isatty() and platform.system() != "Windows"
         return {
-            _UsePty.yes: True,
-            _UsePty.no: False,
+            _UsePty.YES: True,
+            _UsePty.NO: False,
         }[self]
 
 
@@ -787,8 +787,8 @@ def _get_sybil(
 @click.option(
     "--use-pty",
     "use_pty_option",
-    type=click.Choice(choices=_UsePty),
-    default=_UsePty.detect,
+    type=click.Choice(choices=_UsePty, case_sensitive=False),
+    default=_UsePty.DETECT,
     show_default=True,
     help=(
         "Whether to use a pseudo-terminal for running commands. "

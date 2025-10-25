@@ -97,7 +97,7 @@ Options:
                                   PTYs.
                                   
                                   'detect': Automatically determine based on
-                                  environment (default).  [default: detect]
+                                  environment (default).  [default: DETECT]
   --rst-extension TEXT            Treat files with this extension (suffix) as
                                   reStructuredText. Give this multiple times to
                                   look for multiple extensions. To avoid
