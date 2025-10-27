@@ -19,6 +19,7 @@ import charset_normalizer
 import click
 import cloup
 from beartype import beartype
+from click_compose import multi_callback, sequence_validator
 from pygments.lexers import get_all_lexers
 from sybil import Sybil
 from sybil.document import Document
@@ -165,62 +166,11 @@ def _validate_no_empty_string(
 _ClickCallback = Callable[[click.Context | None, click.Parameter | None, T], T]
 
 
-@beartype
-def _sequence_validator(
-    validator: _ClickCallback[T],
-) -> _ClickCallback[Sequence[T]]:
-    """
-    Wrap a single-value validator to apply it to a sequence of values.
-    """
-
-    def callback(
-        ctx: click.Context | None,
-        param: click.Parameter | None,
-        value: Sequence[T],
-    ) -> Sequence[T]:
-        """
-        Apply the validators to the value.
-        """
-        return_values: tuple[T, ...] = ()
-        for item in value:
-            returned_value = validator(ctx, param, item)
-            return_values = (*return_values, returned_value)
-        return return_values
-
-    return callback
-
-
-@beartype
-def _click_multi_callback(
-    callbacks: Sequence[_ClickCallback[T]],
-) -> _ClickCallback[T]:
-    """
-    Create a Click-compatible callback that applies a sequence of callbacks to
-    an option value.
-    """
-
-    def callback(
-        ctx: click.Context | None,
-        param: click.Parameter | None,
-        value: T,
-    ) -> T:
-        """
-        Apply the validators to the value.
-        """
-        for callback in callbacks:
-            value = callback(ctx, param, value)
-        return value
-
-    return callback
-
-
-_validate_file_extensions: _ClickCallback[Sequence[str]] = (
-    _click_multi_callback(
-        callbacks=[
-            _deduplicate,
-            _sequence_validator(validator=_validate_file_extension),
-        ]
-    )
+_validate_file_extensions: _ClickCallback[Sequence[str]] = multi_callback(
+    callbacks=[
+        _deduplicate,
+        sequence_validator(validator=_validate_file_extension),
+    ]
 )
 
 
@@ -681,10 +631,10 @@ def _get_sybil(
             "`--sphinx-jinja2` is given."
         ),
         multiple=True,
-        callback=_click_multi_callback(
+        callback=multi_callback(
             callbacks=[
                 _deduplicate,
-                _sequence_validator(validator=_validate_no_empty_string),
+                sequence_validator(validator=_validate_no_empty_string),
             ]
         ),
     ),
