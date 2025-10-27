@@ -117,7 +117,8 @@ repos:
 
       - id: shellcheck-docs
         name: shellcheck-docs
-        entry: uv run --extra=dev doccmd --language=shell --language=console --command="shellcheck
+        entry:
+          uv run --extra=dev doccmd --language=shell --language=console --command="shellcheck
           --shell=bash"
         language: python
         types_or: [markdown, rst]
@@ -134,7 +135,8 @@ repos:
 
       - id: shfmt-docs
         name: shfmt-docs
-        entry: uv run --extra=dev doccmd --language=shell --language=console --skip-marker=shfmt
+        entry:
+          uv run --extra=dev doccmd --language=shell --language=console --skip-marker=shfmt
           --no-pad-file --command="shfmt --write --space-redirects --indent=4"
         language: python
         types_or: [markdown, rst]
@@ -302,7 +304,7 @@ repos:
 
       - id: linkcheck
         name: linkcheck
-        entry: make -C docs/ linkcheck SPHINXOPTS=-W
+        entry: uv run --extra=dev sphinx-build -M linkcheck docs/source docs/build -W
         language: python
         types_or: [rst]
         stages: [manual]
@@ -311,7 +313,7 @@ repos:
 
       - id: spelling
         name: spelling
-        entry: make -C docs/ spelling SPHINXOPTS=-W
+        entry: uv run --extra=dev sphinx-build -M spelling docs/source docs/build -W
         language: python
         types_or: [rst]
         stages: [manual]
@@ -320,7 +322,7 @@ repos:
 
       - id: docs
         name: Build Documentation
-        entry: make docs
+        entry: bash -c 'uv run --extra=dev sphinx-build -M clean docs/source docs/build && uv run --extra=dev sphinx-build -M html docs/source docs/build'
         language: python
         stages: [manual]
         pass_filenames: false
@@ -346,7 +348,8 @@ repos:
 
       - id: sphinx-lint
         name: sphinx-lint
-        entry: uv run --extra=dev sphinx-lint --enable=all --disable=line-too-long
+        entry:
+          uv run --extra=dev sphinx-lint --enable=all --disable=line-too-long
           --ignore=docs/build
         language: python
         types_or: [rst]
