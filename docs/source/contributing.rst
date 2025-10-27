@@ -64,8 +64,8 @@ Run the following commands to build and view documentation locally:
 
 .. code-block:: console
 
-   $ make docs
-   $ make open-docs
+   $ uv run --extra=dev sphinx-build -M html docs/source docs/build -W
+   $ python -c 'import os, webbrowser; webbrowser.open("file://" + os.path.abspath("docs/build/html/index.html"))'
 
 Continuous integration
 ----------------------
