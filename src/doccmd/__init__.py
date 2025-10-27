@@ -19,7 +19,11 @@ import charset_normalizer
 import click
 import cloup
 from beartype import beartype
-from click_compose import multi_callback, sequence_validator
+from click_compose import (
+    deduplicate as _deduplicate,
+    multi_callback,
+    sequence_validator,
+)
 from pygments.lexers import get_all_lexers
 from sybil import Sybil
 from sybil.document import Document
@@ -76,22 +80,6 @@ class _LogCommandEvaluator:
             f"{example.path} line {example.line}"
         )
         _log_info(message=running_command_message)
-
-
-@beartype
-def _deduplicate(
-    ctx: click.Context | None,
-    param: click.Parameter | None,
-    sequence: Sequence[T],
-) -> Sequence[T]:
-    """
-    De-duplicate a sequence while keeping the order.
-    """
-    # We "use" the parameters to avoid vulture complaining.
-    del ctx
-    del param
-
-    return tuple(dict.fromkeys(sequence).keys())
 
 
 @overload
