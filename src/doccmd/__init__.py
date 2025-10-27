@@ -21,6 +21,8 @@ import cloup
 from beartype import beartype
 from click_compose import (
     deduplicate as _deduplicate,
+)
+from click_compose import (
     multi_callback,
     sequence_validator,
 )
