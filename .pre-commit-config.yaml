@@ -302,7 +302,8 @@ repos:
 
       - id: linkcheck
         name: linkcheck
-        entry: make -C docs/ linkcheck SPHINXOPTS=-W
+        entry: uv run --extra=dev sphinx-build -M linkcheck docs/source docs/build
+          -W
         language: python
         types_or: [rst]
         stages: [manual]
@@ -311,7 +312,8 @@ repos:
 
       - id: spelling
         name: spelling
-        entry: make -C docs/ spelling SPHINXOPTS=-W
+        entry: uv run --extra=dev sphinx-build -M spelling docs/source docs/build
+          -W
         language: python
         types_or: [rst]
         stages: [manual]
@@ -320,7 +322,7 @@ repos:
 
       - id: docs
         name: Build Documentation
-        entry: make docs
+        entry: uv run --extra=dev sphinx-build -M html docs/source docs/build
         language: python
         stages: [manual]
         pass_filenames: false
