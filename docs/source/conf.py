@@ -99,6 +99,7 @@ html_show_sourcelink = False
 html_theme_options = {
     "source_edit_link": "https://github.com/adamtheturtle/doccmd/edit/main/docs/source/{filename}",
     "sidebar_hide_name": False,
+    "top_of_page_buttons": ["view", "edit"],
 }
 
 # Retry link checking to avoid transient network errors.
