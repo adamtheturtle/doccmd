@@ -387,19 +387,12 @@ def _evaluate_document(
     Raises:
         _EvaluateError: An example in the document could not be evaluated.
     """
-
-    def _raise_from_exception(exc: Exception) -> None:
-        """
-        Convert lower-level exceptions to _EvaluateError.
-        """
-        raise _build_evaluate_error(args=args, exc=exc) from exc
-
     if example_workers == 1:
         try:
             for example in document.examples():
                 example.evaluate()
         except (ValueError, subprocess.CalledProcessError, OSError) as exc:
-            _raise_from_exception(exc=exc)
+            raise _build_evaluate_error(args=args, exc=exc) from exc
         return
 
     examples = tuple(document.examples())
@@ -412,7 +405,7 @@ def _evaluate_document(
             for example in examples:
                 example.evaluate()
         except (ValueError, subprocess.CalledProcessError, OSError) as exc:
-            _raise_from_exception(exc=exc)
+            raise _build_evaluate_error(args=args, exc=exc) from exc
         return
 
     max_workers = min(example_workers, len(examples))
@@ -424,7 +417,7 @@ def _evaluate_document(
         except (ValueError, subprocess.CalledProcessError, OSError) as exc:
             for pending_future in futures:
                 pending_future.cancel()
-            _raise_from_exception(exc=exc)
+            raise _build_evaluate_error(args=args, exc=exc) from exc
 
 
 @beartype
