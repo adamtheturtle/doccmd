@@ -24,6 +24,7 @@ macOS
 metadata
 myst
 noqa
+parallelizing
 parsers
 pragma
 pre

@@ -152,7 +152,7 @@ For example, to ignore a rule in all files created by ``doccmd`` in a ``ruff`` c
 Running commands in parallel
 ----------------------------
 
-When ``doccmd`` is not writing formatter output back into your documentation files (i.e. you are using ``--no-write-to-file``), you can speed things up by parallelising both within a document and across documents.
+When ``doccmd`` is not writing formatter output back into your documentation files (i.e. you are using ``--no-write-to-file``), you can speed things up by parallelizing both within a document and across documents.
 
 * ``--example-workers`` evaluates multiple code blocks from the same document at once.
 * ``--document-workers`` runs different documents concurrently.
