@@ -891,9 +891,16 @@ def test_workers_requires_no_write_to_file(
     assert "--no-write-to-file" in result.stderr
 
 
-def test_example_workers_runs_commands(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    argnames="worker_flag",
+    argvalues=["--example-workers", "--document-workers"],
+)
+def test_workers_runs_commands(
+    tmp_path: Path,
+    worker_flag: str,
+) -> None:
     """
-    Commands still run when example-workers>1 and --no-write-to-file is given.
+    Commands run successfully when workers>1 and --no-write-to-file is given.
     """
     runner = CliRunner()
     rst_file = tmp_path / "example.rst"
@@ -918,7 +925,7 @@ def test_example_workers_runs_commands(tmp_path: Path) -> None:
             "cat",
             "--no-pad-file",
             "--no-write-to-file",
-            "--example-workers",
+            worker_flag,
             "2",
             str(object=rst_file),
         ],
@@ -1007,50 +1014,6 @@ def test_workers_zero_allows_running_when_cpu_is_single(
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     assert "Only one CPU" in result.stdout
-
-
-def test_document_workers_runs_commands(tmp_path: Path) -> None:
-    """
-    Commands run across multiple documents when document-workers>1.
-    """
-    runner = CliRunner()
-    first_rst = tmp_path / "first.rst"
-    second_rst = tmp_path / "second.rst"
-    first_content = textwrap.dedent(
-        text="""\
-        .. code-block:: python
-
-            print("From the first document")
-        """,
-    )
-    second_content = textwrap.dedent(
-        text="""\
-        .. code-block:: python
-
-            print("From the second document")
-        """,
-    )
-    first_rst.write_text(data=first_content, encoding="utf-8")
-    second_rst.write_text(data=second_content, encoding="utf-8")
-    result = runner.invoke(
-        cli=main,
-        args=[
-            "--language",
-            "python",
-            "--command",
-            "cat",
-            "--no-pad-file",
-            "--no-write-to-file",
-            "--document-workers",
-            "2",
-            str(object=first_rst),
-            str(object=second_rst),
-        ],
-        catch_exceptions=False,
-    )
-    assert result.exit_code == 0, (result.stdout, result.stderr)
-    assert "From the first document" in result.stdout
-    assert "From the second document" in result.stdout
 
 
 def test_cpu_count_returns_none(
