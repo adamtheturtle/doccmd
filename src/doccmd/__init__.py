@@ -402,11 +402,7 @@ def _evaluate_document(
             _raise_from_exception(exc=exc)
         return
 
-    try:
-        examples = tuple(document.examples())
-    except (ValueError, subprocess.CalledProcessError, OSError) as exc:
-        _raise_from_exception(exc=exc)
-        return
+    examples = tuple(document.examples())
 
     if not examples:
         return
@@ -457,7 +453,7 @@ class _EvaluateError(Exception):
 def _build_evaluate_error(
     *,
     args: Sequence[str | Path],
-    exc: Exception,
+    exc: ValueError | subprocess.CalledProcessError | OSError,
 ) -> _EvaluateError:
     """
     Convert low-level exceptions to _EvaluateError.
@@ -474,14 +470,12 @@ def _build_evaluate_error(
             reason=None,
             exit_code=exc.returncode,
         )
-    if isinstance(exc, OSError):
-        return _EvaluateError(
-            command_args=args,
-            reason=str(object=exc),
-            exit_code=exc.errno,
-        )
-    msg = "Unexpected exception when evaluating document."
-    raise RuntimeError(msg) from exc
+    # Must be OSError
+    return _EvaluateError(
+        command_args=args,
+        reason=str(object=exc),
+        exit_code=exc.errno,
+    )
 
 
 @beartype

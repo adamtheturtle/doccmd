@@ -18,6 +18,7 @@ from ansi.colour.fx import reset
 from click.testing import CliRunner
 from pytest_regressions.file_regression import FileRegressionFixture
 
+import doccmd
 from doccmd import main
 
 PARALLELISM_EXIT_CODE = 2  # CLI exit when parallel writes are disallowed
@@ -1149,6 +1150,298 @@ def test_document_workers_zero_allows_running_when_cpu_is_single(
     assert result.exit_code == 0, (result.stdout, result.stderr)
     assert "First" in result.stdout
     assert "Second" in result.stdout
+
+
+def test_cpu_count_returns_none(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """
+    When os.cpu_count() returns None, workers default to 1.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            print("CPU count is None")
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    monkeypatch.setattr(target=doccmd.os, name="cpu_count", value=lambda: None)
+    result = runner.invoke(
+        cli=main,
+        args=[
+            "--language",
+            "python",
+            "--command",
+            "cat",
+            "--example-workers",
+            "0",
+            str(object=rst_file),
+        ],
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert "CPU count is None" in result.stdout
+
+
+def test_parallel_example_execution_error(tmp_path: Path) -> None:
+    """
+    Errors during parallel example execution are handled correctly.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            print("First block")
+
+        .. code-block:: python
+
+            print("Second block")
+
+        .. code-block:: python
+
+            print("Third block")
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    non_existent_command = uuid.uuid4().hex
+    result = runner.invoke(
+        cli=main,
+        args=[
+            "--language",
+            "python",
+            "--command",
+            non_existent_command,
+            "--no-write-to-file",
+            "--example-workers",
+            "2",
+            str(object=rst_file),
+        ],
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code != 0
+    assert f"Error running command '{non_existent_command}'" in result.stderr
+
+
+def test_parallel_document_execution_error(tmp_path: Path) -> None:
+    """
+    Errors during parallel document execution are handled correctly.
+    """
+    runner = CliRunner()
+    first_rst = tmp_path / "first.rst"
+    second_rst = tmp_path / "second.rst"
+    first_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            print("First document")
+        """,
+    )
+    second_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            print("Second document")
+        """,
+    )
+    first_rst.write_text(data=first_content, encoding="utf-8")
+    second_rst.write_text(data=second_content, encoding="utf-8")
+    non_existent_command = uuid.uuid4().hex
+    result = runner.invoke(
+        cli=main,
+        args=[
+            "--language",
+            "python",
+            "--command",
+            non_existent_command,
+            "--no-write-to-file",
+            "--document-workers",
+            "2",
+            str(object=first_rst),
+            str(object=second_rst),
+        ],
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code != 0
+    assert f"Error running command '{non_existent_command}'" in result.stderr
+
+
+def test_document_with_no_examples(tmp_path: Path) -> None:
+    """
+    Documents with no matching code blocks are handled correctly.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        This is a document with no code blocks.
+
+        Just some text.
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    result = runner.invoke(
+        cli=main,
+        args=[
+            "--language",
+            "python",
+            "--command",
+            "cat",
+            "--no-write-to-file",
+            "--example-workers",
+            "2",
+            str(object=rst_file),
+        ],
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    assert result.stdout == ""
+    assert result.stderr == ""
+
+
+def test_single_example_execution_error(tmp_path: Path) -> None:
+    """
+    Errors during single example execution are handled correctly.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            print("Single block")
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    non_existent_command = uuid.uuid4().hex
+    result = runner.invoke(
+        cli=main,
+        args=[
+            "--language",
+            "python",
+            "--command",
+            non_existent_command,
+            str(object=rst_file),
+        ],
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code != 0
+    assert f"Error running command '{non_existent_command}'" in result.stderr
+
+
+def test_sequential_execution_error_with_multiple_examples(
+    tmp_path: Path,
+) -> None:
+    """
+    Errors during sequential execution of multiple examples are handled.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            print("First block")
+
+        .. code-block:: python
+
+            print("Second block")
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    non_existent_command = uuid.uuid4().hex
+    result = runner.invoke(
+        cli=main,
+        args=[
+            "--language",
+            "python",
+            "--command",
+            non_existent_command,
+            "--no-write-to-file",
+            "--example-workers",
+            "1",
+            str(object=rst_file),
+        ],
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code != 0
+    assert f"Error running command '{non_existent_command}'" in result.stderr
+
+
+def test_single_example_with_parallel_workers(tmp_path: Path) -> None:
+    """
+    Single example with example_workers>1 uses sequential path successfully.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            print("Only one block")
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    result = runner.invoke(
+        cli=main,
+        args=[
+            "--language",
+            "python",
+            "--command",
+            "cat",
+            "--no-pad-file",
+            "--no-write-to-file",
+            "--example-workers",
+            "2",
+            str(object=rst_file),
+        ],
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    assert "Only one block" in result.stdout
+
+
+def test_single_example_with_parallel_workers_error(tmp_path: Path) -> None:
+    """
+    Single example with example_workers>1 handles errors in sequential path.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            print("Only one block")
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    non_existent_command = uuid.uuid4().hex
+    result = runner.invoke(
+        cli=main,
+        args=[
+            "--language",
+            "python",
+            "--command",
+            non_existent_command,
+            "--no-write-to-file",
+            "--example-workers",
+            "2",
+            str(object=rst_file),
+        ],
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code != 0
+    assert f"Error running command '{non_existent_command}'" in result.stderr
 
 
 def test_verbose_running(tmp_path: Path) -> None:
