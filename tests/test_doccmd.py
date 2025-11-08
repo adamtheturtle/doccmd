@@ -18,7 +18,6 @@ from ansi.colour.fx import reset
 from click.testing import CliRunner
 from pytest_regressions.file_regression import FileRegressionFixture
 
-import doccmd
 from doccmd import main
 
 PARALLELISM_EXIT_CODE = 2  # CLI exit when parallel writes are disallowed
@@ -1169,7 +1168,7 @@ def test_cpu_count_returns_none(
         """,
     )
     rst_file.write_text(data=content, encoding="utf-8")
-    monkeypatch.setattr(target=doccmd.os, name="cpu_count", value=lambda: None)
+    monkeypatch.setattr(target=os, name="cpu_count", value=lambda: None)
     result = runner.invoke(
         cli=main,
         args=[
