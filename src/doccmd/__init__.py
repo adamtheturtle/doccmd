@@ -1282,9 +1282,6 @@ def main(
                 for pending_future in futures:
                     pending_future.cancel()
                 sys.exit(exc.exit_code)
-            finally:
-                for pending_future in futures:
-                    pending_future.cancel()
 
     if collected_errors:
         max_exit_code = max(error.exit_code for error in collected_errors)
