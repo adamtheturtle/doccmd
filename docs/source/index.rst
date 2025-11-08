@@ -72,7 +72,7 @@ Set either option to ``0`` to auto-detect a worker count based on the number of 
 For example, ``doccmd --no-write-to-file --example-workers 4 --document-workers 2`` spreads work across two documents, with up to four blocks active per document.
 This is handy for CPU-bound linters that only emit diagnostics.
 
-Parallel execution is intentionally disabled whenever :option:`doccmd --write-to-file` is in effect, since doccmd cannot safely merge formatter changes into the original documents out of order.
+Parallel execution is intentionally disabled whenever :option:`doccmd --write-to-file` is in effect, since ``doccmd`` cannot safely merge formatter changes into the original documents out of order.
 Command output might interleave between example workers and document workers, so stick to the default sequential mode when deterministic stdout/stderr ordering is important.
 
 Reference
