@@ -5,6 +5,7 @@ Next
 ----
 
 * Add a ``--write-to-file/--no-write-to-file`` option to control whether formatter output is written back to documents.
+* Add an ``--example-workers`` option to evaluate multiple code blocks in parallel when using ``--no-write-to-file``.
 
 2025.10.18
 ----------

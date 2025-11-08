@@ -138,6 +138,12 @@ Execution options:
                                   
                                   'detect': Automatically determine based on
                                   environment (default).  [default: DETECT]
+  --example-workers INTEGER RANGE
+                                  Number of code blocks to evaluate concurrently
+                                  when `--no-write-to-file` is set. Values
+                                  greater than 1 are rejected when writing to
+                                  files, since doccmd cannot safely apply
+                                  changes in parallel.  [default: 1; x>=1]
 
 Error handling:
   --fail-on-parse-error / --no-fail-on-parse-error

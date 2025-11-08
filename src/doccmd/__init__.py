@@ -9,6 +9,7 @@ import subprocess
 import sys
 import textwrap
 from collections.abc import Callable, Iterable, Mapping, Sequence
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from enum import Enum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
@@ -364,33 +365,55 @@ def _evaluate_document(
     *,
     document: Document,
     args: Sequence[str | Path],
+    example_workers: int,
 ) -> None:
     """Evaluate the document.
 
     Raises:
         _EvaluateError: An example in the document could not be evaluated.
     """
+
+    def _raise_from_exception(exc: Exception) -> None:
+        """
+        Convert lower-level exceptions to _EvaluateError.
+        """
+        raise _build_evaluate_error(args=args, exc=exc) from exc
+
+    if example_workers == 1:
+        try:
+            for example in document.examples():
+                example.evaluate()
+        except (ValueError, subprocess.CalledProcessError, OSError) as exc:
+            _raise_from_exception(exc=exc)
+        return
+
     try:
-        for example in document.examples():
-            example.evaluate()
-    except ValueError as exc:
-        raise _EvaluateError(
-            command_args=args,
-            reason=str(object=exc),
-            exit_code=1,
-        ) from exc
-    except subprocess.CalledProcessError as exc:
-        raise _EvaluateError(
-            command_args=args,
-            reason=None,
-            exit_code=exc.returncode,
-        ) from exc
-    except OSError as exc:
-        raise _EvaluateError(
-            command_args=args,
-            reason=str(object=exc),
-            exit_code=exc.errno,
-        ) from exc
+        examples = tuple(document.examples())
+    except (ValueError, subprocess.CalledProcessError, OSError) as exc:
+        _raise_from_exception(exc=exc)
+        return
+
+    if not examples:
+        return
+
+    if len(examples) == 1 or example_workers == 1:
+        try:
+            for example in examples:
+                example.evaluate()
+        except (ValueError, subprocess.CalledProcessError, OSError) as exc:
+            _raise_from_exception(exc=exc)
+        return
+
+    max_workers = min(example_workers, len(examples))
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = [executor.submit(example.evaluate) for example in examples]
+        for future in as_completed(futures):
+            try:
+                future.result()
+            except (ValueError, subprocess.CalledProcessError, OSError) as exc:
+                for pending_future in futures:
+                    pending_future.cancel()
+                _raise_from_exception(exc=exc)
 
 
 @beartype
@@ -413,6 +436,37 @@ class _EvaluateError(Exception):
         self.reason = reason
         self.command_args = command_args
         super().__init__()
+
+
+@beartype
+def _build_evaluate_error(
+    *,
+    args: Sequence[str | Path],
+    exc: Exception,
+) -> _EvaluateError:
+    """
+    Convert low-level exceptions to _EvaluateError.
+    """
+    if isinstance(exc, ValueError):
+        return _EvaluateError(
+            command_args=args,
+            reason=str(object=exc),
+            exit_code=1,
+        )
+    if isinstance(exc, subprocess.CalledProcessError):
+        return _EvaluateError(
+            command_args=args,
+            reason=None,
+            exit_code=exc.returncode,
+        )
+    if isinstance(exc, OSError):
+        return _EvaluateError(
+            command_args=args,
+            reason=str(object=exc),
+            exit_code=exc.errno,
+        )
+    msg = "Unexpected exception when evaluating document."
+    raise RuntimeError(msg) from exc
 
 
 @beartype
@@ -860,6 +914,18 @@ def _get_sybil(
             "'detect': Automatically determine based on environment (default)."
         ),
     ),
+    cloup.option(
+        "--example-workers",
+        type=click.IntRange(min=1),
+        default=1,
+        show_default=True,
+        help=(
+            "Number of code blocks to evaluate concurrently when "
+            "`--no-write-to-file` is set. Values greater than 1 are rejected "
+            "when writing to files, since doccmd cannot safely apply changes "
+            "in parallel."
+        ),
+    ),
 )
 @cloup.option_group(
     "Error handling",
@@ -941,6 +1007,7 @@ def main(
     fail_on_group_write: bool,
     sphinx_jinja2: bool,
     continue_on_error: bool,
+    example_workers: int,
 ) -> None:
     """Run commands against code blocks in the given documentation files.
 
@@ -993,6 +1060,13 @@ def main(
     group_directives = _get_group_directives(markers=group_markers)
 
     given_temporary_file_extension = temporary_file_extension
+
+    if example_workers > 1 and write_to_file:
+        message = (
+            "--example-workers greater than 1 requires --no-write-to-file. "
+            "doccmd cannot safely write to documents in parallel."
+        )
+        raise click.UsageError(message=message)
 
     collected_errors: list[_CollectedError] = []
 
@@ -1085,7 +1159,11 @@ def main(
                 continue
 
             try:
-                _evaluate_document(document=document, args=args)
+                _evaluate_document(
+                    document=document,
+                    args=args,
+                    example_workers=example_workers,
+                )
             except _GroupModifiedError as exc:
                 if fail_on_group_write:
                     error_message = str(object=exc)

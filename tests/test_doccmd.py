@@ -850,6 +850,75 @@ def test_file_given_multiple_times(tmp_path: Path) -> None:
     assert result.stderr == ""
 
 
+def test_example_workers_requires_no_write_to_file(tmp_path: Path) -> None:
+    """
+    Using --example-workers>1 without --no-write-to-file is rejected.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            print("Hello")
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    result = runner.invoke(
+        cli=main,
+        args=[
+            "--language",
+            "python",
+            "--command",
+            "cat",
+            "--example-workers",
+            "2",
+            str(object=rst_file),
+        ],
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 2
+    assert "--no-write-to-file" in result.stderr
+
+
+def test_example_workers_runs_commands(tmp_path: Path) -> None:
+    """
+    Commands still run when example-workers>1 and --no-write-to-file is given.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            print("From the first block")
+
+        .. code-block:: python
+
+            print("From the second block")
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    result = runner.invoke(
+        cli=main,
+        args=[
+            "--language",
+            "python",
+            "--command",
+            "cat",
+            "--no-pad-file",
+            "--no-write-to-file",
+            "--example-workers",
+            "2",
+            str(object=rst_file),
+        ],
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert "From the first block" in result.stdout
+    assert "From the second block" in result.stdout
+
+
 def test_verbose_running(tmp_path: Path) -> None:
     """
     ``--verbose`` shows what is running.
