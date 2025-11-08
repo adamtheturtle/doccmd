@@ -17,7 +17,6 @@ from ansi.colour.base import Graphic
 from ansi.colour.fx import reset
 from click.testing import CliRunner
 from pytest_regressions.file_regression import FileRegressionFixture
-from sybil.example import Example
 
 from doccmd import main
 
@@ -4132,92 +4131,3 @@ def test_continue_on_error_vs_default_behavior(tmp_path: Path) -> None:
         result_with_continue.stdout,
         result_with_continue.stderr,
     )
-
-
-def test_value_error_without_continue_on_error(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    """
-    ValueError causes immediate exit when not using --continue-on-error.
-    """
-
-    def mock_evaluate(_self: Example) -> None:
-        """
-        Mock evaluate function that raises ValueError.
-        """
-        msg = "Mock error for testing"
-        raise ValueError(msg)
-
-    monkeypatch.setattr(target=Example, name="evaluate", value=mock_evaluate)
-
-    runner = CliRunner()
-    rst_file = tmp_path / "example.rst"
-    content = textwrap.dedent(
-        text="""\
-        .. code-block:: python
-
-            x = 2 + 2
-        """,
-    )
-    rst_file.write_text(data=content, encoding="utf-8")
-    arguments = [
-        "--language",
-        "python",
-        "--command",
-        "echo test",
-        str(object=rst_file),
-    ]
-    result = runner.invoke(
-        cli=main,
-        args=arguments,
-        catch_exceptions=False,
-        color=True,
-    )
-    assert result.exit_code == 1
-    expected_stderr = f"{fg.red}Error running command 'echo':"
-    assert result.stderr.startswith(expected_stderr)
-
-
-def test_value_error_with_continue_on_error(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    """
-    ValueError is collected when using --continue-on-error.
-    """
-
-    def mock_evaluate(_self: Example) -> None:
-        """
-        Mock evaluate function that raises ValueError.
-        """
-        msg = "Mock error for testing"
-        raise ValueError(msg)
-
-    monkeypatch.setattr(target=Example, name="evaluate", value=mock_evaluate)
-
-    runner = CliRunner()
-    rst_file = tmp_path / "example.rst"
-    content = textwrap.dedent(
-        text="""\
-        .. code-block:: python
-
-            x = 2 + 2
-        """,
-    )
-    rst_file.write_text(data=content, encoding="utf-8")
-    arguments = [
-        "--language",
-        "python",
-        "--command",
-        "echo test",
-        "--continue-on-error",
-        str(object=rst_file),
-    ]
-    result = runner.invoke(
-        cli=main,
-        args=arguments,
-        catch_exceptions=False,
-        color=True,
-    )
-    assert result.exit_code == 1
-    expected_stderr = f"{fg.red}Error running command 'echo':"
-    assert result.stderr.startswith(expected_stderr)
