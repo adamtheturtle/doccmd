@@ -1108,10 +1108,13 @@ def _get_sybil(
         default=1,
         show_default=True,
         help=(
-            "Number of code blocks to evaluate concurrently when "
-            "`--no-write-to-file` is set. Use 0 to auto-detect based on the "
-            "number of CPUs. Values greater than 1 are rejected when writing "
-            "to files, since doccmd cannot safely apply changes in parallel."
+            "Number of code blocks to evaluate concurrently within each "
+            "document when `--no-write-to-file` is set. Use 0 to auto-detect "
+            "based on the number of CPUs. Values greater than 1 are rejected "
+            "when writing to files, since doccmd cannot safely apply changes "
+            "in parallel. Best for files with many code blocks. Can be "
+            "combined with --document-workers for maximum parallelism. "
+            "Output may be interleaved when using parallel execution."
         ),
     ),
     cloup.option(
@@ -1123,7 +1126,10 @@ def _get_sybil(
             "Number of documents to evaluate concurrently when "
             "`--no-write-to-file` is set. Use 0 to auto-detect based on the "
             "number of CPUs. Values greater than 1 are rejected when writing "
-            "to files, since doccmd cannot safely apply changes in parallel."
+            "to files, since doccmd cannot safely apply changes in parallel. "
+            "Best for processing many files. Can be combined with "
+            "--example-workers for maximum parallelism. "
+            "Output may be interleaved when using parallel execution."
         ),
     ),
 )
@@ -1267,13 +1273,15 @@ def main(
     if example_workers > 1 and write_to_file:
         message = (
             "--example-workers greater than 1 requires --no-write-to-file. "
-            "doccmd cannot safely write to documents in parallel."
+            "doccmd cannot safely write to documents in parallel. "
+            "Add --no-write-to-file to enable parallel execution."
         )
         raise click.UsageError(message=message)
     if document_workers > 1 and write_to_file:
         message = (
             "--document-workers greater than 1 requires --no-write-to-file. "
-            "doccmd cannot safely write to documents in parallel."
+            "doccmd cannot safely write to documents in parallel. "
+            "Add --no-write-to-file to enable parallel execution."
         )
         raise click.UsageError(message=message)
 
