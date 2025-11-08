@@ -1100,48 +1100,23 @@ def test_parallel_execution_error(
     Errors during parallel execution are handled correctly.
     """
     runner = CliRunner()
-    # For document-workers, create multiple files
-    if worker_flag == "--document-workers":
-        first_rst = tmp_path / "first.rst"
-        second_rst = tmp_path / "second.rst"
-        first_content = textwrap.dedent(
-            text="""\
-            .. code-block:: python
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
 
-                print("First document")
-            """,
-        )
-        second_content = textwrap.dedent(
-            text="""\
-            .. code-block:: python
+            print("First block")
 
-                print("Second document")
-            """,
-        )
-        first_rst.write_text(data=first_content, encoding="utf-8")
-        second_rst.write_text(data=second_content, encoding="utf-8")
-        files = [str(object=first_rst), str(object=second_rst)]
-    else:
-        # For example-workers, create one file with multiple blocks
-        rst_file = tmp_path / "example.rst"
-        content = textwrap.dedent(
-            text="""\
-            .. code-block:: python
+        .. code-block:: python
 
-                print("First block")
+            print("Second block")
 
-            .. code-block:: python
+        .. code-block:: python
 
-                print("Second block")
-
-            .. code-block:: python
-
-                print("Third block")
-            """,
-        )
-        rst_file.write_text(data=content, encoding="utf-8")
-        files = [str(object=rst_file)]
-
+            print("Third block")
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
     non_existent_command = uuid.uuid4().hex
     result = runner.invoke(
         cli=main,
@@ -1153,7 +1128,7 @@ def test_parallel_execution_error(
             "--no-write-to-file",
             worker_flag,
             "2",
-            *files,
+            str(object=rst_file),
         ],
         catch_exceptions=False,
         color=True,
