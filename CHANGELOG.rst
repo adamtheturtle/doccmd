@@ -4,11 +4,7 @@ Changelog
 Next
 ----
 
-2025.10.27
-----------
-
-2025.10.25
-----------
+* Add a ``--write-to-file/--no-write-to-file`` option to control whether formatter output is written back to documents.
 
 2025.10.18
 ----------

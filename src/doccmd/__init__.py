@@ -505,6 +505,7 @@ def _get_sybil(
     temporary_file_extension: str,
     temporary_file_name_prefix: str,
     pad_temporary_file: bool,
+    write_to_file: bool,
     pad_groups: bool,
     skip_directives: Iterable[str],
     group_directives: Iterable[str],
@@ -523,7 +524,7 @@ def _get_sybil(
         args=args,
         tempfile_suffixes=tempfile_suffixes,
         pad_file=pad_temporary_file,
-        write_to_file=True,
+        write_to_file=write_to_file,
         tempfile_name_prefix=temporary_file_name_prefix,
         newline=newline,
         use_pty=use_pty,
@@ -744,6 +745,20 @@ def _get_sybil(
         ),
     ),
     cloup.option(
+        "--write-to-file/--no-write-to-file",
+        "write_to_file",
+        is_flag=True,
+        default=True,
+        show_default=True,
+        help=(
+            "Write any changes made by the command back to the source "
+            "document. "
+            "Disable this when running commands that should never modify the "
+            "documentation. "
+            "Grouped code blocks never write to files."
+        ),
+    ),
+    cloup.option(
         "--pad-groups/--no-pad-groups",
         is_flag=True,
         default=True,
@@ -913,6 +928,7 @@ def main(
     temporary_file_extension: str | None,
     temporary_file_name_prefix: str,
     pad_file: bool,
+    write_to_file: bool,
     pad_groups: bool,
     verbose: bool,
     skip_markers: Iterable[str],
@@ -1017,6 +1033,7 @@ def main(
                 args=args,
                 code_block_languages=[code_block_language],
                 pad_temporary_file=pad_file,
+                write_to_file=write_to_file,
                 pad_groups=pad_groups,
                 temporary_file_extension=temporary_file_extension,
                 temporary_file_name_prefix=temporary_file_name_prefix,
@@ -1039,6 +1056,7 @@ def main(
                 args=args,
                 code_block_languages=[],
                 pad_temporary_file=pad_file,
+                write_to_file=write_to_file,
                 pad_groups=pad_groups,
                 temporary_file_extension=temporary_file_extension,
                 temporary_file_name_prefix=temporary_file_name_prefix,
