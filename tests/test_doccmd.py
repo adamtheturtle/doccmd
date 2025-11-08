@@ -4131,3 +4131,88 @@ def test_continue_on_error_vs_default_behavior(tmp_path: Path) -> None:
         result_with_continue.stdout,
         result_with_continue.stderr,
     )
+
+
+def test_value_error_without_continue_on_error(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """
+    ValueError causes immediate exit when not using --continue-on-error.
+    """
+    from sybil.example import Example
+
+    def mock_evaluate(self: Example) -> None:
+        msg = "Mock error for testing"
+        raise ValueError(msg)
+
+    monkeypatch.setattr(Example, "evaluate", mock_evaluate)
+
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            x = 2 + 2
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        "echo test",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 1
+    expected_stderr = f"{fg.red}Error running command 'echo':"
+    assert result.stderr.startswith(expected_stderr)
+
+
+def test_value_error_with_continue_on_error(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """
+    ValueError is collected when using --continue-on-error.
+    """
+    from sybil.example import Example
+
+    def mock_evaluate(self: Example) -> None:
+        msg = "Mock error for testing"
+        raise ValueError(msg)
+
+    monkeypatch.setattr(Example, "evaluate", mock_evaluate)
+
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            x = 2 + 2
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        "echo test",
+        "--continue-on-error",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 1
+    expected_stderr = f"{fg.red}Error running command 'echo':"
+    assert result.stderr.startswith(expected_stderr)
