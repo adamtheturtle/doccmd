@@ -423,7 +423,7 @@ def _evaluate_document(
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = [executor.submit(example.evaluate) for example in examples]
         try:
-            for future in as_completed(futures):
+            for future in as_completed(fs=futures):
                 future.result()
         except (ValueError, subprocess.CalledProcessError, OSError) as exc:
             for pending_future in futures:
@@ -1278,33 +1278,29 @@ def main(
         raise click.UsageError(message=message)
 
     collected_errors: list[_CollectedError] = []
-    file_processing_kwargs = {
-        "suffix_map": suffix_map,
-        "args": args,
-        "languages": languages,
-        "pad_file": pad_file,
-        "write_to_file": write_to_file,
-        "pad_groups": pad_groups,
-        "temporary_file_name_prefix": temporary_file_name_prefix,
-        "given_temporary_file_extension": given_temporary_file_extension,
-        "skip_directives": skip_directives,
-        "group_directives": group_directives,
-        "use_pty": use_pty,
-        "log_command_evaluators": log_command_evaluators,
-        "sphinx_jinja2": sphinx_jinja2,
-        "fail_on_parse_error": fail_on_parse_error,
-        "fail_on_group_write": fail_on_group_write,
-        "continue_on_error": continue_on_error,
-        "example_workers": example_workers,
-    }
-
     if document_workers == 1 or not file_paths:
         try:
             for file_path in file_paths:
                 collected_errors.extend(
                     _process_file_path(
                         file_path=file_path,
-                        **file_processing_kwargs,
+                        suffix_map=suffix_map,
+                        args=args,
+                        languages=languages,
+                        pad_file=pad_file,
+                        write_to_file=write_to_file,
+                        pad_groups=pad_groups,
+                        temporary_file_name_prefix=temporary_file_name_prefix,
+                        given_temporary_file_extension=given_temporary_file_extension,
+                        skip_directives=skip_directives,
+                        group_directives=group_directives,
+                        use_pty=use_pty,
+                        log_command_evaluators=log_command_evaluators,
+                        sphinx_jinja2=sphinx_jinja2,
+                        fail_on_parse_error=fail_on_parse_error,
+                        fail_on_group_write=fail_on_group_write,
+                        continue_on_error=continue_on_error,
+                        example_workers=example_workers,
                     )
                 )
         except _FatalProcessingError as exc:
@@ -1316,12 +1312,28 @@ def main(
                 executor.submit(
                     _process_file_path,
                     file_path=file_path,
-                    **file_processing_kwargs,
+                    suffix_map=suffix_map,
+                    args=args,
+                    languages=languages,
+                    pad_file=pad_file,
+                    write_to_file=write_to_file,
+                    pad_groups=pad_groups,
+                    temporary_file_name_prefix=temporary_file_name_prefix,
+                    given_temporary_file_extension=given_temporary_file_extension,
+                    skip_directives=skip_directives,
+                    group_directives=group_directives,
+                    use_pty=use_pty,
+                    log_command_evaluators=log_command_evaluators,
+                    sphinx_jinja2=sphinx_jinja2,
+                    fail_on_parse_error=fail_on_parse_error,
+                    fail_on_group_write=fail_on_group_write,
+                    continue_on_error=continue_on_error,
+                    example_workers=example_workers,
                 ): file_path
                 for file_path in file_paths
             }
             try:
-                for future in as_completed(futures):
+                for future in as_completed(fs=futures):
                     collected_errors.extend(future.result())
             except _FatalProcessingError as exc:
                 for pending_future in futures:
