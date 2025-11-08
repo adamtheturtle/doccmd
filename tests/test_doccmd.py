@@ -17,6 +17,7 @@ from ansi.colour.base import Graphic
 from ansi.colour.fx import reset
 from click.testing import CliRunner
 from pytest_regressions.file_regression import FileRegressionFixture
+from sybil.example import Example
 
 from doccmd import main
 
@@ -4139,9 +4140,11 @@ def test_value_error_without_continue_on_error(
     """
     ValueError causes immediate exit when not using --continue-on-error.
     """
-    from sybil.example import Example
 
-    def mock_evaluate(self: Example) -> None:
+    def mock_evaluate(_self: Example) -> None:
+        """
+        Mock evaluate function that raises ValueError.
+        """
         msg = "Mock error for testing"
         raise ValueError(msg)
 
@@ -4181,9 +4184,11 @@ def test_value_error_with_continue_on_error(
     """
     ValueError is collected when using --continue-on-error.
     """
-    from sybil.example import Example
 
-    def mock_evaluate(self: Example) -> None:
+    def mock_evaluate(_self: Example) -> None:
+        """
+        Mock evaluate function that raises ValueError.
+        """
         msg = "Mock error for testing"
         raise ValueError(msg)
 

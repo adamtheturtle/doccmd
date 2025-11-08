@@ -478,18 +478,14 @@ def _handle_error(
     message: str,
     exit_code: int,
     continue_on_error: bool,
-    local_errors: list[_CollectedError],
     exc: Exception | None = None,
-) -> None:
+) -> _CollectedError:
     """
-    Handle an error by either collecting it or raising a fatal error.
+    Handle an error by either returning it or raising a fatal error.
     """
     if continue_on_error:
-        local_errors.append(
-            _CollectedError(message=message, exit_code=exit_code)
-        )
-    else:
-        raise _FatalProcessingError(exit_code=exit_code) from exc
+        return _CollectedError(message=message, exit_code=exit_code)
+    raise _FatalProcessingError(exit_code=exit_code) from exc
 
 
 @beartype
@@ -526,11 +522,12 @@ def _process_file_path(
         )
         _log_error(message=could_not_determine_encoding_msg)
         if fail_on_parse_error:
-            _handle_error(
-                message=could_not_determine_encoding_msg,
-                exit_code=1,
-                continue_on_error=continue_on_error,
-                local_errors=local_errors,
+            local_errors.append(
+                _handle_error(
+                    message=could_not_determine_encoding_msg,
+                    exit_code=1,
+                    continue_on_error=continue_on_error,
+                )
             )
         return local_errors
 
@@ -592,12 +589,13 @@ def _process_file_path(
             message = f"Could not parse {file_path}: {exc}"
             _log_error(message=message)
             if fail_on_parse_error:
-                _handle_error(
-                    message=message,
-                    exit_code=1,
-                    continue_on_error=continue_on_error,
-                    local_errors=local_errors,
-                    exc=exc,
+                local_errors.append(
+                    _handle_error(
+                        message=message,
+                        exit_code=1,
+                        continue_on_error=continue_on_error,
+                        exc=exc,
+                    )
                 )
             continue
 
@@ -610,43 +608,47 @@ def _process_file_path(
             if fail_on_group_write:
                 error_message = str(object=exc)
                 _log_error(message=error_message)
-                _handle_error(
-                    message=error_message,
-                    exit_code=1,
-                    continue_on_error=continue_on_error,
-                    local_errors=local_errors,
-                    exc=exc,
+                local_errors.append(
+                    _handle_error(
+                        message=error_message,
+                        exit_code=1,
+                        continue_on_error=continue_on_error,
+                        exc=exc,
+                    )
                 )
                 continue
             _log_warning(message=str(object=exc))
         except ValueError as exc:
             error_msg = f"Error running command '{args[0]}': {exc}"
             _log_error(message=error_msg)
-            _handle_error(
-                message=error_msg,
-                exit_code=1,
-                continue_on_error=continue_on_error,
-                local_errors=local_errors,
-                exc=exc,
+            local_errors.append(
+                _handle_error(
+                    message=error_msg,
+                    exit_code=1,
+                    continue_on_error=continue_on_error,
+                    exc=exc,
+                )
             )
         except subprocess.CalledProcessError as exc:
-            _handle_error(
-                message="Command failed",
-                exit_code=exc.returncode,
-                continue_on_error=continue_on_error,
-                local_errors=local_errors,
-                exc=exc,
+            local_errors.append(
+                _handle_error(
+                    message="Command failed",
+                    exit_code=exc.returncode,
+                    continue_on_error=continue_on_error,
+                    exc=exc,
+                )
             )
         except OSError as exc:
             error_msg = f"Error running command '{args[0]}': {exc}"
             _log_error(message=error_msg)
             exit_code = exc.errno if exc.errno else 1
-            _handle_error(
-                message=error_msg,
-                exit_code=exit_code,
-                continue_on_error=continue_on_error,
-                local_errors=local_errors,
-                exc=exc,
+            local_errors.append(
+                _handle_error(
+                    message=error_msg,
+                    exit_code=exit_code,
+                    continue_on_error=continue_on_error,
+                    exc=exc,
+                )
             )
 
     return local_errors
