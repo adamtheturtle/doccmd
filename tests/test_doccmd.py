@@ -9,7 +9,6 @@ import textwrap
 import uuid
 from collections.abc import Sequence
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 from ansi.colour import fg
@@ -18,6 +17,7 @@ from ansi.colour.fx import reset
 from click.testing import CliRunner
 from pytest_regressions.file_regression import FileRegressionFixture
 
+import doccmd
 from doccmd import main
 
 PARALLELISM_EXIT_CODE = 2  # CLI exit when parallel writes are disallowed
@@ -924,6 +924,7 @@ def test_example_workers_runs_commands(tmp_path: Path) -> None:
 
 def test_example_workers_zero_requires_no_write_when_auto_parallel(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """
     Example-workers=0 auto-detects CPUs and still requires --no-write-to-file
@@ -939,26 +940,27 @@ def test_example_workers_zero_requires_no_write_when_auto_parallel(
         """,
     )
     rst_file.write_text(data=content, encoding="utf-8")
-    with patch("doccmd.__init__.os.cpu_count", return_value=4):
-        result = runner.invoke(
-            cli=main,
-            args=[
-                "--language",
-                "python",
-                "--command",
-                "cat",
-                "--example-workers",
-                "0",
-                str(object=rst_file),
-            ],
-            catch_exceptions=False,
-        )
+    monkeypatch.setattr(doccmd.os, "cpu_count", lambda: 4)
+    result = runner.invoke(
+        cli=main,
+        args=[
+            "--language",
+            "python",
+            "--command",
+            "cat",
+            "--example-workers",
+            "0",
+            str(object=rst_file),
+        ],
+        catch_exceptions=False,
+    )
     assert result.exit_code == PARALLELISM_EXIT_CODE
     assert "--no-write-to-file" in result.stderr
 
 
 def test_example_workers_zero_allows_running_when_cpu_is_single(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """
     Example-workers=0 falls back to sequential execution when only one CPU is
@@ -974,20 +976,20 @@ def test_example_workers_zero_allows_running_when_cpu_is_single(
         """,
     )
     rst_file.write_text(data=content, encoding="utf-8")
-    with patch("doccmd.__init__.os.cpu_count", return_value=1):
-        result = runner.invoke(
-            cli=main,
-            args=[
-                "--language",
-                "python",
-                "--command",
-                "cat",
-                "--example-workers",
-                "0",
-                str(object=rst_file),
-            ],
-            catch_exceptions=False,
-        )
+    monkeypatch.setattr(doccmd.os, "cpu_count", lambda: 1)
+    result = runner.invoke(
+        cli=main,
+        args=[
+            "--language",
+            "python",
+            "--command",
+            "cat",
+            "--example-workers",
+            "0",
+            str(object=rst_file),
+        ],
+        catch_exceptions=False,
+    )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     assert "Only one CPU" in result.stdout
 
@@ -1069,6 +1071,7 @@ def test_document_workers_runs_commands(tmp_path: Path) -> None:
 
 def test_document_workers_zero_requires_no_write_when_auto_parallel(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """
     Document-workers=0 auto-detects CPUs and still requires --no-write-to-file
@@ -1084,26 +1087,27 @@ def test_document_workers_zero_requires_no_write_when_auto_parallel(
         """,
     )
     rst_file.write_text(data=content, encoding="utf-8")
-    with patch("doccmd.__init__.os.cpu_count", return_value=4):
-        result = runner.invoke(
-            cli=main,
-            args=[
-                "--language",
-                "python",
-                "--command",
-                "cat",
-                "--document-workers",
-                "0",
-                str(object=rst_file),
-            ],
-            catch_exceptions=False,
-        )
+    monkeypatch.setattr(doccmd.os, "cpu_count", lambda: 4)
+    result = runner.invoke(
+        cli=main,
+        args=[
+            "--language",
+            "python",
+            "--command",
+            "cat",
+            "--document-workers",
+            "0",
+            str(object=rst_file),
+        ],
+        catch_exceptions=False,
+    )
     assert result.exit_code == PARALLELISM_EXIT_CODE
     assert "--no-write-to-file" in result.stderr
 
 
 def test_document_workers_zero_allows_running_when_cpu_is_single(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """
     Document-workers=0 runs sequentially when only one CPU is detected.
@@ -1127,21 +1131,21 @@ def test_document_workers_zero_allows_running_when_cpu_is_single(
     )
     first_rst.write_text(data=first_content, encoding="utf-8")
     second_rst.write_text(data=second_content, encoding="utf-8")
-    with patch("doccmd.__init__.os.cpu_count", return_value=1):
-        result = runner.invoke(
-            cli=main,
-            args=[
-                "--language",
-                "python",
-                "--command",
-                "cat",
-                "--document-workers",
-                "0",
-                str(object=first_rst),
-                str(object=second_rst),
-            ],
-            catch_exceptions=False,
-        )
+    monkeypatch.setattr(doccmd.os, "cpu_count", lambda: 1)
+    result = runner.invoke(
+        cli=main,
+        args=[
+            "--language",
+            "python",
+            "--command",
+            "cat",
+            "--document-workers",
+            "0",
+            str(object=first_rst),
+            str(object=second_rst),
+        ],
+        catch_exceptions=False,
+    )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     assert "First" in result.stdout
     assert "Second" in result.stdout
