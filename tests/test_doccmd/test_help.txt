@@ -88,10 +88,8 @@ Temporary file options:
                                   [default: pad-file]
   --write-to-file / --no-write-to-file
                                   Write any changes made by the command back to
-                                  the source document. Disable this when running
-                                  commands that should never modify the
-                                  documentation. Grouped code blocks never write
-                                  to files.  [default: write-to-file]
+                                  the source document. Grouped code blocks never
+                                  write to files.  [default: write-to-file]
   --pad-groups / --no-pad-groups  Maintain line spacing between groups from the
                                   source file in the temporary file. This is
                                   useful for matching line numbers from the

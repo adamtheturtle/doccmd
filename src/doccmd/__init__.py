@@ -753,8 +753,6 @@ def _get_sybil(
         help=(
             "Write any changes made by the command back to the source "
             "document. "
-            "Disable this when running commands that should never modify the "
-            "documentation. "
             "Grouped code blocks never write to files."
         ),
     ),
