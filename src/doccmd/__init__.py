@@ -385,7 +385,7 @@ def _evaluate_document(
     Evaluate the document.
     """
     examples = tuple(document.examples())
-    if example_workers == 1 or len(examples) in (0, 1):
+    if example_workers == 1 or len(examples) in {0, 1}:
         for example in examples:
             example.evaluate()
         return
