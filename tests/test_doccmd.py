@@ -853,9 +853,16 @@ def test_file_given_multiple_times(tmp_path: Path) -> None:
     assert result.stderr == ""
 
 
-def test_example_workers_requires_no_write_to_file(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    argnames="worker_flag",
+    argvalues=["--example-workers", "--document-workers"],
+)
+def test_workers_requires_no_write_to_file(
+    tmp_path: Path,
+    worker_flag: str,
+) -> None:
     """
-    Using --example-workers>1 without --no-write-to-file is rejected.
+    Using workers>1 without --no-write-to-file is rejected.
     """
     runner = CliRunner()
     rst_file = tmp_path / "example.rst"
@@ -874,7 +881,7 @@ def test_example_workers_requires_no_write_to_file(tmp_path: Path) -> None:
             "python",
             "--command",
             "cat",
-            "--example-workers",
+            worker_flag,
             "2",
             str(object=rst_file),
         ],
@@ -922,13 +929,17 @@ def test_example_workers_runs_commands(tmp_path: Path) -> None:
     assert "From the second block" in result.stdout
 
 
-def test_example_workers_zero_requires_no_write_when_auto_parallel(
+@pytest.mark.parametrize(
+    argnames="worker_flag",
+    argvalues=["--example-workers", "--document-workers"],
+)
+def test_workers_zero_requires_no_write_when_auto_parallel(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    worker_flag: str,
 ) -> None:
     """
-    Example-workers=0 auto-detects CPUs and still requires --no-write-to-file
-    when >1.
+    Workers=0 auto-detects CPUs and still requires --no-write-to-file when >1.
     """
     runner = CliRunner()
     rst_file = tmp_path / "example.rst"
@@ -948,7 +959,7 @@ def test_example_workers_zero_requires_no_write_when_auto_parallel(
             "python",
             "--command",
             "cat",
-            "--example-workers",
+            worker_flag,
             "0",
             str(object=rst_file),
         ],
@@ -958,13 +969,17 @@ def test_example_workers_zero_requires_no_write_when_auto_parallel(
     assert "--no-write-to-file" in result.stderr
 
 
-def test_example_workers_zero_allows_running_when_cpu_is_single(
+@pytest.mark.parametrize(
+    argnames="worker_flag",
+    argvalues=["--example-workers", "--document-workers"],
+)
+def test_workers_zero_allows_running_when_cpu_is_single(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    worker_flag: str,
 ) -> None:
     """
-    Example-workers=0 falls back to sequential execution when only one CPU is
-    detected.
+    Workers=0 falls back to sequential execution when only one CPU is detected.
     """
     runner = CliRunner()
     rst_file = tmp_path / "example.rst"
@@ -984,7 +999,7 @@ def test_example_workers_zero_allows_running_when_cpu_is_single(
             "python",
             "--command",
             "cat",
-            "--example-workers",
+            worker_flag,
             "0",
             str(object=rst_file),
         ],
@@ -992,37 +1007,6 @@ def test_example_workers_zero_allows_running_when_cpu_is_single(
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     assert "Only one CPU" in result.stdout
-
-
-def test_document_workers_requires_no_write_to_file(tmp_path: Path) -> None:
-    """
-    Using --document-workers>1 without --no-write-to-file is rejected.
-    """
-    runner = CliRunner()
-    rst_file = tmp_path / "example.rst"
-    content = textwrap.dedent(
-        text="""\
-        .. code-block:: python
-
-            print("Hello")
-        """,
-    )
-    rst_file.write_text(data=content, encoding="utf-8")
-    result = runner.invoke(
-        cli=main,
-        args=[
-            "--language",
-            "python",
-            "--command",
-            "cat",
-            "--document-workers",
-            "2",
-            str(object=rst_file),
-        ],
-        catch_exceptions=False,
-    )
-    assert result.exit_code == PARALLELISM_EXIT_CODE
-    assert "--no-write-to-file" in result.stderr
 
 
 def test_document_workers_runs_commands(tmp_path: Path) -> None:
@@ -1069,88 +1053,6 @@ def test_document_workers_runs_commands(tmp_path: Path) -> None:
     assert "From the second document" in result.stdout
 
 
-def test_document_workers_zero_requires_no_write_when_auto_parallel(
-    tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    """
-    Document-workers=0 auto-detects CPUs and still requires --no-write-to-file
-    when >1.
-    """
-    runner = CliRunner()
-    rst_file = tmp_path / "example.rst"
-    content = textwrap.dedent(
-        text="""\
-        .. code-block:: python
-
-            print("Hello")
-        """,
-    )
-    rst_file.write_text(data=content, encoding="utf-8")
-    monkeypatch.setattr(target=os, name="cpu_count", value=lambda: 4)
-    result = runner.invoke(
-        cli=main,
-        args=[
-            "--language",
-            "python",
-            "--command",
-            "cat",
-            "--document-workers",
-            "0",
-            str(object=rst_file),
-        ],
-        catch_exceptions=False,
-    )
-    assert result.exit_code == PARALLELISM_EXIT_CODE
-    assert "--no-write-to-file" in result.stderr
-
-
-def test_document_workers_zero_allows_running_when_cpu_is_single(
-    tmp_path: Path,
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    """
-    Document-workers=0 runs sequentially when only one CPU is detected.
-    """
-    runner = CliRunner()
-    first_rst = tmp_path / "first.rst"
-    second_rst = tmp_path / "second.rst"
-    first_content = textwrap.dedent(
-        text="""\
-        .. code-block:: python
-
-            print("First")
-        """,
-    )
-    second_content = textwrap.dedent(
-        text="""\
-        .. code-block:: python
-
-            print("Second")
-        """,
-    )
-    first_rst.write_text(data=first_content, encoding="utf-8")
-    second_rst.write_text(data=second_content, encoding="utf-8")
-    monkeypatch.setattr(target=os, name="cpu_count", value=lambda: 1)
-    result = runner.invoke(
-        cli=main,
-        args=[
-            "--language",
-            "python",
-            "--command",
-            "cat",
-            "--document-workers",
-            "0",
-            str(object=first_rst),
-            str(object=second_rst),
-        ],
-        catch_exceptions=False,
-    )
-    assert result.exit_code == 0, (result.stdout, result.stderr)
-    assert "First" in result.stdout
-    assert "Second" in result.stdout
-
-
 def test_cpu_count_returns_none(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -1186,28 +1088,60 @@ def test_cpu_count_returns_none(
     assert "CPU count is None" in result.stdout
 
 
-def test_parallel_example_execution_error(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    argnames="worker_flag",
+    argvalues=["--example-workers", "--document-workers"],
+)
+def test_parallel_execution_error(
+    tmp_path: Path,
+    worker_flag: str,
+) -> None:
     """
-    Errors during parallel example execution are handled correctly.
+    Errors during parallel execution are handled correctly.
     """
     runner = CliRunner()
-    rst_file = tmp_path / "example.rst"
-    content = textwrap.dedent(
-        text="""\
-        .. code-block:: python
+    # For document-workers, create multiple files
+    if worker_flag == "--document-workers":
+        first_rst = tmp_path / "first.rst"
+        second_rst = tmp_path / "second.rst"
+        first_content = textwrap.dedent(
+            text="""\
+            .. code-block:: python
 
-            print("First block")
+                print("First document")
+            """,
+        )
+        second_content = textwrap.dedent(
+            text="""\
+            .. code-block:: python
 
-        .. code-block:: python
+                print("Second document")
+            """,
+        )
+        first_rst.write_text(data=first_content, encoding="utf-8")
+        second_rst.write_text(data=second_content, encoding="utf-8")
+        files = [str(object=first_rst), str(object=second_rst)]
+    else:
+        # For example-workers, create one file with multiple blocks
+        rst_file = tmp_path / "example.rst"
+        content = textwrap.dedent(
+            text="""\
+            .. code-block:: python
 
-            print("Second block")
+                print("First block")
 
-        .. code-block:: python
+            .. code-block:: python
 
-            print("Third block")
-        """,
-    )
-    rst_file.write_text(data=content, encoding="utf-8")
+                print("Second block")
+
+            .. code-block:: python
+
+                print("Third block")
+            """,
+        )
+        rst_file.write_text(data=content, encoding="utf-8")
+        files = [str(object=rst_file)]
+
     non_existent_command = uuid.uuid4().hex
     result = runner.invoke(
         cli=main,
@@ -1217,53 +1151,9 @@ def test_parallel_example_execution_error(tmp_path: Path) -> None:
             "--command",
             non_existent_command,
             "--no-write-to-file",
-            "--example-workers",
+            worker_flag,
             "2",
-            str(object=rst_file),
-        ],
-        catch_exceptions=False,
-        color=True,
-    )
-    assert result.exit_code != 0
-    assert f"Error running command '{non_existent_command}'" in result.stderr
-
-
-def test_parallel_document_execution_error(tmp_path: Path) -> None:
-    """
-    Errors during parallel document execution are handled correctly.
-    """
-    runner = CliRunner()
-    first_rst = tmp_path / "first.rst"
-    second_rst = tmp_path / "second.rst"
-    first_content = textwrap.dedent(
-        text="""\
-        .. code-block:: python
-
-            print("First document")
-        """,
-    )
-    second_content = textwrap.dedent(
-        text="""\
-        .. code-block:: python
-
-            print("Second document")
-        """,
-    )
-    first_rst.write_text(data=first_content, encoding="utf-8")
-    second_rst.write_text(data=second_content, encoding="utf-8")
-    non_existent_command = uuid.uuid4().hex
-    result = runner.invoke(
-        cli=main,
-        args=[
-            "--language",
-            "python",
-            "--command",
-            non_existent_command,
-            "--no-write-to-file",
-            "--document-workers",
-            "2",
-            str(object=first_rst),
-            str(object=second_rst),
+            *files,
         ],
         catch_exceptions=False,
         color=True,
