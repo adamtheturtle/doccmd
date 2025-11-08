@@ -2,6 +2,7 @@
 Tests for `doccmd`.
 """
 
+import os
 import stat
 import subprocess
 import sys
@@ -17,7 +18,6 @@ from ansi.colour.fx import reset
 from click.testing import CliRunner
 from pytest_regressions.file_regression import FileRegressionFixture
 
-import doccmd
 from doccmd import main
 
 PARALLELISM_EXIT_CODE = 2  # CLI exit when parallel writes are disallowed
@@ -940,7 +940,7 @@ def test_example_workers_zero_requires_no_write_when_auto_parallel(
         """,
     )
     rst_file.write_text(data=content, encoding="utf-8")
-    monkeypatch.setattr(target=doccmd.os, name="cpu_count", value=lambda: 4)
+    monkeypatch.setattr(target=os, name="cpu_count", value=lambda: 4)
     result = runner.invoke(
         cli=main,
         args=[
@@ -976,7 +976,7 @@ def test_example_workers_zero_allows_running_when_cpu_is_single(
         """,
     )
     rst_file.write_text(data=content, encoding="utf-8")
-    monkeypatch.setattr(target=doccmd.os, name="cpu_count", value=lambda: 1)
+    monkeypatch.setattr(target=os, name="cpu_count", value=lambda: 1)
     result = runner.invoke(
         cli=main,
         args=[
@@ -1087,7 +1087,7 @@ def test_document_workers_zero_requires_no_write_when_auto_parallel(
         """,
     )
     rst_file.write_text(data=content, encoding="utf-8")
-    monkeypatch.setattr(target=doccmd.os, name="cpu_count", value=lambda: 4)
+    monkeypatch.setattr(target=os, name="cpu_count", value=lambda: 4)
     result = runner.invoke(
         cli=main,
         args=[
@@ -1131,7 +1131,7 @@ def test_document_workers_zero_allows_running_when_cpu_is_single(
     )
     first_rst.write_text(data=first_content, encoding="utf-8")
     second_rst.write_text(data=second_content, encoding="utf-8")
-    monkeypatch.setattr(target=doccmd.os, name="cpu_count", value=lambda: 1)
+    monkeypatch.setattr(target=os, name="cpu_count", value=lambda: 1)
     result = runner.invoke(
         cli=main,
         args=[
