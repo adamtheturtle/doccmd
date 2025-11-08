@@ -394,7 +394,7 @@ def _evaluate_document(
     if not examples:
         return
 
-    if len(examples) == 1 or example_workers == 1:
+    if len(examples) == 1:
         for example in examples:
             example.evaluate()
         return
