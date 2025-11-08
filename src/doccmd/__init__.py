@@ -379,20 +379,14 @@ def _resolve_workers(*, requested_workers: int) -> int:
 def _evaluate_document(
     *,
     document: Document,
-    args: Sequence[str | Path],
     example_workers: int,
 ) -> None:
-    """Evaluate the document.
-
-    Raises:
-        _EvaluateError: An example in the document could not be evaluated.
+    """
+    Evaluate the document.
     """
     if example_workers == 1:
-        try:
-            for example in document.examples():
-                example.evaluate()
-        except (ValueError, subprocess.CalledProcessError, OSError) as exc:
-            raise _build_evaluate_error(args=args, exc=exc) from exc
+        for example in document.examples():
+            example.evaluate()
         return
 
     examples = tuple(document.examples())
@@ -401,74 +395,15 @@ def _evaluate_document(
         return
 
     if len(examples) == 1 or example_workers == 1:
-        try:
-            for example in examples:
-                example.evaluate()
-        except (ValueError, subprocess.CalledProcessError, OSError) as exc:
-            raise _build_evaluate_error(args=args, exc=exc) from exc
+        for example in examples:
+            example.evaluate()
         return
 
     max_workers = min(example_workers, len(examples))
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = [executor.submit(example.evaluate) for example in examples]
-        try:
-            for future in as_completed(fs=futures):
-                future.result()
-        except (ValueError, subprocess.CalledProcessError, OSError) as exc:
-            for pending_future in futures:
-                pending_future.cancel()
-            raise _build_evaluate_error(args=args, exc=exc) from exc
-
-
-@beartype
-class _EvaluateError(Exception):
-    """
-    Error raised when an example could not be evaluated.
-    """
-
-    @beartype
-    def __init__(
-        self,
-        command_args: Sequence[str | Path],
-        reason: str | None,
-        exit_code: int | None,
-    ) -> None:
-        """
-        Initialize the error.
-        """
-        self.exit_code = exit_code
-        self.reason = reason
-        self.command_args = command_args
-        super().__init__()
-
-
-@beartype
-def _build_evaluate_error(
-    *,
-    args: Sequence[str | Path],
-    exc: ValueError | subprocess.CalledProcessError | OSError,
-) -> _EvaluateError:
-    """
-    Convert low-level exceptions to _EvaluateError.
-    """
-    if isinstance(exc, ValueError):
-        return _EvaluateError(
-            command_args=args,
-            reason=str(object=exc),
-            exit_code=1,
-        )
-    if isinstance(exc, subprocess.CalledProcessError):
-        return _EvaluateError(
-            command_args=args,
-            reason=None,
-            exit_code=exc.returncode,
-        )
-    # Must be OSError
-    return _EvaluateError(
-        command_args=args,
-        reason=str(object=exc),
-        exit_code=exc.errno,
-    )
+        for future in as_completed(fs=futures):
+            future.result()
 
 
 @beartype
@@ -651,7 +586,6 @@ def _process_file_path(
         try:
             _evaluate_document(
                 document=document,
-                args=args,
                 example_workers=example_workers,
             )
         except _GroupModifiedError as exc:
@@ -665,34 +599,35 @@ def _process_file_path(
                     continue
                 raise _FatalProcessingError(exit_code=1) from exc
             _log_warning(message=str(object=exc))
-        except _EvaluateError as exc:
-            error_msg: str | None = None
-            if exc.reason:
-                error_msg = (
-                    f"Error running command '{exc.command_args[0]}': "
-                    f"{exc.reason}"
-                )
-                _log_error(message=error_msg)
-
+        except ValueError as exc:
+            error_msg = f"Error running command '{args[0]}': {exc}"
+            _log_error(message=error_msg)
             if continue_on_error:
-                if error_msg:
-                    local_errors.append(
-                        _CollectedError(
-                            message=error_msg,
-                            exit_code=exc.exit_code if exc.exit_code else 1,
-                        )
-                    )
-                else:
-                    local_errors.append(
-                        _CollectedError(
-                            message="Command failed",
-                            exit_code=exc.exit_code if exc.exit_code else 1,
-                        )
-                    )
+                local_errors.append(
+                    _CollectedError(message=error_msg, exit_code=1)
+                )
             else:
-                raise _FatalProcessingError(
-                    exit_code=exc.exit_code if exc.exit_code else 1
-                ) from exc
+                raise _FatalProcessingError(exit_code=1) from exc
+        except subprocess.CalledProcessError as exc:
+            if continue_on_error:
+                local_errors.append(
+                    _CollectedError(
+                        message="Command failed",
+                        exit_code=exc.returncode,
+                    )
+                )
+            else:
+                raise _FatalProcessingError(exit_code=exc.returncode) from exc
+        except OSError as exc:
+            error_msg = f"Error running command '{args[0]}': {exc}"
+            _log_error(message=error_msg)
+            exit_code = exc.errno if exc.errno else 1
+            if continue_on_error:
+                local_errors.append(
+                    _CollectedError(message=error_msg, exit_code=exit_code)
+                )
+            else:
+                raise _FatalProcessingError(exit_code=exit_code) from exc
 
     return local_errors
 
