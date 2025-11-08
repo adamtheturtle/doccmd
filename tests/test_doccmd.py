@@ -9,6 +9,7 @@ import textwrap
 import uuid
 from collections.abc import Sequence
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 from ansi.colour import fg
@@ -18,6 +19,8 @@ from click.testing import CliRunner
 from pytest_regressions.file_regression import FileRegressionFixture
 
 from doccmd import main
+
+PARALLELISM_EXIT_CODE = 2  # CLI exit when parallel writes are disallowed
 
 
 def test_help(file_regression: FileRegressionFixture) -> None:
@@ -877,7 +880,7 @@ def test_example_workers_requires_no_write_to_file(tmp_path: Path) -> None:
         ],
         catch_exceptions=False,
     )
-    assert result.exit_code == 2
+    assert result.exit_code == PARALLELISM_EXIT_CODE
     assert "--no-write-to-file" in result.stderr
 
 
@@ -919,6 +922,76 @@ def test_example_workers_runs_commands(tmp_path: Path) -> None:
     assert "From the second block" in result.stdout
 
 
+def test_example_workers_zero_requires_no_write_when_auto_parallel(
+    tmp_path: Path,
+) -> None:
+    """
+    Example-workers=0 auto-detects CPUs and still requires --no-write-to-file
+    when >1.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            print("Hello")
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    with patch("doccmd.__init__.os.cpu_count", return_value=4):
+        result = runner.invoke(
+            cli=main,
+            args=[
+                "--language",
+                "python",
+                "--command",
+                "cat",
+                "--example-workers",
+                "0",
+                str(object=rst_file),
+            ],
+            catch_exceptions=False,
+        )
+    assert result.exit_code == PARALLELISM_EXIT_CODE
+    assert "--no-write-to-file" in result.stderr
+
+
+def test_example_workers_zero_allows_running_when_cpu_is_single(
+    tmp_path: Path,
+) -> None:
+    """
+    Example-workers=0 falls back to sequential execution when only one CPU is
+    detected.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            print("Only one CPU")
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    with patch("doccmd.__init__.os.cpu_count", return_value=1):
+        result = runner.invoke(
+            cli=main,
+            args=[
+                "--language",
+                "python",
+                "--command",
+                "cat",
+                "--example-workers",
+                "0",
+                str(object=rst_file),
+            ],
+            catch_exceptions=False,
+        )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert "Only one CPU" in result.stdout
+
+
 def test_document_workers_requires_no_write_to_file(tmp_path: Path) -> None:
     """
     Using --document-workers>1 without --no-write-to-file is rejected.
@@ -946,7 +1019,7 @@ def test_document_workers_requires_no_write_to_file(tmp_path: Path) -> None:
         ],
         catch_exceptions=False,
     )
-    assert result.exit_code == 2
+    assert result.exit_code == PARALLELISM_EXIT_CODE
     assert "--no-write-to-file" in result.stderr
 
 
@@ -992,6 +1065,86 @@ def test_document_workers_runs_commands(tmp_path: Path) -> None:
     assert result.exit_code == 0, (result.stdout, result.stderr)
     assert "From the first document" in result.stdout
     assert "From the second document" in result.stdout
+
+
+def test_document_workers_zero_requires_no_write_when_auto_parallel(
+    tmp_path: Path,
+) -> None:
+    """
+    Document-workers=0 auto-detects CPUs and still requires --no-write-to-file
+    when >1.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            print("Hello")
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    with patch("doccmd.__init__.os.cpu_count", return_value=4):
+        result = runner.invoke(
+            cli=main,
+            args=[
+                "--language",
+                "python",
+                "--command",
+                "cat",
+                "--document-workers",
+                "0",
+                str(object=rst_file),
+            ],
+            catch_exceptions=False,
+        )
+    assert result.exit_code == PARALLELISM_EXIT_CODE
+    assert "--no-write-to-file" in result.stderr
+
+
+def test_document_workers_zero_allows_running_when_cpu_is_single(
+    tmp_path: Path,
+) -> None:
+    """
+    Document-workers=0 runs sequentially when only one CPU is detected.
+    """
+    runner = CliRunner()
+    first_rst = tmp_path / "first.rst"
+    second_rst = tmp_path / "second.rst"
+    first_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            print("First")
+        """,
+    )
+    second_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            print("Second")
+        """,
+    )
+    first_rst.write_text(data=first_content, encoding="utf-8")
+    second_rst.write_text(data=second_content, encoding="utf-8")
+    with patch("doccmd.__init__.os.cpu_count", return_value=1):
+        result = runner.invoke(
+            cli=main,
+            args=[
+                "--language",
+                "python",
+                "--command",
+                "cat",
+                "--document-workers",
+                "0",
+                str(object=first_rst),
+                str(object=second_rst),
+            ],
+            catch_exceptions=False,
+        )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert "First" in result.stdout
+    assert "Second" in result.stdout
 
 
 def test_verbose_running(tmp_path: Path) -> None:

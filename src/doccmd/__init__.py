@@ -3,6 +3,7 @@ CLI to run commands on the given files.
 """
 
 import difflib
+import os
 import platform
 import shlex
 import subprocess
@@ -361,6 +362,20 @@ def _get_temporary_file_extension(
 
 
 @beartype
+def _resolve_workers(*, requested_workers: int) -> int:
+    """
+    Resolve the input worker count, auto-detecting CPUs when zero.
+    """
+    if requested_workers != 0:
+        return requested_workers
+
+    detected_cpus = os.cpu_count()
+    if not detected_cpus or detected_cpus < 1:
+        return 1
+    return detected_cpus
+
+
+@beartype
 def _evaluate_document(
     *,
     document: Document,
@@ -407,13 +422,13 @@ def _evaluate_document(
     max_workers = min(example_workers, len(examples))
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = [executor.submit(example.evaluate) for example in examples]
-        for future in as_completed(futures):
-            try:
+        try:
+            for future in as_completed(futures):
                 future.result()
-            except (ValueError, subprocess.CalledProcessError, OSError) as exc:
-                for pending_future in futures:
-                    pending_future.cancel()
-                _raise_from_exception(exc=exc)
+        except (ValueError, subprocess.CalledProcessError, OSError) as exc:
+            for pending_future in futures:
+                pending_future.cancel()
+            _raise_from_exception(exc=exc)
 
 
 @beartype
@@ -528,6 +543,9 @@ class _FatalProcessingError(Exception):
     """
 
     def __init__(self, exit_code: int) -> None:
+        """
+        Capture the exit code doccmd should terminate with.
+        """
         self.exit_code = exit_code
         super().__init__()
 
@@ -640,7 +658,7 @@ def _process_file_path(
                         _CollectedError(message=message, exit_code=1)
                     )
                 else:
-                    raise _FatalProcessingError(exit_code=1)
+                    raise _FatalProcessingError(exit_code=1) from exc
             continue
 
         try:
@@ -658,7 +676,7 @@ def _process_file_path(
                         _CollectedError(message=error_message, exit_code=1)
                     )
                     continue
-                raise _FatalProcessingError(exit_code=1)
+                raise _FatalProcessingError(exit_code=1) from exc
             _log_warning(message=str(object=exc))
         except _EvaluateError as exc:
             error_msg: str | None = None
@@ -687,7 +705,7 @@ def _process_file_path(
             else:
                 raise _FatalProcessingError(
                     exit_code=exc.exit_code if exc.exit_code else 1
-                )
+                ) from exc
 
     return local_errors
 
@@ -1086,26 +1104,26 @@ def _get_sybil(
     ),
     cloup.option(
         "--example-workers",
-        type=click.IntRange(min=1),
+        type=click.IntRange(min=0),
         default=1,
         show_default=True,
         help=(
             "Number of code blocks to evaluate concurrently when "
-            "`--no-write-to-file` is set. Values greater than 1 are rejected "
-            "when writing to files, since doccmd cannot safely apply changes "
-            "in parallel."
+            "`--no-write-to-file` is set. Use 0 to auto-detect based on the "
+            "number of CPUs. Values greater than 1 are rejected when writing "
+            "to files, since doccmd cannot safely apply changes in parallel."
         ),
     ),
     cloup.option(
         "--document-workers",
-        type=click.IntRange(min=1),
+        type=click.IntRange(min=0),
         default=1,
         show_default=True,
         help=(
             "Number of documents to evaluate concurrently when "
-            "`--no-write-to-file` is set. Values greater than 1 are rejected "
-            "when writing to files, since doccmd cannot safely apply changes "
-            "in parallel."
+            "`--no-write-to-file` is set. Use 0 to auto-detect based on the "
+            "number of CPUs. Values greater than 1 are rejected when writing "
+            "to files, since doccmd cannot safely apply changes in parallel."
         ),
     ),
 )
@@ -1198,6 +1216,8 @@ def main(
     """
     args = shlex.split(s=command)
     use_pty = use_pty_option.use_pty()
+    example_workers = _resolve_workers(requested_workers=example_workers)
+    document_workers = _resolve_workers(requested_workers=document_workers)
 
     suffix_groups: Mapping[MarkupLanguage, Sequence[str]] = {
         MYST: myst_suffixes,
@@ -1279,16 +1299,16 @@ def main(
     }
 
     if document_workers == 1 or not file_paths:
-        for file_path in file_paths:
-            try:
+        try:
+            for file_path in file_paths:
                 collected_errors.extend(
                     _process_file_path(
                         file_path=file_path,
                         **file_processing_kwargs,
                     )
                 )
-            except _FatalProcessingError as exc:
-                sys.exit(exc.exit_code)
+        except _FatalProcessingError as exc:
+            sys.exit(exc.exit_code)
     else:
         max_workers = min(document_workers, len(file_paths))
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
@@ -1302,12 +1322,11 @@ def main(
             }
             try:
                 for future in as_completed(futures):
-                    try:
-                        collected_errors.extend(future.result())
-                    except _FatalProcessingError as exc:
-                        for pending_future in futures:
-                            pending_future.cancel()
-                        sys.exit(exc.exit_code)
+                    collected_errors.extend(future.result())
+            except _FatalProcessingError as exc:
+                for pending_future in futures:
+                    pending_future.cancel()
+                sys.exit(exc.exit_code)
             finally:
                 for pending_future in futures:
                     pending_future.cancel()

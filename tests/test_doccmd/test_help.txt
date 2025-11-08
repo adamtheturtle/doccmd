@@ -16,21 +16,21 @@ Code block selection:
                                   given.
   --skip-marker TEXT              The marker used to identify code blocks to be
                                   skipped.
-                                  
+
                                   By default, code blocks which come just after
                                   a comment matching 'skip doccmd[all]: next'
                                   are skipped (e.g. `.. skip doccmd[all]: next`
                                   in reStructuredText, `<!--- skip doccmd[all]:
                                   next -->` in Markdown, or `% skip doccmd[all]:
                                   next` in MyST).
-                                  
+
                                   When using this option, those, and code blocks
                                   which come just after a comment including the
                                   given marker are ignored. For example, if the
                                   given marker is 'type-check', code blocks
                                   which come just after a comment matching 'skip
                                   doccmd[type-check]: next' are also skipped.
-                                  
+
                                   To skip a code block for each of multiple
                                   markers, for example to skip a code block for
                                   the ``type-check`` and ``lint`` markers but
@@ -38,7 +38,7 @@ Code block selection:
                                   comments above the code block.
   --group-marker TEXT             The marker used to identify code blocks to be
                                   grouped.
-                                  
+
                                   By default, code blocks which come just
                                   between comments matching 'group doccmd[all]:
                                   start' and 'group doccmd[all]: end' are
@@ -46,7 +46,7 @@ Code block selection:
                                   reStructuredText, `<!--- group doccmd[all]:
                                   start -->` in Markdown, or `% group
                                   doccmd[all]: start` in MyST).
-                                  
+
                                   When using this option, those, and code blocks
                                   which are grouped by a comment including the
                                   given marker are ignored. For example, if the
@@ -54,7 +54,7 @@ Code block selection:
                                   which come within comments matching 'group
                                   doccmd[type-check]: start' and 'group
                                   doccmd[type-check]: end' are also skipped.
-                                  
+
                                   Error messages for grouped code blocks may
                                   include lines which do not match the document,
                                   so code formatters will not work on them.
@@ -127,29 +127,33 @@ Execution options:
                                   commands. Using a PTY can be useful for
                                   getting color output from commands, but can
                                   also break in some environments.
-                                  
+
                                   'yes': Always use PTY (not supported on
                                   Windows).
-                                  
+
                                   'no': Never use PTY - useful when doccmd
                                   detects that it is running in a TTY outside of
                                   Windows but the environment does not support
                                   PTYs.
-                                  
+
                                   'detect': Automatically determine based on
                                   environment (default).  [default: DETECT]
   --example-workers INTEGER RANGE
                                   Number of code blocks to evaluate concurrently
-                                  when `--no-write-to-file` is set. Values
-                                  greater than 1 are rejected when writing to
-                                  files, since doccmd cannot safely apply
-                                  changes in parallel.  [default: 1; x>=1]
+                                  when `--no-write-to-file` is set. Use 0 to
+                                  auto-detect based on the number of CPUs.
+                                  Values greater than 1 are rejected when
+                                  writing to files, since doccmd cannot safely
+                                  apply changes in parallel.  [default: 1;
+                                  x>=0]
   --document-workers INTEGER RANGE
                                   Number of documents to evaluate concurrently
-                                  when `--no-write-to-file` is set. Values
-                                  greater than 1 are rejected when writing to
-                                  files, since doccmd cannot safely apply
-                                  changes in parallel.  [default: 1; x>=1]
+                                  when `--no-write-to-file` is set. Use 0 to
+                                  auto-detect based on the number of CPUs.
+                                  Values greater than 1 are rejected when
+                                  writing to files, since doccmd cannot safely
+                                  apply changes in parallel.  [default: 1;
+                                  x>=0]
 
 Error handling:
   --fail-on-parse-error / --no-fail-on-parse-error
