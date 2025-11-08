@@ -380,12 +380,18 @@ def _evaluate_document(
     *,
     document: Document,
     example_workers: int,
+    has_grouping: bool,
 ) -> None:
-    """
-    Evaluate the document.
+    """Evaluate the document.
+
+    Args:
+        document: The document to evaluate.
+        example_workers: Number of workers for parallel execution.
+        has_grouping: Whether grouped examples are present. When True,
+            parallel execution is disabled to maintain document order.
     """
     examples = tuple(document.examples())
-    if example_workers == 1 or len(examples) in {0, 1}:
+    if example_workers == 1 or len(examples) in {0, 1} or has_grouping:
         for example in examples:
             example.evaluate()
         return
@@ -594,6 +600,7 @@ def _process_file_path(
             _evaluate_document(
                 document=document,
                 example_workers=example_workers,
+                has_grouping=bool(group_directives),
             )
         except _GroupModifiedError as exc:
             if fail_on_group_write:
