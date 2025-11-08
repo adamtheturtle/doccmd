@@ -368,50 +368,6 @@ def test_run_command_no_pad_file(tmp_path: Path) -> None:
     assert result.stderr == ""
 
 
-def test_no_write_to_file_option(tmp_path: Path) -> None:
-    """
-    It is possible to opt-out of writing changes back to the document.
-    """
-    runner = CliRunner()
-    rst_file = tmp_path / "example.rst"
-    content = textwrap.dedent(
-        text="""\
-        .. code-block:: python
-
-            a = 1
-        """,
-    )
-    rst_file.write_text(data=content, encoding="utf-8")
-    modify_code_script = textwrap.dedent(
-        text="""\
-        #!/usr/bin/env python
-
-        import sys
-
-        with open(sys.argv[1], "w", encoding="utf-8") as file:
-            file.write("formatted = True\\n")
-        """,
-    )
-    modify_code_file = tmp_path / "modify_code.py"
-    modify_code_file.write_text(data=modify_code_script, encoding="utf-8")
-    arguments = [
-        "--language",
-        "python",
-        "--command",
-        f"python {modify_code_file.as_posix()}",
-        "--no-write-to-file",
-        str(object=rst_file),
-    ]
-    result = runner.invoke(
-        cli=main,
-        args=arguments,
-        catch_exceptions=False,
-        color=True,
-    )
-    assert result.exit_code == 0, (result.stdout, result.stderr)
-    assert rst_file.read_text(encoding="utf-8") == content
-
-
 def test_multiple_files(tmp_path: Path) -> None:
     """
     It is possible to run a command against multiple files.
@@ -531,9 +487,40 @@ def test_multiple_files_multiple_types(tmp_path: Path) -> None:
     assert result.stderr == ""
 
 
-def test_modify_file(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    argnames=("write_to_file_options", "expected_content"),
+    argvalues=[
+        (
+            [],
+            textwrap.dedent(
+                text="""\
+                .. code-block:: python
+
+                    foobar
+                """,
+            ),
+        ),
+        (
+            ["--no-write-to-file"],
+            textwrap.dedent(
+                text="""\
+                .. code-block:: python
+
+                    a = 1
+                    b = 1
+                    c = 1
+                """,
+            ),
+        ),
+    ],
+)
+def test_modify_file(
+    tmp_path: Path,
+    write_to_file_options: Sequence[str],
+    expected_content: str,
+) -> None:
     """
-    Commands (outside of groups) can modify files.
+    Commands (outside of groups) can modify files when allowed.
     """
     runner = CliRunner()
     rst_file = tmp_path / "example.rst"
@@ -564,6 +551,7 @@ def test_modify_file(tmp_path: Path) -> None:
         "python",
         "--command",
         f"python {modify_code_file.as_posix()}",
+        *write_to_file_options,
         str(object=rst_file),
     ]
     result = runner.invoke(
@@ -573,15 +561,7 @@ def test_modify_file(tmp_path: Path) -> None:
         color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
-    modified_content = rst_file.read_text(encoding="utf-8")
-    expected_modified_content = textwrap.dedent(
-        text="""\
-        .. code-block:: python
-
-            foobar
-        """,
-    )
-    assert modified_content == expected_modified_content
+    assert rst_file.read_text(encoding="utf-8") == expected_content
 
 
 def test_exit_code(tmp_path: Path) -> None:
