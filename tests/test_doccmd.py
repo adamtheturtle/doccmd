@@ -4148,7 +4148,7 @@ def test_value_error_without_continue_on_error(
         msg = "Mock error for testing"
         raise ValueError(msg)
 
-    monkeypatch.setattr(Example, "evaluate", mock_evaluate)
+    monkeypatch.setattr(target=Example, name="evaluate", value=mock_evaluate)
 
     runner = CliRunner()
     rst_file = tmp_path / "example.rst"
@@ -4192,7 +4192,7 @@ def test_value_error_with_continue_on_error(
         msg = "Mock error for testing"
         raise ValueError(msg)
 
-    monkeypatch.setattr(Example, "evaluate", mock_evaluate)
+    monkeypatch.setattr(target=Example, name="evaluate", value=mock_evaluate)
 
     runner = CliRunner()
     rst_file = tmp_path / "example.rst"
