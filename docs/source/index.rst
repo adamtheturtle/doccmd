@@ -59,6 +59,22 @@ For example, to run ``ruff format`` against the code blocks in a Markdown file, 
 
 .. include:: file-names-and-linter-ignores.rst
 
+Running commands in parallel
+----------------------------
+
+When ``doccmd`` is not writing formatter output back into your documentation files (i.e. you are using ``--no-write-to-file``), you can speed things up by parallelizing both within a document and across documents.
+
+* :option:`doccmd --example-workers` evaluates multiple code blocks from the same document at once.
+* :option:`doccmd --document-workers` runs different documents concurrently.
+
+Set either option to ``0`` to auto-detect a worker count based on the number of CPUs on your machine.
+
+For example, ``doccmd --no-write-to-file --example-workers 4 --document-workers 2`` spreads work across two documents, with up to four blocks active per document.
+This is handy for CPU-bound linters that only emit diagnostics.
+
+Parallel execution is intentionally disabled whenever :option:`doccmd --write-to-file` is in effect, since ``doccmd`` cannot safely merge formatter changes into the original documents out of order.
+Command output might interleave between example workers and document workers, so stick to the default sequential mode when deterministic ``stdout`` / ``stderr`` ordering is important.
+
 Reference
 ---------
 

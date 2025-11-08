@@ -138,6 +138,28 @@ Execution options:
                                   
                                   'detect': Automatically determine based on
                                   environment (default).  [default: DETECT]
+  --example-workers INTEGER RANGE
+                                  Number of code blocks to evaluate concurrently
+                                  within each document when `--no-write-to-file`
+                                  is set. Use 0 to auto-detect based on the
+                                  number of CPUs. Values greater than 1 are
+                                  rejected when writing to files, since doccmd
+                                  cannot safely apply changes in parallel. Best
+                                  for files with many code blocks. Can be
+                                  combined with --document-workers for maximum
+                                  parallelism. Output may be interleaved when
+                                  using parallel execution.  [default: 1; x>=0]
+  --document-workers INTEGER RANGE
+                                  Number of documents to evaluate concurrently
+                                  when `--no-write-to-file` is set. Use 0 to
+                                  auto-detect based on the number of CPUs.
+                                  Values greater than 1 are rejected when
+                                  writing to files, since doccmd cannot safely
+                                  apply changes in parallel. Best for processing
+                                  many files. Can be combined with --example-
+                                  workers for maximum parallelism. Output may be
+                                  interleaved when using parallel execution.
+                                  [default: 1; x>=0]
 
 Error handling:
   --fail-on-parse-error / --no-fail-on-parse-error

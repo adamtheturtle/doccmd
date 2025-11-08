@@ -2,6 +2,7 @@
 Tests for `doccmd`.
 """
 
+import os
 import stat
 import subprocess
 import sys
@@ -18,6 +19,8 @@ from click.testing import CliRunner
 from pytest_regressions.file_regression import FileRegressionFixture
 
 from doccmd import main
+
+PARALLELISM_EXIT_CODE = 2  # CLI exit when parallel writes are disallowed
 
 
 def test_help(file_regression: FileRegressionFixture) -> None:
@@ -848,6 +851,393 @@ def test_file_given_multiple_times(tmp_path: Path) -> None:
 
     assert result.stdout == expected_output
     assert result.stderr == ""
+
+
+@pytest.mark.parametrize(
+    argnames="worker_flag",
+    argvalues=["--example-workers", "--document-workers"],
+)
+def test_workers_requires_no_write_to_file(
+    tmp_path: Path,
+    worker_flag: str,
+) -> None:
+    """
+    Using workers>1 without --no-write-to-file is rejected.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            print("Hello")
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    result = runner.invoke(
+        cli=main,
+        args=[
+            "--language",
+            "python",
+            "--command",
+            "cat",
+            worker_flag,
+            "2",
+            str(object=rst_file),
+        ],
+        catch_exceptions=False,
+    )
+    assert result.exit_code == PARALLELISM_EXIT_CODE
+    assert "--no-write-to-file" in result.stderr
+
+
+@pytest.mark.parametrize(
+    argnames="worker_flag",
+    argvalues=["--example-workers", "--document-workers"],
+)
+def test_workers_runs_commands(
+    tmp_path: Path,
+    worker_flag: str,
+) -> None:
+    """
+    Commands run successfully when workers>1 and --no-write-to-file is given.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            print("From the first block")
+
+        .. code-block:: python
+
+            print("From the second block")
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    result = runner.invoke(
+        cli=main,
+        args=[
+            "--language",
+            "python",
+            "--command",
+            "cat",
+            "--no-pad-file",
+            "--no-write-to-file",
+            worker_flag,
+            "2",
+            str(object=rst_file),
+        ],
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert "From the first block" in result.stdout
+    assert "From the second block" in result.stdout
+
+
+@pytest.mark.parametrize(
+    argnames="worker_flag",
+    argvalues=["--example-workers", "--document-workers"],
+)
+def test_workers_zero_requires_no_write_when_auto_parallel(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    worker_flag: str,
+) -> None:
+    """
+    Workers=0 auto-detects CPUs and still requires --no-write-to-file when >1.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            print("Hello")
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    monkeypatch.setattr(target=os, name="cpu_count", value=lambda: 4)
+    result = runner.invoke(
+        cli=main,
+        args=[
+            "--language",
+            "python",
+            "--command",
+            "cat",
+            worker_flag,
+            "0",
+            str(object=rst_file),
+        ],
+        catch_exceptions=False,
+    )
+    assert result.exit_code == PARALLELISM_EXIT_CODE
+    assert "--no-write-to-file" in result.stderr
+
+
+@pytest.mark.parametrize(
+    argnames="worker_flag",
+    argvalues=["--example-workers", "--document-workers"],
+)
+def test_workers_zero_allows_running_when_cpu_is_single(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    worker_flag: str,
+) -> None:
+    """
+    Workers=0 falls back to sequential execution when only one CPU is detected.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            print("Only one CPU")
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    monkeypatch.setattr(target=os, name="cpu_count", value=lambda: 1)
+    result = runner.invoke(
+        cli=main,
+        args=[
+            "--language",
+            "python",
+            "--command",
+            "cat",
+            worker_flag,
+            "0",
+            str(object=rst_file),
+        ],
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert "Only one CPU" in result.stdout
+
+
+def test_cpu_count_returns_none(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """
+    When os.cpu_count() returns None, workers default to 1.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            print("CPU count is None")
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    monkeypatch.setattr(target=os, name="cpu_count", value=lambda: None)
+    result = runner.invoke(
+        cli=main,
+        args=[
+            "--language",
+            "python",
+            "--command",
+            "cat",
+            "--example-workers",
+            "0",
+            str(object=rst_file),
+        ],
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert "CPU count is None" in result.stdout
+
+
+@pytest.mark.parametrize(
+    argnames="worker_flag",
+    argvalues=["--example-workers", "--document-workers"],
+)
+def test_parallel_execution_error(
+    tmp_path: Path,
+    worker_flag: str,
+) -> None:
+    """
+    Errors during parallel execution are handled correctly.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            print("First block")
+
+        .. code-block:: python
+
+            print("Second block")
+
+        .. code-block:: python
+
+            print("Third block")
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    non_existent_command = uuid.uuid4().hex
+    result = runner.invoke(
+        cli=main,
+        args=[
+            "--language",
+            "python",
+            "--command",
+            non_existent_command,
+            "--no-write-to-file",
+            worker_flag,
+            "2",
+            str(object=rst_file),
+        ],
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code != 0
+    assert f"Error running command '{non_existent_command}'" in result.stderr
+
+
+def test_document_with_no_examples(tmp_path: Path) -> None:
+    """
+    Documents with no matching code blocks are handled correctly.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        This is a document with no code blocks.
+
+        Just some text.
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    result = runner.invoke(
+        cli=main,
+        args=[
+            "--language",
+            "python",
+            "--command",
+            "cat",
+            "--no-write-to-file",
+            "--example-workers",
+            "2",
+            str(object=rst_file),
+        ],
+        catch_exceptions=False,
+    )
+    assert result.exit_code == 0
+    assert result.stdout == ""
+    assert result.stderr == ""
+
+
+@pytest.mark.parametrize(
+    argnames=("worker_options", "num_blocks"),
+    argvalues=[
+        ([], 1),  # Single example, no workers
+        (["--no-write-to-file", "--example-workers", "1"], 2),  # Sequential
+        (
+            ["--no-write-to-file", "--example-workers", "2"],
+            1,
+        ),  # Parallel fallback
+    ],
+    ids=[
+        "single-no-workers",
+        "sequential-multi-block",
+        "parallel-single-block",
+    ],
+)
+def test_execution_error_handling(
+    tmp_path: Path,
+    worker_options: list[str],
+    num_blocks: int,
+) -> None:
+    """
+    Errors are handled correctly across different execution modes.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+
+    # Generate content with the specified number of blocks
+    blocks = [f'print("Block {i}")' for i in range(1, num_blocks + 1)]
+    block_text = "\n\n.. code-block:: python\n\n    ".join(blocks)
+    content = f".. code-block:: python\n\n    {block_text}\n"
+
+    rst_file.write_text(data=content, encoding="utf-8")
+    non_existent_command = uuid.uuid4().hex
+    result = runner.invoke(
+        cli=main,
+        args=[
+            "--language",
+            "python",
+            "--command",
+            non_existent_command,
+            *worker_options,
+            str(object=rst_file),
+        ],
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code != 0
+    assert f"Error running command '{non_existent_command}'" in result.stderr
+
+
+@pytest.mark.parametrize(
+    argnames=(
+        "command",
+        "should_succeed",
+        "expected_stdout",
+        "expected_stderr",
+    ),
+    argvalues=[
+        ("cat", True, "Only one block", ""),
+        (uuid.uuid4().hex, False, "", "Error running command"),
+    ],
+    ids=["success", "error"],
+)
+def test_single_example_with_parallel_workers(
+    *,
+    tmp_path: Path,
+    command: str,
+    should_succeed: bool,
+    expected_stdout: str,
+    expected_stderr: str,
+) -> None:
+    """
+    Single example with example_workers>1 falls back to sequential execution.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            print("Only one block")
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    result = runner.invoke(
+        cli=main,
+        args=[
+            "--language",
+            "python",
+            "--command",
+            command,
+            "--no-pad-file",
+            "--no-write-to-file",
+            "--example-workers",
+            "2",
+            str(object=rst_file),
+        ],
+        catch_exceptions=False,
+        color=True,
+    )
+
+    assert (result.exit_code == 0) == should_succeed
+    assert expected_stdout in result.stdout
+    assert expected_stderr in result.stderr
 
 
 def test_verbose_running(tmp_path: Path) -> None:

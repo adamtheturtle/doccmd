@@ -3,12 +3,14 @@ CLI to run commands on the given files.
 """
 
 import difflib
+import os
 import platform
 import shlex
 import subprocess
 import sys
 import textwrap
 from collections.abc import Callable, Iterable, Mapping, Sequence
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from enum import Enum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
@@ -360,59 +362,39 @@ def _get_temporary_file_extension(
 
 
 @beartype
-def _evaluate_document(
-    *,
-    document: Document,
-    args: Sequence[str | Path],
-) -> None:
-    """Evaluate the document.
-
-    Raises:
-        _EvaluateError: An example in the document could not be evaluated.
+def _resolve_workers(*, requested_workers: int) -> int:
     """
-    try:
-        for example in document.examples():
-            example.evaluate()
-    except ValueError as exc:
-        raise _EvaluateError(
-            command_args=args,
-            reason=str(object=exc),
-            exit_code=1,
-        ) from exc
-    except subprocess.CalledProcessError as exc:
-        raise _EvaluateError(
-            command_args=args,
-            reason=None,
-            exit_code=exc.returncode,
-        ) from exc
-    except OSError as exc:
-        raise _EvaluateError(
-            command_args=args,
-            reason=str(object=exc),
-            exit_code=exc.errno,
-        ) from exc
+    Resolve the input worker count, auto-detecting CPUs when zero.
+    """
+    if requested_workers != 0:
+        return requested_workers
+
+    detected_cpus = os.cpu_count()
+    if not detected_cpus or detected_cpus < 1:
+        return 1
+    return detected_cpus
 
 
 @beartype
-class _EvaluateError(Exception):
+def _evaluate_document(
+    *,
+    document: Document,
+    example_workers: int,
+) -> None:
     """
-    Error raised when an example could not be evaluated.
+    Evaluate the document.
     """
+    examples = tuple(document.examples())
+    if example_workers == 1 or len(examples) in {0, 1}:
+        for example in examples:
+            example.evaluate()
+        return
 
-    @beartype
-    def __init__(
-        self,
-        command_args: Sequence[str | Path],
-        reason: str | None,
-        exit_code: int | None,
-    ) -> None:
-        """
-        Initialize the error.
-        """
-        self.exit_code = exit_code
-        self.reason = reason
-        self.command_args = command_args
-        super().__init__()
+    max_workers = min(example_workers, len(examples))
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = [executor.submit(example.evaluate) for example in examples]
+        for future in as_completed(fs=futures):
+            future.result()
 
 
 @beartype
@@ -466,6 +448,201 @@ class _CollectedError:
 
     message: str
     exit_code: int
+
+
+class _FatalProcessingError(Exception):
+    """
+    Error raised when processing a document requires exiting immediately.
+    """
+
+    def __init__(self, exit_code: int) -> None:
+        """
+        Capture the exit code doccmd should terminate with.
+        """
+        self.exit_code = exit_code
+        super().__init__()
+
+
+@beartype
+def _handle_error(
+    *,
+    message: str,
+    exit_code: int,
+    continue_on_error: bool,
+    exc: Exception | None = None,
+) -> _CollectedError:
+    """
+    Handle an error by either returning it or raising a fatal error.
+    """
+    if continue_on_error:
+        return _CollectedError(message=message, exit_code=exit_code)
+    raise _FatalProcessingError(exit_code=exit_code) from exc
+
+
+@beartype
+def _process_file_path(
+    *,
+    file_path: Path,
+    suffix_map: Mapping[str, MarkupLanguage],
+    args: Sequence[str | Path],
+    languages: Sequence[str],
+    pad_file: bool,
+    write_to_file: bool,
+    pad_groups: bool,
+    temporary_file_name_prefix: str,
+    given_temporary_file_extension: str | None,
+    skip_directives: Iterable[str],
+    group_directives: Iterable[str],
+    use_pty: bool,
+    log_command_evaluators: Sequence[_LogCommandEvaluator],
+    sphinx_jinja2: bool,
+    fail_on_parse_error: bool,
+    fail_on_group_write: bool,
+    continue_on_error: bool,
+    example_workers: int,
+) -> list[_CollectedError]:
+    """
+    Process a single documentation file.
+    """
+    local_errors: list[_CollectedError] = []
+    markup_language = suffix_map[file_path.suffix]
+    encoding = _get_encoding(document_path=file_path)
+    if encoding is None:
+        could_not_determine_encoding_msg = (
+            f"Could not determine encoding for {file_path}."
+        )
+        _log_error(message=could_not_determine_encoding_msg)
+        if fail_on_parse_error:
+            local_errors.append(
+                _handle_error(
+                    message=could_not_determine_encoding_msg,
+                    exit_code=1,
+                    continue_on_error=continue_on_error,
+                )
+            )
+        return local_errors
+
+    content_bytes = file_path.read_bytes()
+    newline_bytes = _detect_newline(content_bytes=content_bytes)
+    newline = (
+        newline_bytes.decode(encoding=encoding) if newline_bytes else None
+    )
+    sybils: Sequence[Sybil] = []
+    for code_block_language in languages:
+        temporary_file_extension = _get_temporary_file_extension(
+            language=code_block_language,
+            given_file_extension=given_temporary_file_extension,
+        )
+        sybil = _get_sybil(
+            args=args,
+            code_block_languages=[code_block_language],
+            pad_temporary_file=pad_file,
+            write_to_file=write_to_file,
+            pad_groups=pad_groups,
+            temporary_file_extension=temporary_file_extension,
+            temporary_file_name_prefix=temporary_file_name_prefix,
+            skip_directives=skip_directives,
+            group_directives=group_directives,
+            use_pty=use_pty,
+            markup_language=markup_language,
+            encoding=encoding,
+            log_command_evaluators=log_command_evaluators,
+            newline=newline,
+            parse_sphinx_jinja2=False,
+        )
+        sybils = [*sybils, sybil]
+
+    if sphinx_jinja2:
+        temporary_file_extension = given_temporary_file_extension or ".jinja"
+        sybil = _get_sybil(
+            args=args,
+            code_block_languages=[],
+            pad_temporary_file=pad_file,
+            write_to_file=write_to_file,
+            pad_groups=pad_groups,
+            temporary_file_extension=temporary_file_extension,
+            temporary_file_name_prefix=temporary_file_name_prefix,
+            skip_directives=skip_directives,
+            group_directives=group_directives,
+            use_pty=use_pty,
+            markup_language=markup_language,
+            encoding=encoding,
+            log_command_evaluators=log_command_evaluators,
+            newline=newline,
+            parse_sphinx_jinja2=True,
+        )
+        sybils = [*sybils, sybil]
+
+    for sybil in sybils:
+        try:
+            document = sybil.parse(path=file_path)
+        except (LexingException, ValueError) as exc:
+            message = f"Could not parse {file_path}: {exc}"
+            _log_error(message=message)
+            if fail_on_parse_error:
+                local_errors.append(
+                    _handle_error(
+                        message=message,
+                        exit_code=1,
+                        continue_on_error=continue_on_error,
+                        exc=exc,
+                    )
+                )
+            continue
+
+        try:
+            _evaluate_document(
+                document=document,
+                example_workers=example_workers,
+            )
+        except _GroupModifiedError as exc:
+            if fail_on_group_write:
+                error_message = str(object=exc)
+                _log_error(message=error_message)
+                local_errors.append(
+                    _handle_error(
+                        message=error_message,
+                        exit_code=1,
+                        continue_on_error=continue_on_error,
+                        exc=exc,
+                    )
+                )
+                continue
+            _log_warning(message=str(object=exc))
+        except ValueError as exc:
+            error_msg = f"Error running command '{args[0]}': {exc}"
+            _log_error(message=error_msg)
+            local_errors.append(
+                _handle_error(
+                    message=error_msg,
+                    exit_code=1,
+                    continue_on_error=continue_on_error,
+                    exc=exc,
+                )
+            )
+        except subprocess.CalledProcessError as exc:
+            local_errors.append(
+                _handle_error(
+                    message="Command failed",
+                    exit_code=exc.returncode,
+                    continue_on_error=continue_on_error,
+                    exc=exc,
+                )
+            )
+        except OSError as exc:
+            error_msg = f"Error running command '{args[0]}': {exc}"
+            _log_error(message=error_msg)
+            exit_code = exc.errno if exc.errno else 1
+            local_errors.append(
+                _handle_error(
+                    message=error_msg,
+                    exit_code=exit_code,
+                    continue_on_error=continue_on_error,
+                    exc=exc,
+                )
+            )
+
+    return local_errors
 
 
 @beartype
@@ -860,6 +1037,36 @@ def _get_sybil(
             "'detect': Automatically determine based on environment (default)."
         ),
     ),
+    cloup.option(
+        "--example-workers",
+        type=click.IntRange(min=0),
+        default=1,
+        show_default=True,
+        help=(
+            "Number of code blocks to evaluate concurrently within each "
+            "document when `--no-write-to-file` is set. Use 0 to auto-detect "
+            "based on the number of CPUs. Values greater than 1 are rejected "
+            "when writing to files, since doccmd cannot safely apply changes "
+            "in parallel. Best for files with many code blocks. Can be "
+            "combined with --document-workers for maximum parallelism. "
+            "Output may be interleaved when using parallel execution."
+        ),
+    ),
+    cloup.option(
+        "--document-workers",
+        type=click.IntRange(min=0),
+        default=1,
+        show_default=True,
+        help=(
+            "Number of documents to evaluate concurrently when "
+            "`--no-write-to-file` is set. Use 0 to auto-detect based on the "
+            "number of CPUs. Values greater than 1 are rejected when writing "
+            "to files, since doccmd cannot safely apply changes in parallel. "
+            "Best for processing many files. Can be combined with "
+            "--example-workers for maximum parallelism. "
+            "Output may be interleaved when using parallel execution."
+        ),
+    ),
 )
 @cloup.option_group(
     "Error handling",
@@ -941,6 +1148,8 @@ def main(
     fail_on_group_write: bool,
     sphinx_jinja2: bool,
     continue_on_error: bool,
+    example_workers: int,
+    document_workers: int,
 ) -> None:
     """Run commands against code blocks in the given documentation files.
 
@@ -948,6 +1157,8 @@ def main(
     """
     args = shlex.split(s=command)
     use_pty = use_pty_option.use_pty()
+    example_workers = _resolve_workers(requested_workers=example_workers)
+    document_workers = _resolve_workers(requested_workers=document_workers)
 
     suffix_groups: Mapping[MarkupLanguage, Sequence[str]] = {
         MYST: myst_suffixes,
@@ -994,139 +1205,83 @@ def main(
 
     given_temporary_file_extension = temporary_file_extension
 
-    collected_errors: list[_CollectedError] = []
-
-    for file_path in file_paths:
-        markup_language = suffix_map[file_path.suffix]
-        encoding = _get_encoding(document_path=file_path)
-        if encoding is None:
-            could_not_determine_encoding_msg = (
-                f"Could not determine encoding for {file_path}."
-            )
-            _log_error(message=could_not_determine_encoding_msg)
-            if fail_on_parse_error:
-                if continue_on_error:
-                    collected_errors.append(
-                        _CollectedError(
-                            message=could_not_determine_encoding_msg,
-                            exit_code=1,
-                        )
-                    )
-                    continue
-                sys.exit(1)
-            continue
-
-        content_bytes = file_path.read_bytes()
-        newline_bytes = _detect_newline(content_bytes=content_bytes)
-        newline = (
-            newline_bytes.decode(encoding=encoding) if newline_bytes else None
+    if example_workers > 1 and write_to_file:
+        message = (
+            "--example-workers greater than 1 requires --no-write-to-file. "
+            "doccmd cannot safely write to documents in parallel. "
+            "Add --no-write-to-file to enable parallel execution."
         )
-        sybils: Sequence[Sybil] = []
-        for code_block_language in languages:
-            temporary_file_extension = _get_temporary_file_extension(
-                language=code_block_language,
-                given_file_extension=given_temporary_file_extension,
-            )
-            sybil = _get_sybil(
-                args=args,
-                code_block_languages=[code_block_language],
-                pad_temporary_file=pad_file,
-                write_to_file=write_to_file,
-                pad_groups=pad_groups,
-                temporary_file_extension=temporary_file_extension,
-                temporary_file_name_prefix=temporary_file_name_prefix,
-                skip_directives=skip_directives,
-                group_directives=group_directives,
-                use_pty=use_pty,
-                markup_language=markup_language,
-                encoding=encoding,
-                log_command_evaluators=log_command_evaluators,
-                newline=newline,
-                parse_sphinx_jinja2=False,
-            )
-            sybils = [*sybils, sybil]
+        raise click.UsageError(message=message)
+    if document_workers > 1 and write_to_file:
+        message = (
+            "--document-workers greater than 1 requires --no-write-to-file. "
+            "doccmd cannot safely write to documents in parallel. "
+            "Add --no-write-to-file to enable parallel execution."
+        )
+        raise click.UsageError(message=message)
 
-        if sphinx_jinja2:
-            temporary_file_extension = (
-                given_temporary_file_extension or ".jinja"
-            )
-            sybil = _get_sybil(
-                args=args,
-                code_block_languages=[],
-                pad_temporary_file=pad_file,
-                write_to_file=write_to_file,
-                pad_groups=pad_groups,
-                temporary_file_extension=temporary_file_extension,
-                temporary_file_name_prefix=temporary_file_name_prefix,
-                skip_directives=skip_directives,
-                group_directives=group_directives,
-                use_pty=use_pty,
-                markup_language=markup_language,
-                encoding=encoding,
-                log_command_evaluators=log_command_evaluators,
-                newline=newline,
-                parse_sphinx_jinja2=True,
-            )
-            sybils = [*sybils, sybil]
-
-        for sybil in sybils:
-            try:
-                document = sybil.parse(path=file_path)
-            except (LexingException, ValueError) as exc:
-                message = f"Could not parse {file_path}: {exc}"
-                _log_error(message=message)
-                if fail_on_parse_error:
-                    if continue_on_error:
-                        collected_errors.append(
-                            _CollectedError(message=message, exit_code=1)
-                        )
-                        continue
-                    sys.exit(1)
-                continue
-
-            try:
-                _evaluate_document(document=document, args=args)
-            except _GroupModifiedError as exc:
-                if fail_on_group_write:
-                    error_message = str(object=exc)
-                    _log_error(message=error_message)
-                    if continue_on_error:
-                        collected_errors.append(
-                            _CollectedError(message=error_message, exit_code=1)
-                        )
-                        continue
-                    sys.exit(1)
-                _log_warning(message=str(object=exc))
-            except _EvaluateError as exc:
-                error_msg: str | None = None
-                if exc.reason:
-                    error_msg = (
-                        f"Error running command '{exc.command_args[0]}': "
-                        f"{exc.reason}"
+    collected_errors: list[_CollectedError] = []
+    if document_workers == 1 or not file_paths:
+        try:
+            for file_path in file_paths:
+                collected_errors.extend(
+                    _process_file_path(
+                        file_path=file_path,
+                        suffix_map=suffix_map,
+                        args=args,
+                        languages=languages,
+                        pad_file=pad_file,
+                        write_to_file=write_to_file,
+                        pad_groups=pad_groups,
+                        temporary_file_name_prefix=temporary_file_name_prefix,
+                        given_temporary_file_extension=given_temporary_file_extension,
+                        skip_directives=skip_directives,
+                        group_directives=group_directives,
+                        use_pty=use_pty,
+                        log_command_evaluators=log_command_evaluators,
+                        sphinx_jinja2=sphinx_jinja2,
+                        fail_on_parse_error=fail_on_parse_error,
+                        fail_on_group_write=fail_on_group_write,
+                        continue_on_error=continue_on_error,
+                        example_workers=example_workers,
                     )
-                    _log_error(message=error_msg)
-
-                if continue_on_error:
-                    if error_msg:
-                        collected_errors.append(
-                            _CollectedError(
-                                message=error_msg,
-                                exit_code=exc.exit_code
-                                if exc.exit_code
-                                else 1,
-                            )
-                        )
-                    else:
-                        collected_errors.append(
-                            _CollectedError(
-                                message="Command failed",
-                                exit_code=exc.exit_code
-                                if exc.exit_code
-                                else 1,
-                            )
-                        )
-                else:
-                    sys.exit(exc.exit_code)
+                )
+        except _FatalProcessingError as exc:
+            sys.exit(exc.exit_code)
+    else:
+        max_workers = min(document_workers, len(file_paths))
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {
+                executor.submit(
+                    _process_file_path,
+                    file_path=file_path,
+                    suffix_map=suffix_map,
+                    args=args,
+                    languages=languages,
+                    pad_file=pad_file,
+                    write_to_file=write_to_file,
+                    pad_groups=pad_groups,
+                    temporary_file_name_prefix=temporary_file_name_prefix,
+                    given_temporary_file_extension=given_temporary_file_extension,
+                    skip_directives=skip_directives,
+                    group_directives=group_directives,
+                    use_pty=use_pty,
+                    log_command_evaluators=log_command_evaluators,
+                    sphinx_jinja2=sphinx_jinja2,
+                    fail_on_parse_error=fail_on_parse_error,
+                    fail_on_group_write=fail_on_group_write,
+                    continue_on_error=continue_on_error,
+                    example_workers=example_workers,
+                ): file_path
+                for file_path in file_paths
+            }
+            try:
+                for future in as_completed(fs=futures):
+                    collected_errors.extend(future.result())
+            except _FatalProcessingError as exc:
+                for pending_future in futures:
+                    pending_future.cancel()
+                sys.exit(exc.exit_code)
 
     if collected_errors:
         max_exit_code = max(error.exit_code for error in collected_errors)
