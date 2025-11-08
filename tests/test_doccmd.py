@@ -1133,56 +1133,38 @@ def test_document_with_no_examples(tmp_path: Path) -> None:
     assert result.stderr == ""
 
 
-def test_single_example_execution_error(tmp_path: Path) -> None:
-    """
-    Errors during single example execution are handled correctly.
-    """
-    runner = CliRunner()
-    rst_file = tmp_path / "example.rst"
-    content = textwrap.dedent(
-        text="""\
-        .. code-block:: python
-
-            print("Single block")
-        """,
-    )
-    rst_file.write_text(data=content, encoding="utf-8")
-    non_existent_command = uuid.uuid4().hex
-    result = runner.invoke(
-        cli=main,
-        args=[
-            "--language",
-            "python",
-            "--command",
-            non_existent_command,
-            str(object=rst_file),
-        ],
-        catch_exceptions=False,
-        color=True,
-    )
-    assert result.exit_code != 0
-    assert f"Error running command '{non_existent_command}'" in result.stderr
-
-
-def test_sequential_execution_error_with_multiple_examples(
+@pytest.mark.parametrize(
+    argnames=("worker_options", "num_blocks"),
+    argvalues=[
+        ([], 1),  # Single example, no workers
+        (["--no-write-to-file", "--example-workers", "1"], 2),  # Sequential
+        (
+            ["--no-write-to-file", "--example-workers", "2"],
+            1,
+        ),  # Parallel fallback
+    ],
+    ids=[
+        "single-no-workers",
+        "sequential-multi-block",
+        "parallel-single-block",
+    ],
+)
+def test_execution_error_handling(
     tmp_path: Path,
+    worker_options: list[str],
+    num_blocks: int,
 ) -> None:
     """
-    Errors during sequential execution of multiple examples are handled.
+    Errors are handled correctly across different execution modes.
     """
     runner = CliRunner()
     rst_file = tmp_path / "example.rst"
-    content = textwrap.dedent(
-        text="""\
-        .. code-block:: python
 
-            print("First block")
+    # Generate content with the specified number of blocks
+    blocks = [f'print("Block {i}")' for i in range(1, num_blocks + 1)]
+    block_text = "\n\n.. code-block:: python\n\n    ".join(blocks)
+    content = f".. code-block:: python\n\n    {block_text}\n"
 
-        .. code-block:: python
-
-            print("Second block")
-        """,
-    )
     rst_file.write_text(data=content, encoding="utf-8")
     non_existent_command = uuid.uuid4().hex
     result = runner.invoke(
@@ -1192,9 +1174,7 @@ def test_sequential_execution_error_with_multiple_examples(
             "python",
             "--command",
             non_existent_command,
-            "--no-write-to-file",
-            "--example-workers",
-            "1",
+            *worker_options,
             str(object=rst_file),
         ],
         catch_exceptions=False,
@@ -1204,9 +1184,29 @@ def test_sequential_execution_error_with_multiple_examples(
     assert f"Error running command '{non_existent_command}'" in result.stderr
 
 
-def test_single_example_with_parallel_workers(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    argnames=(
+        "command",
+        "should_succeed",
+        "expected_stdout",
+        "expected_stderr",
+    ),
+    argvalues=[
+        ("cat", True, "Only one block", ""),
+        (uuid.uuid4().hex, False, "", "Error running command"),
+    ],
+    ids=["success", "error"],
+)
+def test_single_example_with_parallel_workers(
+    *,
+    tmp_path: Path,
+    command: str,
+    should_succeed: bool,
+    expected_stdout: str,
+    expected_stderr: str,
+) -> None:
     """
-    Single example with example_workers>1 uses sequential path successfully.
+    Single example with example_workers>1 falls back to sequential execution.
     """
     runner = CliRunner()
     rst_file = tmp_path / "example.rst"
@@ -1224,7 +1224,7 @@ def test_single_example_with_parallel_workers(tmp_path: Path) -> None:
             "--language",
             "python",
             "--command",
-            "cat",
+            command,
             "--no-pad-file",
             "--no-write-to-file",
             "--example-workers",
@@ -1232,43 +1232,12 @@ def test_single_example_with_parallel_workers(tmp_path: Path) -> None:
             str(object=rst_file),
         ],
         catch_exceptions=False,
-    )
-    assert result.exit_code == 0
-    assert "Only one block" in result.stdout
-
-
-def test_single_example_with_parallel_workers_error(tmp_path: Path) -> None:
-    """
-    Single example with example_workers>1 handles errors in sequential path.
-    """
-    runner = CliRunner()
-    rst_file = tmp_path / "example.rst"
-    content = textwrap.dedent(
-        text="""\
-        .. code-block:: python
-
-            print("Only one block")
-        """,
-    )
-    rst_file.write_text(data=content, encoding="utf-8")
-    non_existent_command = uuid.uuid4().hex
-    result = runner.invoke(
-        cli=main,
-        args=[
-            "--language",
-            "python",
-            "--command",
-            non_existent_command,
-            "--no-write-to-file",
-            "--example-workers",
-            "2",
-            str(object=rst_file),
-        ],
-        catch_exceptions=False,
         color=True,
     )
-    assert result.exit_code != 0
-    assert f"Error running command '{non_existent_command}'" in result.stderr
+
+    assert (result.exit_code == 0) == should_succeed
+    assert expected_stdout in result.stdout
+    assert expected_stderr in result.stderr
 
 
 def test_verbose_running(tmp_path: Path) -> None:
