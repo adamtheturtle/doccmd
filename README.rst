@@ -154,15 +154,20 @@ Running commands in parallel
 
 When ``doccmd`` is not writing formatter output back into your documentation
 files (i.e. you are using ``--no-write-to-file``), you can speed things up by
-passing ``--example-workers`` to evaluate multiple code blocks at once. For example,
-``doccmd --no-write-to-file --example-workers 4`` spreads work across four threads, which
-is handy for CPU-bound linters that only emit diagnostics.
+parallelising both within a document and across documents:
+
+* ``--example-workers`` evaluates multiple code blocks from the same document at once.
+* ``--document-workers`` runs different documents concurrently.
+
+For example, ``doccmd --no-write-to-file --example-workers 4 --document-workers 2``
+spreads work across two documents, with up to four blocks active per document.
+This is handy for CPU-bound linters that only emit diagnostics.
 
 Parallel execution is intentionally disabled whenever ``--write-to-file`` is in
 effect, since doccmd cannot safely merge formatter changes into the original
-documents out of order. Command output might interleave between workers, so stick
-to the default sequential mode when deterministic stdout/stderr ordering is
-important.
+documents out of order. Command output might interleave between example workers
+and document workers, so stick to the default sequential mode when deterministic
+stdout/stderr ordering is important.
 
 Skipping code blocks
 --------------------
