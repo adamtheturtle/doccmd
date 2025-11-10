@@ -51,7 +51,7 @@ optional-dependencies.dev = [
     "actionlint-py==1.7.8.24",
     "ansi==0.3.7",
     "check-manifest==0.51",
-    "deptry==0.23.1",
+    "deptry==0.24.0",
     "doc8==2.0.0",
     "docformatter==1.7.7",
     "furo==2025.9.25",
