@@ -71,11 +71,10 @@ Code block selection:
                                   executed together, without requiring explicit
                                   group directives. This is useful for files
                                   where code blocks are designed for sequential
-                                  execution by a single kernel. Error messages
-                                  for grouped code blocks may include lines
-                                  which do not match the document, so code
-                                  formatters will not work on them.  [default:
-                                  no-group-file]
+                                  execution. Error messages for grouped code
+                                  blocks may include lines which do not match
+                                  the document, so code formatters will not work
+                                  on them.  [default: no-group-file]
 
 Temporary file options:
   --temporary-file-extension TEXT

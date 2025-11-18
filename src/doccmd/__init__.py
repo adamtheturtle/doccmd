@@ -681,8 +681,8 @@ def _get_encoding(*, document_path: Path) -> str | None:
 class _FileLevelGroupParser:
     """A parser that groups all code blocks of a given language in a file.
 
-    This is used when --group-file is enabled to automatically group all
-    code blocks without requiring explicit group directives.
+    This automatically groups all code blocks without requiring explicit
+    group directives.
     """
 
     def __init__(
@@ -996,7 +996,7 @@ def _get_sybil(
             "When enabled, all code blocks in a file are treated as a single "
             "group and executed together, without requiring explicit group "
             "directives. This is useful for files where code blocks are "
-            "designed for sequential execution by a single kernel. "
+            "designed for sequential execution. "
             "Error messages for grouped code blocks may include lines which "
             "do not match the document, so code formatters will not work on "
             "them."
