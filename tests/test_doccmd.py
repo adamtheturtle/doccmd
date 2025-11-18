@@ -3930,16 +3930,16 @@ def test_continue_on_error_vs_default_behavior(tmp_path: Path) -> None:
     )
 
 
-@pytest.mark.parametrize(  # type: ignore[misc]
-    ("group_file_options", "expect_grouped"),
-    [
+@pytest.mark.parametrize(
+    argnames=("group_file_options", "expect_grouped"),
+    argvalues=[
         pytest.param(["--group-file"], True, id="group-file"),
         pytest.param(["--no-group-file"], False, id="no-group-file"),
     ],
 )
-@pytest.mark.parametrize(  # type: ignore[misc]
-    ("group_padding_options", "expect_padding"),
-    [
+@pytest.mark.parametrize(
+    argnames=("group_padding_options", "expect_padding"),
+    argvalues=[
         pytest.param(["--pad-groups"], True, id="pad-groups"),
         pytest.param(["--no-pad-groups"], False, id="no-pad-groups"),
     ],

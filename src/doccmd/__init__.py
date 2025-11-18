@@ -33,13 +33,7 @@ from sybil import Sybil
 from sybil.document import Document
 from sybil.example import Example
 from sybil.parsers.abstract.lexers import LexingException
-from sybil.region import Region
-
-# Import Lexeme - mypy doesn't recognize this export but it exists at runtime
-try:
-    from sybil.parsers.abstract.lexers import Lexeme
-except ImportError:  # pragma: no cover
-    from sybil.region import Lexeme  # type: ignore[attr-defined]
+from sybil.region import Lexeme, Region
 from sybil_extras.evaluators.multi import MultiEvaluator
 from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
 
@@ -732,14 +726,14 @@ class _FileLevelGroupParser:
         # Group all regions together using the same approach as
         # GroupedSourceParser. Start with the first region's parsed content
         result = regions[0].parsed
-        first_line = offset_to_line(regions[0].start)  # type: ignore[misc]
+        first_line = offset_to_line(offset=regions[0].start)
 
         # Combine remaining regions
         for region in regions[1:]:
             # Calculate padding based on line numbers. This matches the
             # logic in GroupedSourceParser._GroupState.combine_text
             existing_lines = len(result.text.splitlines())
-            current_line = offset_to_line(region.start)  # type: ignore[misc]
+            current_line = offset_to_line(offset=region.start)
 
             if self._pad_groups:
                 # Pad to maintain original line numbers
