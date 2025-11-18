@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from enum import Enum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
-from typing import TypeVar, overload
+from typing import Any, TypeVar, overload
 
 import charset_normalizer
 import click
@@ -33,6 +33,13 @@ from sybil import Sybil
 from sybil.document import Document
 from sybil.example import Example
 from sybil.parsers.abstract.lexers import LexingException
+from sybil.region import Region
+
+# Import Lexeme - mypy doesn't recognize this export but it exists at runtime
+try:
+    from sybil.parsers.abstract.lexers import Lexeme
+except ImportError:  # pragma: no cover
+    from sybil.region import Lexeme  # type: ignore[attr-defined]
 from sybil_extras.evaluators.multi import MultiEvaluator
 from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
 
@@ -493,6 +500,7 @@ def _process_file_path(
     given_temporary_file_extension: str | None,
     skip_directives: Iterable[str],
     group_directives: Iterable[str],
+    group_file: bool,
     use_pty: bool,
     log_command_evaluators: Sequence[_LogCommandEvaluator],
     sphinx_jinja2: bool,
@@ -543,6 +551,7 @@ def _process_file_path(
             temporary_file_name_prefix=temporary_file_name_prefix,
             skip_directives=skip_directives,
             group_directives=group_directives,
+            group_file=group_file,
             use_pty=use_pty,
             markup_language=markup_language,
             encoding=encoding,
@@ -564,6 +573,7 @@ def _process_file_path(
             temporary_file_name_prefix=temporary_file_name_prefix,
             skip_directives=skip_directives,
             group_directives=group_directives,
+            group_file=group_file,
             use_pty=use_pty,
             markup_language=markup_language,
             encoding=encoding,
@@ -674,6 +684,93 @@ def _get_encoding(*, document_path: Path) -> str | None:
 
 
 @beartype
+class _FileLevelGroupParser:
+    """A parser that groups all code blocks of a given language in a file.
+
+    This is used when --group-file is enabled to automatically group all
+    code blocks without requiring explicit group directives.
+    """
+
+    def __init__(
+        self,
+        *,
+        language: str,
+        evaluator: Callable[[Example], str | None],
+        markup_language: MarkupLanguage,
+        pad_groups: bool,
+    ) -> None:
+        """
+        Args:
+            language: The language of code blocks to group.
+            evaluator: The evaluator to use for the grouped blocks.
+            markup_language: The markup language being parsed.
+            pad_groups: Whether to pad groups with empty lines.
+        """
+        self._evaluator = evaluator
+        self._code_block_parser = markup_language.code_block_parser_cls(
+            language=language
+        )
+        self._pad_groups = pad_groups
+
+    def __call__(self, document: Document) -> Iterable[Region]:
+        """
+        Parse the document and yield a single grouped region for all code
+        blocks.
+        """
+        # Collect all code block regions for this language
+        regions = list(self._code_block_parser(document))
+
+        if not regions:
+            return
+
+        def offset_to_line(offset: int) -> int:
+            """
+            Convert character offset to line number (1-indexed).
+            """
+            return document.text[:offset].count("\n") + 1
+
+        # Group all regions together using the same approach as
+        # GroupedSourceParser. Start with the first region's parsed content
+        result = regions[0].parsed
+        first_line = offset_to_line(regions[0].start)  # type: ignore[misc]
+
+        # Combine remaining regions
+        for region in regions[1:]:
+            # Calculate padding based on line numbers. This matches the
+            # logic in GroupedSourceParser._GroupState.combine_text
+            existing_lines = len(result.text.splitlines())
+            current_line = offset_to_line(region.start)  # type: ignore[misc]
+
+            if self._pad_groups:
+                # Pad to maintain original line numbers
+                padding_lines = current_line - first_line - existing_lines
+            else:
+                # Just add a single newline between blocks
+                padding_lines = 1
+
+            padding = "\n" * padding_lines
+            result = Lexeme(
+                text=result.text + padding + region.parsed.text,
+                offset=result.offset,
+                line_offset=result.line_offset,
+            )
+
+        # Create the final combined lexeme
+        combined_lexeme = Lexeme(
+            text=result.text,
+            offset=result.offset,
+            line_offset=result.line_offset,
+        )
+
+        yield Region(
+            start=regions[0].start,
+            end=regions[-1].end,
+            parsed=combined_lexeme,
+            evaluator=self._evaluator,
+        )
+
+
+@beartype
 def _get_sybil(
     *,
     encoding: str,
@@ -686,6 +783,7 @@ def _get_sybil(
     pad_groups: bool,
     skip_directives: Iterable[str],
     group_directives: Iterable[str],
+    group_file: bool,
     use_pty: bool,
     markup_language: MarkupLanguage,
     log_command_evaluators: Sequence[_LogCommandEvaluator],
@@ -734,13 +832,28 @@ def _get_sybil(
         )
         for skip_directive in skip_directives
     ]
-    code_block_parsers = [
-        markup_language.code_block_parser_cls(
-            language=code_block_language,
-            evaluator=evaluator,
-        )
-        for code_block_language in code_block_languages
-    ]
+
+    # When --group-file is enabled, we need to use a special parser
+    # that groups all code blocks of each language together
+    if group_file:
+        # Use the FileLevelGroupParser which automatically groups all blocks
+        code_block_parsers: list[Any] = [
+            _FileLevelGroupParser(
+                language=code_block_language,
+                evaluator=group_evaluator,
+                markup_language=markup_language,
+                pad_groups=pad_groups,
+            )
+            for code_block_language in code_block_languages
+        ]
+    else:
+        code_block_parsers = [
+            markup_language.code_block_parser_cls(
+                language=code_block_language,
+                evaluator=evaluator,
+            )
+            for code_block_language in code_block_languages
+        ]
 
     group_parsers = [
         markup_language.group_parser_cls(
@@ -877,6 +990,22 @@ def _get_sybil(
             "This is useful for evaluating code blocks with Jinja2 "
             "templates used in Sphinx documentation. "
             "This is supported for MyST and reStructuredText files only."
+        ),
+    ),
+    cloup.option(
+        "--group-file/--no-group-file",
+        "group_file",
+        default=False,
+        show_default=True,
+        help=(
+            "Automatically group all code blocks within each file. "
+            "When enabled, all code blocks in a file are treated as a single "
+            "group and executed together, without requiring explicit group "
+            "directives. This is useful for files where code blocks are "
+            "designed for sequential execution by a single kernel. "
+            "Error messages for grouped code blocks may include lines which "
+            "do not match the document, so code formatters will not work on "
+            "them."
         ),
     ),
 )
@@ -1138,6 +1267,7 @@ def main(
     verbose: bool,
     skip_markers: Iterable[str],
     group_markers: Iterable[str],
+    group_file: bool,
     use_pty_option: _UsePty,
     rst_suffixes: Sequence[str],
     myst_suffixes: Sequence[str],
@@ -1237,6 +1367,7 @@ def main(
                         given_temporary_file_extension=given_temporary_file_extension,
                         skip_directives=skip_directives,
                         group_directives=group_directives,
+                        group_file=group_file,
                         use_pty=use_pty,
                         log_command_evaluators=log_command_evaluators,
                         sphinx_jinja2=sphinx_jinja2,
@@ -1265,6 +1396,7 @@ def main(
                     given_temporary_file_extension=given_temporary_file_extension,
                     skip_directives=skip_directives,
                     group_directives=group_directives,
+                    group_file=group_file,
                     use_pty=use_pty,
                     log_command_evaluators=log_command_evaluators,
                     sphinx_jinja2=sphinx_jinja2,

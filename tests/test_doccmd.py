@@ -3928,3 +3928,125 @@ def test_continue_on_error_vs_default_behavior(tmp_path: Path) -> None:
         result_with_continue.stdout,
         result_with_continue.stderr,
     )
+
+
+@pytest.mark.parametrize(  # type: ignore[misc]
+    ("group_file_options", "expect_grouped"),
+    [
+        pytest.param(["--group-file"], True, id="group-file"),
+        pytest.param(["--no-group-file"], False, id="no-group-file"),
+    ],
+)
+@pytest.mark.parametrize(  # type: ignore[misc]
+    ("group_padding_options", "expect_padding"),
+    [
+        pytest.param(["--pad-groups"], True, id="pad-groups"),
+        pytest.param(["--no-pad-groups"], False, id="no-pad-groups"),
+    ],
+)
+def test_group_file(
+    *,
+    tmp_path: Path,
+    group_file_options: Sequence[str],
+    expect_grouped: bool,
+    group_padding_options: Sequence[str],
+    expect_padding: bool,
+) -> None:
+    """Test --group-file option groups all code blocks in a file.
+
+    When --group-file is enabled, all code blocks of the same language
+    in a file are automatically grouped together without requiring
+    explicit group directives.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    script = tmp_path / "print_underlined.py"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            block_1
+
+        .. code-block:: python
+
+            block_2
+
+        .. code-block:: python
+
+            block_3
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+
+    print_underlined_script = textwrap.dedent(
+        text="""\
+        import sys
+        import pathlib
+
+        # We strip here so that we don't have to worry about
+        # the file padding.
+        print(pathlib.Path(sys.argv[1]).read_text().strip())
+        print("-------")
+        """,
+    )
+    script.write_text(data=print_underlined_script, encoding="utf-8")
+
+    arguments = [
+        "--no-pad-file",
+        *group_padding_options,
+        *group_file_options,
+        "--language",
+        "python",
+        "--command",
+        f"{Path(sys.executable).as_posix()} {script.as_posix()}",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+
+    if expect_grouped:
+        # All blocks should be grouped together
+        if expect_padding:
+            expected_output = textwrap.dedent(
+                text="""\
+                block_1
+
+
+
+                block_2
+
+
+
+                block_3
+                -------
+                """,
+            )
+        else:
+            expected_output = textwrap.dedent(
+                text="""\
+                block_1
+
+                block_2
+
+                block_3
+                -------
+                """,
+            )
+    else:
+        # Each block should be processed separately
+        expected_output = textwrap.dedent(
+            text="""\
+            block_1
+            -------
+            block_2
+            -------
+            block_3
+            -------
+            """,
+        )
+
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert result.stdout == expected_output
