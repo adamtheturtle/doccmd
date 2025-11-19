@@ -763,7 +763,6 @@ def _get_sybil(
             for code_block_language in code_block_languages
         ]
 
-        # Add GroupAllParser to combine all code blocks
         group_all_parsers = [
             group_all_parser_cls(
                 evaluator=group_evaluator,
