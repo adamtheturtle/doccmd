@@ -36,6 +36,15 @@ Code block selection:
                                   the ``type-check`` and ``lint`` markers but
                                   not all markers, add multiple ``skip doccmd``
                                   comments above the code block.
+  --sphinx-jinja2 / --no-sphinx-jinja2
+                                  Whether to parse `sphinx-jinja2` blocks. This
+                                  is useful for evaluating code blocks with
+                                  Jinja2 templates used in Sphinx documentation.
+                                  This is supported for MyST and
+                                  reStructuredText files only.  [default: no-
+                                  sphinx-jinja2]
+
+Grouping options:
   --group-marker TEXT             The marker used to identify code blocks to be
                                   grouped.
                                   
@@ -58,13 +67,6 @@ Code block selection:
                                   Error messages for grouped code blocks may
                                   include lines which do not match the document,
                                   so code formatters will not work on them.
-  --sphinx-jinja2 / --no-sphinx-jinja2
-                                  Whether to parse `sphinx-jinja2` blocks. This
-                                  is useful for evaluating code blocks with
-                                  Jinja2 templates used in Sphinx documentation.
-                                  This is supported for MyST and
-                                  reStructuredText files only.  [default: no-
-                                  sphinx-jinja2]
   --group-file / --no-group-file  Automatically group all code blocks within
                                   each file. When enabled, all code blocks in a
                                   file are treated as a single group and
@@ -75,6 +77,19 @@ Code block selection:
                                   blocks may include lines which do not match
                                   the document, so code formatters will not work
                                   on them.  [default: no-group-file]
+  --pad-groups / --no-pad-groups  Maintain line spacing between groups from the
+                                  source file in the temporary file. This is
+                                  useful for matching line numbers from the
+                                  output to the relevant location in the
+                                  document. Use --no-pad-groups for formatters -
+                                  they generally need to look at the file
+                                  without padding.  [default: pad-groups]
+  --fail-on-group-write / --no-fail-on-group-write
+                                  Whether to fail (with exit code 1) if a
+                                  command (e.g. a formatter) tries to change
+                                  code within a grouped code block. ``doccmd``
+                                  does not support writing to grouped code
+                                  blocks.  [default: fail-on-group-write]
 
 Temporary file options:
   --temporary-file-extension TEXT
@@ -100,13 +115,6 @@ Temporary file options:
                                   Write any changes made by the command back to
                                   the source document. Grouped code blocks never
                                   write to files.  [default: write-to-file]
-  --pad-groups / --no-pad-groups  Maintain line spacing between groups from the
-                                  source file in the temporary file. This is
-                                  useful for matching line numbers from the
-                                  output to the relevant location in the
-                                  document. Use --no-pad-groups for formatters -
-                                  they generally need to look at the file
-                                  without padding.  [default: pad-groups]
 
 File discovery options:
   --rst-extension TEXT            Treat files with this extension (suffix) as
@@ -176,12 +184,6 @@ Error handling:
                                   Whether to fail (with exit code 1) if a given
                                   file cannot be parsed.  [default: no-fail-on-
                                   parse-error]
-  --fail-on-group-write / --no-fail-on-group-write
-                                  Whether to fail (with exit code 1) if a
-                                  command (e.g. a formatter) tries to change
-                                  code within a grouped code block. ``doccmd``
-                                  does not support writing to grouped code
-                                  blocks.  [default: fail-on-group-write]
   --continue-on-error / --no-continue-on-error
                                   Continue executing across all files even when
                                   errors occur. Collects and displays all errors

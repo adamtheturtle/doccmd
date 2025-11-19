@@ -33,9 +33,17 @@ from sybil import Sybil
 from sybil.document import Document
 from sybil.example import Example
 from sybil.parsers.abstract.lexers import LexingException
-from sybil.region import Lexeme, Region
 from sybil_extras.evaluators.multi import MultiEvaluator
 from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
+from sybil_extras.parsers.markdown.group_all import (
+    GroupAllParser as MarkdownGroupAllParser,
+)
+from sybil_extras.parsers.myst.group_all import (
+    GroupAllParser as MystGroupAllParser,
+)
+from sybil_extras.parsers.rest.group_all import (
+    GroupAllParser as RestGroupAllParser,
+)
 
 from ._languages import (
     MARKDOWN,
@@ -678,93 +686,6 @@ def _get_encoding(*, document_path: Path) -> str | None:
 
 
 @beartype
-class _FileLevelGroupParser:
-    """A parser that groups all code blocks of a given language in a file.
-
-    This automatically groups all code blocks without requiring explicit
-    group directives.
-    """
-
-    def __init__(
-        self,
-        *,
-        language: str,
-        evaluator: Callable[[Example], str | None],
-        markup_language: MarkupLanguage,
-        pad_groups: bool,
-    ) -> None:
-        """
-        Args:
-            language: The language of code blocks to group.
-            evaluator: The evaluator to use for the grouped blocks.
-            markup_language: The markup language being parsed.
-            pad_groups: Whether to pad groups with empty lines.
-        """
-        self._evaluator = evaluator
-        self._code_block_parser = markup_language.code_block_parser_cls(
-            language=language
-        )
-        self._pad_groups = pad_groups
-
-    def __call__(self, document: Document) -> Iterable[Region]:
-        """
-        Parse the document and yield a single grouped region for all code
-        blocks.
-        """
-        # Collect all code block regions for this language
-        regions = list(self._code_block_parser(document))
-
-        if not regions:
-            return
-
-        def offset_to_line(offset: int) -> int:
-            """
-            Convert character offset to line number (1-indexed).
-            """
-            return document.text[:offset].count("\n") + 1
-
-        # Group all regions together using the same approach as
-        # GroupedSourceParser. Start with the first region's parsed content
-        result = regions[0].parsed
-        first_line = offset_to_line(offset=regions[0].start)
-
-        # Combine remaining regions
-        for region in regions[1:]:
-            # Calculate padding based on line numbers. This matches the
-            # logic in GroupedSourceParser._GroupState.combine_text
-            existing_lines = len(result.text.splitlines())
-            current_line = offset_to_line(offset=region.start)
-
-            if self._pad_groups:
-                # Pad to maintain original line numbers
-                padding_lines = current_line - first_line - existing_lines
-            else:
-                # Just add a single newline between blocks
-                padding_lines = 1
-
-            padding = "\n" * padding_lines
-            result = Lexeme(
-                text=result.text + padding + region.parsed.text,
-                offset=result.offset,
-                line_offset=result.line_offset,
-            )
-
-        # Create the final combined lexeme
-        combined_lexeme = Lexeme(
-            text=result.text,
-            offset=result.offset,
-            line_offset=result.line_offset,
-        )
-
-        yield Region(
-            start=regions[0].start,
-            end=regions[-1].end,
-            parsed=combined_lexeme,
-            evaluator=self._evaluator,
-        )
-
-
-@beartype
 def _get_sybil(
     *,
     encoding: str,
@@ -827,18 +748,30 @@ def _get_sybil(
         for skip_directive in skip_directives
     ]
 
-    # When --group-file is enabled, we need to use a special parser
-    # that groups all code blocks of each language together
+    # When --group-file is enabled, we use GroupAllParser from sybil-extras
+    # which automatically groups all code blocks together
     if group_file:
-        # Use the FileLevelGroupParser which automatically groups all blocks
+        # Map markup language to the appropriate GroupAllParser
+        group_all_parser_map = {
+            MYST: MystGroupAllParser,
+            RESTRUCTUREDTEXT: RestGroupAllParser,
+            MARKDOWN: MarkdownGroupAllParser,
+        }
+        group_all_parser_cls = group_all_parser_map[markup_language]
+
         code_block_parsers: list[Any] = [
-            _FileLevelGroupParser(
+            markup_language.code_block_parser_cls(
                 language=code_block_language,
-                evaluator=group_evaluator,
-                markup_language=markup_language,
-                pad_groups=pad_groups,
             )
             for code_block_language in code_block_languages
+        ]
+
+        # Add GroupAllParser to combine all code blocks
+        group_all_parsers = [
+            group_all_parser_cls(
+                evaluator=group_evaluator,
+                pad_groups=pad_groups,
+            )
         ]
     else:
         code_block_parsers = [
@@ -848,6 +781,7 @@ def _get_sybil(
             )
             for code_block_language in code_block_languages
         ]
+        group_all_parsers = []
 
     group_parsers = [
         markup_language.group_parser_cls(
@@ -874,6 +808,7 @@ def _get_sybil(
             *sphinx_jinja2_parsers,
             *skip_parsers,
             *group_parsers,
+            *group_all_parsers,
         ),
         encoding=encoding,
     )
@@ -945,6 +880,21 @@ def _get_sybil(
         callback=_deduplicate,
     ),
     cloup.option(
+        "--sphinx-jinja2/--no-sphinx-jinja2",
+        "sphinx_jinja2",
+        default=False,
+        show_default=True,
+        help=(
+            "Whether to parse `sphinx-jinja2` blocks. "
+            "This is useful for evaluating code blocks with Jinja2 "
+            "templates used in Sphinx documentation. "
+            "This is supported for MyST and reStructuredText files only."
+        ),
+    ),
+)
+@cloup.option_group(
+    "Grouping options",
+    cloup.option(
         "group_markers",
         "--group-marker",
         type=str,
@@ -975,18 +925,6 @@ def _get_sybil(
         callback=_deduplicate,
     ),
     cloup.option(
-        "--sphinx-jinja2/--no-sphinx-jinja2",
-        "sphinx_jinja2",
-        default=False,
-        show_default=True,
-        help=(
-            "Whether to parse `sphinx-jinja2` blocks. "
-            "This is useful for evaluating code blocks with Jinja2 "
-            "templates used in Sphinx documentation. "
-            "This is supported for MyST and reStructuredText files only."
-        ),
-    ),
-    cloup.option(
         "--group-file/--no-group-file",
         "group_file",
         default=False,
@@ -1000,6 +938,32 @@ def _get_sybil(
             "Error messages for grouped code blocks may include lines which "
             "do not match the document, so code formatters will not work on "
             "them."
+        ),
+    ),
+    cloup.option(
+        "--pad-groups/--no-pad-groups",
+        is_flag=True,
+        default=True,
+        show_default=True,
+        help=(
+            "Maintain line spacing between groups from the source file in the "
+            "temporary file. "
+            "This is useful for matching line numbers from the output to "
+            "the relevant location in the document. "
+            "Use --no-pad-groups for formatters - "
+            "they generally need to look at the file without padding."
+        ),
+    ),
+    cloup.option(
+        "--fail-on-group-write/--no-fail-on-group-write",
+        "fail_on_group_write",
+        default=True,
+        show_default=True,
+        type=bool,
+        help=(
+            "Whether to fail (with exit code 1) if a command (e.g. a "
+            "formatter) tries to change code within a grouped code block. "
+            "``doccmd`` does not support writing to grouped code blocks."
         ),
     ),
 )
@@ -1054,20 +1018,6 @@ def _get_sybil(
             "Write any changes made by the command back to the source "
             "document. "
             "Grouped code blocks never write to files."
-        ),
-    ),
-    cloup.option(
-        "--pad-groups/--no-pad-groups",
-        is_flag=True,
-        default=True,
-        show_default=True,
-        help=(
-            "Maintain line spacing between groups from the source file in the "
-            "temporary file. "
-            "This is useful for matching line numbers from the output to "
-            "the relevant location in the document. "
-            "Use --no-pad-groups for formatters - "
-            "they generally need to look at the file without padding."
         ),
     ),
 )
@@ -1202,18 +1152,6 @@ def _get_sybil(
         help=(
             "Whether to fail (with exit code 1) if a given file cannot be "
             "parsed."
-        ),
-    ),
-    cloup.option(
-        "--fail-on-group-write/--no-fail-on-group-write",
-        "fail_on_group_write",
-        default=True,
-        show_default=True,
-        type=bool,
-        help=(
-            "Whether to fail (with exit code 1) if a command (e.g. a "
-            "formatter) tries to change code within a grouped code block. "
-            "``doccmd`` does not support writing to grouped code blocks."
         ),
     ),
     cloup.option(

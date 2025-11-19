@@ -240,6 +240,42 @@ For example, if we used ``doccmd`` with ``--language=shell`` and ``--skip-marker
 Grouping code blocks
 --------------------
 
+Automatic file-level grouping
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``--group-file`` option automatically groups all code blocks of the same language within each file, treating them as a single unit for execution.
+This is useful when code blocks are designed to be executed sequentially, such as in MyST notebooks or tutorial documents where later blocks depend on definitions from earlier ones.
+
+When this option is enabled, you don't need to add explicit ``group`` directives - all code blocks in a file are automatically combined.
+
+For example, with ``--group-file``, these blocks work together without any special markup:
+
+.. group doccmd[all]: start
+
+.. code-block:: python
+
+   """Example function which is used in a future code block."""
+
+
+   def my_function() -> None:
+       """Do nothing."""
+
+
+.. code-block:: python
+
+   my_function()
+
+.. group doccmd[all]: end
+
+When using ``--group-file``, the same restrictions apply as with manual grouping:
+
+* Error messages may include lines that don't match the document
+* Code formatters may not work correctly
+* Changes to code blocks are not written back to the file
+
+Manual grouping with directives
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 You might have two code blocks like this:
 
 .. group doccmd[all]: start
