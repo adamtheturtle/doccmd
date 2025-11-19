@@ -1266,10 +1266,9 @@ def main(
     skip_markers = {*skip_markers, "all"}
     skip_directives = _get_skip_directives(markers=skip_markers)
 
-    group_markers = {*group_markers, "all"}
-    group_directives: Sequence[str] = (
-        _get_group_directives(markers=group_markers) if not group_file else []
-    )
+    default_group_markers: set[str] = {"all"} if not group_file else set()
+    group_markers = {*group_markers, *default_group_markers}
+    group_directives = _get_group_directives(markers=group_markers)
 
     given_temporary_file_extension = temporary_file_extension
 
