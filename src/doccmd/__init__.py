@@ -810,7 +810,7 @@ def _get_sybil(
     )
 
 
-@cloup.command(name="doccmd")
+@cloup.command(name="doccmd", show_constraints=True)
 @cloup.option_group(
     "Required options",
     cloup.option(
@@ -1181,6 +1181,10 @@ def _get_sybil(
     callback=_deduplicate,
 )
 @click.version_option(version=__version__)
+@cloup.constraint(
+    cloup.constraints.mutually_exclusive,
+    ["group_markers", "group_file"],
+)
 @beartype
 def main(
     *,

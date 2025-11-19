@@ -198,3 +198,6 @@ Output options:
 Other options:
   --version                       Show the version and exit.
   --help                          Show this message and exit.
+
+Constraints:
+  {--group-marker, --group-file}  mutually exclusive
