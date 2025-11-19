@@ -1182,8 +1182,8 @@ def _get_sybil(
 )
 @click.version_option(version=__version__)
 @cloup.constraint(
-    cloup.constraints.mutually_exclusive,
-    ["group_markers", "group_file"],
+    constr=cloup.constraints.mutually_exclusive,
+    params=["group_markers", "group_file"],
 )
 @beartype
 def main(
