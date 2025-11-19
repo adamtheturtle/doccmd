@@ -1267,7 +1267,7 @@ def main(
     skip_directives = _get_skip_directives(markers=skip_markers)
 
     group_markers = {*group_markers, "all"}
-    group_directives = (
+    group_directives: Sequence[str] = (
         _get_group_directives(markers=group_markers) if not group_file else []
     )
 
