@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from enum import Enum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
-from typing import Any, TypeVar, overload
+from typing import TYPE_CHECKING, TypeVar, overload
 
 import charset_normalizer
 import click
@@ -51,6 +51,9 @@ from ._languages import (
     RESTRUCTUREDTEXT,
     MarkupLanguage,
 )
+
+if TYPE_CHECKING:
+    from sybil.typing import Parser
 
 try:
     __version__ = version(distribution_name=__name__)
@@ -759,7 +762,7 @@ def _get_sybil(
         }
         group_all_parser_cls = group_all_parser_map[markup_language]
 
-        code_block_parsers: list[Any] = [
+        code_block_parsers: list[Parser] = [
             markup_language.code_block_parser_cls(
                 language=code_block_language,
             )
