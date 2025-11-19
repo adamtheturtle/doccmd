@@ -748,10 +748,7 @@ def _get_sybil(
         for skip_directive in skip_directives
     ]
 
-    # When --group-file is enabled, we use GroupAllParser from sybil-extras
-    # which automatically groups all code blocks together
     if group_file:
-        # Map markup language to the appropriate GroupAllParser
         group_all_parser_map = {
             MYST: MystGroupAllParser,
             RESTRUCTUREDTEXT: RestGroupAllParser,
