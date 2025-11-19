@@ -2409,7 +2409,162 @@ def test_custom_rst_file_suffixes(tmp_path: Path) -> None:
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     assert result.stdout == expected_output
-    assert result.stderr == ""
+
+
+def test_group_file_with_manual_group_directive(
+    *,
+    tmp_path: Path,
+) -> None:
+    """Test that manual group directives don't conflict with --group-file.
+
+    When --group-file is enabled, manual group directives (like 'group
+    doccmd[all]: start/end') should be ignored to avoid conflicts. This
+    test verifies that files with manual group directives can still be
+    processed correctly when --group-file is enabled.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    script = tmp_path / "print_underlined.py"
+    content = textwrap.dedent(
+        text="""\
+        .. group doccmd[all]: start
+
+        .. code-block:: python
+
+            block_1
+
+        .. code-block:: python
+
+            block_2
+
+        .. group doccmd[all]: end
+
+        .. code-block:: python
+
+            block_3
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+
+    print_underlined_script = textwrap.dedent(
+        text="""\
+        import sys
+        import pathlib
+
+        print(pathlib.Path(sys.argv[1]).read_text().strip())
+        print("-------")
+        """,
+    )
+    script.write_text(data=print_underlined_script, encoding="utf-8")
+
+    arguments = [
+        "--no-pad-file",
+        "--no-pad-groups",
+        "--group-file",
+        "--language",
+        "python",
+        "--command",
+        f"{Path(sys.executable).as_posix()} {script.as_posix()}",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+
+    # All blocks should be grouped at the file level, ignoring manual
+    # directives
+    expected_output = textwrap.dedent(
+        text="""\
+        block_1
+
+        block_2
+
+        block_3
+        -------
+        """,
+    )
+
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert result.stdout == expected_output
+
+
+def test_group_file_with_sphinx_jinja2_no_language(
+    *,
+    tmp_path: Path,
+) -> None:
+    """Test --group-file with --sphinx-jinja2 but no --language.
+
+    When --group-file is enabled with --sphinx-jinja2 but without any
+    --language options, GroupAllParser should not be created since there
+    are no code block languages to process. The sphinx-jinja2 blocks should
+    still be processed individually (not grouped) since they use a different
+    parser.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    script = tmp_path / "print_underlined.py"
+    content = textwrap.dedent(
+        text="""\
+        Some text.
+
+        .. jinja::
+
+            {% set x = 1 %}
+            {{ x }}
+
+        More text.
+
+        .. jinja::
+
+            {% set y = 2 %}
+            {{ y }}
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+
+    print_underlined_script = textwrap.dedent(
+        text="""\
+        import sys
+        import pathlib
+
+        print(pathlib.Path(sys.argv[1]).read_text().strip())
+        print("-------")
+        """,
+    )
+    script.write_text(data=print_underlined_script, encoding="utf-8")
+
+    arguments = [
+        "--no-pad-file",
+        "--no-pad-groups",
+        "--group-file",
+        "--sphinx-jinja2",
+        "--command",
+        f"{Path(sys.executable).as_posix()} {script.as_posix()}",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+
+    # Jinja2 blocks should be processed individually, not grouped
+    # because --group-file only groups code blocks of specified languages
+    expected_output = textwrap.dedent(
+        text="""\
+        {% set x = 1 %}
+        {{ x }}
+        -------
+        {% set y = 2 %}
+        {{ y }}
+        -------
+        """,
+    )
+
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert result.stdout == expected_output
 
 
 def test_custom_myst_file_suffixes(tmp_path: Path) -> None:

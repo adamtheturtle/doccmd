@@ -763,12 +763,16 @@ def _get_sybil(
             for code_block_language in code_block_languages
         ]
 
-        group_all_parsers = [
-            group_all_parser_cls(
-                evaluator=group_evaluator,
-                pad_groups=pad_groups,
-            )
-        ]
+        group_all_parsers = (
+            [
+                group_all_parser_cls(
+                    evaluator=group_evaluator,
+                    pad_groups=pad_groups,
+                )
+            ]
+            if code_block_languages
+            else []
+        )
     else:
         code_block_parsers = [
             markup_language.code_block_parser_cls(
@@ -1263,7 +1267,9 @@ def main(
     skip_directives = _get_skip_directives(markers=skip_markers)
 
     group_markers = {*group_markers, "all"}
-    group_directives = _get_group_directives(markers=group_markers)
+    group_directives = (
+        _get_group_directives(markers=group_markers) if not group_file else []
+    )
 
     given_temporary_file_extension = temporary_file_extension
 
