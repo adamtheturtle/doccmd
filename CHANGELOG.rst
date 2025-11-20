@@ -4,6 +4,8 @@ Changelog
 Next
 ----
 
+* Add a ``--group-file`` option to automatically group all code blocks of the same language within a file.
+
 2025.11.08.1
 ------------
 

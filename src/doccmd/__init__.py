@@ -35,6 +35,15 @@ from sybil.example import Example
 from sybil.parsers.abstract.lexers import LexingException
 from sybil_extras.evaluators.multi import MultiEvaluator
 from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
+from sybil_extras.parsers.markdown.group_all import (
+    GroupAllParser as MarkdownGroupAllParser,
+)
+from sybil_extras.parsers.myst.group_all import (
+    GroupAllParser as MystGroupAllParser,
+)
+from sybil_extras.parsers.rest.group_all import (
+    GroupAllParser as RestGroupAllParser,
+)
 
 from ._languages import (
     MARKDOWN,
@@ -493,6 +502,7 @@ def _process_file_path(
     given_temporary_file_extension: str | None,
     skip_directives: Iterable[str],
     group_directives: Iterable[str],
+    group_file: bool,
     use_pty: bool,
     log_command_evaluators: Sequence[_LogCommandEvaluator],
     sphinx_jinja2: bool,
@@ -543,6 +553,7 @@ def _process_file_path(
             temporary_file_name_prefix=temporary_file_name_prefix,
             skip_directives=skip_directives,
             group_directives=group_directives,
+            group_file=group_file,
             use_pty=use_pty,
             markup_language=markup_language,
             encoding=encoding,
@@ -564,6 +575,7 @@ def _process_file_path(
             temporary_file_name_prefix=temporary_file_name_prefix,
             skip_directives=skip_directives,
             group_directives=group_directives,
+            group_file=group_file,
             use_pty=use_pty,
             markup_language=markup_language,
             encoding=encoding,
@@ -686,6 +698,7 @@ def _get_sybil(
     pad_groups: bool,
     skip_directives: Iterable[str],
     group_directives: Iterable[str],
+    group_file: bool,
     use_pty: bool,
     markup_language: MarkupLanguage,
     log_command_evaluators: Sequence[_LogCommandEvaluator],
@@ -734,13 +747,41 @@ def _get_sybil(
         )
         for skip_directive in skip_directives
     ]
-    code_block_parsers = [
-        markup_language.code_block_parser_cls(
-            language=code_block_language,
-            evaluator=evaluator,
+
+    if group_file:
+        group_all_parser_map = {
+            MYST: MystGroupAllParser,
+            RESTRUCTUREDTEXT: RestGroupAllParser,
+            MARKDOWN: MarkdownGroupAllParser,
+        }
+        group_all_parser_cls = group_all_parser_map[markup_language]
+
+        code_block_parsers = [
+            markup_language.code_block_parser_cls(
+                language=code_block_language,
+            )
+            for code_block_language in code_block_languages
+        ]
+
+        group_all_parsers = (
+            [
+                group_all_parser_cls(
+                    evaluator=group_evaluator,
+                    pad_groups=pad_groups,
+                )
+            ]
+            if code_block_languages
+            else []
         )
-        for code_block_language in code_block_languages
-    ]
+    else:
+        code_block_parsers = [
+            markup_language.code_block_parser_cls(
+                language=code_block_language,
+                evaluator=evaluator,
+            )
+            for code_block_language in code_block_languages
+        ]
+        group_all_parsers = []
 
     group_parsers = [
         markup_language.group_parser_cls(
@@ -767,12 +808,13 @@ def _get_sybil(
             *sphinx_jinja2_parsers,
             *skip_parsers,
             *group_parsers,
+            *group_all_parsers,
         ),
         encoding=encoding,
     )
 
 
-@cloup.command(name="doccmd")
+@cloup.command(name="doccmd", show_constraints=True)
 @cloup.option_group(
     "Required options",
     cloup.option(
@@ -838,6 +880,21 @@ def _get_sybil(
         callback=_deduplicate,
     ),
     cloup.option(
+        "--sphinx-jinja2/--no-sphinx-jinja2",
+        "sphinx_jinja2",
+        default=False,
+        show_default=True,
+        help=(
+            "Whether to parse `sphinx-jinja2` blocks. "
+            "This is useful for evaluating code blocks with Jinja2 "
+            "templates used in Sphinx documentation. "
+            "This is supported for MyST and reStructuredText files only."
+        ),
+    ),
+)
+@cloup.option_group(
+    "Grouping options",
+    cloup.option(
         "group_markers",
         "--group-marker",
         type=str,
@@ -868,15 +925,45 @@ def _get_sybil(
         callback=_deduplicate,
     ),
     cloup.option(
-        "--sphinx-jinja2/--no-sphinx-jinja2",
-        "sphinx_jinja2",
+        "--group-file/--no-group-file",
+        "group_file",
         default=False,
         show_default=True,
         help=(
-            "Whether to parse `sphinx-jinja2` blocks. "
-            "This is useful for evaluating code blocks with Jinja2 "
-            "templates used in Sphinx documentation. "
-            "This is supported for MyST and reStructuredText files only."
+            "Automatically group all code blocks within each file. "
+            "When enabled, all code blocks in a file are treated as a single "
+            "group and executed together, without requiring explicit group "
+            "directives. This is useful for files where code blocks are "
+            "designed for sequential execution. "
+            "Error messages for grouped code blocks may include lines which "
+            "do not match the document, so code formatters will not work on "
+            "them."
+        ),
+    ),
+    cloup.option(
+        "--pad-groups/--no-pad-groups",
+        is_flag=True,
+        default=True,
+        show_default=True,
+        help=(
+            "Maintain line spacing between groups from the source file in the "
+            "temporary file. "
+            "This is useful for matching line numbers from the output to "
+            "the relevant location in the document. "
+            "Use --no-pad-groups for formatters - "
+            "they generally need to look at the file without padding."
+        ),
+    ),
+    cloup.option(
+        "--fail-on-group-write/--no-fail-on-group-write",
+        "fail_on_group_write",
+        default=True,
+        show_default=True,
+        type=bool,
+        help=(
+            "Whether to fail (with exit code 1) if a command (e.g. a "
+            "formatter) tries to change code within a grouped code block. "
+            "``doccmd`` does not support writing to grouped code blocks."
         ),
     ),
 )
@@ -931,20 +1018,6 @@ def _get_sybil(
             "Write any changes made by the command back to the source "
             "document. "
             "Grouped code blocks never write to files."
-        ),
-    ),
-    cloup.option(
-        "--pad-groups/--no-pad-groups",
-        is_flag=True,
-        default=True,
-        show_default=True,
-        help=(
-            "Maintain line spacing between groups from the source file in the "
-            "temporary file. "
-            "This is useful for matching line numbers from the output to "
-            "the relevant location in the document. "
-            "Use --no-pad-groups for formatters - "
-            "they generally need to look at the file without padding."
         ),
     ),
 )
@@ -1082,18 +1155,6 @@ def _get_sybil(
         ),
     ),
     cloup.option(
-        "--fail-on-group-write/--no-fail-on-group-write",
-        "fail_on_group_write",
-        default=True,
-        show_default=True,
-        type=bool,
-        help=(
-            "Whether to fail (with exit code 1) if a command (e.g. a "
-            "formatter) tries to change code within a grouped code block. "
-            "``doccmd`` does not support writing to grouped code blocks."
-        ),
-    ),
-    cloup.option(
         "--continue-on-error/--no-continue-on-error",
         "continue_on_error",
         default=False,
@@ -1124,6 +1185,10 @@ def _get_sybil(
     callback=_deduplicate,
 )
 @click.version_option(version=__version__)
+@cloup.constraint(
+    constr=cloup.constraints.mutually_exclusive,
+    params=["group_markers", "group_file"],
+)
 @beartype
 def main(
     *,
@@ -1138,6 +1203,7 @@ def main(
     verbose: bool,
     skip_markers: Iterable[str],
     group_markers: Iterable[str],
+    group_file: bool,
     use_pty_option: _UsePty,
     rst_suffixes: Sequence[str],
     myst_suffixes: Sequence[str],
@@ -1200,7 +1266,8 @@ def main(
     skip_markers = {*skip_markers, "all"}
     skip_directives = _get_skip_directives(markers=skip_markers)
 
-    group_markers = {*group_markers, "all"}
+    default_group_markers: set[str] = {"all"} if not group_file else set()
+    group_markers = {*group_markers, *default_group_markers}
     group_directives = _get_group_directives(markers=group_markers)
 
     given_temporary_file_extension = temporary_file_extension
@@ -1237,6 +1304,7 @@ def main(
                         given_temporary_file_extension=given_temporary_file_extension,
                         skip_directives=skip_directives,
                         group_directives=group_directives,
+                        group_file=group_file,
                         use_pty=use_pty,
                         log_command_evaluators=log_command_evaluators,
                         sphinx_jinja2=sphinx_jinja2,
@@ -1265,6 +1333,7 @@ def main(
                     given_temporary_file_extension=given_temporary_file_extension,
                     skip_directives=skip_directives,
                     group_directives=group_directives,
+                    group_file=group_file,
                     use_pty=use_pty,
                     log_command_evaluators=log_command_evaluators,
                     sphinx_jinja2=sphinx_jinja2,
