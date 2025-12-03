@@ -4,6 +4,8 @@ Changelog
 Next
 ----
 
+* Add support for MyST ``code-cell`` directive.
+
 2025.11.20
 ----------
 

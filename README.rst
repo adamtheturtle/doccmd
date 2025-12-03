@@ -118,6 +118,10 @@ To treat them as Markdown, use ``--myst-extension=. --markdown-extension=.md``.
    echo "Or this Hello, world!"
    ```
 
+   ```{code-cell} shell
+   echo "Or this code-cell!"
+   ```
+
 * Want more? Open an issue!
 
 Formatters and padding

@@ -41,7 +41,7 @@ dependencies = [
     "click-compose>=2025.10.27.3",
     "cloup>=3.0.0",
     "pygments>=2.18.0",
-    "sybil>=9.1.0,<10.0.0",
+    "sybil>=9.3.0,<10.0.0",
     # Pin this dependency as we expect:
     # * It might have breaking changes
     # * It is not a direct dependency of the user

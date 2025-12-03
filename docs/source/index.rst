@@ -40,6 +40,10 @@ What does it work on?
    echo "Hello, world!"
    ```
 
+   ```{code-cell} shell
+   echo "Or this code-cell!"
+   ```
+
 * Want more? Open an issue!
 
 Formatters and padding
