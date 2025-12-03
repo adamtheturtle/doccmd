@@ -456,6 +456,10 @@ def test_multiple_files_multiple_types(tmp_path: Path) -> None:
         ```{code} python
         print("In MyST code")
         ```
+
+        ```{code-cell} python
+        print("In MyST code-cell")
+        ```
         """,
     )
     rst_file.write_text(data=rst_content, encoding="utf-8")
@@ -483,6 +487,7 @@ def test_multiple_files_multiple_types(tmp_path: Path) -> None:
         print("In simple markdown code block")
         print("In MyST code-block")
         print("In MyST code")
+        print("In MyST code-cell")
         """,
     )
 
