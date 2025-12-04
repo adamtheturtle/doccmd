@@ -37,12 +37,16 @@ from sybil_extras.evaluators.multi import MultiEvaluator
 from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
 from sybil_extras.languages import (
     MARKDOWN,
+    MDX,
     MYST,
     RESTRUCTUREDTEXT,
     MarkupLanguage,
 )
 from sybil_extras.parsers.markdown.group_all import (
     GroupAllParser as MarkdownGroupAllParser,
+)
+from sybil_extras.parsers.mdx.group_all import (
+    GroupAllParser as MdxGroupAllParser,
 )
 from sybil_extras.parsers.myst.group_all import (
     GroupAllParser as MystGroupAllParser,
@@ -752,6 +756,7 @@ def _get_sybil(
             MYST: MystGroupAllParser,
             RESTRUCTUREDTEXT: RestGroupAllParser,
             MARKDOWN: MarkdownGroupAllParser,
+            MDX: MdxGroupAllParser,
         }
         group_all_parser_cls = group_all_parser_map[markup_language]
 
@@ -861,7 +866,7 @@ def _get_sybil(
             By default, code blocks which come just after a comment matching
             'skip doccmd[all]: next' are skipped (e.g. `.. skip doccmd[all]:
             next` in reStructuredText, `<!--- skip doccmd[all]: next -->` in
-            Markdown, or `% skip doccmd[all]: next` in MyST).
+            Markdown or MDX, or `% skip doccmd[all]: next` in MyST).
 
             When using this option, those, and code blocks which come just
             after a comment including the given marker are ignored. For
@@ -907,7 +912,7 @@ def _get_sybil(
             By default, code blocks which come just between comments matching
             'group doccmd[all]: start' and 'group doccmd[all]: end' are
             grouped (e.g. `.. group doccmd[all]: start` in reStructuredText,
-            `<!--- group doccmd[all]: start -->` in Markdown, or `% group
+            `<!--- group doccmd[all]: start -->` in Markdown/MDX, or `% group
             doccmd[all]: start` in MyST).
 
             When using this option, those, and code blocks which are grouped
@@ -1061,9 +1066,23 @@ def _get_sybil(
         help=(
             "Files with this extension (suffix) to treat as Markdown. "
             "Give this multiple times to look for multiple extensions. "
-            "By default, `.md` is treated as MyST, not Markdown."
+            "By default, `.md` is treated as MyST, not Markdown. "
+            "Use `--mdx-extension` for MDX files."
         ),
         multiple=True,
+        show_default=True,
+        callback=_validate_file_extensions,
+    ),
+    cloup.option(
+        "--mdx-extension",
+        "mdx_suffixes",
+        type=str,
+        help=(
+            "Treat files with this extension (suffix) as MDX. "
+            "Give this multiple times to look for multiple extensions."
+        ),
+        multiple=True,
+        default=(".mdx",),
         show_default=True,
         callback=_validate_file_extensions,
     ),
@@ -1207,6 +1226,7 @@ def main(
     rst_suffixes: Sequence[str],
     myst_suffixes: Sequence[str],
     markdown_suffixes: Sequence[str],
+    mdx_suffixes: Sequence[str],
     max_depth: int,
     exclude_patterns: Sequence[str],
     fail_on_parse_error: bool,
@@ -1218,7 +1238,7 @@ def main(
 ) -> None:
     """Run commands against code blocks in the given documentation files.
 
-    This works with Markdown and reStructuredText files.
+    This works with reStructuredText, MyST, Markdown, and MDX files.
     """
     args = shlex.split(s=command)
     use_pty = use_pty_option.use_pty()
@@ -1229,6 +1249,7 @@ def main(
         MYST: myst_suffixes,
         RESTRUCTUREDTEXT: rst_suffixes,
         MARKDOWN: markdown_suffixes,
+        MDX: mdx_suffixes,
     }
 
     _validate_file_suffix_overlaps(suffix_groups=suffix_groups)

@@ -122,6 +122,17 @@ To treat them as Markdown, use ``--myst-extension=. --markdown-extension=.md``.
    echo "Or this code-cell!"
    ```
 
+* MDX (``.mdx``)
+
+``.mdx`` files are supported out of the box.
+Use ``--mdx-extension`` if you need additional suffixes.
+
+.. code-block:: markdown
+
+   ```javascript
+   console.log("Hello, MDX!")
+   ```
+
 * Want more? Open an issue!
 
 Formatters and padding
@@ -182,7 +193,7 @@ For example, use ``--skip-marker="type-check"`` to skip code blocks which come j
 To skip a code block for each of multiple markers, for example to skip a code block for the ``type-check`` and ``lint`` markers but not all markers, add multiple ``skip doccmd`` comments above the code block.
 
 The skip comment will skip the next code block which would otherwise be run.
-This means that if you run ``doccmd`` with ``--language=python``, the Python code block in the following example will be skipped:
+This means that if you run ``doccmd`` with ``--language=python``, the Python code block in the following Markdown or MDX example will be skipped:
 
 .. code-block:: markdown
 
@@ -213,7 +224,7 @@ For example, if we used ``doccmd`` with ``--language=shell`` and ``--skip-marker
 
       echo "This will run"
 
-* Markdown (``.md``)
+* Markdown (``.md``) and MDX (``.mdx``)
 
 .. code-block:: markdown
 
@@ -329,7 +340,7 @@ For example:
 
    .. invisible-code-block: java
 
-* Markdown (``.md``)
+* Markdown (``.md``) and MDX (``.mdx``)
 
 .. code-block:: markdown
 

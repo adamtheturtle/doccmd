@@ -2,7 +2,7 @@ Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...
 
   Run commands against code blocks in the given documentation files.
 
-  This works with Markdown and reStructuredText files.
+  This works with reStructuredText, MyST, Markdown, and MDX files.
 
 Required options:
   -c, --command TEXT              The command to run against code blocks.
@@ -21,8 +21,8 @@ Code block selection:
                                   a comment matching 'skip doccmd[all]: next'
                                   are skipped (e.g. `.. skip doccmd[all]: next`
                                   in reStructuredText, `<!--- skip doccmd[all]:
-                                  next -->` in Markdown, or `% skip doccmd[all]:
-                                  next` in MyST).
+                                  next -->` in Markdown or MDX, or `% skip
+                                  doccmd[all]: next` in MyST).
                                   
                                   When using this option, those, and code blocks
                                   which come just after a comment including the
@@ -53,7 +53,7 @@ Grouping options:
                                   start' and 'group doccmd[all]: end' are
                                   grouped (e.g. `.. group doccmd[all]: start` in
                                   reStructuredText, `<!--- group doccmd[all]:
-                                  start -->` in Markdown, or `% group
+                                  start -->` in Markdown/MDX, or `% group
                                   doccmd[all]: start` in MyST).
                                   
                                   When using this option, those, and code blocks
@@ -131,7 +131,11 @@ File discovery options:
   --markdown-extension TEXT       Files with this extension (suffix) to treat as
                                   Markdown. Give this multiple times to look for
                                   multiple extensions. By default, `.md` is
-                                  treated as MyST, not Markdown.
+                                  treated as MyST, not Markdown. Use `--mdx-
+                                  extension` for MDX files.
+  --mdx-extension TEXT            Treat files with this extension (suffix) as
+                                  MDX. Give this multiple times to look for
+                                  multiple extensions.  [default: .mdx]
   --max-depth INTEGER RANGE       Maximum depth to search for files in
                                   directories.  [x>=1]
   --exclude TEXT                  A glob-style pattern that matches file paths
