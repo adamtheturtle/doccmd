@@ -44,6 +44,19 @@ What does it work on?
    echo "Or this code-cell!"
    ```
 
+* MDX (``.mdx``)
+
+.. note::
+
+   ``.mdx`` files are treated as MDX by default.
+   Use :option:`doccmd --mdx-extension` to add more suffixes if needed.
+
+.. code-block:: markdown
+
+   ```javascript
+   console.log("Hello, MDX!")
+   ```
+
 * Want more? Open an issue!
 
 Formatters and padding

@@ -2688,7 +2688,12 @@ def test_pty(
 
 @pytest.mark.parametrize(
     argnames="option",
-    argvalues=["--rst-extension", "--myst-extension"],
+    argvalues=[
+        "--rst-extension",
+        "--myst-extension",
+        "--markdown-extension",
+        "--mdx-extension",
+    ],
 )
 def test_source_given_extension_no_leading_period(
     tmp_path: Path,
@@ -2774,6 +2779,50 @@ def test_overlapping_extensions(tmp_path: Path) -> None:
 
             Error: Overlapping suffixes between MyST and reStructuredText: .custom, .custom2.
             """,  # noqa: E501
+    )
+    assert result.stdout == ""
+    assert result.stderr == expected_stderr
+
+
+def test_overlapping_markdown_mdx_extensions(tmp_path: Path) -> None:
+    """
+    An error is shown if there are overlapping extensions for Markdown and MDX.
+    """
+    runner = CliRunner()
+    source_file = tmp_path / "example.shared"
+    content = textwrap.dedent(
+        text="""\
+        ```python
+        y = 1
+        ```
+        """,
+    )
+    source_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        "--markdown-extension",
+        ".shared",
+        "--mdx-extension",
+        ".shared",
+        str(object=source_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code != 0, (result.stdout, result.stderr)
+    expected_stderr = textwrap.dedent(
+        text="""\
+            Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...
+            Try 'doccmd --help' for help.
+
+            Error: Overlapping suffixes between Markdown and MDX: .shared.
+            """,
     )
     assert result.stdout == ""
     assert result.stderr == expected_stderr
@@ -2884,6 +2933,50 @@ def test_markdown(tmp_path: Path) -> None:
     #
     # The code block after the second skip directive is run as it is
     # a valid Markdown code block.
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
+def test_mdx(tmp_path: Path) -> None:
+    """
+    It is possible to run a command against an MDX file.
+    """
+    runner = CliRunner()
+    source_file = tmp_path / "example.mdx"
+    content = textwrap.dedent(
+        text="""\
+        <!--- skip doccmd[all]: next -->
+
+        ```python
+            y = 1
+        ```
+
+        ```python
+            y = 2
+        ```
+        """,
+    )
+    source_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--no-pad-file",
+        "--command",
+        "cat",
+        str(object=source_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    expected_output = textwrap.dedent(
+        text="""\
+        y = 2
+        """,
+    )
     assert result.stdout == expected_output
     assert result.stderr == ""
 

@@ -86,7 +86,7 @@ For example:
 
    .. invisible-code-block: java
 
-* Markdown (``.md``)
+* Markdown (``.md``) and MDX (``.mdx``)
 
 .. code-block:: markdown
 

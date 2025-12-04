@@ -11,7 +11,7 @@ For example, set :option:`doccmd --skip-marker` to ``"type-check"`` to skip code
 To skip a code block for each of multiple markers, for example to skip a code block for the ``type-check`` and ``lint`` markers but not all markers, add multiple ``skip doccmd`` comments above the code block.
 
 The skip comment will skip the next code block which would otherwise be run.
-This means that if you set :option:`doccmd --language` to ``"python"``, the Python code block in the following example will be skipped:
+This means that if you set :option:`doccmd --language` to ``"python"``, the Python code block in the following Markdown or MDX example will be skipped:
 
 .. code-block:: markdown
 
@@ -42,7 +42,7 @@ For example, if we set :option:`doccmd --language` to ``"shell"`` and :option:`d
 
       echo "This will run"
 
-* Markdown (``.md``)
+* Markdown (``.md``) and MDX (``.mdx``)
 
 .. code-block:: markdown
 
