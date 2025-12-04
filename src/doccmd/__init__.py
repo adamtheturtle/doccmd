@@ -35,6 +35,12 @@ from sybil.example import Example
 from sybil.parsers.abstract.lexers import LexingException
 from sybil_extras.evaluators.multi import MultiEvaluator
 from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
+from sybil_extras.languages import (
+    MARKDOWN,
+    MYST,
+    RESTRUCTUREDTEXT,
+    MarkupLanguage,
+)
 from sybil_extras.parsers.markdown.group_all import (
     GroupAllParser as MarkdownGroupAllParser,
 )
@@ -43,13 +49,6 @@ from sybil_extras.parsers.myst.group_all import (
 )
 from sybil_extras.parsers.rest.group_all import (
     GroupAllParser as RestGroupAllParser,
-)
-
-from ._languages import (
-    MARKDOWN,
-    MYST,
-    RESTRUCTUREDTEXT,
-    MarkupLanguage,
 )
 
 try:
