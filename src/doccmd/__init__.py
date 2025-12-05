@@ -93,7 +93,7 @@ class _LogCommandEvaluator:
         )
         running_command_message = (
             f"Running '{command_str}' on code block at "
-            f"{example.path} line {example.line}"
+            f"{example.path}:{example.line}"
         )
         _log_info(message=running_command_message)
 
