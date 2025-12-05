@@ -2981,6 +2981,48 @@ def test_mdx(tmp_path: Path) -> None:
     assert result.stderr == ""
 
 
+def test_mdx_parametrized_code_blocks(tmp_path: Path) -> None:
+    """
+    MDX code blocks with parameters (like title) are correctly parsed.
+    """
+    runner = CliRunner()
+    source_file = tmp_path / "example.mdx"
+    content = textwrap.dedent(
+        text="""\
+        ```python showLineNumbers title="world.py"
+        print("hello from python")
+        ```
+
+        ```js title="script.js"
+        console.log("javascript");
+        ```
+        """,
+    )
+    source_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--no-pad-file",
+        "--command",
+        "cat",
+        str(object=source_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    expected_output = textwrap.dedent(
+        text="""\
+        print("hello from python")
+        """,
+    )
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
 def test_directory(tmp_path: Path) -> None:
     """
     All source files in a given directory are worked on.
