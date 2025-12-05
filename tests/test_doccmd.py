@@ -1297,7 +1297,7 @@ def test_verbose_running(tmp_path: Path) -> None:
     expected_stderr = textwrap.dedent(
         text=f"""\
         {fg.green}Not using PTY for running commands.{reset}
-        {fg.green}Running 'cat' on code block at {rst_file} line 1{reset}
+        {fg.green}Running 'cat' on code block at {rst_file}:1{reset}
         """,
     )
     assert result.stdout == expected_output
@@ -1363,11 +1363,11 @@ def test_verbose_running_with_stderr(tmp_path: Path) -> None:
     expected_stderr = textwrap.dedent(
         text=f"""\
         {fg.green}Not using PTY for running commands.{reset}
-        {fg.green}Running '{command}' on code block at {rst_file} line 1{reset}
+        {fg.green}Running '{command}' on code block at {rst_file}:1{reset}
         error
-        {fg.green}Running '{command}' on code block at {rst_file} line 19{reset}
+        {fg.green}Running '{command}' on code block at {rst_file}:19{reset}
         error
-        """,  # noqa: E501
+        """,
     )
     assert result.stdout == expected_output
     assert result.stderr == expected_stderr
