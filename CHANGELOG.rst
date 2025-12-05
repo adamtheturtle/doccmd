@@ -4,6 +4,8 @@ Changelog
 Next
 ----
 
+* Error if a group is started but not ended.
+
 2025.12.05.1
 ------------
 

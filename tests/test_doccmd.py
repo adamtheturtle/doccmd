@@ -2416,6 +2416,110 @@ def test_custom_rst_file_suffixes(tmp_path: Path) -> None:
     assert result.stdout == expected_output
 
 
+@pytest.mark.parametrize(
+    argnames=("fail_on_parse_error_options", "expected_exit_code"),
+    argvalues=[
+        ([], 0),
+        (["--fail-on-parse-error"], 1),
+    ],
+)
+def test_group_start_without_end(
+    tmp_path: Path,
+    fail_on_parse_error_options: Sequence[str],
+    expected_exit_code: int,
+) -> None:
+    """
+    Error if a group is started but not ended.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. group doccmd[all]: start
+
+        .. code-block:: python
+
+            print("Hello")
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+
+    arguments = [
+        *fail_on_parse_error_options,
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == expected_exit_code, (
+        result.stdout,
+        result.stderr,
+    )
+    expected_error = (
+        f"{fg.red}Could not parse {rst_file}: "
+        "'group doccmd[all]: start' was not followed by "
+        f"'group doccmd[all]: end'{reset}"
+    )
+    assert result.stderr == expected_error + "\n"
+
+
+def test_group_nested_start_without_end(tmp_path: Path) -> None:
+    """
+    Error if nested group start directives are not properly closed.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. group doccmd[all]: start
+
+        .. code-block:: python
+
+            print("First")
+
+        .. group doccmd[all]: start
+
+        .. code-block:: python
+
+            print("Second")
+
+        .. group doccmd[all]: end
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 1, (
+        result.stdout,
+        result.stderr,
+    )
+    expected_error = (
+        f"{fg.red}Error running command 'cat': "
+        "'group doccmd[all]: start' must be followed by "
+        f"'group doccmd[all]: end'{reset}"
+    )
+    assert result.stderr == expected_error + "\n"
+
+
 def test_group_file_with_manual_group_directive(
     *,
     tmp_path: Path,
