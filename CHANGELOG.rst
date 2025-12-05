@@ -4,6 +4,9 @@ Changelog
 Next
 ----
 
+2025.12.05
+----------
+
 * Add support for MDX files.
 
 2025.12.03
