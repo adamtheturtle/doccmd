@@ -45,6 +45,9 @@ from sybil_extras.languages import (
 from sybil_extras.parsers.markdown.group_all import (
     GroupAllParser as MarkdownGroupAllParser,
 )
+from sybil_extras.parsers.mdx.attribute_grouped_source import (
+    AttributeGroupedSourceParser as MdxAttributeGroupedSourceParser,
+)
 from sybil_extras.parsers.mdx.group_all import (
     GroupAllParser as MdxGroupAllParser,
 )
@@ -504,8 +507,9 @@ def _process_file_path(
     temporary_file_name_prefix: str,
     given_temporary_file_extension: str | None,
     skip_directives: Iterable[str],
-    group_directives: Iterable[str],
+    group_markers: Iterable[str],
     group_file: bool,
+    group_mdx_by_attribute: str | None,
     use_pty: bool,
     log_command_evaluators: Sequence[_LogCommandEvaluator],
     sphinx_jinja2: bool,
@@ -555,8 +559,9 @@ def _process_file_path(
             temporary_file_extension=temporary_file_extension,
             temporary_file_name_prefix=temporary_file_name_prefix,
             skip_directives=skip_directives,
-            group_directives=group_directives,
+            group_markers=group_markers,
             group_file=group_file,
+            group_mdx_by_attribute=group_mdx_by_attribute,
             use_pty=use_pty,
             markup_language=markup_language,
             encoding=encoding,
@@ -577,8 +582,9 @@ def _process_file_path(
             temporary_file_extension=temporary_file_extension,
             temporary_file_name_prefix=temporary_file_name_prefix,
             skip_directives=skip_directives,
-            group_directives=group_directives,
+            group_markers=group_markers,
             group_file=group_file,
+            group_mdx_by_attribute=group_mdx_by_attribute,
             use_pty=use_pty,
             markup_language=markup_language,
             encoding=encoding,
@@ -700,8 +706,9 @@ def _get_sybil(
     write_to_file: bool,
     pad_groups: bool,
     skip_directives: Iterable[str],
-    group_directives: Iterable[str],
+    group_markers: Iterable[str],
     group_file: bool,
+    group_mdx_by_attribute: str | None,
     use_pty: bool,
     markup_language: MarkupLanguage,
     log_command_evaluators: Sequence[_LogCommandEvaluator],
@@ -711,6 +718,20 @@ def _get_sybil(
     """
     Get a Sybil for running commands on the given file.
     """
+    # Add default "all" marker if:
+    # - Not using group_file
+    # - AND (not using group_mdx_by_attribute OR this is not an MDX file)
+    # This ensures MDX files with attribute grouping don't process
+    # 'group doccmd[all]' directives, while other file types still do.
+    default_group_markers: set[str] = (
+        {"all"}
+        if not group_file
+        and (group_mdx_by_attribute is None or markup_language != MDX)
+        else set()
+    )
+    all_group_markers = {*group_markers, *default_group_markers}
+    group_directives = _get_group_directives(markers=all_group_markers)
+
     tempfile_suffixes = (temporary_file_extension,)
 
     shell_command_evaluator = ShellCommandEvaluator(
@@ -751,6 +772,8 @@ def _get_sybil(
         for skip_directive in skip_directives
     ]
 
+    mdx_attribute_grouped_parsers: list[MdxAttributeGroupedSourceParser] = []
+
     if group_file:
         group_all_parser_map = {
             MYST: MystGroupAllParser,
@@ -777,6 +800,26 @@ def _get_sybil(
             if code_block_languages
             else []
         )
+    elif group_mdx_by_attribute is not None and markup_language == MDX:
+        # For MDX files with attribute-based grouping:
+        # Create an AttributeGroupedSourceParser that handles all blocks:
+        # - Blocks with the grouping attribute are grouped by attribute value
+        # - Blocks without the attribute are processed individually
+        code_block_parsers = []
+        for code_block_language in code_block_languages:
+            code_block_parser = markup_language.code_block_parser_cls(
+                language=code_block_language,
+            )
+            mdx_attribute_grouped_parsers.append(
+                MdxAttributeGroupedSourceParser(
+                    code_block_parser=code_block_parser,
+                    evaluator=group_evaluator,
+                    attribute_name=group_mdx_by_attribute,
+                    pad_groups=pad_groups,
+                    ungrouped_evaluator=evaluator,
+                )
+            )
+        group_all_parsers = []
     else:
         code_block_parsers = [
             markup_language.code_block_parser_cls(
@@ -813,6 +856,7 @@ def _get_sybil(
             *skip_parsers,
             *group_parsers,
             *group_all_parsers,
+            *mdx_attribute_grouped_parsers,
         ),
         encoding=encoding,
     )
@@ -968,6 +1012,26 @@ def _get_sybil(
             "Whether to fail (with exit code 1) if a command (e.g. a "
             "formatter) tries to change code within a grouped code block. "
             "``doccmd`` does not support writing to grouped code blocks."
+        ),
+    ),
+    cloup.option(
+        "group_mdx_by_attribute",
+        "--group-mdx-by-attribute",
+        type=str,
+        default=None,
+        show_default=True,
+        required=False,
+        help=(
+            "Group MDX code blocks by the value of the specified attribute. "
+            "Code blocks with the same attribute value are grouped together "
+            "and executed as a single unit. "
+            "For example, with `--group-mdx-by-attribute group`, code blocks "
+            'with `group="example1"` are grouped together. '
+            "This follows the Docusaurus convention for grouping code blocks. "
+            "This option only applies to MDX files. "
+            "Error messages for grouped code blocks may include lines which "
+            "do not match the document, so code formatters will not work on "
+            "them."
         ),
     ),
 )
@@ -1205,7 +1269,7 @@ def _get_sybil(
 @click.version_option(version=__version__)
 @cloup.constraint(
     constr=cloup.constraints.mutually_exclusive,
-    params=["group_markers", "group_file"],
+    params=["group_markers", "group_file", "group_mdx_by_attribute"],
 )
 @beartype
 def main(
@@ -1222,6 +1286,7 @@ def main(
     skip_markers: Iterable[str],
     group_markers: Iterable[str],
     group_file: bool,
+    group_mdx_by_attribute: str | None,
     use_pty_option: _UsePty,
     rst_suffixes: Sequence[str],
     myst_suffixes: Sequence[str],
@@ -1286,10 +1351,6 @@ def main(
     skip_markers = {*skip_markers, "all"}
     skip_directives = _get_skip_directives(markers=skip_markers)
 
-    default_group_markers: set[str] = {"all"} if not group_file else set()
-    group_markers = {*group_markers, *default_group_markers}
-    group_directives = _get_group_directives(markers=group_markers)
-
     given_temporary_file_extension = temporary_file_extension
 
     if example_workers > 1 and write_to_file:
@@ -1323,8 +1384,9 @@ def main(
                         temporary_file_name_prefix=temporary_file_name_prefix,
                         given_temporary_file_extension=given_temporary_file_extension,
                         skip_directives=skip_directives,
-                        group_directives=group_directives,
+                        group_markers=group_markers,
                         group_file=group_file,
+                        group_mdx_by_attribute=group_mdx_by_attribute,
                         use_pty=use_pty,
                         log_command_evaluators=log_command_evaluators,
                         sphinx_jinja2=sphinx_jinja2,
@@ -1352,8 +1414,9 @@ def main(
                     temporary_file_name_prefix=temporary_file_name_prefix,
                     given_temporary_file_extension=given_temporary_file_extension,
                     skip_directives=skip_directives,
-                    group_directives=group_directives,
+                    group_markers=group_markers,
                     group_file=group_file,
+                    group_mdx_by_attribute=group_mdx_by_attribute,
                     use_pty=use_pty,
                     log_command_evaluators=log_command_evaluators,
                     sphinx_jinja2=sphinx_jinja2,

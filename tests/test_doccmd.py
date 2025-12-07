@@ -2417,6 +2417,608 @@ def test_custom_rst_file_suffixes(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize(
+    argnames=("group_padding_options", "expect_padding"),
+    argvalues=[
+        pytest.param(["--pad-groups"], True, id="pad-groups"),
+        pytest.param(["--no-pad-groups"], False, id="no-pad-groups"),
+    ],
+)
+def test_group_mdx_by_attribute(
+    *,
+    tmp_path: Path,
+    group_padding_options: Sequence[str],
+    expect_padding: bool,
+) -> None:
+    """MDX code blocks with matching attribute values are grouped together.
+
+    Blocks with the same attribute value are combined into a single
+    temporary file and passed to the command once, rather than being
+    processed individually.
+    """
+    runner = CliRunner()
+    mdx_file = tmp_path / "example.mdx"
+    script = tmp_path / "print_underlined.py"
+    content = textwrap.dedent(
+        text="""\
+        ```python group="example1"
+        block_1
+        ```
+
+        ```python group="example2"
+        block_2
+        ```
+
+        ```python group="example1"
+        block_3
+        ```
+
+        ```python
+        block_no_group
+        ```
+        """,
+    )
+    mdx_file.write_text(data=content, encoding="utf-8")
+
+    print_underlined_script = textwrap.dedent(
+        text="""\
+        import sys
+        import pathlib
+
+        # We strip here so that we don't have to worry about
+        # the file padding.
+        print(pathlib.Path(sys.argv[1]).read_text().strip())
+        print("-------")
+        """,
+    )
+    script.write_text(data=print_underlined_script, encoding="utf-8")
+
+    arguments = [
+        "--no-pad-file",
+        *group_padding_options,
+        "--group-mdx-by-attribute",
+        "group",
+        "--language",
+        "python",
+        "--command",
+        f"{Path(sys.executable).as_posix()} {script.as_posix()}",
+        str(object=mdx_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+
+    # Blocks with same "group" attribute value are grouped together
+    # block_1 and block_3 have group="example1", so they are grouped
+    # block_2 has group="example2", so it is separate
+    # block_no_group has no group attribute, so it is processed normally
+    if expect_padding:
+        expected_output = textwrap.dedent(
+            text="""\
+            block_1
+
+
+
+
+
+
+
+            block_3
+            -------
+            block_2
+            -------
+            block_no_group
+            -------
+            """,
+        )
+    else:
+        expected_output = textwrap.dedent(
+            text="""\
+            block_1
+
+            block_3
+            -------
+            block_2
+            -------
+            block_no_group
+            -------
+            """,
+        )
+
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert result.stdout == expected_output
+
+
+def test_group_mdx_by_attribute_no_matches(
+    *,
+    tmp_path: Path,
+) -> None:
+    """Code blocks without the grouping attribute are processed individually.
+
+    This ensures the grouping feature degrades gracefully when blocks
+    don't have the specified attribute.
+    """
+    runner = CliRunner()
+    mdx_file = tmp_path / "example.mdx"
+    content = textwrap.dedent(
+        text="""\
+        ```python
+        block_1
+        ```
+
+        ```python
+        block_2
+        ```
+        """,
+    )
+    mdx_file.write_text(data=content, encoding="utf-8")
+
+    arguments = [
+        "--no-pad-file",
+        "--group-mdx-by-attribute",
+        "group",
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        str(object=mdx_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+
+    expected_output = textwrap.dedent(
+        text="""\
+        block_1
+        block_2
+        """,
+    )
+
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert result.stdout == expected_output
+
+
+def test_group_mdx_by_attribute_custom_attribute_name(
+    *,
+    tmp_path: Path,
+) -> None:
+    """Any attribute name can be used for grouping.
+
+    This flexibility allows grouping by attributes like 'file',
+    'session', or any other custom attribute in MDX code blocks.
+    """
+    runner = CliRunner()
+    mdx_file = tmp_path / "example.mdx"
+    script = tmp_path / "print_underlined.py"
+    content = textwrap.dedent(
+        text="""\
+        ```python file="example1.py"
+        block_1
+        ```
+
+        ```python file="example1.py"
+        block_2
+        ```
+
+        ```python file="example2.py"
+        block_3
+        ```
+        """,
+    )
+    mdx_file.write_text(data=content, encoding="utf-8")
+
+    print_underlined_script = textwrap.dedent(
+        text="""\
+        import sys
+        import pathlib
+
+        print(pathlib.Path(sys.argv[1]).read_text().strip())
+        print("-------")
+        """,
+    )
+    script.write_text(data=print_underlined_script, encoding="utf-8")
+
+    arguments = [
+        "--no-pad-file",
+        "--no-pad-groups",
+        "--group-mdx-by-attribute",
+        "file",
+        "--language",
+        "python",
+        "--command",
+        f"{Path(sys.executable).as_posix()} {script.as_posix()}",
+        str(object=mdx_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+
+    # Blocks with file="example1.py" are grouped together
+    expected_output = textwrap.dedent(
+        text="""\
+        block_1
+
+        block_2
+        -------
+        block_3
+        -------
+        """,
+    )
+
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert result.stdout == expected_output
+
+
+def test_group_mdx_by_attribute_only_mdx_files(
+    *,
+    tmp_path: Path,
+) -> None:
+    """Attribute-based grouping only applies to MDX files.
+
+    RST and other file formats are processed normally even when
+    attribute grouping is enabled.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    mdx_file = tmp_path / "example.mdx"
+
+    rst_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            rst_block
+        """,
+    )
+    rst_file.write_text(data=rst_content, encoding="utf-8")
+
+    mdx_content = textwrap.dedent(
+        text="""\
+        ```python group="example1"
+        mdx_block_1
+        ```
+
+        ```python group="example1"
+        mdx_block_2
+        ```
+        """,
+    )
+    mdx_file.write_text(data=mdx_content, encoding="utf-8")
+
+    script = tmp_path / "print_underlined.py"
+    print_underlined_script = textwrap.dedent(
+        text="""\
+        import sys
+        import pathlib
+
+        print(pathlib.Path(sys.argv[1]).read_text().strip())
+        print("-------")
+        """,
+    )
+    script.write_text(data=print_underlined_script, encoding="utf-8")
+
+    arguments = [
+        "--no-pad-file",
+        "--no-pad-groups",
+        "--group-mdx-by-attribute",
+        "group",
+        "--language",
+        "python",
+        "--command",
+        f"{Path(sys.executable).as_posix()} {script.as_posix()}",
+        str(object=rst_file),
+        str(object=mdx_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+
+    # RST block is processed normally, MDX blocks are grouped
+    expected_output = textwrap.dedent(
+        text="""\
+        rst_block
+        -------
+        mdx_block_1
+
+        mdx_block_2
+        -------
+        """,
+    )
+
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert result.stdout == expected_output
+
+
+@pytest.mark.parametrize(
+    argnames=(
+        "fail_on_group_write_options",
+        "expected_exit_code",
+        "message_colour",
+    ),
+    argvalues=[
+        ([], 1, fg.red),
+        (["--fail-on-group-write"], 1, fg.red),
+        (["--no-fail-on-group-write"], 0, fg.yellow),
+    ],
+)
+def test_group_mdx_by_attribute_modify_file(
+    *,
+    tmp_path: Path,
+    fail_on_group_write_options: Sequence[str],
+    expected_exit_code: int,
+    message_colour: Graphic,
+) -> None:
+    """File modifications are blocked for grouped MDX code blocks.
+
+    Since grouped blocks are combined into a single temporary file,
+    writing back to the original source would be ambiguous. The tool
+    detects this and reports which group was modified.
+    """
+    runner = CliRunner()
+    mdx_file = tmp_path / "example.mdx"
+    content = textwrap.dedent(
+        text="""\
+        ```python group="example1"
+        a = 1
+        b = 1
+        c = 1
+        ```
+        """,
+    )
+    mdx_file.write_text(data=content, encoding="utf-8")
+    modify_code_script = textwrap.dedent(
+        text="""\
+        #!/usr/bin/env python
+
+        import sys
+
+        with open(sys.argv[1], "w") as file:
+            file.write("foobar")
+        """,
+    )
+    modify_code_file = tmp_path / "modify_code.py"
+    modify_code_file.write_text(data=modify_code_script, encoding="utf-8")
+    arguments = [
+        *fail_on_group_write_options,
+        "--group-mdx-by-attribute",
+        "group",
+        "--language",
+        "python",
+        "--command",
+        f"{Path(sys.executable).as_posix()} {modify_code_file.as_posix()}",
+        str(object=mdx_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == expected_exit_code, (
+        result.stdout,
+        result.stderr,
+    )
+    new_content = mdx_file.read_text(encoding="utf-8")
+    expected_content = content
+    assert new_content == expected_content
+
+    expected_stderr = textwrap.dedent(
+        text=f"""\
+            {message_colour}Writing to a group is not supported.
+
+            A command modified the contents of examples in the group ending on line 1 in {mdx_file.as_posix()}.
+
+            Diff:
+
+            --- original
+
+            +++ modified
+
+            @@ -1,3 +1 @@
+
+            -a = 1
+            -b = 1
+            -c = 1
+            +foobar{reset}
+            """,  # noqa: E501
+    )
+    assert result.stderr == expected_stderr
+
+
+def test_group_mdx_by_attribute_no_default_markers_in_mdx(
+    *,
+    tmp_path: Path,
+) -> None:
+    """Default group markers are not applied to MDX files with attribute
+    grouping.
+
+    When using ``--group-mdx-by-attribute``, the default "all" marker should
+    not be added to the default_group_markers set. This means MDX files
+    should not process 'group doccmd[all]' directives, as attribute
+    grouping is mutually exclusive with marker-based grouping. Blocks
+    within those directives should be processed normally based on their
+    attributes.
+    """
+    runner = CliRunner()
+    mdx_file = tmp_path / "example.mdx"
+    content = textwrap.dedent(
+        text="""\
+        <!--- group doccmd[all]: start -->
+
+        ```python
+        block_without_attribute
+        ```
+
+        ```python group="example1"
+        block_1
+        ```
+
+        <!--- group doccmd[all]: end -->
+
+        ```python group="example1"
+        block_2
+        ```
+        """,
+    )
+    mdx_file.write_text(data=content, encoding="utf-8")
+
+    script = tmp_path / "print_underlined.py"
+    print_underlined_script = textwrap.dedent(
+        text="""\
+        import sys
+        import pathlib
+
+        print(pathlib.Path(sys.argv[1]).read_text().strip())
+        print("-------")
+        """,
+    )
+    script.write_text(data=print_underlined_script, encoding="utf-8")
+
+    arguments = [
+        "--no-pad-file",
+        "--no-pad-groups",
+        "--group-mdx-by-attribute",
+        "group",
+        "--language",
+        "python",
+        "--command",
+        f"{Path(sys.executable).as_posix()} {script.as_posix()}",
+        str(object=mdx_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+
+    # The 'group doccmd[all]' directive should be ignored in MDX files.
+    # Blocks are processed based on their attributes:
+    # - block_without_attribute is processed individually (no group attribute)
+    # - block_1 and block_2 are grouped together (both have group="example1")
+    expected_output = textwrap.dedent(
+        text="""\
+        block_without_attribute
+        -------
+        block_1
+
+        block_2
+        -------
+        """,
+    )
+
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert result.stdout == expected_output
+
+
+def test_group_mdx_by_attribute_default_markers_in_rst(
+    *,
+    tmp_path: Path,
+) -> None:
+    """Default group markers still work in RST files with MDX attribute
+    grouping.
+
+    When using ``--group-mdx-by-attribute``, non-MDX files (like RST) should
+    still support the default 'group doccmd[all]' directive. The default
+    marker should only be excluded for MDX files, not for all file
+    types.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    mdx_file = tmp_path / "example.mdx"
+
+    rst_content = textwrap.dedent(
+        text="""\
+        .. group doccmd[all]: start
+
+        .. code-block:: python
+
+            rst_group_block_1
+
+        .. code-block:: python
+
+            rst_group_block_2
+
+        .. group doccmd[all]: end
+
+        .. code-block:: python
+
+            rst_single_block
+        """,
+    )
+    rst_file.write_text(data=rst_content, encoding="utf-8")
+
+    mdx_content = textwrap.dedent(
+        text="""\
+        ```python group="example1"
+        mdx_block_1
+        ```
+
+        ```python group="example1"
+        mdx_block_2
+        ```
+        """,
+    )
+    mdx_file.write_text(data=mdx_content, encoding="utf-8")
+
+    script = tmp_path / "print_underlined.py"
+    print_underlined_script = textwrap.dedent(
+        text="""\
+        import sys
+        import pathlib
+
+        print(pathlib.Path(sys.argv[1]).read_text().strip())
+        print("-------")
+        """,
+    )
+    script.write_text(data=print_underlined_script, encoding="utf-8")
+
+    arguments = [
+        "--no-pad-file",
+        "--no-pad-groups",
+        "--group-mdx-by-attribute",
+        "group",
+        "--language",
+        "python",
+        "--command",
+        f"{Path(sys.executable).as_posix()} {script.as_posix()}",
+        str(object=rst_file),
+        str(object=mdx_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+
+    # RST file should have its 'group doccmd[all]' directive respected,
+    # grouping the two blocks together. MDX blocks should be grouped
+    # by their attribute value.
+    expected_output = textwrap.dedent(
+        text="""\
+        rst_group_block_1
+
+        rst_group_block_2
+        -------
+        rst_single_block
+        -------
+        mdx_block_1
+
+        mdx_block_2
+        -------
+        """,
+    )
+
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert result.stdout == expected_output
+
+
+@pytest.mark.parametrize(
     argnames=("fail_on_parse_error_options", "expected_exit_code"),
     argvalues=[
         ([], 0),
