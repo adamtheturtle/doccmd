@@ -1337,7 +1337,9 @@ def main(
     skip_markers = {*skip_markers, "all"}
     skip_directives = _get_skip_directives(markers=skip_markers)
 
-    default_group_markers: set[str] = {"all"} if not group_file else set()
+    default_group_markers: set[str] = (
+        {"all"} if not group_file and group_mdx_by_attribute is None else set()
+    )
     group_markers = {*group_markers, *default_group_markers}
     group_directives = _get_group_directives(markers=group_markers)
 
