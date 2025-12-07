@@ -2429,10 +2429,11 @@ def test_group_mdx_by_attribute(
     group_padding_options: Sequence[str],
     expect_padding: bool,
 ) -> None:
-    """Test --group-mdx-by-attribute groups MDX code blocks by attribute.
+    """MDX code blocks with matching attribute values are grouped together.
 
-    When --group-mdx-by-attribute is enabled, MDX code blocks with the
-    same value for the specified attribute are grouped together.
+    Blocks with the same attribute value are combined into a single
+    temporary file and passed to the command once, rather than being
+    processed individually.
     """
     runner = CliRunner()
     mdx_file = tmp_path / "example.mdx"
@@ -2533,10 +2534,10 @@ def test_group_mdx_by_attribute_no_matches(
     *,
     tmp_path: Path,
 ) -> None:
-    """Test --group-mdx-by-attribute with no matching attributes.
+    """Code blocks without the grouping attribute are processed individually.
 
-    When no code blocks have the specified attribute, all blocks are
-    processed individually.
+    This ensures the grouping feature degrades gracefully when blocks
+    don't have the specified attribute.
     """
     runner = CliRunner()
     mdx_file = tmp_path / "example.mdx"
@@ -2584,9 +2585,10 @@ def test_group_mdx_by_attribute_custom_attribute_name(
     *,
     tmp_path: Path,
 ) -> None:
-    """Test --group-mdx-by-attribute with a custom attribute name.
+    """Any attribute name can be used for grouping.
 
-    Users can specify any attribute name for grouping.
+    This flexibility allows grouping by attributes like 'file',
+    'session', or any other custom attribute in MDX code blocks.
     """
     runner = CliRunner()
     mdx_file = tmp_path / "example.mdx"
@@ -2656,9 +2658,10 @@ def test_group_mdx_by_attribute_only_mdx_files(
     *,
     tmp_path: Path,
 ) -> None:
-    """Test --group-mdx-by-attribute only applies to MDX files.
+    """Attribute-based grouping only applies to MDX files.
 
-    Other file types should not be affected by this option.
+    RST and other file formats are processed normally even when
+    attribute grouping is enabled.
     """
     runner = CliRunner()
     rst_file = tmp_path / "example.rst"
@@ -2751,8 +2754,11 @@ def test_group_mdx_by_attribute_modify_file(
     expected_exit_code: int,
     message_colour: Graphic,
 ) -> None:
-    """
-    Commands in MDX attribute groups cannot modify files.
+    """File modifications are blocked for grouped MDX code blocks.
+
+    Since grouped blocks are combined into a single temporary file,
+    writing back to the original source would be ambiguous. The tool
+    detects this and reports which group was modified.
     """
     runner = CliRunner()
     mdx_file = tmp_path / "example.mdx"
