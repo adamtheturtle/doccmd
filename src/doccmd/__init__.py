@@ -1255,7 +1255,7 @@ def _get_sybil(
 @click.version_option(version=__version__)
 @cloup.constraint(
     constr=cloup.constraints.mutually_exclusive,
-    params=["group_markers", "group_file"],
+    params=["group_markers", "group_file", "group_mdx_by_attribute"],
 )
 @beartype
 def main(

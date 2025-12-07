@@ -2500,6 +2500,9 @@ def test_group_mdx_by_attribute(
 
 
 
+
+
+
             block_3
             -------
             block_2

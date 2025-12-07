@@ -90,6 +90,18 @@ Grouping options:
                                   code within a grouped code block. ``doccmd``
                                   does not support writing to grouped code
                                   blocks.  [default: fail-on-group-write]
+  --group-mdx-by-attribute TEXT   Group MDX code blocks by the value of the
+                                  specified attribute. Code blocks with the same
+                                  attribute value are grouped together and
+                                  executed as a single unit. For example, with
+                                  `--group-mdx-by-attribute group`, code blocks
+                                  with `group="example1"` are grouped together.
+                                  This follows the Docusaurus convention for
+                                  grouping code blocks. This option only applies
+                                  to MDX files. Error messages for grouped code
+                                  blocks may include lines which do not match
+                                  the document, so code formatters will not work
+                                  on them.
 
 Temporary file options:
   --temporary-file-extension TEXT
@@ -204,4 +216,5 @@ Other options:
   --help                          Show this message and exit.
 
 Constraints:
-  {--group-marker, --group-file}  mutually exclusive
+  {--group-marker, --group-file, --group-mdx-by-attribute}
+    mutually exclusive
