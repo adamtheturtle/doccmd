@@ -255,6 +255,41 @@ For example, if we used ``doccmd`` with ``--language=shell`` and ``--skip-marker
 Grouping code blocks
 --------------------
 
+Grouping by MDX attributes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``--group-mdx-by-attribute`` option groups MDX code blocks by the value of a specified attribute.
+Code blocks with the same attribute value are grouped together and executed as a single unit.
+This is useful for working with MDX files that follow conventions like Docusaurus, where code blocks are grouped using custom attributes.
+
+For example, with ``--group-mdx-by-attribute=group``, these blocks are grouped by their ``group`` attribute value:
+
+.. code-block:: markdown
+
+   ```python group="example1"
+   def my_function():
+       return "Hello"
+   ```
+
+   ```python group="example2"
+   def other_function():
+       return "World"
+   ```
+
+   ```python group="example1"
+   result = my_function()
+   ```
+
+In this example, the first and third code blocks (both with ``group="example1"``) are grouped together and executed as one unit, while the second block (with ``group="example2"``) is processed separately.
+
+Code blocks without the specified attribute are processed individually as normal.
+
+This option only applies to MDX files and follows the same restrictions as other grouping methods:
+
+* Error messages may include lines that don't match the document
+* Code formatters may not work correctly
+* Changes to code blocks are not written back to the file
+
 Automatic file-level grouping
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
