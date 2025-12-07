@@ -2838,7 +2838,7 @@ def test_group_mdx_by_attribute_no_default_markers_in_mdx(
     """Default group markers are not applied to MDX files with attribute
     grouping.
 
-    When using --group-mdx-by-attribute, the default "all" marker should
+    When using ``--group-mdx-by-attribute``, the default "all" marker should
     not be added to the default_group_markers set. This means MDX files
     should not process 'group doccmd[all]' directives, as attribute
     grouping is mutually exclusive with marker-based grouping. Blocks
@@ -2923,7 +2923,7 @@ def test_group_mdx_by_attribute_default_markers_in_rst(
     """Default group markers still work in RST files with MDX attribute
     grouping.
 
-    When using --group-mdx-by-attribute, non-MDX files (like RST) should
+    When using ``--group-mdx-by-attribute``, non-MDX files (like RST) should
     still support the default 'group doccmd[all]' directive. The default
     marker should only be excluded for MDX files, not for all file
     types.
