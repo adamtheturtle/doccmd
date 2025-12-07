@@ -507,7 +507,7 @@ def _process_file_path(
     temporary_file_name_prefix: str,
     given_temporary_file_extension: str | None,
     skip_directives: Iterable[str],
-    group_directives: Iterable[str],
+    group_markers: Iterable[str],
     group_file: bool,
     group_mdx_by_attribute: str | None,
     use_pty: bool,
@@ -559,7 +559,7 @@ def _process_file_path(
             temporary_file_extension=temporary_file_extension,
             temporary_file_name_prefix=temporary_file_name_prefix,
             skip_directives=skip_directives,
-            group_directives=group_directives,
+            group_markers=group_markers,
             group_file=group_file,
             group_mdx_by_attribute=group_mdx_by_attribute,
             use_pty=use_pty,
@@ -582,7 +582,7 @@ def _process_file_path(
             temporary_file_extension=temporary_file_extension,
             temporary_file_name_prefix=temporary_file_name_prefix,
             skip_directives=skip_directives,
-            group_directives=group_directives,
+            group_markers=group_markers,
             group_file=group_file,
             group_mdx_by_attribute=group_mdx_by_attribute,
             use_pty=use_pty,
@@ -706,7 +706,7 @@ def _get_sybil(
     write_to_file: bool,
     pad_groups: bool,
     skip_directives: Iterable[str],
-    group_directives: Iterable[str],
+    group_markers: Iterable[str],
     group_file: bool,
     group_mdx_by_attribute: str | None,
     use_pty: bool,
@@ -718,6 +718,20 @@ def _get_sybil(
     """
     Get a Sybil for running commands on the given file.
     """
+    # Add default "all" marker if:
+    # - Not using group_file
+    # - AND (not using group_mdx_by_attribute OR this is not an MDX file)
+    # This ensures MDX files with attribute grouping don't process
+    # 'group doccmd[all]' directives, while other file types still do.
+    default_group_markers: set[str] = (
+        {"all"}
+        if not group_file
+        and (group_mdx_by_attribute is None or markup_language != MDX)
+        else set()
+    )
+    all_group_markers = {*group_markers, *default_group_markers}
+    group_directives = _get_group_directives(markers=all_group_markers)
+
     tempfile_suffixes = (temporary_file_extension,)
 
     shell_command_evaluator = ShellCommandEvaluator(
@@ -1337,12 +1351,6 @@ def main(
     skip_markers = {*skip_markers, "all"}
     skip_directives = _get_skip_directives(markers=skip_markers)
 
-    default_group_markers: set[str] = (
-        {"all"} if not group_file and group_mdx_by_attribute is None else set()
-    )
-    group_markers = {*group_markers, *default_group_markers}
-    group_directives = _get_group_directives(markers=group_markers)
-
     given_temporary_file_extension = temporary_file_extension
 
     if example_workers > 1 and write_to_file:
@@ -1376,7 +1384,7 @@ def main(
                         temporary_file_name_prefix=temporary_file_name_prefix,
                         given_temporary_file_extension=given_temporary_file_extension,
                         skip_directives=skip_directives,
-                        group_directives=group_directives,
+                        group_markers=group_markers,
                         group_file=group_file,
                         group_mdx_by_attribute=group_mdx_by_attribute,
                         use_pty=use_pty,
@@ -1406,7 +1414,7 @@ def main(
                     temporary_file_name_prefix=temporary_file_name_prefix,
                     given_temporary_file_extension=given_temporary_file_extension,
                     skip_directives=skip_directives,
-                    group_directives=group_directives,
+                    group_markers=group_markers,
                     group_file=group_file,
                     group_mdx_by_attribute=group_mdx_by_attribute,
                     use_pty=use_pty,
