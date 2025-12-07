@@ -45,6 +45,9 @@ from sybil_extras.languages import (
 from sybil_extras.parsers.markdown.group_all import (
     GroupAllParser as MarkdownGroupAllParser,
 )
+from sybil_extras.parsers.mdx.attribute_grouped_source import (
+    AttributeGroupedSourceParser as MdxAttributeGroupedSourceParser,
+)
 from sybil_extras.parsers.mdx.group_all import (
     GroupAllParser as MdxGroupAllParser,
 )
@@ -506,6 +509,7 @@ def _process_file_path(
     skip_directives: Iterable[str],
     group_directives: Iterable[str],
     group_file: bool,
+    group_mdx_by_attribute: str | None,
     use_pty: bool,
     log_command_evaluators: Sequence[_LogCommandEvaluator],
     sphinx_jinja2: bool,
@@ -557,6 +561,7 @@ def _process_file_path(
             skip_directives=skip_directives,
             group_directives=group_directives,
             group_file=group_file,
+            group_mdx_by_attribute=group_mdx_by_attribute,
             use_pty=use_pty,
             markup_language=markup_language,
             encoding=encoding,
@@ -579,6 +584,7 @@ def _process_file_path(
             skip_directives=skip_directives,
             group_directives=group_directives,
             group_file=group_file,
+            group_mdx_by_attribute=group_mdx_by_attribute,
             use_pty=use_pty,
             markup_language=markup_language,
             encoding=encoding,
@@ -702,6 +708,7 @@ def _get_sybil(
     skip_directives: Iterable[str],
     group_directives: Iterable[str],
     group_file: bool,
+    group_mdx_by_attribute: str | None,
     use_pty: bool,
     markup_language: MarkupLanguage,
     log_command_evaluators: Sequence[_LogCommandEvaluator],
@@ -751,6 +758,8 @@ def _get_sybil(
         for skip_directive in skip_directives
     ]
 
+    mdx_attribute_grouped_parsers: list[MdxAttributeGroupedSourceParser] = []
+
     if group_file:
         group_all_parser_map = {
             MYST: MystGroupAllParser,
@@ -777,6 +786,26 @@ def _get_sybil(
             if code_block_languages
             else []
         )
+    elif group_mdx_by_attribute is not None and markup_language == MDX:
+        # For MDX files with attribute-based grouping:
+        # Create an AttributeGroupedSourceParser that handles all blocks:
+        # - Blocks with the grouping attribute are grouped by attribute value
+        # - Blocks without the attribute are processed individually
+        code_block_parsers = []
+        for code_block_language in code_block_languages:
+            code_block_parser = markup_language.code_block_parser_cls(
+                language=code_block_language,
+            )
+            mdx_attribute_grouped_parsers.append(
+                MdxAttributeGroupedSourceParser(
+                    code_block_parser=code_block_parser,
+                    evaluator=group_evaluator,
+                    attribute_name=group_mdx_by_attribute,
+                    pad_groups=pad_groups,
+                    ungrouped_evaluator=evaluator,
+                )
+            )
+        group_all_parsers = []
     else:
         code_block_parsers = [
             markup_language.code_block_parser_cls(
@@ -813,6 +842,7 @@ def _get_sybil(
             *skip_parsers,
             *group_parsers,
             *group_all_parsers,
+            *mdx_attribute_grouped_parsers,
         ),
         encoding=encoding,
     )
@@ -968,6 +998,26 @@ def _get_sybil(
             "Whether to fail (with exit code 1) if a command (e.g. a "
             "formatter) tries to change code within a grouped code block. "
             "``doccmd`` does not support writing to grouped code blocks."
+        ),
+    ),
+    cloup.option(
+        "group_mdx_by_attribute",
+        "--group-mdx-by-attribute",
+        type=str,
+        default=None,
+        show_default=True,
+        required=False,
+        help=(
+            "Group MDX code blocks by the value of the specified attribute. "
+            "Code blocks with the same attribute value are grouped together "
+            "and executed as a single unit. "
+            "For example, with `--group-mdx-by-attribute group`, code blocks "
+            'with `group="example1"` are grouped together. '
+            "This follows the Docusaurus convention for grouping code blocks. "
+            "This option only applies to MDX files. "
+            "Error messages for grouped code blocks may include lines which "
+            "do not match the document, so code formatters will not work on "
+            "them."
         ),
     ),
 )
@@ -1222,6 +1272,7 @@ def main(
     skip_markers: Iterable[str],
     group_markers: Iterable[str],
     group_file: bool,
+    group_mdx_by_attribute: str | None,
     use_pty_option: _UsePty,
     rst_suffixes: Sequence[str],
     myst_suffixes: Sequence[str],
@@ -1325,6 +1376,7 @@ def main(
                         skip_directives=skip_directives,
                         group_directives=group_directives,
                         group_file=group_file,
+                        group_mdx_by_attribute=group_mdx_by_attribute,
                         use_pty=use_pty,
                         log_command_evaluators=log_command_evaluators,
                         sphinx_jinja2=sphinx_jinja2,
@@ -1354,6 +1406,7 @@ def main(
                     skip_directives=skip_directives,
                     group_directives=group_directives,
                     group_file=group_file,
+                    group_mdx_by_attribute=group_mdx_by_attribute,
                     use_pty=use_pty,
                     log_command_evaluators=log_command_evaluators,
                     sphinx_jinja2=sphinx_jinja2,
