@@ -165,14 +165,13 @@ jobs:
           user_name: adamtheturtle
           commit_message: Bump CLI Homebrew recipe
 
-      - name: Calculate version without leading zeros for pre-commit
-        uses: StephaneBour/actions-calver@master
+      - name: Strip leading zeros from version for pre-commit
         id: calver_stripped
-        with:
-          date_format: '%Y.%-m.%-d'
-          release: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          tag="${{ steps.tag_version.outputs.new_tag }}"
+          # Strip leading zeros from each numeric segment (e.g., v2025.12.08.4 -> v2025.12.8.4)
+          stripped_tag=$(echo "v$tag" | sed -E 's/\.0+([0-9])/.\1/g')
+          echo "tag=${stripped_tag}" >> "$GITHUB_OUTPUT"
 
       - name: Update Linux binary version
         id: update_linux_binary
@@ -195,7 +194,7 @@ jobs:
         uses: jacobtomlinson/gha-find-replace@v3
         with:
           find: '(rev: )v[0-9]+\.[0-9]{1,2}\.[0-9]{1,2}(\.[0-9]+)?'
-          replace: ${1}v${{ steps.calver_stripped.outputs.release }}
+          replace: ${1}${{ steps.calver_stripped.outputs.tag }}
           include: README.rst
           regex: true
 
