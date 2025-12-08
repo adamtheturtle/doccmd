@@ -170,7 +170,7 @@ jobs:
         uses: jacobtomlinson/gha-find-replace@v3
         with:
           find: (releases/download/)[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+
-          replace: $1${{ steps.tag_version.outputs.new_tag }}
+          replace: ${1}${{ steps.tag_version.outputs.new_tag }}
           include: README.rst
           regex: true
 
@@ -186,7 +186,7 @@ jobs:
         uses: jacobtomlinson/gha-find-replace@v3
         with:
           find: '(rev: )v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+'
-          replace: $1v${{ steps.tag_version.outputs.new_tag }}
+          replace: ${1}v${{ steps.tag_version.outputs.new_tag }}
           include: README.rst
           regex: true
 
