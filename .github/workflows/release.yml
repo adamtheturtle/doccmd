@@ -168,20 +168,9 @@ jobs:
       - name: Strip leading zeros from version for pre-commit
         id: calver_stripped
         run: |
-          # Take the tag (e.g., v2025.12.08.4) and strip leading zeros from the calver part
           tag="${{ steps.tag_version.outputs.new_tag }}"
-          calver="${{ steps.calver.outputs.release }}"
-
-          # Strip leading zeros from calver
-          IFS='.' read -r -a parts <<< "$calver"
-          stripped_parts=()
-          for part in "${parts[@]}"; do
-            stripped_parts+=("$((10#$part))")
-          done
-          stripped_calver="$(IFS='.'; echo "${stripped_parts[*]}")"
-
-          # Replace the calver part in the tag
-          stripped_tag="${tag/$calver/$stripped_calver}"
+          # Strip leading zeros from each numeric segment (e.g., v2025.12.08.4 -> v2025.12.8.4)
+          stripped_tag=$(echo "$tag" | sed -E 's/\.0+([0-9])/.\1/g')
           echo "tag=${stripped_tag}" >> "$GITHUB_OUTPUT"
 
       - name: Update Linux binary version
