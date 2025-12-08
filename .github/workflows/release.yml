@@ -40,12 +40,6 @@ jobs:
           enable-cache: true
           cache-dependency-glob: '**/pyproject.toml'
 
-      - name: Get current version
-        id: get_current_version
-        run: |
-          version="$(git describe --tags --abbrev=0)"
-          echo "version=${version}" >> "$GITHUB_OUTPUT"
-
       - name: Calver calculate version
         uses: StephaneBour/actions-calver@master
         id: calver
@@ -171,19 +165,35 @@ jobs:
           user_name: adamtheturtle
           commit_message: Bump CLI Homebrew recipe
 
-      - name: Update README versions
-        id: update_readme_versions
+      - name: Update Linux binary version
+        id: update_linux_binary
         uses: jacobtomlinson/gha-find-replace@v3
         with:
-          find: ${{ steps.get_current_version.outputs.version }}
-          replace: ${{ steps.calver.outputs.release }}
+          find: (releases/download/)[0-9]+\.[0-9]+\.[0-9]+
+          replace: $1${{ steps.tag_version.outputs.new_tag }}
           include: README.rst
-          regex: false
+          regex: true
 
-      - name: Check README was modified
+      - name: Check Linux binary version was modified
         run: |
-          if [ "${{ steps.update_readme_versions.outputs.modifiedFiles }}" = "0" ]; then
-            echo "Error: No files were modified when updating README versions"
+          if [ "${{ steps.update_linux_binary.outputs.modifiedFiles }}" = "0" ]; then
+            echo "Error: No files were modified when updating Linux binary version"
+            exit 1
+          fi
+
+      - name: Update pre-commit rev
+        id: update_precommit_rev
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          find: '(rev: )v[0-9]+\.[0-9]+\.[0-9]+'
+          replace: $1v${{ steps.tag_version.outputs.new_tag }}
+          include: README.rst
+          regex: true
+
+      - name: Check pre-commit rev was modified
+        run: |
+          if [ "${{ steps.update_precommit_rev.outputs.modifiedFiles }}" = "0" ]; then
+            echo "Error: No files were modified when updating pre-commit rev"
             exit 1
           fi
 
