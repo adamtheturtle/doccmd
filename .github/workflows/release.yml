@@ -170,7 +170,7 @@ jobs:
         run: |
           tag="${{ steps.tag_version.outputs.new_tag }}"
           # Strip leading zeros from each numeric segment (e.g., v2025.12.08.4 -> v2025.12.8.4)
-          stripped_tag=$(echo "$tag" | sed -E 's/\.0+([0-9])/.\1/g')
+          stripped_tag=$(echo "v$tag" | sed -E 's/\.0+([0-9])/.\1/g')
           echo "tag=${stripped_tag}" >> "$GITHUB_OUTPUT"
 
       - name: Update Linux binary version
