@@ -1,5 +1,4 @@
 ---
-
 name: Release
 
 on: workflow_dispatch
@@ -63,6 +62,7 @@ jobs:
           echo "underline=${underline}" >> "$GITHUB_OUTPUT"
 
       - name: Update changelog
+        id: update_changelog
         uses: jacobtomlinson/gha-find-replace@v3
         with:
           find: "Next\n----"
@@ -70,6 +70,13 @@ jobs:
             \ }}"
           include: CHANGELOG.rst
           regex: false
+
+      - name: Check changelog was modified
+        run: |
+          if [ "${{ steps.update_changelog.outputs.modifiedFiles }}" = "0" ]; then
+            echo "Error: No files were modified when updating changelog"
+            exit 1
+          fi
 
       - uses: stefanzweifel/git-auto-commit-action@v7
         id: commit
@@ -133,12 +140,20 @@ jobs:
             uv run --no-cache --with="doccmd==${{ steps.calver.outputs.release }}" --extra=release poet --formula doccmd > ${{ steps.set-homebrew-filename.outputs.filename }}
 
       - name: Update Homebrew description
+        id: update_homebrew_description
         uses: jacobtomlinson/gha-find-replace@v3
         with:
           find: desc "Shiny new formula"
           replace: desc "Run tools against code blocks in documentation"
           include: ${{ steps.set-homebrew-filename.outputs.filename }}
           regex: false
+
+      - name: Check Homebrew description was modified
+        run: |
+          if [ "${{ steps.update_homebrew_description.outputs.modifiedFiles }}" = "0" ]; then
+            echo "Error: No files were modified when updating Homebrew description"
+            exit 1
+          fi
 
       - name: Push Homebrew Recipe
         uses: dmnemec/copy_file_to_another_repo_action@main
@@ -157,12 +172,20 @@ jobs:
           commit_message: Bump CLI Homebrew recipe
 
       - name: Update README versions
+        id: update_readme_versions
         uses: jacobtomlinson/gha-find-replace@v3
         with:
           find: ${{ steps.get_current_version.outputs.version }}
           replace: ${{ steps.calver.outputs.release }}
           include: README.rst
           regex: false
+
+      - name: Check README was modified
+        run: |
+          if [ "${{ steps.update_readme_versions.outputs.modifiedFiles }}" = "0" ]; then
+            echo "Error: No files were modified when updating README versions"
+            exit 1
+          fi
 
       - uses: stefanzweifel/git-auto-commit-action@v7
         id: commit-readme
