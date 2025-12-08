@@ -169,7 +169,7 @@ jobs:
         id: update_linux_binary
         uses: jacobtomlinson/gha-find-replace@v3
         with:
-          find: (releases/download/)[0-9]+\.[0-9]+\.[0-9]+
+          find: (releases/download/)[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+
           replace: $1${{ steps.tag_version.outputs.new_tag }}
           include: README.rst
           regex: true
@@ -185,7 +185,7 @@ jobs:
         id: update_precommit_rev
         uses: jacobtomlinson/gha-find-replace@v3
         with:
-          find: '(rev: )v[0-9]+\.[0-9]+\.[0-9]+'
+          find: '(rev: )v[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+'
           replace: $1v${{ steps.tag_version.outputs.new_tag }}
           include: README.rst
           regex: true
