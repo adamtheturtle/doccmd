@@ -165,6 +165,15 @@ jobs:
           user_name: adamtheturtle
           commit_message: Bump CLI Homebrew recipe
 
+      - name: Calculate version without leading zeros for pre-commit
+        uses: StephaneBour/actions-calver@master
+        id: calver_stripped
+        with:
+          date_format: '%Y.%-m.%-d'
+          release: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Update Linux binary version
         id: update_linux_binary
         uses: jacobtomlinson/gha-find-replace@v3
@@ -185,8 +194,8 @@ jobs:
         id: update_precommit_rev
         uses: jacobtomlinson/gha-find-replace@v3
         with:
-          find: '(rev: )v[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?'
-          replace: ${1}v${{ steps.tag_version.outputs.new_tag }}
+          find: '(rev: )v[0-9]+\.[0-9]{1,2}\.[0-9]{1,2}(\.[0-9]+)?'
+          replace: ${1}v${{ steps.calver_stripped.outputs.release }}
           include: README.rst
           regex: true
 
