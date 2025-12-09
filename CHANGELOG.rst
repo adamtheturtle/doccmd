@@ -4,6 +4,8 @@ Changelog
 Next
 ----
 
+* Add support for Djot files.
+
 2025.12.08.5
 ------------
 

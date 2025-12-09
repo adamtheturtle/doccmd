@@ -133,6 +133,17 @@ Use ``--mdx-extension`` if you need additional suffixes.
    console.log("Hello, MDX!")
    ```
 
+* Djot (``.dj``)
+
+``.dj`` files are supported out of the box.
+Use ``--djot-extension`` if you need additional suffixes.
+
+.. code-block:: markdown
+
+   ```shell
+   echo "Hello, Djot!"
+   ```
+
 * Want more? Open an issue!
 
 Formatters and padding
