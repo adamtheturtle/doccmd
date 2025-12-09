@@ -36,11 +36,15 @@ from sybil.parsers.abstract.lexers import LexingException
 from sybil_extras.evaluators.multi import MultiEvaluator
 from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
 from sybil_extras.languages import (
+    DJOT,
     MARKDOWN,
     MDX,
     MYST,
     RESTRUCTUREDTEXT,
     MarkupLanguage,
+)
+from sybil_extras.parsers.djot.group_all import (
+    GroupAllParser as DjotGroupAllParser,
 )
 from sybil_extras.parsers.markdown.group_all import (
     GroupAllParser as MarkdownGroupAllParser,
@@ -780,6 +784,7 @@ def _get_sybil(
             RESTRUCTUREDTEXT: RestGroupAllParser,
             MARKDOWN: MarkdownGroupAllParser,
             MDX: MdxGroupAllParser,
+            DJOT: DjotGroupAllParser,
         }
         group_all_parser_cls = group_all_parser_map[markup_language]
 
@@ -1151,6 +1156,19 @@ def _get_sybil(
         callback=_validate_file_extensions,
     ),
     cloup.option(
+        "--djot-extension",
+        "djot_suffixes",
+        type=str,
+        help=(
+            "Treat files with this extension (suffix) as Djot. "
+            "Give this multiple times to look for multiple extensions."
+        ),
+        multiple=True,
+        default=(".djot",),
+        show_default=True,
+        callback=_validate_file_extensions,
+    ),
+    cloup.option(
         "--max-depth",
         type=click.IntRange(min=1),
         default=sys.maxsize,
@@ -1292,6 +1310,7 @@ def main(
     myst_suffixes: Sequence[str],
     markdown_suffixes: Sequence[str],
     mdx_suffixes: Sequence[str],
+    djot_suffixes: Sequence[str],
     max_depth: int,
     exclude_patterns: Sequence[str],
     fail_on_parse_error: bool,
@@ -1303,7 +1322,8 @@ def main(
 ) -> None:
     """Run commands against code blocks in the given documentation files.
 
-    This works with reStructuredText, MyST, Markdown, and MDX files.
+    This works with reStructuredText, MyST, Markdown, MDX, and Djot
+    files.
     """
     args = shlex.split(s=command)
     use_pty = use_pty_option.use_pty()
@@ -1315,6 +1335,7 @@ def main(
         RESTRUCTUREDTEXT: rst_suffixes,
         MARKDOWN: markdown_suffixes,
         MDX: mdx_suffixes,
+        DJOT: djot_suffixes,
     }
 
     _validate_file_suffix_overlaps(suffix_groups=suffix_groups)

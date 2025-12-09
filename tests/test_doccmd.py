@@ -3399,6 +3399,7 @@ def test_pty(
         "--myst-extension",
         "--markdown-extension",
         "--mdx-extension",
+        "--djot-extension",
     ],
 )
 def test_source_given_extension_no_leading_period(
@@ -3534,6 +3535,51 @@ def test_overlapping_markdown_mdx_extensions(tmp_path: Path) -> None:
     assert result.stderr == expected_stderr
 
 
+def test_overlapping_markdown_djot_extensions(tmp_path: Path) -> None:
+    """
+    An error is shown if there are overlapping extensions for Markdown and
+    Djot.
+    """
+    runner = CliRunner()
+    source_file = tmp_path / "example.shared"
+    content = textwrap.dedent(
+        text="""\
+        ```python
+        y = 1
+        ```
+        """,
+    )
+    source_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        "--markdown-extension",
+        ".shared",
+        "--djot-extension",
+        ".shared",
+        str(object=source_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code != 0, (result.stdout, result.stderr)
+    expected_stderr = textwrap.dedent(
+        text="""\
+            Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...
+            Try 'doccmd --help' for help.
+
+            Error: Overlapping suffixes between Markdown and Djot: .shared.
+            """,
+    )
+    assert result.stdout == ""
+    assert result.stderr == expected_stderr
+
+
 def test_overlapping_extensions_dot(tmp_path: Path) -> None:
     """
     No error is shown if multiple extension types are '.'.
@@ -3639,6 +3685,56 @@ def test_markdown(tmp_path: Path) -> None:
     #
     # The code block after the second skip directive is run as it is
     # a valid Markdown code block.
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
+def test_djot(tmp_path: Path) -> None:
+    """
+    It is possible to run a command against a Djot file.
+    """
+    runner = CliRunner()
+    source_file = tmp_path / "example.djot"
+    content = textwrap.dedent(
+        text="""\
+        {% skip doccmd[all]: next %}
+
+        ```python
+            x = 1
+        ```
+
+        {% skip doccmd[all]: next %}
+
+        ```python
+            x = 2
+        ```
+
+        ```python
+            x = 3
+        ```
+        """,
+    )
+    source_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--no-pad-file",
+        "--command",
+        "cat",
+        str(object=source_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    expected_output = textwrap.dedent(
+        text="""\
+        x = 3
+        """,
+    )
     assert result.stdout == expected_output
     assert result.stderr == ""
 
