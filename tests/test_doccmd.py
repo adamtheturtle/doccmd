@@ -2416,6 +2416,129 @@ def test_custom_rst_file_suffixes(tmp_path: Path) -> None:
     assert result.stdout == expected_output
 
 
+def test_norg(tmp_path: Path) -> None:
+    """
+    It is possible to run a command against a Norg file.
+    """
+    runner = CliRunner()
+    source_file = tmp_path / "example.norg"
+    content = textwrap.dedent(
+        text="""\
+        * Heading
+
+        @code python
+        x = 1
+        @end
+
+        @code python
+        x = 2
+        @end
+
+        @code python
+        x = 3
+        @end
+        """,
+    )
+    source_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--no-pad-file",
+        "--command",
+        "cat",
+        str(object=source_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    expected_output = textwrap.dedent(
+        text="""\
+        x = 1
+        x = 2
+        x = 3
+        """,
+    )
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
+def test_norg_in_directory(tmp_path: Path) -> None:
+    """
+    Norg files in a directory are discovered and processed.
+    """
+    runner = CliRunner()
+    norg_file = tmp_path / "example.norg"
+    norg_content = textwrap.dedent(
+        text="""\
+        @code python
+        norg_block
+        @end
+        """,
+    )
+    norg_file.write_text(data=norg_content, encoding="utf-8")
+
+    arguments = [
+        "--language",
+        "python",
+        "--no-pad-file",
+        "--command",
+        "cat",
+        str(object=tmp_path),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert "norg_block" in result.stdout
+
+
+def test_custom_norg_extension(tmp_path: Path) -> None:
+    """
+    It is possible to use a custom extension for Norg files.
+    """
+    runner = CliRunner()
+    source_file = tmp_path / "example.custom_norg"
+    content = textwrap.dedent(
+        text="""\
+        @code python
+        custom_extension_block
+        @end
+        """,
+    )
+    source_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--norg-extension",
+        ".custom_norg",
+        "--no-pad-file",
+        "--command",
+        "cat",
+        str(object=source_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    expected_output = textwrap.dedent(
+        text="""\
+        custom_extension_block
+        """,
+    )
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
 @pytest.mark.parametrize(
     argnames=("group_padding_options", "expect_padding"),
     argvalues=[
