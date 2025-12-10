@@ -322,7 +322,7 @@ repos:
 
       - id: docs
         name: Build Documentation
-        entry: uv run --extra=dev sphinx-build -M html docs/source docs/build
+        entry: uv run --extra=dev sphinx-build -M html docs/source docs/build -W
         language: python
         stages: [manual]
         pass_filenames: false
