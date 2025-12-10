@@ -3739,6 +3739,50 @@ def test_djot(tmp_path: Path) -> None:
     assert result.stderr == ""
 
 
+def test_djot_implicit_code_block_closure(tmp_path: Path) -> None:
+    """
+    Djot code blocks are correctly parsed when implicitly closed.
+    """
+    runner = CliRunner()
+    source_file = tmp_path / "example.djot"
+    # Code block inside a blockquote without an explicit closing fence
+    content = textwrap.dedent(
+        text="""\
+        > ```python
+        > code in a
+        > block quote
+
+        Paragraph.
+        """,
+    )
+    source_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--no-pad-file",
+        "--no-write-to-file",
+        "--command",
+        "cat",
+        str(object=source_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    # The code block should be parsed correctly despite lacking a closing fence
+    expected_output = textwrap.dedent(
+        text="""\
+        code in a
+        block quote
+        """,
+    )
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
 def test_mdx(tmp_path: Path) -> None:
     """
     It is possible to run a command against an MDX file.
