@@ -3740,15 +3740,8 @@ def test_djot(tmp_path: Path) -> None:
 
 
 def test_djot_implicit_code_block_closure(tmp_path: Path) -> None:
-    """Test that Djot code blocks are correctly parsed when implicitly closed.
-
-    This demonstrates the new Djot code parser that correctly handles
-    code blocks that are implicitly closed when their parent container
-    ends, following the Djot specification.
-
-    In Djot, a code block inside a blockquote can be implicitly closed
-    when the blockquote ends (when content no longer has the '>'
-    prefix), without requiring an explicit closing fence.
+    """
+    Djot code blocks are correctly parsed when implicitly closed.
     """
     runner = CliRunner()
     source_file = tmp_path / "example.djot"
