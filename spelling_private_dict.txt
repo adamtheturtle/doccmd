@@ -2,6 +2,7 @@ Djot
 Docusaurus
 Jinja
 MDX
+Norg
 admin
 api
 args

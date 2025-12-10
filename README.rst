@@ -144,6 +144,17 @@ Use ``--djot-extension`` if you need additional suffixes.
    echo "Hello, Djot!"
    ```
 
+* Norg (``.norg``)
+
+``.norg`` files are supported out of the box.
+Use ``--norg-extension`` if you need additional suffixes.
+
+.. code-block:: text
+
+   @code shell
+   echo "Hello, Norg!"
+   @end
+
 * Want more? Open an issue!
 
 Formatters and padding

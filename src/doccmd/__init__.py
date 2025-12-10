@@ -40,6 +40,7 @@ from sybil_extras.languages import (
     MARKDOWN,
     MDX,
     MYST,
+    NORG,
     RESTRUCTUREDTEXT,
     MarkupLanguage,
 )
@@ -1145,6 +1146,19 @@ def _get_sybil(
         callback=_validate_file_extensions,
     ),
     cloup.option(
+        "--norg-extension",
+        "norg_suffixes",
+        type=str,
+        help=(
+            "Treat files with this extension (suffix) as Norg. "
+            "Give this multiple times to look for multiple extensions."
+        ),
+        multiple=True,
+        default=(".norg",),
+        show_default=True,
+        callback=_validate_file_extensions,
+    ),
+    cloup.option(
         "--max-depth",
         type=click.IntRange(min=1),
         default=sys.maxsize,
@@ -1287,6 +1301,7 @@ def main(
     markdown_suffixes: Sequence[str],
     mdx_suffixes: Sequence[str],
     djot_suffixes: Sequence[str],
+    norg_suffixes: Sequence[str],
     max_depth: int,
     exclude_patterns: Sequence[str],
     fail_on_parse_error: bool,
@@ -1312,6 +1327,7 @@ def main(
         MARKDOWN: markdown_suffixes,
         MDX: mdx_suffixes,
         DJOT: djot_suffixes,
+        NORG: norg_suffixes,
     }
 
     _validate_file_suffix_overlaps(suffix_groups=suffix_groups)
