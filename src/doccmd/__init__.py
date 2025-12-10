@@ -43,23 +43,8 @@ from sybil_extras.languages import (
     RESTRUCTUREDTEXT,
     MarkupLanguage,
 )
-from sybil_extras.parsers.djot.group_all import (
-    GroupAllParser as DjotGroupAllParser,
-)
-from sybil_extras.parsers.markdown.group_all import (
-    GroupAllParser as MarkdownGroupAllParser,
-)
 from sybil_extras.parsers.mdx.attribute_grouped_source import (
     AttributeGroupedSourceParser as MdxAttributeGroupedSourceParser,
-)
-from sybil_extras.parsers.mdx.group_all import (
-    GroupAllParser as MdxGroupAllParser,
-)
-from sybil_extras.parsers.myst.group_all import (
-    GroupAllParser as MystGroupAllParser,
-)
-from sybil_extras.parsers.rest.group_all import (
-    GroupAllParser as RestGroupAllParser,
 )
 
 try:
@@ -779,15 +764,6 @@ def _get_sybil(
     mdx_attribute_grouped_parsers: list[MdxAttributeGroupedSourceParser] = []
 
     if group_file:
-        group_all_parser_map = {
-            MYST: MystGroupAllParser,
-            RESTRUCTUREDTEXT: RestGroupAllParser,
-            MARKDOWN: MarkdownGroupAllParser,
-            MDX: MdxGroupAllParser,
-            DJOT: DjotGroupAllParser,
-        }
-        group_all_parser_cls = group_all_parser_map[markup_language]
-
         code_block_parsers = [
             markup_language.code_block_parser_cls(
                 language=code_block_language,
@@ -797,7 +773,7 @@ def _get_sybil(
 
         group_all_parsers = (
             [
-                group_all_parser_cls(
+                markup_language.group_all_parser_cls(
                     evaluator=group_evaluator,
                     pad_groups=pad_groups,
                 )
