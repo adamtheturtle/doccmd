@@ -6,6 +6,7 @@ admin
 api
 args
 beartype
+blockquote
 changelog
 cli
 de
