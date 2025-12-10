@@ -4,6 +4,7 @@ Changelog
 Next
 ----
 
+* Add support for Norg files.
 * Add support for Djot files.
 
 2025.12.08.5
