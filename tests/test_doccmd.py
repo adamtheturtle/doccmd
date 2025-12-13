@@ -3225,6 +3225,7 @@ def test_group_nested_start_without_end(tmp_path: Path) -> None:
         "python",
         "--command",
         "cat",
+        "--fail-on-parse-error",
         str(object=rst_file),
     ]
     result = runner.invoke(
@@ -3237,9 +3238,10 @@ def test_group_nested_start_without_end(tmp_path: Path) -> None:
         result.stdout,
         result.stderr,
     )
+    # Error is now raised at parse time with updated message
     expected_error = (
-        f"{fg.red}Error running command 'cat': "
-        "'group doccmd[all]: start' must be followed by "
+        f"{fg.red}Could not parse {rst_file}: "
+        "'group doccmd[all]: start' was not followed by "
         f"'group doccmd[all]: end'{reset}"
     )
     assert result.stderr == expected_error + "\n"
