@@ -3189,7 +3189,7 @@ def test_group_start_without_end(
     )
     expected_error = (
         f"{fg.red}Could not parse {rst_file}: "
-        "'group doccmd[all]: start' was not followed by "
+        "'group doccmd[all]: start' must be followed by "
         f"'group doccmd[all]: end'{reset}"
     )
     assert result.stderr == expected_error + "\n"
@@ -3221,6 +3221,7 @@ def test_group_nested_start_without_end(tmp_path: Path) -> None:
     rst_file.write_text(data=content, encoding="utf-8")
 
     arguments = [
+        "--fail-on-parse-error",
         "--language",
         "python",
         "--command",
@@ -3238,7 +3239,7 @@ def test_group_nested_start_without_end(tmp_path: Path) -> None:
         result.stderr,
     )
     expected_error = (
-        f"{fg.red}Error running command 'cat': "
+        f"{fg.red}Could not parse {rst_file}: "
         "'group doccmd[all]: start' must be followed by "
         f"'group doccmd[all]: end'{reset}"
     )
