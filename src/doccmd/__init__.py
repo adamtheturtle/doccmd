@@ -112,10 +112,8 @@ def _validate_file_extension_or_none(
     param: click.Parameter | None,
     value: str | None,
 ) -> str | None:
-    """Validate that the input string starts with a dot.
-
-    This version accepts None, for use as a direct callback on optional
-    params.
+    """
+    Validate that the input string starts with a dot.
     """
     if value is None:
         return value
