@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from enum import Enum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
-from typing import TypeVar, overload
+from typing import TypeVar
 
 import charset_normalizer
 import click
@@ -91,38 +91,35 @@ class _LogCommandEvaluator:
         _log_info(message=running_command_message)
 
 
-@overload
-def _validate_file_extension(
-    ctx: click.Context | None,
-    param: click.Parameter | None,
-    value: str,
-) -> str: ...
-
-
-@overload
-def _validate_file_extension(
-    ctx: click.Context | None,
-    param: click.Parameter | None,
-    value: None,
-) -> None: ...
-
-
 @beartype
 def _validate_file_extension(
     ctx: click.Context | None,
     param: click.Parameter | None,
-    value: str | None,
-) -> str | None:
+    value: str,
+) -> str:
     """
     Validate that the input string starts with a dot.
     """
-    if value is None:
-        return value
-
     if not value.startswith("."):
         message = f"'{value}' does not start with a '.'."
         raise click.BadParameter(message=message, ctx=ctx, param=param)
     return value
+
+
+@beartype
+def _validate_file_extension_or_none(
+    ctx: click.Context | None,
+    param: click.Parameter | None,
+    value: str | None,
+) -> str | None:
+    """Validate that the input string starts with a dot.
+
+    This version accepts None, for use as a direct callback on optional
+    params.
+    """
+    if value is None:
+        return value
+    return _validate_file_extension(ctx=ctx, param=param, value=value)
 
 
 @beartype
@@ -1029,7 +1026,7 @@ def _get_sybil(
             "code block. By default, the file extension is inferred from the "
             "language, or it is '.txt' if the language is not recognized."
         ),
-        callback=_validate_file_extension,
+        callback=_validate_file_extension_or_none,
     ),
     cloup.option(
         "temporary_file_name_prefix",
