@@ -1,5 +1,4 @@
 ---
-
 name: CI
 
 on:
@@ -11,6 +10,8 @@ on:
     # * is a special character in YAML so you have to quote this string
     # Run at 1:00 every day
     - cron: 0 1 * * *
+
+permissions: {}
 
 jobs:
   build:
@@ -27,6 +28,7 @@ jobs:
         # We need our tags in order to calculate the version
         # in the Sphinx setup.
         with:
+          persist-credentials: false
           fetch-depth: 0
           fetch-tags: true
 
