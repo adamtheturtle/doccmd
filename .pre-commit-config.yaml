@@ -385,7 +385,6 @@ repos:
         entry: uv run --extra=dev yamlfix
         language: python
         types_or: [yaml]
-        exclude: ^\.github/workflows/release\.yml$
         additional_dependencies: [uv==0.9.5]
         stages: [pre-commit]
 
