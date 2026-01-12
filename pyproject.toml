@@ -57,7 +57,7 @@ optional-dependencies.dev = [
     "furo==2025.12.19",
     "interrogate==1.7.0",
     "mypy[faster-cache]==1.19.1",
-    "mypy-strict-kwargs==2025.4.3",
+    "mypy-strict-kwargs==2026.1.12",
     "prek==0.2.27",
     "pydocstyle==6.3",
     "pygments==2.19.2",
