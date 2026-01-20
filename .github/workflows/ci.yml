@@ -15,7 +15,6 @@ permissions: {}
 
 jobs:
   build:
-
     strategy:
       matrix:
         python-version: ['3.10', '3.11', '3.12', '3.13']
@@ -39,6 +38,11 @@ jobs:
           version: 0.6.6
           enable-cache: true
           cache-dependency-glob: '**/pyproject.toml'
+
+      - name: Check uv.lock is up to date
+        run: uv lock --check
+        env:
+          UV_PYTHON: ${{ matrix.python-version }}
 
       - name: Lint
         run: |
