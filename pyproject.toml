@@ -325,6 +325,7 @@ ignore = [
     "flake.lock",
     "flake.nix",
     "lint.mk",
+    "uv.lock",
 
     "spelling_private_dict.txt",
     "src/*/_setuptools_scm_version.py",
