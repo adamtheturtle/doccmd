@@ -322,6 +322,8 @@ ignore = [
     "doc8.ini",
     "docs",
     "docs/**",
+    "flake.lock",
+    "flake.nix",
     "lint.mk",
 
     "spelling_private_dict.txt",
