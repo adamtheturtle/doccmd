@@ -120,5 +120,6 @@ src/*/_setuptools_scm_version.py
 # Claude Code
 .claude/
 
-# Nix build output
+# Nix build output and lock file
 result
+flake.lock
