@@ -26,9 +26,12 @@ jobs:
 
       - name: Check uv.lock is up to date
         run: |
-          cp uv.lock uv.lock.orig
-          uv lock
-          diff uv.lock.orig uv.lock || (echo "Lock file differs! See diff above." && exit 1)
+          echo "=== pyproject.toml dependency versions ==="
+          grep -E "prek|sybil-extras|zizmor|pyrefly|mypy-strict" pyproject.toml || true
+          echo "=== uv.lock prek version ==="
+          grep -A2 'name = "prek"' uv.lock | grep version || true
+          echo "=== Running uv lock --check ==="
+          uv lock --check
 
   build:
     needs: check-lock
