@@ -25,13 +25,7 @@ jobs:
         uses: astral-sh/setup-uv@v7
 
       - name: Check uv.lock is up to date
-        run: |
-          echo "=== pyproject.toml dependency versions ==="
-          grep -E "prek|sybil-extras|zizmor|pyrefly|mypy-strict" pyproject.toml || true
-          echo "=== uv.lock prek version ==="
-          grep -A2 'name = "prek"' uv.lock | grep version || true
-          echo "=== Running uv lock --check ==="
-          uv lock --check
+        run: uv lock --check
 
   build:
     needs: check-lock
