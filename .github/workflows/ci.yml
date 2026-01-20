@@ -58,6 +58,8 @@ jobs:
           uv run --extra=dev prek run --all-files --hook-stage manual --verbose
         env:
           UV_PYTHON: ${{ matrix.python-version }}
+          # nixfmt requires Nix to be installed, which isn't available in CI
+          SKIP: nixfmt
 
       - name: Run tests
         run: |
