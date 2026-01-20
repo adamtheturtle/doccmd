@@ -71,7 +71,8 @@
 
     in
     {
-      packages = forAllSystems (system:
+      packages = forAllSystems (
+        system:
         let
           pythonSet = pythonSets.${system};
           virtualenv = pythonSet.mkVirtualEnv "doccmd-env" workspace.deps.default;
