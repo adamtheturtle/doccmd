@@ -51,6 +51,17 @@ jobs:
           enable-cache: true
           cache-dependency-glob: '**/pyproject.toml'
 
+      - name: Install nixfmt
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            curl -L https://github.com/NixOS/nixfmt/releases/latest/download/nixfmt-x86_64-linux -o nixfmt
+          else
+            curl -L https://github.com/NixOS/nixfmt/releases/latest/download/nixfmt-x86_64-windows.exe -o nixfmt
+          fi
+          chmod +x nixfmt
+          echo "$PWD" >> "$GITHUB_PATH"
+        shell: bash
+
       - name: Lint
         run: |
           uv run --extra=dev prek run --all-files --hook-stage pre-commit --verbose
@@ -58,8 +69,6 @@ jobs:
           uv run --extra=dev prek run --all-files --hook-stage manual --verbose
         env:
           UV_PYTHON: ${{ matrix.python-version }}
-          # nixfmt requires Nix to be installed, which isn't available in CI
-          SKIP: nixfmt
 
       - name: Run tests
         run: |
