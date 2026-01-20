@@ -116,3 +116,9 @@ src/*/_setuptools_scm_version.py
 # Ignore Mac DS_Store files
 .DS_Store
 **/.DS_Store
+
+# Claude Code
+.claude/
+
+# Nix build output
+result

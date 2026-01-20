@@ -25,7 +25,10 @@ jobs:
         uses: astral-sh/setup-uv@v7
 
       - name: Check uv.lock is up to date
-        run: uv lock --check
+        run: |
+          cp uv.lock uv.lock.orig
+          uv lock
+          diff uv.lock.orig uv.lock || (echo "Lock file differs! See diff above." && exit 1)
 
   build:
     needs: check-lock
