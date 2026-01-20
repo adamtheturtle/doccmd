@@ -39,8 +39,6 @@ jobs:
 
       - name: Check uv.lock is up to date
         run: uv lock --check
-        env:
-          UV_PYTHON: ${{ matrix.python-version }}
 
       - name: Lint
         run: |
