@@ -44,6 +44,7 @@ ci:
     - vulture-docs
     - yamlfix
     - zizmor
+    - nixfmt
 
 default_install_hook_types: [pre-commit, pre-push]
 
@@ -404,4 +405,11 @@ repos:
         language: python
         types_or: [rst]
         additional_dependencies: [uv==0.9.5]
+        stages: [pre-commit]
+
+      - id: nixfmt
+        name: nixfmt
+        entry: nixfmt
+        language: system
+        files: \.nix$
         stages: [pre-commit]
