@@ -52,15 +52,12 @@ jobs:
           cache-dependency-glob: '**/pyproject.toml'
 
       - name: Install nixfmt
+        # nixfmt only provides a Linux binary, so skip on Windows
+        if: runner.os == 'Linux'
         run: |
-          if [ "$RUNNER_OS" = "Linux" ]; then
-            curl -L https://github.com/NixOS/nixfmt/releases/latest/download/nixfmt-x86_64-linux -o nixfmt
-          else
-            curl -L https://github.com/NixOS/nixfmt/releases/latest/download/nixfmt-x86_64-windows.exe -o nixfmt
-          fi
+          curl -L https://github.com/NixOS/nixfmt/releases/latest/download/nixfmt -o nixfmt
           chmod +x nixfmt
           echo "$PWD" >> "$GITHUB_PATH"
-        shell: bash
 
       - name: Lint
         run: |
@@ -69,6 +66,8 @@ jobs:
           uv run --extra=dev prek run --all-files --hook-stage manual --verbose
         env:
           UV_PYTHON: ${{ matrix.python-version }}
+          # nixfmt is only available on Linux
+          SKIP: ${{ runner.os == 'Windows' && 'nixfmt' || '' }}
 
       - name: Run tests
         run: |
