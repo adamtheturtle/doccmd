@@ -2,6 +2,11 @@
 version: 2
 
 updates:
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
   - package-ecosystem: uv
     directory: /
     schedule:
