@@ -117,9 +117,6 @@ src/*/_setuptools_scm_version.py
 .DS_Store
 **/.DS_Store
 
-# Claude Code
-.claude/
-
 # Nix build output and lock file
 result
 flake.lock
