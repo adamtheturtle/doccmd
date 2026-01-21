@@ -41,6 +41,7 @@ ci:
     - ty-docs
     - pyrefly
     - pyrefly-docs
+    - uv-lock
     - vulture
     - vulture-docs
     - yamlfix
@@ -409,5 +410,14 @@ repos:
           --ignore=docs/build
         language: python
         types_or: [rst]
+        additional_dependencies: [uv==0.9.5]
+        stages: [pre-commit]
+
+      - id: uv-lock
+        name: uv lock
+        entry: uv lock --locked
+        language: python
+        pass_filenames: false
+        files: (^pyproject\.toml$|^uv\.lock$)
         additional_dependencies: [uv==0.9.5]
         stages: [pre-commit]
