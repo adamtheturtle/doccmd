@@ -58,6 +58,10 @@ jobs:
           curl -L https://github.com/NixOS/nixfmt/releases/latest/download/nixfmt -o nixfmt
           chmod +x nixfmt
           echo "$PWD" >> "$GITHUB_PATH"
+      - name: Check uv.lock is up to date
+        run: uv lock --locked
+        env:
+          UV_PYTHON: ${{ matrix.python-version }}
 
       - name: Lint
         run: |
