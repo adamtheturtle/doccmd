@@ -44,9 +44,16 @@ Pre-built Linux (x86) binaries
 With Nix
 ^^^^^^^^
 
+Requires `Nix`_.
+
 .. code-block:: shell
 
-   $ nix run github:adamtheturtle/doccmd -- --help
+   $ nix --extra-experimental-features 'nix-command flakes' run github:adamtheturtle/doccmd -- --help
+
+To avoid passing ``--extra-experimental-features`` every time, `enable flakes`_ permanently.
+
+.. _Nix: https://nixos.org/download/
+.. _enable flakes: https://nixos.wiki/wiki/Flakes#Enable_flakes_permanently
 
 Or add to your flake inputs:
 
