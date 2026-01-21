@@ -329,6 +329,7 @@ ignore = [
     "tests",
     "tests-pylintrc",
     "tests/**",
+    "uv.lock",
     "zizmor.yml",
 ]
 
