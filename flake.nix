@@ -114,5 +114,17 @@
           };
         }
       );
+
+      checks = forAllSystems (
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+        in
+        {
+          doccmd-smoke = pkgs.runCommand "doccmd-smoke-test" { } ''
+            ${self.packages.${system}.default}/bin/doccmd --help > $out
+          '';
+        }
+      );
     };
 }
