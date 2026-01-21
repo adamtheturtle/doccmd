@@ -41,6 +41,21 @@ Pre-built Linux (x86) binaries
    $ curl --fail -L https://github.com/adamtheturtle/doccmd/releases/download/2026.01.18/doccmd-linux -o /usr/local/bin/doccmd &&
        chmod +x /usr/local/bin/doccmd
 
+With Nix
+^^^^^^^^
+
+.. code-block:: shell
+
+   $ nix run github:adamtheturtle/doccmd -- --help
+
+Or add to your flake inputs:
+
+.. code-block:: nix
+
+   {
+     inputs.doccmd.url = "github:adamtheturtle/doccmd";
+   }
+
 Using ``doccmd`` as a pre-commit hook
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
