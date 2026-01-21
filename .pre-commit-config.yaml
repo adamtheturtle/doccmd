@@ -17,6 +17,7 @@ ci:
     - interrogate
     - interrogate-docs
     - linkcheck
+    - nixfmt
     - mypy
     - mypy-docs
     - pylint
