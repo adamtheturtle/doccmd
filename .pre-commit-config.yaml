@@ -44,7 +44,6 @@ ci:
     - vulture-docs
     - yamlfix
     - zizmor
-    - nixfmt
 
 default_install_hook_types: [pre-commit, pre-push]
 
