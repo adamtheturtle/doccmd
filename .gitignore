@@ -117,6 +117,5 @@ src/*/_setuptools_scm_version.py
 .DS_Store
 **/.DS_Store
 
-# Nix build output and lock file
+# Nix build output
 result
-flake.lock

@@ -322,6 +322,7 @@ ignore = [
     "doc8.ini",
     "docs",
     "docs/**",
+    "flake.lock",
     "flake.nix",
     "lint.mk",
     "uv.lock",
