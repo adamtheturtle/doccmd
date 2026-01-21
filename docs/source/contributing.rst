@@ -67,22 +67,6 @@ Run the following commands to build and view documentation locally:
    $ uv run --extra=dev sphinx-build -M html docs/source docs/build -W
    $ python -c 'import os, webbrowser; webbrowser.open("file://" + os.path.abspath("docs/build/html/index.html"))'
 
-Nix files
----------
-
-This project includes a Nix flake for packaging.
-If you modify ``flake.nix``, please format it with ``nixfmt``:
-
-.. code-block:: console
-
-   $ nixfmt flake.nix
-
-``nixfmt`` can be installed via Nix:
-
-.. code-block:: console
-
-   $ nix-env -iA nixpkgs.nixfmt-rfc-style
-
 Continuous integration
 ----------------------
 
