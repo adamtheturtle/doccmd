@@ -31,6 +31,31 @@ Pre-built Linux (x86) binaries
    $ curl --fail -L "https://github.com/|github-owner|/|github-repository|/releases/download/|release|/doccmd-linux" -o /usr/local/bin/doccmd &&
        chmod +x /usr/local/bin/doccmd
 
+With Nix
+~~~~~~~~
+
+Requires `Nix`_.
+
+.. skip doccmd[all]: next
+
+.. code-block:: console
+   :substitutions:
+
+   $ nix --extra-experimental-features 'nix-command flakes' run github:|github-owner|/|github-repository|/|release| -- --help
+
+To avoid passing ``--extra-experimental-features`` every time, `enable flakes`_ permanently.
+
+.. _Nix: https://nixos.org/download/
+.. _enable flakes: https://nixos.wiki/wiki/Flakes#Enable_flakes_permanently
+
+Or add to your flake inputs:
+
+.. code-block:: nix
+
+   {
+     inputs.doccmd.url = "github:adamtheturtle/doccmd";
+   }
+
 Using ``doccmd`` as a pre-commit hook
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
