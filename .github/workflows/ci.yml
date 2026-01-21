@@ -14,21 +14,7 @@ on:
 permissions: {}
 
 jobs:
-  check-lock:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
-
-      - name: Check uv.lock is up to date
-        run: uv lock --check
-
   build:
-    needs: check-lock
     strategy:
       matrix:
         python-version: ['3.10', '3.11', '3.12', '3.13']
@@ -50,6 +36,11 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: '**/pyproject.toml'
+
+      - name: Check uv.lock is up to date
+        run: uv lock --locked
+        env:
+          UV_PYTHON: ${{ matrix.python-version }}
 
       - name: Lint
         run: |
