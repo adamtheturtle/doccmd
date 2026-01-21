@@ -36,12 +36,10 @@ With Nix
 
 Requires `Nix`_.
 
-.. skip doccmd[all]: next
-
 .. code-block:: console
    :substitutions:
 
-   $ nix --extra-experimental-features 'nix-command flakes' run github:|github-owner|/|github-repository|/|release| -- --help
+   $ nix --extra-experimental-features 'nix-command flakes' run "github:|github-owner|/|github-repository|/|release|" -- --help
 
 To avoid passing ``--extra-experimental-features`` every time, `enable flakes`_ permanently.
 
