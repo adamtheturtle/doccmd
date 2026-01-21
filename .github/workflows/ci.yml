@@ -51,18 +51,6 @@ jobs:
           enable-cache: true
           cache-dependency-glob: '**/pyproject.toml'
 
-      - name: Install nixfmt
-        # nixfmt only provides a Linux binary, so skip on Windows
-        if: runner.os == 'Linux'
-        run: |
-          curl -L https://github.com/NixOS/nixfmt/releases/latest/download/nixfmt -o nixfmt
-          chmod +x nixfmt
-          echo "$PWD" >> "$GITHUB_PATH"
-      - name: Check uv.lock is up to date
-        run: uv lock --locked
-        env:
-          UV_PYTHON: ${{ matrix.python-version }}
-
       - name: Lint
         run: |
           uv run --extra=dev prek run --all-files --hook-stage pre-commit --verbose

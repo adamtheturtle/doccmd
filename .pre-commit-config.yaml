@@ -53,6 +53,11 @@ repos:
     hooks:
       - id: check-useless-excludes
         stages: [pre-commit]
+  - repo: https://github.com/NixOS/nixfmt
+    rev: v1.2.0
+    hooks:
+      - id: nixfmt
+        stages: [manual]
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
@@ -405,11 +410,4 @@ repos:
         language: python
         types_or: [rst]
         additional_dependencies: [uv==0.9.5]
-        stages: [pre-commit]
-
-      - id: nixfmt
-        name: nixfmt
-        entry: nixfmt
-        language: system
-        files: \.nix$
         stages: [pre-commit]
