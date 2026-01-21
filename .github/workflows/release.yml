@@ -207,12 +207,16 @@ jobs:
             exit 1
           fi
 
+      - name: Update VERSION file for Nix flake
+        run: |
+          echo "${{ steps.tag_version.outputs.new_tag }}" > VERSION
+
       - uses: stefanzweifel/git-auto-commit-action@v7
         id: commit-readme
         with:
           commit_message: Replace version in README
           branch: main
-          file_pattern: README.rst
+          file_pattern: README.rst VERSION
           # Error if there are no changes.
           skip_dirty_check: true
 

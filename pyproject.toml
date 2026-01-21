@@ -325,6 +325,7 @@ ignore = [
     "flake.lock",
     "flake.nix",
     "lint.mk",
+    "VERSION",
     "uv.lock",
 
     "spelling_private_dict.txt",
