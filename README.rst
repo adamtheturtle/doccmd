@@ -52,10 +52,10 @@ Requires `Nix`_.
 
 To avoid passing ``--extra-experimental-features`` every time, `enable flakes`_ permanently.
 
-Or add to your flake inputs:
-
 .. _Nix: https://nixos.org/download/
 .. _enable flakes: https://nixos.wiki/wiki/Flakes#Enable_flakes_permanently
+
+Or add to your flake inputs:
 
 .. code-block:: nix
 
