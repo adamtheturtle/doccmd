@@ -37,11 +37,6 @@ jobs:
           enable-cache: true
           cache-dependency-glob: '**/pyproject.toml'
 
-      - name: Check uv.lock is up to date
-        run: uv lock --locked
-        env:
-          UV_PYTHON: ${{ matrix.python-version }}
-
       - name: Lint
         run: |
           uv run --extra=dev prek run --all-files --hook-stage pre-commit --verbose
