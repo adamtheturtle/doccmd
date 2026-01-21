@@ -207,6 +207,22 @@ jobs:
             exit 1
           fi
 
+      - name: Update Nix flake version in README
+        id: update_nix_version
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          find: (github:adamtheturtle/doccmd/)[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?
+          replace: ${1}${{ steps.tag_version.outputs.new_tag }}
+          include: README.rst
+          regex: true
+
+      - name: Check Nix flake version was modified
+        run: |
+          if [ "${{ steps.update_nix_version.outputs.modifiedFiles }}" = "0" ]; then
+            echo "Error: No files were modified when updating Nix flake version"
+            exit 1
+          fi
+
       - name: Update VERSION file for Nix flake
         run: |
           echo "${{ steps.tag_version.outputs.new_tag }}" > VERSION

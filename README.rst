@@ -48,7 +48,7 @@ Requires `Nix`_.
 
 .. code-block:: shell
 
-   $ nix --extra-experimental-features 'nix-command flakes' run github:adamtheturtle/doccmd -- --help
+   $ nix --extra-experimental-features 'nix-command flakes' run github:adamtheturtle/doccmd/2026.01.21.1 -- --help
 
 To avoid passing ``--extra-experimental-features`` every time, `enable flakes`_ permanently.
 
