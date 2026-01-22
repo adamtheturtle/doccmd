@@ -487,6 +487,7 @@ dev = [
     { name = "doc8" },
     { name = "docformatter" },
     { name = "furo" },
+    { name = "hadolint-bin", marker = "sys_platform != 'win32'" },
     { name = "interrogate" },
     { name = "mypy", extra = ["faster-cache"] },
     { name = "mypy-strict-kwargs" },
@@ -542,6 +543,7 @@ requires-dist = [
     { name = "doc8", marker = "extra == 'dev'", specifier = "==2.0.0" },
     { name = "docformatter", marker = "extra == 'dev'", specifier = "==1.7.7" },
     { name = "furo", marker = "extra == 'dev'", specifier = "==2025.12.19" },
+    { name = "hadolint-bin", marker = "sys_platform != 'win32' and extra == 'dev'", specifier = "==2.14.0" },
     { name = "homebrew-pypi-poet", marker = "extra == 'release'", specifier = "==0.10" },
     { name = "interrogate", marker = "extra == 'dev'", specifier = "==1.7.0" },
     { name = "mypy", extras = ["faster-cache"], marker = "extra == 'dev'", specifier = "==1.19.1" },
@@ -657,6 +659,17 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/ec/20/5f5ad4da6a5a27c80f2ed2ee9aee3f9e36c66e56e21c00fde467b2f8f88f/furo-2025.12.19.tar.gz", hash = "sha256:188d1f942037d8b37cd3985b955839fea62baa1730087dc29d157677c857e2a7", size = 1661473, upload-time = "2025-12-19T17:34:40.889Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/f4/b2/50e9b292b5cac13e9e81272c7171301abc753a60460d21505b606e15cf21/furo-2025.12.19-py3-none-any.whl", hash = "sha256:bb0ead5309f9500130665a26bee87693c41ce4dbdff864dbfb6b0dae4673d24f", size = 339262, upload-time = "2025-12-19T17:34:38.905Z" },
+]
+
+[[package]]
+name = "hadolint-bin"
+version = "2.14.0"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e0/e9/e0bd73b241d672d3ce6b95d5afd711b7190262146007f426fceb313851b4/hadolint_bin-2.14.0-py3-none-macosx_10_9_x86_64.whl", hash = "sha256:25c57c9c0f287c580179de5c9279165b8bf5190a302b354baf277d067aed074f", size = 4728151, upload-time = "2025-10-12T03:02:17.243Z" },
+    { url = "https://files.pythonhosted.org/packages/8a/58/02b3cd41b29b37d406988267dae0a548b1123ee2744971f8a776a573258e/hadolint_bin-2.14.0-py3-none-macosx_11_0_arm64.whl", hash = "sha256:ea4a07c134b8047ad88561318b61606b57c7ee4fe5e07c6fed344e96b782d6f5", size = 20990522, upload-time = "2025-10-12T03:02:18.792Z" },
+    { url = "https://files.pythonhosted.org/packages/65/0c/16cd3266516966ad93b670709b84968d56c0cf87be8648d64fff1d353fbf/hadolint_bin-2.14.0-py3-none-manylinux2014_aarch64.musllinux_1_1_aarch64.whl", hash = "sha256:b257fa0773636e7a4c52c5b8861b7f0a57725ce3c748d4879557f4b8a08178c8", size = 12841415, upload-time = "2025-10-12T03:02:20.646Z" },
+    { url = "https://files.pythonhosted.org/packages/6b/b6/c383d0a95dbf110c20a4c050accce88b747dbe36759dc2ceb76fb2c5fc3f/hadolint_bin-2.14.0-py3-none-manylinux2014_x86_64.musllinux_1_1_x86_64.whl", hash = "sha256:cc65ee5fb9c700dc246a54c8fc5434bb3092da40c194e6561fde8ed0e6a77941", size = 11940448, upload-time = "2025-10-12T03:02:22.59Z" },
 ]
 
 [[package]]

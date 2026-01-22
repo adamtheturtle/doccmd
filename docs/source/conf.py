@@ -116,4 +116,5 @@ rst_prolog = f"""
 .. |minimum-python-version| replace:: {minimum_python_version}
 .. |github-owner| replace:: adamtheturtle
 .. |github-repository| replace:: doccmd
+.. |docker-image| replace:: ghcr.io/adamtheturtle/doccmd
 """

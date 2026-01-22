@@ -41,6 +41,13 @@ Pre-built Linux (x86) binaries
    $ curl --fail -L https://github.com/adamtheturtle/doccmd/releases/download/2026.01.22/doccmd-linux -o /usr/local/bin/doccmd &&
        chmod +x /usr/local/bin/doccmd
 
+With Docker
+~~~~~~~~~~~
+
+.. code-block:: console
+
+   $ docker run --rm -v "$(pwd):/workdir" -w /workdir "ghcr.io/adamtheturtle/doccmd" --help
+
 With Nix
 ^^^^^^^^
 
