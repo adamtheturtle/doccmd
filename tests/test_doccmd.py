@@ -2416,6 +2416,63 @@ def test_custom_rst_file_suffixes(tmp_path: Path) -> None:
     assert result.stdout == expected_output
 
 
+def test_markdown_code_block_line_number(tmp_path: Path) -> None:
+    """
+    Line numbers in error messages for Markdown code blocks are correct.
+
+    When a command reports an error with a line number from a padded
+    temporary file, that line number should correspond to the correct
+    line in the original Markdown source file.
+
+    This is a regression test for a bug where Markdown code blocks
+    had an off-by-one error in their reported line numbers. The padding
+    was incorrect, causing error messages to point to the wrong line.
+
+    For example, in a Markdown file:
+        Line 1: Example
+        Line 2: (empty)
+        Line 3: ```python
+        Line 4: syntax error here
+        Line 5: ```
+
+    An error on line 4 should be reported as line 4, not line 5.
+    """
+    runner = CliRunner()
+    md_file = tmp_path / "example.md"
+    # Line 1: "Example"
+    # Line 2: empty
+    # Line 3: ```python
+    # Line 4: syntax error here
+    # Line 5: ```
+    content = textwrap.dedent(
+        text="""\
+        Example
+
+        ```python
+        syntax error here
+        ```
+        """,
+    )
+    md_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        f"{Path(sys.executable).as_posix()}",
+        str(object=md_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code != 0
+    # The syntax error is on line 4 of the original file.
+    # The error message should report line 4, not line 5.
+    assert "line 4" in result.stderr
+
+
 def test_norg(tmp_path: Path) -> None:
     """
     It is possible to run a command against a Norg file.
