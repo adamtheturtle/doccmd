@@ -38,14 +38,18 @@ jobs:
           cache-dependency-glob: '**/pyproject.toml'
 
       - name: Lint
+        # Use bash to ensure the step fails if any command fails.
+        # PowerShell does not fail on intermediate command failures by default.
+        shell: bash
         run: |
           uv run --extra=dev prek run --all-files --hook-stage pre-commit --verbose
           uv run --extra=dev prek run --all-files --hook-stage pre-push --verbose
           uv run --extra=dev prek run --all-files --hook-stage manual --verbose
         env:
           UV_PYTHON: ${{ matrix.python-version }}
-          # nixfmt is only available on Linux
-          SKIP: ${{ runner.os == 'Windows' && 'nixfmt' || '' }}
+          # nixfmt is only available on Linux.
+          # hadolint is not available on Windows.
+          SKIP: ${{ runner.os == 'Windows' && 'nixfmt,hadolint' || '' }}
 
       - name: Run tests
         run: |
