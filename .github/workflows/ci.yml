@@ -47,8 +47,9 @@ jobs:
           uv run --extra=dev prek run --all-files --hook-stage manual --verbose
         env:
           UV_PYTHON: ${{ matrix.python-version }}
-          # nixfmt is only available on Linux
-          SKIP: ${{ runner.os == 'Windows' && 'nixfmt' || '' }}
+          # nixfmt is only available on Linux.
+          # hadolint is not available on Windows.
+          SKIP: ${{ runner.os == 'Windows' && 'nixfmt,hadolint' || '' }}
 
       - name: Run tests
         run: |
