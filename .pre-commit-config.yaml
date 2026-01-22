@@ -9,6 +9,7 @@ ci:
   # We therefore cannot use those dependencies in pre-commit CI.
   skip:
     - actionlint
+    - hadolint
     - check-manifest
     - deptry
     - doc8
@@ -109,6 +110,14 @@ repos:
         language: python
         pass_filenames: false
         types_or: [yaml]
+        additional_dependencies: [uv==0.9.5]
+        stages: [pre-commit]
+
+      - id: hadolint
+        name: hadolint
+        entry: uv run --extra=dev hadolint
+        language: python
+        files: Dockerfile
         additional_dependencies: [uv==0.9.5]
         stages: [pre-commit]
 

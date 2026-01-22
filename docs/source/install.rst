@@ -31,6 +31,14 @@ Pre-built Linux (x86) binaries
    $ curl --fail -L "https://github.com/|github-owner|/|github-repository|/releases/download/|release|/doccmd-linux" -o /usr/local/bin/doccmd &&
        chmod +x /usr/local/bin/doccmd
 
+With Docker
+~~~~~~~~~~~
+
+.. code-block:: console
+   :substitutions:
+
+   $ docker run --rm -v "$(pwd):/workdir" -w /workdir "|docker-image|" --help
+
 With Nix
 ~~~~~~~~
 
