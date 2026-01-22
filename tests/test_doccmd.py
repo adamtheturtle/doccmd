@@ -2417,8 +2417,7 @@ def test_custom_rst_file_suffixes(tmp_path: Path) -> None:
 
 
 def test_markdown_code_block_line_number(tmp_path: Path) -> None:
-    """
-    Line numbers in error messages for Markdown code blocks are correct.
+    """Line numbers in error messages for Markdown code blocks are correct.
 
     When a command reports an error with a line number from a padded
     temporary file, that line number should correspond to the correct
