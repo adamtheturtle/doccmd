@@ -34,7 +34,7 @@ Requires `Homebrew`_.
 .. _Homebrew: https://docs.brew.sh/Installation
 
 Pre-built Linux (x86) binaries
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: console
 
@@ -42,7 +42,7 @@ Pre-built Linux (x86) binaries
        chmod +x /usr/local/bin/doccmd
 
 With Docker
-~~~~~~~~~~~
+^^^^^^^^^^^
 
 .. code-block:: console
 
