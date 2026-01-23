@@ -52,6 +52,13 @@ Pre-built Linux (x86) binaries
    $ curl --fail -L https://github.com/adamtheturtle/doccmd/releases/download/2026.01.23.3/doccmd-linux -o /usr/local/bin/doccmd &&
        chmod +x /usr/local/bin/doccmd
 
+Pre-built Windows binaries
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Download the Windows executable from the `latest release`_ and place it in a directory on your ``PATH``.
+
+.. _latest release: https://github.com/adamtheturtle/doccmd/releases/latest
+
 With Docker
 ^^^^^^^^^^^
 
