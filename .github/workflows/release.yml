@@ -7,6 +7,9 @@ jobs:
   build:
     name: Publish a release
     runs-on: ubuntu-latest
+    outputs:
+      new_tag: ${{ steps.tag_version.outputs.new_tag }}
+      wheel_filename: ${{ steps.build-wheel.outputs.wheel_filename }}
 
     # Specifying an environment is strongly recommended by PyPI.
     # See https://github.com/pypa/gh-action-pypi-publish/tree/release/v1/?tab=readme-ov-file#trusted-publishing.
@@ -283,3 +286,68 @@ jobs:
           tags: |-
             ghcr.io/adamtheturtle/doccmd:${{ steps.calver.outputs.release }}
             ghcr.io/adamtheturtle/doccmd:latest
+
+  build-windows:
+    name: Build Windows binary
+    needs: build
+    runs-on: windows-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.build.outputs.new_tag }}
+
+      # We have a race condition - PyPI may not have propagated the package yet.
+      # Wait for PyPI to have the package available before running PyInstaller.
+      # Note: PEP 440 normalizes versions by stripping leading zeros (e.g., 2026.01.22 -> 2026.1.22).
+      - name: Wait for PyPI propagation
+        uses: nick-fields/retry@v3
+        with:
+          timeout_seconds: 10
+          max_attempts: 50
+          shell: bash
+          command: |
+            normalized_version=$(echo "${{ needs.build.outputs.new_tag }}" | sed -E 's/\.0+([0-9])/.\1/g')
+            pip index versions doccmd | grep -wq "$normalized_version"
+
+      - name: Create Windows binary
+        uses: sayyid5416/pyinstaller@v1
+        with:
+          python_ver: '3.13'
+          pyinstaller_ver: ==6.12.0
+          spec: bin/doccmd-wrapper.py
+          requirements: doccmd==${{ needs.build.outputs.new_tag }}
+          options: --onefile, --name "doccmd-windows"
+          upload_exe_with_name: doccmd-windows
+          clean_checkout: false
+
+      - name: Upload Windows binary to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload ${{ needs.build.outputs.new_tag }} dist/doccmd-windows.exe --clobber
+
+  publish-winget:
+    name: Publish to winget
+    needs: [build, build-windows]
+    runs-on: windows-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      # The winget-releaser action requires the package to already exist in
+      # the winget-pkgs repository. For the first release, you need to manually
+      # submit the package to https://github.com/microsoft/winget-pkgs.
+      # After that, this action will automatically update the package.
+      - name: Publish to winget
+        uses: vedantmgoyal9/winget-releaser@v2
+        with:
+          identifier: adamtheturtle.doccmd
+          installers-regex: \.exe$
+          release-tag: ${{ needs.build.outputs.new_tag }}
+          token: ${{ secrets.WINGET_TOKEN }}

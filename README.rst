@@ -33,6 +33,17 @@ Requires `Homebrew`_.
 
 .. _Homebrew: https://docs.brew.sh/Installation
 
+With winget (Windows)
+^^^^^^^^^^^^^^^^^^^^^
+
+Requires `winget`_.
+
+.. code-block:: shell
+
+   $ winget install adamtheturtle.doccmd
+
+.. _winget: https://learn.microsoft.com/en-us/windows/package-manager/winget/
+
 Pre-built Linux (x86) binaries
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
