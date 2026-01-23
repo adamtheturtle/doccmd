@@ -320,7 +320,8 @@ jobs:
           python_ver: '3.13'
           pyinstaller_ver: ==6.12.0
           spec: bin/doccmd-wrapper.py
-          requirements: doccmd==${{ needs.build.outputs.new_tag }}
+          requirements: '`echo doccmd==${{ needs.build.outputs.new_tag }} > requirements.txt
+            && echo requirements.txt`'
           options: --onefile, --name "doccmd-windows"
           upload_exe_with_name: doccmd-windows
           clean_checkout: false
