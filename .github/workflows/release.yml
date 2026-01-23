@@ -7,6 +7,9 @@ jobs:
   build:
     name: Publish a release
     runs-on: ubuntu-latest
+    outputs:
+      new_tag: ${{ steps.tag_version.outputs.new_tag }}
+      wheel_filename: ${{ steps.build-wheel.outputs.wheel_filename }}
 
     # Specifying an environment is strongly recommended by PyPI.
     # See https://github.com/pypa/gh-action-pypi-publish/tree/release/v1/?tab=readme-ov-file#trusted-publishing.
@@ -283,3 +286,137 @@ jobs:
           tags: |-
             ghcr.io/adamtheturtle/doccmd:${{ steps.calver.outputs.release }}
             ghcr.io/adamtheturtle/doccmd:latest
+
+  build-windows:
+    name: Build Windows binary and update winget
+    needs: build
+    runs-on: windows-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.RELEASE_PAT }}
+          fetch-depth: 0
+          ref: ${{ needs.build.outputs.new_tag }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          pip install pyinstaller==6.12.0
+          pip install doccmd==${{ needs.build.outputs.new_tag }}
+
+      - name: Build Windows binary
+        run: |
+          pyinstaller --onefile --name "doccmd-windows" bin/doccmd-wrapper.py
+
+      - name: Upload Windows binary to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload ${{ needs.build.outputs.new_tag }} dist/doccmd-windows.exe --clobber
+
+      - name: Calculate SHA256 hash
+        id: sha256
+        run: |
+          $hash = (Get-FileHash -Path dist/doccmd-windows.exe -Algorithm SHA256).Hash
+          echo "hash=$hash" >> $env:GITHUB_OUTPUT
+
+      - name: Checkout main branch for winget update
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.RELEASE_PAT }}
+          ref: main
+
+      - name: Create new winget manifest version directory
+        run: |
+          $version = "${{ needs.build.outputs.new_tag }}"
+          $manifestDir = "winget/manifests/a/adamtheturtle/doccmd/$version"
+          New-Item -ItemType Directory -Path $manifestDir -Force
+
+      - name: Create winget version manifest
+        run: |
+          $version = "${{ needs.build.outputs.new_tag }}"
+          $manifestDir = "winget/manifests/a/adamtheturtle/doccmd/$version"
+          @"
+          # yaml-language-server: `$schema=https://aka.ms/winget-manifest.version.1.6.0.schema.json
+          PackageIdentifier: adamtheturtle.doccmd
+          PackageVersion: $version
+          DefaultLocale: en-US
+          ManifestType: version
+          ManifestVersion: 1.6.0
+          "@ | Out-File -FilePath "$manifestDir/adamtheturtle.doccmd.yaml" -Encoding utf8NoBOM
+
+      - name: Create winget locale manifest
+        run: |
+          $version = "${{ needs.build.outputs.new_tag }}"
+          $manifestDir = "winget/manifests/a/adamtheturtle/doccmd/$version"
+          @"
+          # yaml-language-server: `$schema=https://aka.ms/winget-manifest.defaultLocale.1.6.0.schema.json
+          PackageIdentifier: adamtheturtle.doccmd
+          PackageVersion: $version
+          PackageLocale: en-US
+          Publisher: Adam Dangoor
+          PublisherUrl: https://github.com/adamtheturtle
+          PublisherSupportUrl: https://github.com/adamtheturtle/doccmd/issues
+          Author: Adam Dangoor
+          PackageName: doccmd
+          PackageUrl: https://github.com/adamtheturtle/doccmd
+          License: MIT
+          LicenseUrl: https://github.com/adamtheturtle/doccmd/blob/main/LICENSE
+          Copyright: Copyright (c) Adam Dangoor
+          ShortDescription: Run tools against code blocks in documentation
+          Description: A command line tool for running commands against code blocks in documentation files. This allows you to run linters, formatters, and other tools against the code blocks in your documentation files.
+          Moniker: doccmd
+          Tags:
+            - cli
+            - documentation
+            - linter
+            - markdown
+            - python
+            - restructuredtext
+          ReleaseNotesUrl: https://github.com/adamtheturtle/doccmd/releases/tag/$version
+          ManifestType: defaultLocale
+          ManifestVersion: 1.6.0
+          "@ | Out-File -FilePath "$manifestDir/adamtheturtle.doccmd.locale.en-US.yaml" -Encoding utf8NoBOM
+
+      - name: Create winget installer manifest
+        run: |
+          $version = "${{ needs.build.outputs.new_tag }}"
+          $sha256 = "${{ steps.sha256.outputs.hash }}"
+          $manifestDir = "winget/manifests/a/adamtheturtle/doccmd/$version"
+          @"
+          # yaml-language-server: `$schema=https://aka.ms/winget-manifest.installer.1.6.0.schema.json
+          PackageIdentifier: adamtheturtle.doccmd
+          PackageVersion: $version
+          InstallerType: portable
+          Commands:
+            - doccmd
+          Installers:
+            - Architecture: x64
+              InstallerUrl: https://github.com/adamtheturtle/doccmd/releases/download/$version/doccmd-windows.exe
+              InstallerSha256: $sha256
+          ManifestType: installer
+          ManifestVersion: 1.6.0
+          "@ | Out-File -FilePath "$manifestDir/adamtheturtle.doccmd.installer.yaml" -Encoding utf8NoBOM
+
+      - name: Install winget-create and validate manifest
+        run: |
+          Invoke-WebRequest -Uri https://aka.ms/wingetcreate/latest -OutFile wingetcreate.exe
+          $version = "${{ needs.build.outputs.new_tag }}"
+          .\wingetcreate.exe validate "winget/manifests/a/adamtheturtle/doccmd/$version"
+
+      - name: Commit and push winget manifest
+        run: |
+          git config user.name "adamtheturtle"
+          git config user.email "adamdangoor@gmail.com"
+          $version = "${{ needs.build.outputs.new_tag }}"
+          git add "winget/manifests/a/adamtheturtle/doccmd/$version"
+          git commit -m "Add winget manifest for version $version"
+          git push origin main

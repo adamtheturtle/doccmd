@@ -1,0 +1,12 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.6.0.schema.json
+PackageIdentifier: adamtheturtle.doccmd
+PackageVersion: 0.0.0
+InstallerType: portable
+Commands:
+  - doccmd
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://github.com/adamtheturtle/doccmd/releases/download/0.0.0/doccmd-windows.exe
+    InstallerSha256: 0000000000000000000000000000000000000000000000000000000000000000
+ManifestType: installer
+ManifestVersion: 1.6.0
