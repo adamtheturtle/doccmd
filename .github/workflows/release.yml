@@ -314,14 +314,16 @@ jobs:
             normalized_version=$(echo "${{ needs.build.outputs.new_tag }}" | sed -E 's/\.0+([0-9])/.\1/g')
             pip index versions doccmd | grep -wq "$normalized_version"
 
+      - name: Create requirements file
+        run: echo "doccmd==${{ needs.build.outputs.new_tag }}" > requirements.txt
+
       - name: Create Windows binary
         uses: sayyid5416/pyinstaller@v1
         with:
           python_ver: '3.13'
           pyinstaller_ver: ==6.12.0
           spec: bin/doccmd-wrapper.py
-          requirements: '`echo doccmd==${{ needs.build.outputs.new_tag }} > requirements.txt
-            && echo requirements.txt`'
+          requirements: requirements.txt
           options: --onefile, --name "doccmd-windows"
           upload_exe_with_name: doccmd-windows
           clean_checkout: false
