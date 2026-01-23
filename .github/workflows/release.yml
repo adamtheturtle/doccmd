@@ -334,23 +334,25 @@ jobs:
         run: |
           gh release upload ${{ needs.build.outputs.new_tag }} dist/doccmd-windows.exe --clobber
 
-  publish-winget:
-    name: Publish to winget
-    needs: [build, build-windows]
-    runs-on: windows-latest
-
-    permissions:
-      contents: read
-
-    steps:
-      # The winget-releaser action requires the package to already exist in
-      # the winget-pkgs repository. For the first release, you need to manually
-      # submit the package to https://github.com/microsoft/winget-pkgs.
-      # After that, this action will automatically update the package.
-      - name: Publish to winget
-        uses: vedantmgoyal9/winget-releaser@v2
-        with:
-          identifier: adamtheturtle.doccmd
-          installers-regex: \.exe$
-          release-tag: ${{ needs.build.outputs.new_tag }}
-          token: ${{ secrets.WINGET_TOKEN }}
+  # TODO: Uncomment once adamtheturtle.doccmd is registered in winget-pkgs.
+  # See https://github.com/microsoft/winget-pkgs for manual submission.
+  # publish-winget:
+  #   name: Publish to winget
+  #   needs: [build, build-windows]
+  #   runs-on: windows-latest
+  #
+  #   permissions:
+  #     contents: read
+  #
+  #   steps:
+  #  # The winget-releaser action requires the package to already exist in
+  #  # the winget-pkgs repository. For the first release, you need to manually
+  #  # submit the package to https://github.com/microsoft/winget-pkgs.
+  #  # After that, this action will automatically update the package.
+  #     - name: Publish to winget
+  #       uses: vedantmgoyal9/winget-releaser@v2
+  #       with:
+  #         identifier: adamtheturtle.doccmd
+  #         installers-regex: \.exe$
+  #         release-tag: ${{ needs.build.outputs.new_tag }}
+  #         token: ${{ secrets.WINGET_TOKEN }}
