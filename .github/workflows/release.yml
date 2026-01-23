@@ -346,4 +346,5 @@ jobs:
         with:
           identifier: adamtheturtle.doccmd
           installers-regex: \.exe$
+          release-tag: ${{ needs.build.outputs.new_tag }}
           token: ${{ secrets.WINGET_TOKEN }}
