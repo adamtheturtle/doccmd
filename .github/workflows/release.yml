@@ -301,6 +301,15 @@ jobs:
           fetch-depth: 0
           ref: ${{ needs.build.outputs.new_tag }}
 
+      # We have a race condition - PyPI may not have propagated the package yet.
+      # Wait for PyPI to have the package available before running PyInstaller.
+      - name: Wait for PyPI propagation
+        uses: nick-fields/retry@v3
+        with:
+          timeout_seconds: 10
+          max_attempts: 50
+          command: pip index versions doccmd | grep -q ${{ needs.build.outputs.new_tag }}
+
       - name: Create Windows binary
         uses: sayyid5416/pyinstaller@v1
         with:
