@@ -49,3 +49,4 @@ ubuntu
 validator
 validators
 versioned
+winget
