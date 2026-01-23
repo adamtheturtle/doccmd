@@ -303,13 +303,16 @@ jobs:
 
       # We have a race condition - PyPI may not have propagated the package yet.
       # Wait for PyPI to have the package available before running PyInstaller.
+      # Note: PEP 440 normalizes versions by stripping leading zeros (e.g., 2026.01.22 -> 2026.1.22).
       - name: Wait for PyPI propagation
         uses: nick-fields/retry@v3
         with:
           timeout_seconds: 10
           max_attempts: 50
           shell: bash
-          command: pip index versions doccmd | grep -wq ${{ needs.build.outputs.new_tag }}
+          command: |
+            normalized_version=$(echo "${{ needs.build.outputs.new_tag }}" | sed -E 's/\.0+([0-9])/.\1/g')
+            pip index versions doccmd | grep -wq "$normalized_version"
 
       - name: Create Windows binary
         uses: sayyid5416/pyinstaller@v1
