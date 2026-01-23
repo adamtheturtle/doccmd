@@ -309,7 +309,7 @@ jobs:
           timeout_seconds: 10
           max_attempts: 50
           shell: bash
-          command: pip index versions doccmd | grep -q ${{ needs.build.outputs.new_tag }}
+          command: pip index versions doccmd | grep -wq ${{ needs.build.outputs.new_tag }}
 
       - name: Create Windows binary
         uses: sayyid5416/pyinstaller@v1
