@@ -275,17 +275,22 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # We still hit the race condition with PyPI propagation, so we have a
+      # retry here too. The Docker build fetches from PyPI inside the
+      # container, which may hit a different CDN node than the earlier check.
       - name: Build and push Docker image
-        uses: docker/build-push-action@v6
+        uses: nick-fields/retry@v3
         with:
-          context: .
-          push: true
-          platforms: linux/amd64,linux/arm64
-          build-args: |
-            DOCCMD_VERSION=${{ steps.calver.outputs.release }}
-          tags: |-
-            ghcr.io/adamtheturtle/doccmd:${{ steps.calver.outputs.release }}
-            ghcr.io/adamtheturtle/doccmd:latest
+          timeout_minutes: 10
+          max_attempts: 5
+          command: |
+            docker buildx build \
+              --push \
+              --platform linux/amd64,linux/arm64 \
+              --build-arg DOCCMD_VERSION=${{ steps.calver.outputs.release }} \
+              --tag ghcr.io/adamtheturtle/doccmd:${{ steps.calver.outputs.release }} \
+              --tag ghcr.io/adamtheturtle/doccmd:latest \
+              .
 
   build-windows:
     name: Build Windows binary
