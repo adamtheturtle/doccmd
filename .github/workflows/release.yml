@@ -323,6 +323,8 @@ jobs:
     needs: [build, build-windows]
     runs-on: windows-latest
 
+    permissions: {}
+
     steps:
       # The winget-releaser action requires the package to already exist in
       # the winget-pkgs repository. For the first release, you need to manually
