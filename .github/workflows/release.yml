@@ -332,5 +332,5 @@ jobs:
         uses: vedantmgoyal9/winget-releaser@v2
         with:
           identifier: adamtheturtle.doccmd
-          installers-regex: '\.exe$'
+          installers-regex: \.exe$
           token: ${{ secrets.WINGET_TOKEN }}
