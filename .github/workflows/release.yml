@@ -308,6 +308,7 @@ jobs:
         with:
           timeout_seconds: 10
           max_attempts: 50
+          shell: bash
           command: pip index versions doccmd | grep -q ${{ needs.build.outputs.new_tag }}
 
       - name: Create Windows binary
@@ -332,7 +333,8 @@ jobs:
     needs: [build, build-windows]
     runs-on: windows-latest
 
-    permissions: {}
+    permissions:
+      contents: read
 
     steps:
       # The winget-releaser action requires the package to already exist in
