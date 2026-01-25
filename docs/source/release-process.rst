@@ -8,6 +8,7 @@ Outcomes
 * A new package on PyPI.
 * A new Homebrew recipe available to install.
 * An updated Nix flake (automatically uses the latest ``git`` tag).
+* New pre-built binaries for Linux, macOS, and Windows.
 
 Perform a Release
 ~~~~~~~~~~~~~~~~~

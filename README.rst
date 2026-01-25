@@ -56,6 +56,14 @@ Pre-built Linux (x86) binaries
    $ curl --fail -L https://github.com/adamtheturtle/doccmd/releases/download/2026.01.23.4/doccmd-linux -o /usr/local/bin/doccmd &&
        chmod +x /usr/local/bin/doccmd
 
+Pre-built macOS binaries
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: console
+
+   $ curl --fail -L https://github.com/adamtheturtle/doccmd/releases/download/2026.01.23.4/doccmd-macos -o /usr/local/bin/doccmd &&
+       chmod +x /usr/local/bin/doccmd
+
 Pre-built Windows binaries
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
