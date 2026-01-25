@@ -64,8 +64,8 @@ Pre-built macOS (ARM) binaries
    $ curl --fail -L https://github.com/adamtheturtle/doccmd/releases/download/2026.01.25/doccmd-macos -o /usr/local/bin/doccmd &&
        chmod +x /usr/local/bin/doccmd
 
-Pre-built macOS binaries
-^^^^^^^^^^^^^^^^^^^^^^^^
+Pre-built macOS (ARM) binaries
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: console
 
