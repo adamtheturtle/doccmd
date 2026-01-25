@@ -55,6 +55,12 @@ Pre-built macOS (ARM) binaries
    $ curl --fail -L "https://github.com/|github-owner|/|github-repository|/releases/download/|release|/doccmd-macos" -o /usr/local/bin/doccmd &&
        chmod +x /usr/local/bin/doccmd
 
+You may need to remove the quarantine attribute to run the binary:
+
+.. code-block:: console
+
+   $ xattr -d com.apple.quarantine /usr/local/bin/doccmd
+
 Pre-built Windows binaries
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
