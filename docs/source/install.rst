@@ -46,8 +46,8 @@ Pre-built Linux (x86) binaries
    $ curl --fail -L "https://github.com/|github-owner|/|github-repository|/releases/download/|release|/doccmd-linux" -o /usr/local/bin/doccmd &&
        chmod +x /usr/local/bin/doccmd
 
-Pre-built macOS binaries
-~~~~~~~~~~~~~~~~~~~~~~~~
+Pre-built macOS (ARM) binaries
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: console
    :substitutions:
