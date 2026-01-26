@@ -372,8 +372,8 @@ repos:
       - id: ty-docs
         name: ty-docs
         stages: [pre-push]
-        entry: uv run --extra=dev doccmd --no-write-to-file --example-workers 0 --language=python
-          --command="ty check"
+        entry: uv run --extra=dev doccmd --no-write-to-file --language=python --command="ty
+          check"
         language: python
         types_or: [markdown, rst]
         additional_dependencies: [uv==0.9.5]
@@ -390,8 +390,8 @@ repos:
       - id: pyrefly-docs
         name: pyrefly-docs
         stages: [pre-push]
-        entry: uv run --extra=dev doccmd --no-write-to-file --example-workers 0 --language=python
-          --command="pyrefly check"
+        entry: uv run --extra=dev doccmd --no-write-to-file --language=python --command="pyrefly
+          check"
         language: python
         types_or: [markdown, rst]
         additional_dependencies: [uv==0.9.5]
