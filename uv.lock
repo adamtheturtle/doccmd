@@ -485,13 +485,13 @@ dev = [
     { name = "check-manifest" },
     { name = "deptry" },
     { name = "doc8" },
-    { name = "docformatter" },
     { name = "furo" },
     { name = "hadolint-bin", marker = "sys_platform != 'win32'" },
     { name = "interrogate" },
     { name = "mypy", extra = ["faster-cache"] },
     { name = "mypy-strict-kwargs" },
     { name = "prek" },
+    { name = "pydocstringformatter" },
     { name = "pydocstyle" },
     { name = "pygments" },
     { name = "pylint", extra = ["spelling"] },
@@ -541,7 +541,6 @@ requires-dist = [
     { name = "cloup", specifier = ">=3.0.0" },
     { name = "deptry", marker = "extra == 'dev'", specifier = "==0.24.0" },
     { name = "doc8", marker = "extra == 'dev'", specifier = "==2.0.0" },
-    { name = "docformatter", marker = "extra == 'dev'", specifier = "==1.7.7" },
     { name = "furo", marker = "extra == 'dev'", specifier = "==2025.12.19" },
     { name = "hadolint-bin", marker = "sys_platform != 'win32' and extra == 'dev'", specifier = "==2.14.0" },
     { name = "homebrew-pypi-poet", marker = "extra == 'release'", specifier = "==0.10" },
@@ -549,6 +548,7 @@ requires-dist = [
     { name = "mypy", extras = ["faster-cache"], marker = "extra == 'dev'", specifier = "==1.19.1" },
     { name = "mypy-strict-kwargs", marker = "extra == 'dev'", specifier = "==2026.1.12" },
     { name = "prek", marker = "extra == 'dev'", specifier = "==0.3.0" },
+    { name = "pydocstringformatter", marker = "extra == 'dev'", specifier = "==0.7.3" },
     { name = "pydocstyle", marker = "extra == 'dev'", specifier = "==6.3" },
     { name = "pygments", specifier = ">=2.18.0" },
     { name = "pygments", marker = "extra == 'dev'", specifier = "==2.19.2" },
@@ -582,19 +582,6 @@ requires-dist = [
     { name = "zizmor", marker = "extra == 'dev'", specifier = "==1.22.0" },
 ]
 provides-extras = ["dev", "release"]
-
-[[package]]
-name = "docformatter"
-version = "1.7.7"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "charset-normalizer" },
-    { name = "untokenize" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/2a/7b/ee08cb5fe2627ed0b6f0cc4a1c6be6c9c71de5a3e9785de8174273fc3128/docformatter-1.7.7.tar.gz", hash = "sha256:ea0e1e8867e5af468dfc3f9e947b92230a55be9ec17cd1609556387bffac7978", size = 26587, upload-time = "2025-05-11T04:54:04.356Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/dc/b4/a7ec1eaee86761a9dbfd339732b4706db3c6b65e970c12f0f56cfcce3dcf/docformatter-1.7.7-py3-none-any.whl", hash = "sha256:7af49f8a46346a77858f6651f431b882c503c2f4442c8b4524b920c863277834", size = 33525, upload-time = "2025-05-11T04:54:03.353Z" },
-]
 
 [[package]]
 name = "docutils"
@@ -1434,6 +1421,18 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/1f/f2/f11dd73284122713f5f89fc940f370d035fa8e1e078d446b3313955157fe/pydantic_core-2.41.5-pp311-pypy311_pp73-musllinux_1_1_armv7l.whl", hash = "sha256:a668ce24de96165bb239160b3d854943128f4334822900534f2fe947930e5770", size = 2330317, upload-time = "2025-11-04T13:43:40.406Z" },
     { url = "https://files.pythonhosted.org/packages/88/9d/b06ca6acfe4abb296110fb1273a4d848a0bfb2ff65f3ee92127b3244e16b/pydantic_core-2.41.5-pp311-pypy311_pp73-musllinux_1_1_x86_64.whl", hash = "sha256:f14f8f046c14563f8eb3f45f499cc658ab8d10072961e07225e507adb700e93f", size = 2316992, upload-time = "2025-11-04T13:43:43.602Z" },
     { url = "https://files.pythonhosted.org/packages/36/c7/cfc8e811f061c841d7990b0201912c3556bfeb99cdcb7ed24adc8d6f8704/pydantic_core-2.41.5-pp311-pypy311_pp73-win_amd64.whl", hash = "sha256:56121965f7a4dc965bff783d70b907ddf3d57f6eba29b6d2e5dabfaf07799c51", size = 2145302, upload-time = "2025-11-04T13:43:46.64Z" },
+]
+
+[[package]]
+name = "pydocstringformatter"
+version = "0.7.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "tomli", marker = "python_full_version < '3.11'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/b3/51/5c21963eb7bdba245ec808fdb0ef8abc0cd87ef674f2b6ba1fd76f3a0ffa/pydocstringformatter-0.7.3.tar.gz", hash = "sha256:dfcc07bec1706803d563275e282ef9e629b02dc19983ec6778d07a9f500bb62b", size = 24024, upload-time = "2023-01-02T15:09:30.152Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3a/38/b3a99e9cc66941e044ad3d40e90a72b1191925b8af13e3e4d8edc5c0eb87/pydocstringformatter-0.7.3-py3-none-any.whl", hash = "sha256:3654f52c49fc729b49712d1e7c49384dfd253bdffeda4939e79dab31491c563f", size = 31287, upload-time = "2023-01-02T15:09:28.904Z" },
 ]
 
 [[package]]
@@ -2462,12 +2461,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/55/e3/70399cb7dd41c10ac
 wheels = [
     { url = "https://files.pythonhosted.org/packages/dc/9b/47798a6c91d8bdb567fe2698fe81e0c6b7cb7ef4d13da4114b41d239f65d/typing_inspection-0.4.2-py3-none-any.whl", hash = "sha256:4ed1cacbdc298c220f1bd249ed5287caa16f34d44ef4e9c3d0cbad5b521545e7", size = 14611, upload-time = "2025-10-01T02:14:40.154Z" },
 ]
-
-[[package]]
-name = "untokenize"
-version = "0.1.1"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/f7/46/e7cea8159199096e1df52da20a57a6665da80c37fb8aeb848a3e47442c32/untokenize-0.1.1.tar.gz", hash = "sha256:3865dbbbb8efb4bb5eaa72f1be7f3e0be00ea8b7f125c69cbd1f5fda926f37a2", size = 3099, upload-time = "2014-02-08T16:30:40.631Z" }
 
 [[package]]
 name = "urllib3"

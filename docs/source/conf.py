@@ -1,6 +1,4 @@
-"""
-Configuration for Sphinx.
-"""
+"""Configuration for Sphinx."""
 
 # pylint: disable=invalid-name
 

@@ -13,7 +13,7 @@ ci:
     - check-manifest
     - deptry
     - doc8
-    - docformatter
+    - pydocstringformatter
     - docs
     - interrogate
     - interrogate-docs
@@ -121,9 +121,9 @@ repos:
         additional_dependencies: [uv==0.9.5]
         stages: [pre-commit]
 
-      - id: docformatter
-        name: docformatter
-        entry: uv run --extra=dev -m docformatter --in-place
+      - id: pydocstringformatter
+        name: pydocstringformatter
+        entry: uv run --extra=dev pydocstringformatter
         language: python
         types_or: [python]
         additional_dependencies: [uv==0.9.5]

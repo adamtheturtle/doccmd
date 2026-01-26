@@ -1,6 +1,4 @@
-"""
-CLI to run commands on the given files.
-"""
+"""CLI to run commands on the given files."""
 
 import difflib
 import os
@@ -61,9 +59,7 @@ T = TypeVar("T")
 
 @beartype
 class _LogCommandEvaluator:
-    """
-    Log a command before running it.
-    """
+    """Log a command before running it."""
 
     def __init__(
         self,
@@ -78,9 +74,7 @@ class _LogCommandEvaluator:
         self._args = args
 
     def __call__(self, example: Example) -> None:
-        """
-        Log the command before running it.
-        """
+        """Log the command before running it."""
         command_str = shlex.join(
             split_command=[str(object=item) for item in self._args],
         )
@@ -97,9 +91,7 @@ def _validate_file_extension(
     param: click.Parameter | None,
     value: str,
 ) -> str:
-    """
-    Validate that the input string starts with a dot.
-    """
+    """Validate that the input string starts with a dot."""
     if not value.startswith("."):
         message = f"'{value}' does not start with a '.'."
         raise click.BadParameter(message=message, ctx=ctx, param=param)
@@ -112,9 +104,7 @@ def _validate_file_extension_or_none(
     param: click.Parameter | None,
     value: str | None,
 ) -> str | None:
-    """
-    Validate that the input string starts with a dot.
-    """
+    """Validate that the input string starts with a dot."""
     if value is None:
         return value
     return _validate_file_extension(ctx=ctx, param=param, value=value)
@@ -126,9 +116,7 @@ def _validate_given_files_have_known_suffixes(
     given_files: Iterable[Path],
     known_suffixes: Iterable[str],
 ) -> None:
-    """
-    Validate that the given files have known suffixes.
-    """
+    """Validate that the given files have known suffixes."""
     given_files_unknown_suffix = [
         document_path
         for document_path in given_files
@@ -146,9 +134,7 @@ def _validate_no_empty_string(
     param: click.Parameter | None,
     value: str,
 ) -> str:
-    """
-    Validate that the input strings are not empty.
-    """
+    """Validate that the input strings are not empty."""
     if not value:
         msg = "This value cannot be empty."
         raise click.BadParameter(message=msg, ctx=ctx, param=param)
@@ -175,7 +161,8 @@ def _get_file_paths(
     exclude_patterns: Iterable[str],
 ) -> Sequence[Path]:
     """
-    Get the file paths from the given document paths (files and directories).
+    Get the file paths from the given document paths (files and
+    directories).
     """
     file_paths: dict[Path, bool] = {}
     for path in document_paths:
@@ -202,9 +189,7 @@ def _validate_file_suffix_overlaps(
     *,
     suffix_groups: Mapping[MarkupLanguage, Iterable[str]],
 ) -> None:
-    """
-    Validate that the given file suffixes do not overlap.
-    """
+    """Validate that the given file suffixes do not overlap."""
     for markup_language, suffixes in suffix_groups.items():
         for other_markup_language, other_suffixes in suffix_groups.items():
             if markup_language is other_markup_language:
@@ -225,9 +210,7 @@ def _validate_file_suffix_overlaps(
 
 @unique
 class _UsePty(Enum):
-    """
-    Choices for the use of a pseudo-terminal.
-    """
+    """Choices for the use of a pseudo-terminal."""
 
     YES = auto()
     NO = auto()
@@ -250,9 +233,7 @@ class _UsePty(Enum):
         return self.name.lower()
 
     def use_pty(self) -> bool:
-        """
-        Whether to use a pseudo-terminal.
-        """
+        """Whether to use a pseudo-terminal."""
         if self is _UsePty.DETECT:
             return sys.stdout.isatty() and platform.system() != "Windows"
         return {
@@ -263,36 +244,28 @@ class _UsePty(Enum):
 
 @beartype
 def _log_info(message: str) -> None:
-    """
-    Log an info message.
-    """
+    """Log an info message."""
     styled_message = click.style(text=message, fg="green")
     click.echo(message=styled_message, err=True)
 
 
 @beartype
 def _log_warning(message: str) -> None:
-    """
-    Log an error message.
-    """
+    """Log an error message."""
     styled_message = click.style(text=message, fg="yellow")
     click.echo(message=styled_message, err=True)
 
 
 @beartype
 def _log_error(message: str) -> None:
-    """
-    Log an error message.
-    """
+    """Log an error message."""
     styled_message = click.style(text=message, fg="red")
     click.echo(message=styled_message, err=True)
 
 
 @beartype
 def _detect_newline(content_bytes: bytes) -> bytes | None:
-    """
-    Detect the newline character used in the content.
-    """
+    """Detect the newline character used in the content."""
     for newline in (b"\r\n", b"\n", b"\r"):
         if newline in content_bytes:
             return newline
@@ -301,9 +274,7 @@ def _detect_newline(content_bytes: bytes) -> bytes | None:
 
 @beartype
 def _map_languages_to_suffix() -> dict[str, str]:
-    """
-    Map programming languages to their corresponding file extension.
-    """
+    """Map programming languages to their corresponding file extension."""
     language_extension_map: dict[str, str] = {}
 
     for lexer in get_all_lexers():
@@ -322,9 +293,7 @@ def _map_languages_to_suffix() -> dict[str, str]:
 
 @beartype
 def _get_group_directives(markers: Iterable[str]) -> Sequence[str]:
-    """
-    Group directives based on the provided markers.
-    """
+    """Group directives based on the provided markers."""
     directives: Sequence[str] = []
 
     for marker in markers:
@@ -335,9 +304,7 @@ def _get_group_directives(markers: Iterable[str]) -> Sequence[str]:
 
 @beartype
 def _get_skip_directives(markers: Iterable[str]) -> Iterable[str]:
-    """
-    Skip directives based on the provided markers.
-    """
+    """Skip directives based on the provided markers."""
     directives: Sequence[str] = []
 
     for marker in markers:
@@ -351,9 +318,7 @@ def _get_temporary_file_extension(
     language: str,
     given_file_extension: str | None,
 ) -> str:
-    """
-    Get the file suffix, either from input or based on the language.
-    """
+    """Get the file suffix, either from input or based on the language."""
     if given_file_extension is None:
         language_to_suffix = _map_languages_to_suffix()
         given_file_extension = language_to_suffix.get(language.lower(), ".txt")
@@ -363,9 +328,7 @@ def _get_temporary_file_extension(
 
 @beartype
 def _resolve_workers(*, requested_workers: int) -> int:
-    """
-    Resolve the input worker count, auto-detecting CPUs when zero.
-    """
+    """Resolve the input worker count, auto-detecting CPUs when zero."""
     if requested_workers != 0:
         return requested_workers
 
@@ -381,9 +344,7 @@ def _evaluate_document(
     document: Document,
     example_workers: int,
 ) -> None:
-    """
-    Evaluate the document.
-    """
+    """Evaluate the document."""
     examples = tuple(document.examples())
     if example_workers == 1 or len(examples) in {0, 1}:
         for example in examples:
@@ -400,7 +361,8 @@ def _evaluate_document(
 @beartype
 class _GroupModifiedError(Exception):
     """
-    Error raised when there was an attempt to modify a code block in a group.
+    Error raised when there was an attempt to modify a code block in a
+    group.
     """
 
     def __init__(
@@ -409,16 +371,12 @@ class _GroupModifiedError(Exception):
         example: Example,
         modified_example_content: str,
     ) -> None:
-        """
-        Initialize the error.
-        """
+        """Initialize the error."""
         self._example = example
         self._modified_example_content = modified_example_content
 
     def __str__(self) -> str:
-        """
-        Get the string representation of the error.
-        """
+        """Get the string representation of the error."""
         unified_diff = difflib.unified_diff(
             a=str(object=self._example.parsed).lstrip().splitlines(),
             b=self._modified_example_content.lstrip().splitlines(),
@@ -442,9 +400,7 @@ class _GroupModifiedError(Exception):
 
 @dataclass
 class _CollectedError:
-    """
-    Error collected during continue-on-error mode.
-    """
+    """Error collected during continue-on-error mode."""
 
     message: str
     exit_code: int
@@ -452,13 +408,12 @@ class _CollectedError:
 
 class _FatalProcessingError(Exception):
     """
-    Error raised when processing a document requires exiting immediately.
+    Error raised when processing a document requires exiting
+    immediately.
     """
 
     def __init__(self, exit_code: int) -> None:
-        """
-        Capture the exit code doccmd should terminate with.
-        """
+        """Capture the exit code doccmd should terminate with."""
         self.exit_code = exit_code
         super().__init__()
 
@@ -471,9 +426,7 @@ def _handle_error(
     continue_on_error: bool,
     exc: Exception | None = None,
 ) -> _CollectedError:
-    """
-    Handle an error by either returning it or raising a fatal error.
-    """
+    """Handle an error by either returning it or raising a fatal error."""
     if continue_on_error:
         return _CollectedError(message=message, exit_code=exit_code)
     raise _FatalProcessingError(exit_code=exit_code) from exc
@@ -503,9 +456,7 @@ def _process_file_path(
     continue_on_error: bool,
     example_workers: int,
 ) -> list[_CollectedError]:
-    """
-    Process a single documentation file.
-    """
+    """Process a single documentation file."""
     local_errors: list[_CollectedError] = []
     markup_language = suffix_map[file_path.suffix]
     encoding = _get_encoding(document_path=file_path)
@@ -658,7 +609,8 @@ def _raise_group_modified(
     modified_example_content: str,
 ) -> None:
     """
-    Raise an error when there was an attempt to modify a code block in a group.
+    Raise an error when there was an attempt to modify a code block in a
+    group.
     """
     raise _GroupModifiedError(
         example=example,
@@ -668,9 +620,7 @@ def _raise_group_modified(
 
 @beartype
 def _get_encoding(*, document_path: Path) -> str | None:
-    """
-    Get the encoding of the file.
-    """
+    """Get the encoding of the file."""
     content_bytes = document_path.read_bytes()
     charset_matches = charset_normalizer.from_bytes(sequences=content_bytes)
     best_match = charset_matches.best()
@@ -700,9 +650,7 @@ def _get_sybil(
     newline: str | None,
     parse_sphinx_jinja2: bool,
 ) -> Sybil:
-    """
-    Get a Sybil for running commands on the given file.
-    """
+    """Get a Sybil for running commands on the given file."""
     # Add default "all" marker if:
     # - Not using group_file
     # - AND (not using group_mdx_by_attribute OR this is not an MDX file)
