@@ -1,3 +1,1 @@
-"""
-Documentation for `doccmd`.
-"""
+"""Documentation for `doccmd`."""

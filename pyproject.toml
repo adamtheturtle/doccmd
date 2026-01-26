@@ -154,6 +154,14 @@ lint.ignore = [
     "PLR0915",
 ]
 
+lint.per-file-ignores."doccmd_*.py" = [
+    # Allow our chosen docstring line-style - pydocstringformatter handles
+    # formatting but docstrings in docs may not match this style.
+    "D200",
+    # Allow asserts in docs.
+    "S101",
+]
+
 lint.per-file-ignores."tests/*.py" = [
     # Do not require tests to have a one-line summary.
     "S101",
