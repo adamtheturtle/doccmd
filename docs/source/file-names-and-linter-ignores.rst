@@ -29,7 +29,7 @@ To ignore a rule in files created by ``doccmd`` when using ``pylint``, use `pyli
    ]
 
 Custom file name patterns
-^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For full control over the temporary file names, use the :option:`doccmd --temporary-file-name-pattern` option.
 This allows you to specify a pattern with placeholders that will be replaced when creating the temporary file.
