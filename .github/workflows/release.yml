@@ -242,25 +242,23 @@ jobs:
           skip_dirty_check: true
 
       - name: Create Linux binary
-        uses: Nuitka/Nuitka-Action@v1.4
+        uses: sayyid5416/pyinstaller@v1
         with:
-          nuitka-version: main
-          script-name: bin/doccmd-wrapper.py
-          onefile: true
-          output-file: doccmd-linux
-
-      - name: Upload Linux binary artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: doccmd-linux
-          path: build/doccmd-linux
+          python_ver: '3.13'
+          pyinstaller_ver: ==6.12.0
+          spec: bin/doccmd-wrapper.py
+          requirements: '`echo ${{ steps.build-wheel.outputs.wheel_filename }} > requirements.txt
+            && echo requirements.txt`'
+          options: --onefile, --name "doccmd-linux"
+          upload_exe_with_name: doccmd-linux
+          clean_checkout: false
 
       - name: Create a GitHub release
         uses: ncipollo/release-action@v1
         with:
           # Use a specific artifact name (not a glob) so that we get a clear
           # error if the artifact does not exist for some reason.
-          artifacts: build/doccmd-linux
+          artifacts: dist/doccmd-linux
           artifactErrorsFailBuild: true
           tag: ${{ steps.tag_version.outputs.new_tag }}
           makeLatest: true
@@ -309,7 +307,7 @@ jobs:
           ref: ${{ needs.build.outputs.new_tag }}
 
       # We have a race condition - PyPI may not have propagated the package yet.
-      # Wait for PyPI to have the package available before running Nuitka.
+      # Wait for PyPI to have the package available before running PyInstaller.
       # Note: PEP 440 normalizes versions by stripping leading zeros (e.g., 2026.01.22 -> 2026.1.22).
       - name: Wait for PyPI propagation
         uses: nick-fields/retry@v3
@@ -320,22 +318,25 @@ jobs:
             normalized_version=$(echo "${{ needs.build.outputs.new_tag }}" | sed -E 's/\.0+([0-9])/.\1/g')
             pip index versions doccmd | grep -wq "$normalized_version"
 
-      - name: Install doccmd from PyPI
-        run: pip install doccmd==${{ needs.build.outputs.new_tag }}
+      - name: Create requirements file
+        run: echo "doccmd==${{ needs.build.outputs.new_tag }}" > requirements.txt
 
       - name: Create macOS binary
-        uses: Nuitka/Nuitka-Action@v1.4
+        uses: sayyid5416/pyinstaller@v1
         with:
-          nuitka-version: main
-          script-name: bin/doccmd-wrapper.py
-          onefile: true
-          output-file: doccmd-macos
+          python_ver: '3.13'
+          pyinstaller_ver: ==6.12.0
+          spec: bin/doccmd-wrapper.py
+          requirements: requirements.txt
+          options: --onefile, --name "doccmd-macos"
+          upload_exe_with_name: doccmd-macos
+          clean_checkout: false
 
       - name: Upload macOS binary to release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release upload ${{ needs.build.outputs.new_tag }} build/doccmd-macos --clobber
+          gh release upload ${{ needs.build.outputs.new_tag }} dist/doccmd-macos --clobber
 
   build-windows:
     name: Build Windows binary
@@ -352,7 +353,7 @@ jobs:
           ref: ${{ needs.build.outputs.new_tag }}
 
       # We have a race condition - PyPI may not have propagated the package yet.
-      # Wait for PyPI to have the package available before running Nuitka.
+      # Wait for PyPI to have the package available before running PyInstaller.
       # Note: PEP 440 normalizes versions by stripping leading zeros (e.g., 2026.01.22 -> 2026.1.22).
       - name: Wait for PyPI propagation
         uses: nick-fields/retry@v3
@@ -364,22 +365,25 @@ jobs:
             normalized_version=$(echo "${{ needs.build.outputs.new_tag }}" | sed -E 's/\.0+([0-9])/.\1/g')
             pip index versions doccmd | grep -wq "$normalized_version"
 
-      - name: Install doccmd from PyPI
-        run: pip install doccmd==${{ needs.build.outputs.new_tag }}
+      - name: Create requirements file
+        run: echo "doccmd==${{ needs.build.outputs.new_tag }}" > requirements.txt
 
       - name: Create Windows binary
-        uses: Nuitka/Nuitka-Action@v1.4
+        uses: sayyid5416/pyinstaller@v1
         with:
-          nuitka-version: main
-          script-name: bin/doccmd-wrapper.py
-          onefile: true
-          output-file: doccmd-windows
+          python_ver: '3.13'
+          pyinstaller_ver: ==6.12.0
+          spec: bin/doccmd-wrapper.py
+          requirements: requirements.txt
+          options: --onefile, --name "doccmd-windows"
+          upload_exe_with_name: doccmd-windows
+          clean_checkout: false
 
       - name: Upload Windows binary to release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release upload ${{ needs.build.outputs.new_tag }} build/doccmd-windows.exe --clobber
+          gh release upload ${{ needs.build.outputs.new_tag }} dist/doccmd-windows.exe --clobber
 
   # TODO: Uncomment once adamtheturtle.doccmd is registered in winget-pkgs.
   # See https://github.com/microsoft/winget-pkgs for manual submission.

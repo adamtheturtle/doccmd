@@ -3,7 +3,6 @@ Docusaurus
 Jinja
 MDX
 Norg
-Nuitka
 admin
 api
 args

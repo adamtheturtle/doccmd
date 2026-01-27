@@ -50,7 +50,7 @@ try:
     __version__ = version(distribution_name=__name__)
 except PackageNotFoundError:  # pragma: no cover
     # When pkg_resources and git tags are not available,
-    # for example in a Nuitka binary,
+    # for example in a PyInstaller binary,
     # we write the file ``_setuptools_scm_version.py`` on ``pip install``.
     from ._setuptools_scm_version import __version__
 
