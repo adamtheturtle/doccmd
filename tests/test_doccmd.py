@@ -753,6 +753,42 @@ def test_given_prefix(tmp_path: Path) -> None:
     assert output_path.name.startswith("myprefix_")
 
 
+def test_temporary_file_includes_source_name(tmp_path: Path) -> None:
+    """The temporary file name includes the sanitized source file name."""
+    runner = CliRunner()
+    # Use a filename with characters that get sanitized (dots and dashes)
+    rst_file = tmp_path / "my-example.test.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            x = 2 + 2
+            assert x == 4
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        "echo",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    output = result.stdout
+    output_path = Path(output.strip())
+    # "my-example.test.rst" becomes "my_example_test_rst" in the filename,
+    # along with the line number (code block at line 1)
+    assert "my_example_test_rst" in output_path.name
+    assert "_l1__" in output_path.name
+
+
 def test_file_extension_unknown_language(tmp_path: Path) -> None:
     """
     The file extension of the temporary file is `.txt` for any unknown
