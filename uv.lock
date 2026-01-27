@@ -574,7 +574,7 @@ requires-dist = [
     { name = "sphinx-substitution-extensions", marker = "extra == 'dev'", specifier = "==2026.1.12" },
     { name = "sphinxcontrib-spelling", marker = "extra == 'dev'", specifier = "==8.0.2" },
     { name = "sybil", specifier = ">=9.3.0,<10.0.0" },
-    { name = "sybil-extras", specifier = "==2026.1.22" },
+    { name = "sybil-extras", git = "https://github.com/adamtheturtle/sybil-extras?rev=adamtheturtle%2Fdoccmd-249" },
     { name = "ty", marker = "extra == 'dev'", specifier = "==0.0.14" },
     { name = "types-pygments", marker = "extra == 'dev'", specifier = "==2.19.0.20251121" },
     { name = "vulture", marker = "extra == 'dev'", specifier = "==2.14" },
@@ -2275,17 +2275,13 @@ wheels = [
 
 [[package]]
 name = "sybil-extras"
-version = "2026.1.22"
-source = { registry = "https://pypi.org/simple" }
+version = "2026.1.23.dev24+g70759b466"
+source = { git = "https://github.com/adamtheturtle/sybil-extras?rev=adamtheturtle%2Fdoccmd-249#70759b466c9b5e6c31246e8240528eded17b9f6b" }
 dependencies = [
     { name = "beartype" },
     { name = "markdown-it-py", version = "3.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "markdown-it-py", version = "4.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "sybil" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/b0/7b/972027f1594400d9671c3b26eb38ef41fefe114efda1579f99240a063072/sybil_extras-2026.1.22.tar.gz", hash = "sha256:d063567d694946ad1e093dd96a6c512bf80d04f46e9a747080dcb043c2128c5d", size = 74720, upload-time = "2026-01-22T12:46:24.191Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/9f/df/c62aad2dabb3d47c7ce020f8bc93eb664346127722bc4138f261febea828/sybil_extras-2026.1.22-py2.py3-none-any.whl", hash = "sha256:6d2688495bd071230460d0a91e1ce1e84a2f800501c9e6fbde3d7f2825a3bca1", size = 57624, upload-time = "2026-01-22T12:46:22.76Z" },
 ]
 
 [[package]]

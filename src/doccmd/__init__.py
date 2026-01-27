@@ -7,6 +7,7 @@ import shlex
 import subprocess
 import sys
 import textwrap
+import uuid
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
@@ -55,6 +56,59 @@ except PackageNotFoundError:  # pragma: no cover
     from ._setuptools_scm_version import __version__
 
 T = TypeVar("T")
+
+
+@beartype
+class _PatternBasedFilenameGenerator:
+    """
+    Generate temporary file paths using a user-provided pattern.
+
+    Pattern placeholders:
+
+    - {prefix}: The temporary file name prefix
+    - {source}: The sanitized source document filename
+    - {line}: The line number of the code block
+    - {unique}: A unique 4-character hex identifier
+    - {ext}: The file extension including the dot (e.g., ".py")
+    """
+
+    def __init__(
+        self,
+        *,
+        pattern: str,
+        prefix: str,
+        extension: str,
+    ) -> None:
+        """Initialize the generator.
+
+        Args:
+            pattern: The pattern template for generating filenames.
+            prefix: The temporary file name prefix.
+            extension: The file extension to use (with dot).
+        """
+        self._pattern = pattern
+        self._prefix = prefix
+        self._extension = extension
+
+    def __call__(self, *, example: Example) -> Path:
+        """Generate a temporary file path for an example."""
+        source_path = Path(example.path)
+        # Sanitize the source filename (replace dots and dashes with _)
+        sanitized_source = source_path.stem.replace(".", "_").replace("-", "_")
+
+        # Generate unique identifier
+        unique = uuid.uuid4().hex[:4]
+
+        # Format the pattern
+        filename = self._pattern.format(
+            prefix=self._prefix,
+            source=sanitized_source,
+            line=example.line,
+            unique=unique,
+            ext=self._extension,
+        )
+
+        return source_path.parent / filename
 
 
 @beartype
@@ -443,6 +497,7 @@ def _process_file_path(
     write_to_file: bool,
     pad_groups: bool,
     temporary_file_name_prefix: str,
+    temporary_file_name_pattern: str | None,
     given_temporary_file_extension: str | None,
     skip_directives: Iterable[str],
     group_markers: Iterable[str],
@@ -494,6 +549,7 @@ def _process_file_path(
             pad_groups=pad_groups,
             temporary_file_extension=temporary_file_extension,
             temporary_file_name_prefix=temporary_file_name_prefix,
+            temporary_file_name_pattern=temporary_file_name_pattern,
             skip_directives=skip_directives,
             group_markers=group_markers,
             group_file=group_file,
@@ -517,6 +573,7 @@ def _process_file_path(
             pad_groups=pad_groups,
             temporary_file_extension=temporary_file_extension,
             temporary_file_name_prefix=temporary_file_name_prefix,
+            temporary_file_name_pattern=temporary_file_name_pattern,
             skip_directives=skip_directives,
             group_markers=group_markers,
             group_file=group_file,
@@ -637,6 +694,7 @@ def _get_sybil(
     code_block_languages: Sequence[str],
     temporary_file_extension: str,
     temporary_file_name_prefix: str,
+    temporary_file_name_pattern: str | None,
     pad_temporary_file: bool,
     write_to_file: bool,
     pad_groups: bool,
@@ -667,6 +725,15 @@ def _get_sybil(
 
     tempfile_suffixes = (temporary_file_extension,)
 
+    # Create a filename generator if a pattern is provided
+    temp_filename_generator: _PatternBasedFilenameGenerator | None = None
+    if temporary_file_name_pattern is not None:
+        temp_filename_generator = _PatternBasedFilenameGenerator(
+            pattern=temporary_file_name_pattern,
+            prefix=temporary_file_name_prefix,
+            extension=temporary_file_extension,
+        )
+
     shell_command_evaluator = ShellCommandEvaluator(
         args=args,
         tempfile_suffixes=tempfile_suffixes,
@@ -676,6 +743,7 @@ def _get_sybil(
         newline=newline,
         use_pty=use_pty,
         encoding=encoding,
+        temp_filename_generator=temp_filename_generator,
     )
 
     shell_command_group_evaluator = ShellCommandEvaluator(
@@ -689,6 +757,7 @@ def _get_sybil(
         use_pty=use_pty,
         encoding=encoding,
         on_modify=_raise_group_modified,
+        temp_filename_generator=temp_filename_generator,
     )
 
     evaluator = MultiEvaluator(
@@ -989,6 +1058,23 @@ def _get_sybil(
         ),
     ),
     cloup.option(
+        "temporary_file_name_pattern",
+        "--temporary-file-name-pattern",
+        type=str,
+        required=False,
+        help=(
+            "A pattern for the temporary file name. "
+            "When set, this takes precedence over the default naming scheme. "
+            "Available placeholders: "
+            "{prefix} (the --temporary-file-name-prefix value), "
+            "{source} (sanitized source filename), "
+            "{line} (line number), "
+            "{unique} (4-char unique hex), "
+            "{ext} (file extension with dot). "
+            "Example: '{prefix}_{source}_L{line}{ext}'"
+        ),
+    ),
+    cloup.option(
         "--pad-file/--no-pad-file",
         is_flag=True,
         default=True,
@@ -1230,6 +1316,7 @@ def main(
     document_paths: Sequence[Path],
     temporary_file_extension: str | None,
     temporary_file_name_prefix: str,
+    temporary_file_name_pattern: str | None,
     pad_file: bool,
     write_to_file: bool,
     pad_groups: bool,
@@ -1338,6 +1425,7 @@ def main(
                         write_to_file=write_to_file,
                         pad_groups=pad_groups,
                         temporary_file_name_prefix=temporary_file_name_prefix,
+                        temporary_file_name_pattern=temporary_file_name_pattern,
                         given_temporary_file_extension=given_temporary_file_extension,
                         skip_directives=skip_directives,
                         group_markers=group_markers,
@@ -1368,6 +1456,7 @@ def main(
                     write_to_file=write_to_file,
                     pad_groups=pad_groups,
                     temporary_file_name_prefix=temporary_file_name_prefix,
+                    temporary_file_name_pattern=temporary_file_name_pattern,
                     given_temporary_file_extension=given_temporary_file_extension,
                     skip_directives=skip_directives,
                     group_markers=group_markers,

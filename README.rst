@@ -259,6 +259,9 @@ For example, to ignore a rule in all files created by ``doccmd`` in a ``ruff`` c
       "S105",
    ]
 
+For full control over temporary file names, use the ``--temporary-file-name-pattern`` option with placeholders like ``{prefix}``, ``{source}``, ``{line}``, ``{unique}``, and ``{ext}``.
+See the `full documentation <https://adamtheturtle.github.io/doccmd/>`__ for details.
+
 Running commands in parallel
 ----------------------------
 

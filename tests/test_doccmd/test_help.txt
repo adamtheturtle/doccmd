@@ -116,6 +116,15 @@ Temporary file options:
                                   distinguishing files created by this tool from
                                   other files, e.g. for ignoring in linter
                                   configurations.  [default: doccmd; required]
+  --temporary-file-name-pattern TEXT
+                                  A pattern for the temporary file name. When
+                                  set, this takes precedence over the default
+                                  naming scheme. Available placeholders:
+                                  {prefix} (the --temporary-file-name-prefix
+                                  value), {source} (sanitized source filename),
+                                  {line} (line number), {unique} (4-char unique
+                                  hex), {ext} (file extension with dot).
+                                  Example: '{prefix}_{source}_L{line}{ext}'
   --pad-file / --no-pad-file      Run the command against a temporary file
                                   padded with newlines. This is useful for
                                   matching line numbers from the output to the

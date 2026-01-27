@@ -27,3 +27,28 @@ To ignore a rule in files created by ``doccmd`` when using ``pylint``, use `pyli
    per-file-ignores = [
       "*doccmd_*.py:invalid-name",
    ]
+
+Custom file name patterns
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For full control over the temporary file names, use the :option:`doccmd --temporary-file-name-pattern` option.
+This allows you to specify a pattern with placeholders that will be replaced when creating the temporary file.
+
+Available placeholders:
+
+- ``{prefix}``: The value of :option:`doccmd --temporary-file-name-prefix` (default ``doccmd``)
+- ``{source}``: The sanitized source document filename (dots and dashes replaced with underscores)
+- ``{line}``: The line number of the code block
+- ``{unique}``: A 4-character unique hex identifier to avoid collisions
+- ``{ext}``: The file extension including the dot (e.g., ``.py``)
+
+For example, to create files named like ``myproject_README_L42.py``:
+
+.. code-block:: shell
+
+   $ doccmd --language=python --command="mypy" \
+       --temporary-file-name-pattern="{prefix}_{source}_L{line}{ext}" \
+       --temporary-file-name-prefix="myproject" \
+       README.md
+
+When a pattern is specified, it takes precedence over the default naming scheme.
