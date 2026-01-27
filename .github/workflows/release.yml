@@ -246,7 +246,7 @@ jobs:
         with:
           nuitka-version: main
           script-name: bin/doccmd-wrapper.py
-          mode: onefile
+          onefile: true
           output-file: doccmd-linux
 
       - name: Upload Linux binary artifact
@@ -328,7 +328,7 @@ jobs:
         with:
           nuitka-version: main
           script-name: bin/doccmd-wrapper.py
-          mode: onefile
+          onefile: true
           output-file: doccmd-macos
 
       - name: Upload macOS binary to release
@@ -372,7 +372,7 @@ jobs:
         with:
           nuitka-version: main
           script-name: bin/doccmd-wrapper.py
-          mode: onefile
+          onefile: true
           output-file: doccmd-windows
 
       - name: Upload Windows binary to release
