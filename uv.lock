@@ -548,7 +548,7 @@ requires-dist = [
     { name = "mypy", extras = ["faster-cache"], marker = "extra == 'dev'", specifier = "==1.19.1" },
     { name = "mypy-strict-kwargs", marker = "extra == 'dev'", specifier = "==2026.1.12" },
     { name = "prek", marker = "extra == 'dev'", specifier = "==0.3.0" },
-    { name = "pydocstringformatter", marker = "extra == 'dev'", specifier = "==0.7.3" },
+    { name = "pydocstringformatter", marker = "extra == 'dev'", specifier = "==0.7.5" },
     { name = "pydocstyle", marker = "extra == 'dev'", specifier = "==6.3" },
     { name = "pygments", specifier = ">=2.18.0" },
     { name = "pygments", marker = "extra == 'dev'", specifier = "==2.19.2" },
@@ -1425,14 +1425,14 @@ wheels = [
 
 [[package]]
 name = "pydocstringformatter"
-version = "0.7.3"
+version = "0.7.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "tomli", marker = "python_full_version < '3.11'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/b3/51/5c21963eb7bdba245ec808fdb0ef8abc0cd87ef674f2b6ba1fd76f3a0ffa/pydocstringformatter-0.7.3.tar.gz", hash = "sha256:dfcc07bec1706803d563275e282ef9e629b02dc19983ec6778d07a9f500bb62b", size = 24024, upload-time = "2023-01-02T15:09:30.152Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b0/37/f6d5ff68893c8b4ae194d6dd9df31be2cceacfae5256c840b9e216fd20de/pydocstringformatter-0.7.5.tar.gz", hash = "sha256:e9cbd134d6279360fd2bcaad94680cec02aa20a22560375c5ffd495fcfbcf92d", size = 30474, upload-time = "2025-07-12T10:12:46.089Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/3a/38/b3a99e9cc66941e044ad3d40e90a72b1191925b8af13e3e4d8edc5c0eb87/pydocstringformatter-0.7.3-py3-none-any.whl", hash = "sha256:3654f52c49fc729b49712d1e7c49384dfd253bdffeda4939e79dab31491c563f", size = 31287, upload-time = "2023-01-02T15:09:28.904Z" },
+    { url = "https://files.pythonhosted.org/packages/81/ed/e70e413b537b7809badcd275a5f050301dafbe54efd1ae9d392ed2943c40/pydocstringformatter-0.7.5-py3-none-any.whl", hash = "sha256:7daed355f11244f64571d119e49e7328365ea9b545f88256a47b550f213d23eb", size = 31433, upload-time = "2025-07-12T10:12:44.619Z" },
 ]
 
 [[package]]
