@@ -394,6 +394,11 @@ enableTypeIgnoreComments = false
 reportUnnecessaryTypeIgnoreComment = true
 typeCheckingMode = "strict"
 
+[tool.mypy_strict_kwargs]
+# `relative_to`'s `other` parameter is positional-only on Python 3.14+.
+# We need to support older versions, so we ignore it.
+ignore_names = [ "pathlib.Path.relative_to" ]
+
 [tool.pydocstringformatter]
 write = true
 split-summary-body = false
