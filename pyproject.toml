@@ -30,6 +30,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 dynamic = [
     "version",
@@ -355,7 +356,7 @@ pep621_dev_dependency_groups = [
 [tool.pyproject-fmt]
 indent = 4
 keep_full_version = true
-max_supported_python = "3.13"
+max_supported_python = "3.14"
 
 [tool.pytest.ini_options]
 
@@ -392,6 +393,11 @@ plugins = [
 enableTypeIgnoreComments = false
 reportUnnecessaryTypeIgnoreComment = true
 typeCheckingMode = "strict"
+
+[tool.mypy_strict_kwargs]
+# `relative_to`'s `other` parameter is positional-only on Python 3.14+.
+# We need to support older versions, so we ignore it.
+ignore_names = [ "pathlib.Path.relative_to" ]
 
 [tool.pydocstringformatter]
 write = true
