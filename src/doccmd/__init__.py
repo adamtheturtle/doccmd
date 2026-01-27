@@ -90,9 +90,16 @@ class _TempFilePathMaker:
         Returns:
             A path to the temporary file.
         """
-        unique_id = uuid4().hex[:8]
-        filename = f"{self._prefix}_{unique_id}{self._suffix}"
-        return Path(example.path).parent / filename
+        source_path = Path(example.path)
+        # Sanitize the source filename (replace dots and dashes with _)
+        # Use .name (not .stem) to include the extension in the sanitized name
+        sanitized_source = source_path.name.replace(".", "_").replace("-", "_")
+        unique_id = uuid4().hex[:4]
+        filename = (
+            f"{self._prefix}_{sanitized_source}_l{example.line}__{unique_id}_"
+            f"{self._suffix}"
+        )
+        return source_path.parent / filename
 
 
 @beartype
