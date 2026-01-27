@@ -14,6 +14,7 @@ from enum import Enum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from typing import TypeVar
+from uuid import uuid4
 
 import charset_normalizer
 import click
@@ -55,6 +56,43 @@ except PackageNotFoundError:  # pragma: no cover
     from ._setuptools_scm_version import __version__
 
 T = TypeVar("T")
+
+
+@beartype
+class _TempFilePathMaker:
+    """Create temporary file paths for examples."""
+
+    def __init__(
+        self,
+        *,
+        prefix: str,
+        suffix: str,
+    ) -> None:
+        """Initialize with the prefix and suffix.
+
+        Args:
+            prefix: The prefix for the temporary file name.
+            suffix: The suffix (extension) for the temporary file.
+        """
+        self._prefix = prefix
+        self._suffix = suffix
+
+    def __call__(
+        self,
+        *,
+        example: Example,
+    ) -> Path:
+        """Create a temporary file path for an example.
+
+        Args:
+            example: The example to create a temporary file for.
+
+        Returns:
+            A path to the temporary file.
+        """
+        unique_id = uuid4().hex[:8]
+        filename = f"{self._prefix}_{unique_id}{self._suffix}"
+        return Path(example.path).parent / filename
 
 
 @beartype
@@ -665,14 +703,16 @@ def _get_sybil(
     all_group_markers = {*group_markers, *default_group_markers}
     group_directives = _get_group_directives(markers=all_group_markers)
 
-    tempfile_suffixes = (temporary_file_extension,)
+    temp_file_path_maker = _TempFilePathMaker(
+        prefix=temporary_file_name_prefix,
+        suffix=temporary_file_extension,
+    )
 
     shell_command_evaluator = ShellCommandEvaluator(
         args=args,
-        tempfile_suffixes=tempfile_suffixes,
+        temp_file_path_maker=temp_file_path_maker,
         pad_file=pad_temporary_file,
         write_to_file=write_to_file,
-        tempfile_name_prefix=temporary_file_name_prefix,
         newline=newline,
         use_pty=use_pty,
         encoding=encoding,
@@ -680,11 +720,10 @@ def _get_sybil(
 
     shell_command_group_evaluator = ShellCommandEvaluator(
         args=args,
-        tempfile_suffixes=tempfile_suffixes,
+        temp_file_path_maker=temp_file_path_maker,
         pad_file=pad_temporary_file,
         # We do not write to file for grouped code blocks.
         write_to_file=False,
-        tempfile_name_prefix=temporary_file_name_prefix,
         newline=newline,
         use_pty=use_pty,
         encoding=encoding,
