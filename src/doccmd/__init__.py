@@ -266,8 +266,8 @@ def _find_git_root(start_path: Path) -> Path | None:
         if (current / ".git").exists():
             return current
         current = current.parent
-    # Check root directory too
-    if (current / ".git").exists():
+    # Check root directory too (e.g., if git repo is at filesystem root)
+    if (current / ".git").exists():  # pragma: no cover
         return current
     return None
 

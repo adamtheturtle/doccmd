@@ -5825,3 +5825,58 @@ def test_respect_gitignore_nested_gitignore(tmp_path: Path) -> None:
     assert "root_block" in result.stdout
     assert "subdir_included_block" in result.stdout
     assert result.stderr == ""
+
+
+def test_respect_gitignore_caching(tmp_path: Path) -> None:
+    """
+    When the same directory is passed via different paths that resolve
+    to the same location, the gitignore spec is cached and reused.
+    """
+    runner = CliRunner()
+
+    # Initialize a git repository
+    subprocess.run(
+        args=["git", "init"],
+        cwd=tmp_path,
+        check=True,
+        capture_output=True,
+    )
+
+    # Create a .gitignore file
+    gitignore_file = tmp_path / ".gitignore"
+    gitignore_file.write_text(data="ignored/\n", encoding="utf-8")
+
+    # Create a file to process
+    rst_file = tmp_path / "example.rst"
+    rst_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            cached_test_block
+        """,
+    )
+    rst_file.write_text(data=rst_content, encoding="utf-8")
+
+    # Create a symlink to the same directory to exercise the caching code path
+    symlink_path = tmp_path.parent / "symlink_to_dir"
+    symlink_path.symlink_to(target=tmp_path)
+
+    arguments = [
+        "--language",
+        "python",
+        "--no-pad-file",
+        "--command",
+        "cat",
+        str(object=tmp_path),
+        str(object=symlink_path),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, result.stderr
+    # The file should be processed (de-duplicated at the file level)
+    assert "cached_test_block" in result.stdout
+    assert result.stderr == ""
