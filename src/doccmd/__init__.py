@@ -291,7 +291,8 @@ def _get_gitignore_spec(git_root: Path) -> pathspec.PathSpec:
 
     return pathspec.PathSpec.from_lines(
         pattern_factory="gitignore",
-        lines=patterns,
+        # See https://github.com/facebook/pyrefly/issues/1995.
+        lines=patterns,  # pyrefly: ignore[bad-argument-type]
     )
 
 
