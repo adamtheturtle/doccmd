@@ -19,7 +19,6 @@ from uuid import uuid4
 import charset_normalizer
 import click
 import cloup
-import pathspec
 from beartype import beartype
 from click_compose import (
     deduplicate as _deduplicate,
@@ -28,6 +27,9 @@ from click_compose import (
     multi_callback,
     sequence_validator,
 )
+from dulwich.errors import NotGitRepository
+from dulwich.ignore import IgnoreFilterManager
+from dulwich.repo import Repo
 from pygments.lexers import get_all_lexers
 from sybil import Sybil
 from sybil.document import Document
@@ -256,64 +258,24 @@ _validate_file_extensions: _ClickCallback[Sequence[str]] = multi_callback(
 
 
 @beartype
-def _find_git_root(start_path: Path) -> Path | None:
+def _get_ignore_manager(
+    start_path: Path,
+) -> tuple[Path, IgnoreFilterManager] | None:
     """
-    Find the git repository root starting from the given path.
+    Get an IgnoreFilterManager for the git repository containing
+    start_path.
 
-    Returns None if no git repository is found.
+    Returns a tuple of (repo_path, ignore_manager), or None if no git
+    repository is found.
+    Uses dulwich to handle all ignore sources (.gitignore, .git/info/exclude,
+    global gitignore) with correct pattern scoping.
     """
-    current = start_path.resolve()
-    while current != current.parent:
-        if (current / ".git").exists():
-            return current
-        current = current.parent
-    # Check root directory too (e.g., if git repo is at filesystem root)
-    if (current / ".git").exists():  # pragma: no cover
-        return current
-    return None
-
-
-@beartype
-def _get_gitignore_spec(git_root: Path) -> pathspec.PathSpec:
-    """
-    Parse all .gitignore files in the repository and return a PathSpec.
-
-    This recursively finds all .gitignore files in the repository and
-    collects their patterns with proper directory scoping.
-    """
-    patterns: list[str] = []
-
-    # Always ignore .git directory
-    patterns.append(".git/")
-
-    # Walk the repository and find all .gitignore files
-    for gitignore_path in git_root.rglob(pattern=".gitignore"):
-        gitignore_content = gitignore_path.read_text(encoding="utf-8")
-        # Get the directory containing this .gitignore relative to git root
-        gitignore_dir = gitignore_path.parent.relative_to(git_root)
-        gitignore_dir_str = str(object=gitignore_dir)
-
-        for line in gitignore_content.splitlines():
-            # Skip empty lines and comments
-            stripped = line.strip()
-            if not stripped or stripped.startswith("#"):
-                patterns.append(line)
-                continue
-
-            # Prefix patterns with the directory containing the .gitignore
-            # so they only match files in that directory tree
-            if gitignore_dir_str == ".":
-                # Root .gitignore - no prefix needed
-                patterns.append(line)
-            else:
-                # Nested .gitignore - prefix with directory path
-                patterns.append(f"{gitignore_dir_str}/{line}")
-
-    return pathspec.PathSpec.from_lines(
-        pattern_factory="gitignore",
-        # See https://github.com/facebook/pyrefly/issues/1422.
-        lines=patterns,  # pyrefly: ignore[bad-argument-type]
-    )
+    try:
+        repo = Repo.discover(start=str(object=start_path))
+        repo_path = Path(repo.path).resolve()
+        return (repo_path, IgnoreFilterManager.from_repo(repo=repo))
+    except NotGitRepository:
+        return None
 
 
 @beartype
@@ -331,26 +293,26 @@ def _get_file_paths(
     """
     file_paths: dict[Path, bool] = {}
 
-    # Cache gitignore specs keyed by git root to avoid recomputing
+    # Cache ignore managers keyed by repo path to avoid recomputing
     # for multiple subdirectories in the same repository
-    gitignore_specs: dict[Path, pathspec.PathSpec] = {}
+    ignore_managers: dict[Path, IgnoreFilterManager] = {}
 
     for path in document_paths:
         if path.is_file():
             file_paths[path] = True
             continue
 
-        # Find git root for this directory if respecting gitignore
-        gitignore_spec: pathspec.PathSpec | None = None
-        git_root: Path | None = None
+        # Get ignore manager for this directory if respecting gitignore
+        ignore_manager: IgnoreFilterManager | None = None
+        repo_path: Path | None = None
         if respect_gitignore:
-            git_root = _find_git_root(start_path=path.resolve())
-            if git_root is not None:
-                if git_root in gitignore_specs:
-                    gitignore_spec = gitignore_specs[git_root]
+            result = _get_ignore_manager(start_path=path.resolve())
+            if result is not None:
+                repo_path, ignore_manager = result
+                if repo_path in ignore_managers:
+                    ignore_manager = ignore_managers[repo_path]
                 else:
-                    gitignore_spec = _get_gitignore_spec(git_root=git_root)
-                    gitignore_specs[git_root] = gitignore_spec
+                    ignore_managers[repo_path] = ignore_manager
 
         for file_suffix in file_suffixes:
             new_file_paths = (
@@ -370,14 +332,14 @@ def _get_file_paths(
                     continue
 
                 # Check gitignore if enabled
-                if gitignore_spec is not None and git_root is not None:
+                if ignore_manager is not None and repo_path is not None:
                     resolved_file = new_file_path.resolve()
                     # Skip gitignore check for symlinks pointing outside the
                     # git repository
-                    if resolved_file.is_relative_to(git_root):
-                        relative_path = resolved_file.relative_to(git_root)
+                    if resolved_file.is_relative_to(repo_path):
+                        relative_path = resolved_file.relative_to(repo_path)
                         relative_path_str = str(object=relative_path)
-                        if gitignore_spec.match_file(file=relative_path_str):
+                        if ignore_manager.is_ignored(path=relative_path_str):
                             continue
 
                 file_paths[new_file_path] = True

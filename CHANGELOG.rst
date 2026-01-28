@@ -9,6 +9,7 @@ Next
 - Add ``--respect-gitignore`` / ``--no-respect-gitignore`` option to respect ``.gitignore`` files when discovering files in directories.
   This is enabled by default.
   Files passed directly are not affected by this option.
+  This uses `dulwich <https://www.dulwich.io/>`__ and respects ``.gitignore``, ``.git/info/exclude``, and global gitignore files.
 
 2026.01.27.4
 ------------
