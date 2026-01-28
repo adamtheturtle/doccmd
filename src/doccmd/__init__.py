@@ -58,6 +58,9 @@ except PackageNotFoundError:  # pragma: no cover
 T = TypeVar("T")
 
 
+_DEFAULT_TEMPLATE = "{prefix}_{source}_l{line}__{unique}_{suffix}"
+
+
 @beartype
 class _TempFilePathMaker:
     """Create temporary file paths for examples."""
@@ -67,15 +70,18 @@ class _TempFilePathMaker:
         *,
         prefix: str,
         suffix: str,
+        template: str,
     ) -> None:
-        """Initialize with the prefix and suffix.
+        """Initialize with the prefix, suffix, and template.
 
         Args:
             prefix: The prefix for the temporary file name.
             suffix: The suffix (extension) for the temporary file.
+            template: The template for the temporary file name.
         """
         self._prefix = prefix
         self._suffix = suffix
+        self._template = template
 
     def __call__(
         self,
@@ -95,9 +101,12 @@ class _TempFilePathMaker:
         # Use .name (not .stem) to include the extension in the sanitized name
         sanitized_source = source_path.name.replace(".", "_").replace("-", "_")
         unique_id = uuid4().hex[:4]
-        filename = (
-            f"{self._prefix}_{sanitized_source}_l{example.line}__{unique_id}_"
-            f"{self._suffix}"
+        filename = self._template.format(
+            prefix=self._prefix,
+            source=sanitized_source,
+            line=example.line,
+            unique=unique_id,
+            suffix=self._suffix,
         )
         return source_path.parent / filename
 
@@ -153,6 +162,58 @@ def _validate_file_extension_or_none(
     if value is None:
         return value
     return _validate_file_extension(ctx=ctx, param=param, value=value)
+
+
+@beartype
+def _validate_template(
+    ctx: click.Context | None,
+    param: click.Parameter | None,
+    value: str,
+) -> str:
+    """Validate that the template is valid and contains required
+    placeholders.
+
+    Args:
+        ctx: The Click context.
+        param: The Click parameter.
+        value: The template string to validate.
+
+    Returns:
+        The validated template string.
+
+    Raises:
+        click.BadParameter: If the template is invalid.
+    """
+    valid_placeholders = {"prefix", "source", "line", "unique", "suffix"}
+    # Try to format the template to catch invalid placeholders
+    try:
+        value.format(
+            prefix="test",
+            source="test",
+            line=1,
+            unique="test",
+            suffix=".txt",
+        )
+    except KeyError as exc:
+        valid_names = ", ".join(sorted(valid_placeholders))
+        message = (
+            f"Invalid placeholder in template: {exc}. "
+            f"Valid placeholders are: {{{valid_names}}}."
+        )
+        raise click.BadParameter(
+            message=message,
+            ctx=ctx,
+            param=param,
+        ) from exc
+
+    if "{suffix}" not in value:
+        message = (
+            "Template must contain '{suffix}' placeholder "
+            "for the file extension."
+        )
+        raise click.BadParameter(message=message, ctx=ctx, param=param)
+
+    return value
 
 
 @beartype
@@ -488,6 +549,7 @@ def _process_file_path(
     write_to_file: bool,
     pad_groups: bool,
     temporary_file_name_prefix: str,
+    temporary_file_name_template: str,
     given_temporary_file_extension: str | None,
     skip_directives: Iterable[str],
     group_markers: Iterable[str],
@@ -539,6 +601,7 @@ def _process_file_path(
             pad_groups=pad_groups,
             temporary_file_extension=temporary_file_extension,
             temporary_file_name_prefix=temporary_file_name_prefix,
+            temporary_file_name_template=temporary_file_name_template,
             skip_directives=skip_directives,
             group_markers=group_markers,
             group_file=group_file,
@@ -562,6 +625,7 @@ def _process_file_path(
             pad_groups=pad_groups,
             temporary_file_extension=temporary_file_extension,
             temporary_file_name_prefix=temporary_file_name_prefix,
+            temporary_file_name_template=temporary_file_name_template,
             skip_directives=skip_directives,
             group_markers=group_markers,
             group_file=group_file,
@@ -682,6 +746,7 @@ def _get_sybil(
     code_block_languages: Sequence[str],
     temporary_file_extension: str,
     temporary_file_name_prefix: str,
+    temporary_file_name_template: str,
     pad_temporary_file: bool,
     write_to_file: bool,
     pad_groups: bool,
@@ -713,6 +778,7 @@ def _get_sybil(
     temp_file_path_maker = _TempFilePathMaker(
         prefix=temporary_file_name_prefix,
         suffix=temporary_file_extension,
+        template=temporary_file_name_template,
     )
 
     shell_command_evaluator = ShellCommandEvaluator(
@@ -1035,6 +1101,25 @@ def _get_sybil(
         ),
     ),
     cloup.option(
+        "temporary_file_name_template",
+        "--temporary-file-name-template",
+        type=str,
+        default=_DEFAULT_TEMPLATE,
+        show_default=True,
+        required=True,
+        callback=_validate_template,
+        help=(
+            "The template for the temporary file name. "
+            "Use placeholders: "
+            "{prefix} (from --temporary-file-name-prefix), "
+            "{source} (sanitized source filename), "
+            "{line} (line number), "
+            "{unique} (unique identifier), "
+            "{suffix} (file extension). "
+            "Example: '{prefix}_{unique}{suffix}' produces 'doccmd_a1b2.py'."
+        ),
+    ),
+    cloup.option(
         "--pad-file/--no-pad-file",
         is_flag=True,
         default=True,
@@ -1276,6 +1361,7 @@ def main(
     document_paths: Sequence[Path],
     temporary_file_extension: str | None,
     temporary_file_name_prefix: str,
+    temporary_file_name_template: str,
     pad_file: bool,
     write_to_file: bool,
     pad_groups: bool,
@@ -1384,6 +1470,7 @@ def main(
                         write_to_file=write_to_file,
                         pad_groups=pad_groups,
                         temporary_file_name_prefix=temporary_file_name_prefix,
+                        temporary_file_name_template=temporary_file_name_template,
                         given_temporary_file_extension=given_temporary_file_extension,
                         skip_directives=skip_directives,
                         group_markers=group_markers,
@@ -1414,6 +1501,7 @@ def main(
                     write_to_file=write_to_file,
                     pad_groups=pad_groups,
                     temporary_file_name_prefix=temporary_file_name_prefix,
+                    temporary_file_name_template=temporary_file_name_template,
                     given_temporary_file_extension=given_temporary_file_extension,
                     skip_directives=skip_directives,
                     group_markers=group_markers,

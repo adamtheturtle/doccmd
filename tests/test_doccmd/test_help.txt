@@ -116,6 +116,17 @@ Temporary file options:
                                   distinguishing files created by this tool from
                                   other files, e.g. for ignoring in linter
                                   configurations.  [default: doccmd; required]
+  --temporary-file-name-template TEXT
+                                  The template for the temporary file name. Use
+                                  placeholders: {prefix} (from --temporary-file-
+                                  name-prefix), {source} (sanitized source
+                                  filename), {line} (line number), {unique}
+                                  (unique identifier), {suffix} (file
+                                  extension). Example:
+                                  '{prefix}_{unique}{suffix}' produces
+                                  'doccmd_a1b2.py'.  [default:
+                                  {prefix}_{source}_l{line}__{unique}_{suffix};
+                                  required]
   --pad-file / --no-pad-file      Run the command against a temporary file
                                   padded with newlines. This is useful for
                                   matching line numbers from the output to the
