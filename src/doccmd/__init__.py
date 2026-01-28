@@ -354,7 +354,8 @@ def _get_file_paths(
                     relative_path = new_file_path.resolve().relative_to(
                         git_root
                     )
-                    if gitignore_spec.match_file(file=str(relative_path)):
+                    relative_path_str = str(relative_path)
+                    if gitignore_spec.match_file(file=relative_path_str):
                         continue
 
                 file_paths[new_file_path] = True
