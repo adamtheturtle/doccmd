@@ -170,12 +170,14 @@ def _validate_template(
     """Validate that the template is valid and contains required
     placeholders.
     """
+    # Use a unique marker for suffix that won't appear in user templates
+    suffix_marker = f".{uuid4().hex}"
     placeholder_values = {
         "prefix": "test",
         "source": "test",
         "line": 1,
         "unique": "test",
-        "suffix": ".txt",
+        "suffix": suffix_marker,
     }
     # Try to format the template to catch invalid placeholders
     try:
@@ -200,7 +202,7 @@ def _validate_template(
         ) from exc
 
     # Verify suffix placeholder is actually used (not escaped as {{suffix}})
-    if ".txt" not in formatted:
+    if suffix_marker not in formatted:
         message = (
             "Template must contain '{suffix}' placeholder "
             "for the file extension."

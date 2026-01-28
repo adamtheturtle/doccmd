@@ -846,6 +846,7 @@ def test_invalid_template_placeholder(tmp_path: Path) -> None:
     argvalues=[
         pytest.param("{prefix}_{unique}", id="missing-suffix"),
         pytest.param("{prefix}_{{suffix}}", id="escaped-suffix"),
+        pytest.param("{prefix}_{unique}.txt", id="literal-extension"),
     ],
 )
 def test_template_requires_suffix_placeholder(
