@@ -892,6 +892,68 @@ def test_template_requires_suffix_placeholder(tmp_path: Path) -> None:
     assert "suffix" in result.output.lower()
 
 
+def test_template_escaped_suffix_rejected(tmp_path: Path) -> None:
+    """An error is raised if suffix is escaped as {{suffix}} instead of
+    used.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            x = 2 + 2
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--temporary-file-name-template",
+        "{prefix}_{{suffix}}",
+        "--command",
+        "echo",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code != 0
+    assert "suffix" in result.output.lower()
+
+
+def test_template_malformed_raises_error(tmp_path: Path) -> None:
+    """An error is raised for malformed templates."""
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            x = 2 + 2
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--temporary-file-name-template",
+        "{prefix}_{suffix",
+        "--command",
+        "echo",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code != 0
+    assert "malformed" in result.output.lower()
+
+
 def test_temporary_file_includes_source_name(tmp_path: Path) -> None:
     """The temporary file name includes the sanitized source file name."""
     runner = CliRunner()

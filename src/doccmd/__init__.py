@@ -173,18 +173,18 @@ def _validate_template(
     """Validate that the template is valid and contains required
     placeholders.
     """
-    valid_placeholders = {"prefix", "source", "line", "unique", "suffix"}
+    placeholder_values = {
+        "prefix": "test",
+        "source": "test",
+        "line": 1,
+        "unique": "test",
+        "suffix": ".txt",
+    }
     # Try to format the template to catch invalid placeholders
     try:
-        value.format(
-            prefix="test",
-            source="test",
-            line=1,
-            unique="test",
-            suffix=".txt",
-        )
+        formatted = value.format(**placeholder_values)
     except KeyError as exc:
-        valid_names = ", ".join(sorted(valid_placeholders))
+        valid_names = ", ".join(sorted(placeholder_values.keys()))
         message = (
             f"Invalid placeholder in template: {exc}. "
             f"Valid placeholders are: {{{valid_names}}}."
@@ -194,8 +194,16 @@ def _validate_template(
             ctx=ctx,
             param=param,
         ) from exc
+    except (ValueError, IndexError) as exc:
+        message = f"Malformed template: {exc}"
+        raise click.BadParameter(
+            message=message,
+            ctx=ctx,
+            param=param,
+        ) from exc
 
-    if "{suffix}" not in value:
+    # Verify suffix placeholder is actually used (not escaped as {{suffix}})
+    if ".txt" not in formatted:
         message = (
             "Template must contain '{suffix}' placeholder "
             "for the file extension."
