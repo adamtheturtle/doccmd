@@ -172,17 +172,6 @@ def _validate_template(
 ) -> str:
     """Validate that the template is valid and contains required
     placeholders.
-
-    Args:
-        ctx: The Click context.
-        param: The Click parameter.
-        value: The template string to validate.
-
-    Returns:
-        The validated template string.
-
-    Raises:
-        click.BadParameter: If the template is invalid.
     """
     valid_placeholders = {"prefix", "source", "line", "unique", "suffix"}
     # Try to format the template to catch invalid placeholders
