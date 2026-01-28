@@ -12,12 +12,12 @@ By default, files are named using the pattern ``{prefix}_{source}_l{line}__{uniq
 - ``{unique}`` is a short unique identifier
 - ``{suffix}`` is the file extension
 
-For example, a Python code block on line 99 of ``README.rst`` would create a file named ``doccmd_README_rst_l99__a1b2_.py``.
+For example, a Python code block on line 99 of :file:`README.rst` would create a file named :file:`doccmd_README_rst_l99__a1b2_.py`.
 
 You can customize the file name format using the :option:`doccmd --temporary-file-name-template` option.
 This is useful for creating simpler patterns for linter per-file-ignores.
 
-For example, to create simpler file names like ``doccmd_a1b2.py``:
+For example, to create simpler file names like :file:`doccmd_a1b2.py`:
 
 .. code-block:: bash
 
@@ -25,7 +25,7 @@ For example, to create simpler file names like ``doccmd_a1b2.py``:
 
 You can use this information to ignore files in your linter configuration.
 
-To ignore a rule in all files created by ``doccmd`` in a ``ruff`` configuration in ``pyproject.toml``:
+To ignore a rule in all files created by ``doccmd`` in a ``ruff`` configuration in :file:`pyproject.toml`:
 
 .. code-block:: toml
 
@@ -36,7 +36,7 @@ To ignore a rule in all files created by ``doccmd`` in a ``ruff`` configuration 
       "S105",
    ]
 
-To ignore a rule in files created by ``doccmd`` when using ``pylint``, use `pylint-per-file-ignores <https://pypi.org/project/pylint-per-file-ignores/>`_, and a configuration like the following (if using ``pyproject.toml``):
+To ignore a rule in files created by ``doccmd`` when using ``pylint``, use `pylint-per-file-ignores <https://pypi.org/project/pylint-per-file-ignores/>`_, and a configuration like the following (if using :file:`pyproject.toml`):
 
 .. code-block:: toml
 
