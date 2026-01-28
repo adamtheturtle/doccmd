@@ -15,6 +15,7 @@ doccmd
 dockerfile
 dockerfiles
 dulwich
+filesystem
 formatter
 formatters
 gitignore
@@ -46,6 +47,7 @@ repo
 rst
 stderr
 strikethrough
+symlink
 txt
 typeshed
 ubuntu
