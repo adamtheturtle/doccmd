@@ -1,6 +1,7 @@
 """Tests for `doccmd`."""
 
 import os
+import re
 import stat
 import subprocess
 import sys
@@ -753,10 +754,27 @@ def test_given_prefix(tmp_path: Path) -> None:
     assert output_path.name.startswith("myprefix_")
 
 
-def test_custom_template(tmp_path: Path) -> None:
-    """It is possible to specify a custom template for the temporary
-    file.
-    """
+@pytest.mark.parametrize(
+    argnames=("template", "expected_pattern"),
+    argvalues=[
+        pytest.param(
+            "{prefix}_{unique}{suffix}",
+            r"^doccmd_[a-f0-9]{4}\.py$",
+            id="minimal-template",
+        ),
+        pytest.param(
+            "test_{prefix}_{source}_line{line}_{unique}{suffix}",
+            r"^test_doccmd_example_rst_line1_[a-f0-9]{4}\.py$",
+            id="all-placeholders",
+        ),
+    ],
+)
+def test_custom_template(
+    tmp_path: Path,
+    template: str,
+    expected_pattern: str,
+) -> None:
+    """Custom templates produce file names matching expected patterns."""
     runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     content = textwrap.dedent(
@@ -772,7 +790,7 @@ def test_custom_template(tmp_path: Path) -> None:
         "--language",
         "python",
         "--temporary-file-name-template",
-        "{prefix}_{unique}{suffix}",
+        template,
         "--command",
         "echo",
         str(object=rst_file),
@@ -786,50 +804,7 @@ def test_custom_template(tmp_path: Path) -> None:
     assert result.exit_code == 0, (result.stdout, result.stderr)
     output = result.stdout
     output_path = Path(output.strip())
-    # The template should produce files like "doccmd_a1b2.py"
-    # (no source name or line number in the filename)
-    assert output_path.name.startswith("doccmd_")
-    assert output_path.suffix == ".py"
-    # Should not contain the source name or line number
-    assert "example" not in output_path.name
-    assert "_l1__" not in output_path.name
-
-
-def test_custom_template_with_all_placeholders(tmp_path: Path) -> None:
-    """A custom template can use all available placeholders."""
-    runner = CliRunner()
-    rst_file = tmp_path / "example.rst"
-    content = textwrap.dedent(
-        text="""\
-        .. code-block:: python
-
-            x = 2 + 2
-            assert x == 4
-        """,
-    )
-    rst_file.write_text(data=content, encoding="utf-8")
-    arguments = [
-        "--language",
-        "python",
-        "--temporary-file-name-prefix",
-        "custom",
-        "--temporary-file-name-template",
-        "test_{prefix}_{source}_line{line}_{unique}{suffix}",
-        "--command",
-        "echo",
-        str(object=rst_file),
-    ]
-    result = runner.invoke(
-        cli=main,
-        args=arguments,
-        catch_exceptions=False,
-        color=True,
-    )
-    assert result.exit_code == 0, (result.stdout, result.stderr)
-    output = result.stdout
-    output_path = Path(output.strip())
-    assert output_path.name.startswith("test_custom_example_rst_line1_")
-    assert output_path.suffix == ".py"
+    assert re.match(pattern=expected_pattern, string=output_path.name)
 
 
 def test_invalid_template_placeholder(tmp_path: Path) -> None:

@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from enum import Enum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
-from typing import TypeVar
+from typing import Final, TypeVar
 from uuid import uuid4
 
 import charset_normalizer
@@ -58,7 +58,7 @@ except PackageNotFoundError:  # pragma: no cover
 T = TypeVar("T")
 
 
-_DEFAULT_TEMPLATE = "{prefix}_{source}_l{line}__{unique}_{suffix}"
+_DEFAULT_TEMPLATE: Final[str] = "{prefix}_{source}_l{line}__{unique}_{suffix}"
 
 
 @beartype
