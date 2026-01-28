@@ -27,6 +27,9 @@ from click_compose import (
     multi_callback,
     sequence_validator,
 )
+from dulwich.errors import NotGitRepository
+from dulwich.ignore import IgnoreFilterManager
+from dulwich.repo import Repo
 from pygments.lexers import get_all_lexers
 from sybil import Sybil
 from sybil.document import Document
@@ -261,28 +264,72 @@ def _get_file_paths(
     file_suffixes: Iterable[str],
     max_depth: int,
     exclude_patterns: Iterable[str],
+    respect_gitignore: bool,
 ) -> Sequence[Path]:
     """
     Get the file paths from the given document paths (files and
     directories).
     """
     file_paths: dict[Path, bool] = {}
+
+    # Cache ignore managers keyed by repo path to avoid recomputing
+    # for multiple subdirectories in the same repository
+    ignore_managers: dict[Path, IgnoreFilterManager] = {}
+
     for path in document_paths:
         if path.is_file():
             file_paths[path] = True
-        else:
-            for file_suffix in file_suffixes:
-                new_file_paths = (
-                    path_part
-                    for path_part in path.rglob(pattern=f"*{file_suffix}")
-                    if len(path_part.relative_to(path).parts) <= max_depth
-                )
-                for new_file_path in new_file_paths:
-                    if new_file_path.is_file() and not any(
-                        new_file_path.match(path_pattern=pattern)
-                        for pattern in exclude_patterns
-                    ):
+            continue
+
+        # Get ignore manager for this directory if respecting gitignore
+        ignore_manager: IgnoreFilterManager | None = None
+        repo_path: Path | None = None
+        if respect_gitignore:
+            # Check cache first to avoid creating new IgnoreFilterManager
+            # objects for directories in the same repository
+            try:
+                repo = Repo.discover(start=str(object=path.resolve()))
+                repo_path = Path(repo.path).resolve()
+                if repo_path in ignore_managers:
+                    ignore_manager = ignore_managers[repo_path]
+                else:
+                    ignore_manager = IgnoreFilterManager.from_repo(repo=repo)
+                    ignore_managers[repo_path] = ignore_manager
+            except NotGitRepository:
+                pass
+
+        for file_suffix in file_suffixes:
+            new_file_paths = (
+                path_part
+                for path_part in path.rglob(pattern=f"*{file_suffix}")
+                if len(path_part.relative_to(path).parts) <= max_depth
+            )
+            for new_file_path in new_file_paths:
+                if not new_file_path.is_file():
+                    continue
+
+                # Check exclude patterns
+                if any(
+                    new_file_path.match(path_pattern=pattern)
+                    for pattern in exclude_patterns
+                ):
+                    continue
+
+                # Check gitignore if enabled
+                if ignore_manager is not None and repo_path is not None:
+                    resolved_file = new_file_path.resolve()
+                    # Skip gitignore check for symlinks pointing outside the
+                    # git repository
+                    if not resolved_file.is_relative_to(repo_path):
                         file_paths[new_file_path] = True
+                        continue
+                    relative_path = resolved_file.relative_to(repo_path)
+                    relative_path_str = str(object=relative_path)
+                    if ignore_manager.is_ignored(path=relative_path_str):
+                        continue
+
+                file_paths[new_file_path] = True
+
     return tuple(file_paths.keys())
 
 
@@ -1247,6 +1294,18 @@ def _get_sybil(
             "Use forward slashes on all platforms."
         ),
     ),
+    cloup.option(
+        "--respect-gitignore/--no-respect-gitignore",
+        "respect_gitignore",
+        is_flag=True,
+        default=True,
+        show_default=True,
+        help=(
+            "Respect .gitignore files when recursively discovering files "
+            "in directories. "
+            "Files passed directly are not affected by this option."
+        ),
+    ),
 )
 @cloup.option_group(
     "Execution options",
@@ -1375,6 +1434,7 @@ def main(
     norg_suffixes: Sequence[str],
     max_depth: int,
     exclude_patterns: Sequence[str],
+    respect_gitignore: bool,
     fail_on_parse_error: bool,
     fail_on_group_write: bool,
     sphinx_jinja2: bool,
@@ -1421,6 +1481,7 @@ def main(
         file_suffixes=suffix_map.keys(),
         max_depth=max_depth,
         exclude_patterns=exclude_patterns,
+        respect_gitignore=respect_gitignore,
     )
 
     log_command_evaluators = []

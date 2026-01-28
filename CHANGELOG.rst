@@ -6,6 +6,10 @@ Next
 
 - Add ``--temporary-file-name-template`` option for customizing temporary file names.
   This allows simpler patterns for linter per-file-ignores, such as ``doccmd_{unique}{suffix}`` to produce files like ``doccmd_a1b2.py``.
+- Add ``--respect-gitignore`` / ``--no-respect-gitignore`` option to respect ``.gitignore`` files when discovering files in directories.
+  This is enabled by default.
+  Files passed directly are not affected by this option.
+  This uses `dulwich <https://www.dulwich.io/>`__ and respects ``.gitignore``, ``.git/info/exclude``, and global gitignore files.
 
 2026.01.27.4
 ------------
