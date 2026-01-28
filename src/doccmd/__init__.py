@@ -336,11 +336,13 @@ def _get_file_paths(
                     resolved_file = new_file_path.resolve()
                     # Skip gitignore check for symlinks pointing outside the
                     # git repository
-                    if resolved_file.is_relative_to(repo_path):
-                        relative_path = resolved_file.relative_to(repo_path)
-                        relative_path_str = str(object=relative_path)
-                        if ignore_manager.is_ignored(path=relative_path_str):
-                            continue
+                    if not resolved_file.is_relative_to(repo_path):
+                        file_paths[new_file_path] = True
+                        continue
+                    relative_path = resolved_file.relative_to(repo_path)
+                    relative_path_str = str(object=relative_path)
+                    if ignore_manager.is_ignored(path=relative_path_str):
+                        continue
 
                 file_paths[new_file_path] = True
 

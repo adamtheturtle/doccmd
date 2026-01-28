@@ -47,7 +47,10 @@ repo
 rst
 stderr
 strikethrough
+subdirectories
 symlink
+symlinked
+symlinks
 txt
 typeshed
 ubuntu
