@@ -1,6 +1,7 @@
 """Tests for `doccmd`."""
 
 import os
+import re
 import stat
 import subprocess
 import sys
@@ -751,6 +752,195 @@ def test_given_prefix(tmp_path: Path) -> None:
     output = result.stdout
     output_path = Path(output.strip())
     assert output_path.name.startswith("myprefix_")
+
+
+@pytest.mark.parametrize(
+    argnames=("template", "expected_pattern"),
+    argvalues=[
+        pytest.param(
+            "{prefix}_{unique}{suffix}",
+            r"^doccmd_[a-f0-9]{4}\.py$",
+            id="minimal-template",
+        ),
+        pytest.param(
+            "test_{prefix}_{source}_line{line}_{unique}{suffix}",
+            r"^test_doccmd_example_rst_line1_[a-f0-9]{4}\.py$",
+            id="all-placeholders",
+        ),
+    ],
+)
+def test_custom_template(
+    tmp_path: Path,
+    template: str,
+    expected_pattern: str,
+) -> None:
+    """Custom templates produce file names matching expected patterns."""
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            x = 2 + 2
+            assert x == 4
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--temporary-file-name-template",
+        template,
+        "--command",
+        "echo",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    output = result.stdout
+    output_path = Path(output.strip())
+    assert re.match(pattern=expected_pattern, string=output_path.name)
+
+
+def test_invalid_template_placeholder(tmp_path: Path) -> None:
+    """An error is raised for invalid placeholders in the template."""
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            x = 2 + 2
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--temporary-file-name-template",
+        "{prefix}_{invalid}{suffix}",
+        "--command",
+        "echo",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code != 0
+    expected_output = (
+        "Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...\n"
+        "Try 'doccmd --help' for help.\n"
+        "\n"
+        "Error: Invalid value for '--temporary-file-name-template': "
+        "Invalid placeholder in template: 'invalid'. "
+        "Valid placeholders are: {line, prefix, source, suffix, unique}.\n"
+    )
+    assert result.output == expected_output
+
+
+@pytest.mark.parametrize(
+    argnames="template",
+    argvalues=[
+        pytest.param("{prefix}_{unique}", id="missing-suffix"),
+        pytest.param("{prefix}_{{suffix}}", id="escaped-suffix"),
+        pytest.param("{prefix}_{unique}.txt", id="literal-extension"),
+    ],
+)
+def test_template_requires_suffix_placeholder(
+    tmp_path: Path,
+    template: str,
+) -> None:
+    """An error is raised if the template does not use {suffix}."""
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            x = 2 + 2
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--temporary-file-name-template",
+        template,
+        "--command",
+        "echo",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code != 0
+    expected_output = (
+        "Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...\n"
+        "Try 'doccmd --help' for help.\n"
+        "\n"
+        "Error: Invalid value for '--temporary-file-name-template': "
+        "Template must contain '{suffix}' placeholder "
+        "for the file extension.\n"
+    )
+    assert result.output == expected_output
+
+
+@pytest.mark.parametrize(
+    argnames="template",
+    argvalues=[
+        pytest.param("{prefix}_{suffix", id="unclosed-brace"),
+        pytest.param("{prefix.foo}{suffix}", id="attribute-access"),
+        pytest.param("{line[0]}{suffix}", id="item-access"),
+    ],
+)
+def test_template_malformed_raises_error(
+    tmp_path: Path,
+    template: str,
+) -> None:
+    """An error is raised for malformed templates."""
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            x = 2 + 2
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--temporary-file-name-template",
+        template,
+        "--command",
+        "echo",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code != 0
+    # The exact Python error message varies, so check for the prefix
+    expected_prefix = (
+        "Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...\n"
+        "Try 'doccmd --help' for help.\n"
+        "\n"
+        "Error: Invalid value for '--temporary-file-name-template': "
+        "Malformed template:"
+    )
+    assert result.output.startswith(expected_prefix)
 
 
 def test_temporary_file_includes_source_name(tmp_path: Path) -> None:
