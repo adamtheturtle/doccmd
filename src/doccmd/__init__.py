@@ -258,27 +258,6 @@ _validate_file_extensions: _ClickCallback[Sequence[str]] = multi_callback(
 
 
 @beartype
-def _get_ignore_manager(
-    start_path: Path,
-) -> tuple[Path, IgnoreFilterManager] | None:
-    """
-    Get an IgnoreFilterManager for the git repository containing
-    start_path.
-
-    Returns a tuple of (repo_path, ignore_manager), or None if no git
-    repository is found.
-    Uses dulwich to handle all ignore sources (.gitignore, .git/info/exclude,
-    global gitignore) with correct pattern scoping.
-    """
-    try:
-        repo = Repo.discover(start=str(object=start_path))
-        repo_path = Path(repo.path).resolve()
-        return (repo_path, IgnoreFilterManager.from_repo(repo=repo))
-    except NotGitRepository:
-        return None
-
-
-@beartype
 def _get_file_paths(
     *,
     document_paths: Sequence[Path],
@@ -306,13 +285,18 @@ def _get_file_paths(
         ignore_manager: IgnoreFilterManager | None = None
         repo_path: Path | None = None
         if respect_gitignore:
-            result = _get_ignore_manager(start_path=path.resolve())
-            if result is not None:
-                repo_path, ignore_manager = result
+            # Check cache first to avoid creating new IgnoreFilterManager
+            # objects for directories in the same repository
+            try:
+                repo = Repo.discover(start=str(object=path.resolve()))
+                repo_path = Path(repo.path).resolve()
                 if repo_path in ignore_managers:
                     ignore_manager = ignore_managers[repo_path]
                 else:
+                    ignore_manager = IgnoreFilterManager.from_repo(repo=repo)
                     ignore_managers[repo_path] = ignore_manager
+            except NotGitRepository:
+                pass
 
         for file_suffix in file_suffixes:
             new_file_paths = (
