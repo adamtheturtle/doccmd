@@ -395,6 +395,9 @@ enableTypeIgnoreComments = false
 reportUnnecessaryTypeIgnoreComment = true
 typeCheckingMode = "strict"
 
+[tool.ty.rules]
+unused-ignore-comment = "warn"
+
 [tool.mypy_strict_kwargs]
 # `relative_to` and `is_relative_to` have `other` parameter that is
 # positional-only on Python 3.14+.
