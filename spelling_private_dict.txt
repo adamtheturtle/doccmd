@@ -17,6 +17,7 @@ dockerfiles
 dulwich
 formatter
 formatters
+gitignore
 gzip
 homebrew
 lexing
@@ -35,11 +36,13 @@ pragma
 pre
 py
 pyperclip
+pyrefly
 pyright
 pytest
 reStructuredText
 reco
 recursing
+repo
 rst
 stderr
 strikethrough

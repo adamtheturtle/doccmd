@@ -317,48 +317,47 @@ def _get_file_paths(
     for path in document_paths:
         if path.is_file():
             file_paths[path] = True
-        else:
-            # Find git root for this directory if respecting gitignore
-            gitignore_spec: pathspec.PathSpec | None = None
-            git_root: Path | None = None
-            if respect_gitignore:
-                resolved_path = path.resolve()
-                if resolved_path not in gitignore_specs:
-                    git_root = _find_git_root(start_path=resolved_path)
-                    if git_root is not None:
-                        gitignore_spec = _get_gitignore_spec(git_root=git_root)
-                        gitignore_specs[resolved_path] = (
-                            git_root,
-                            gitignore_spec,
-                        )
-                else:
-                    git_root, gitignore_spec = gitignore_specs[resolved_path]
+            continue
 
-            for file_suffix in file_suffixes:
-                new_file_paths = (
-                    path_part
-                    for path_part in path.rglob(pattern=f"*{file_suffix}")
-                    if len(path_part.relative_to(path).parts) <= max_depth
-                )
-                for new_file_path in new_file_paths:
-                    # Check exclude patterns
-                    if any(
-                        new_file_path.match(path_pattern=pattern)
-                        for pattern in exclude_patterns
-                    ):
+        # Find git root for this directory if respecting gitignore
+        gitignore_spec: pathspec.PathSpec | None = None
+        git_root: Path | None = None
+        if respect_gitignore:
+            resolved_path = path.resolve()
+            if resolved_path in gitignore_specs:
+                git_root, gitignore_spec = gitignore_specs[resolved_path]
+            else:
+                git_root = _find_git_root(start_path=resolved_path)
+                if git_root is not None:
+                    gitignore_spec = _get_gitignore_spec(git_root=git_root)
+                    gitignore_specs[resolved_path] = (git_root, gitignore_spec)
+
+        for file_suffix in file_suffixes:
+            new_file_paths = (
+                path_part
+                for path_part in path.rglob(pattern=f"*{file_suffix}")
+                if len(path_part.relative_to(path).parts) <= max_depth
+            )
+            for new_file_path in new_file_paths:
+                if not new_file_path.is_file():
+                    continue
+
+                # Check exclude patterns
+                if any(
+                    new_file_path.match(path_pattern=pattern)
+                    for pattern in exclude_patterns
+                ):
+                    continue
+
+                # Check gitignore if enabled
+                if gitignore_spec is not None and git_root is not None:
+                    relative_path = new_file_path.resolve().relative_to(
+                        git_root
+                    )
+                    if gitignore_spec.match_file(file=str(relative_path)):
                         continue
 
-                    # Check gitignore if enabled
-                    if gitignore_spec is not None and git_root is not None:
-                        relative_path = new_file_path.resolve().relative_to(
-                            git_root
-                        )
-                        relative_path_str = str(object=relative_path)
-                        if gitignore_spec.match_file(file=relative_path_str):
-                            continue
-
-                    if new_file_path.is_file():
-                        file_paths[new_file_path] = True
+                file_paths[new_file_path] = True
 
     return tuple(file_paths.keys())
 
