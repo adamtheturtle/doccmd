@@ -14,9 +14,6 @@ By default, files are named using the pattern ``{prefix}_{source}_l{line}__{uniq
 
 For example, a Python code block on line 99 of ``README.rst`` would create a file named ``doccmd_README_rst_l99__a1b2_.py``.
 
-Customizing the file name template
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
 You can customize the file name format using the :option:`doccmd --temporary-file-name-template` option.
 This is useful for creating simpler patterns for linter per-file-ignores.
 
@@ -27,9 +24,6 @@ For example, to create simpler file names like ``doccmd_a1b2.py``:
    doccmd --temporary-file-name-template="{prefix}_{unique}{suffix}" ...
 
 You can use this information to ignore files in your linter configuration.
-
-Linter configuration examples
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To ignore a rule in all files created by ``doccmd`` in a ``ruff`` configuration in ``pyproject.toml``:
 
