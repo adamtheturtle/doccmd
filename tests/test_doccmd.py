@@ -5530,3 +5530,298 @@ def test_group_file(
 
     assert result.exit_code == 0, (result.stdout, result.stderr)
     assert result.stdout == expected_output
+
+
+def test_respect_gitignore_default(tmp_path: Path) -> None:
+    """
+    By default, files matching .gitignore patterns are not processed
+    when
+    recursively discovering files in directories.
+    """
+    runner = CliRunner()
+
+    # Initialize a git repository
+    subprocess.run(
+        args=["git", "init"],
+        cwd=tmp_path,
+        check=True,
+        capture_output=True,
+    )
+
+    # Create a .gitignore file
+    gitignore_file = tmp_path / ".gitignore"
+    gitignore_file.write_text(data="ignored/\n", encoding="utf-8")
+
+    # Create a non-ignored file
+    included_file = tmp_path / "included.rst"
+    included_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            included_block
+        """,
+    )
+    included_file.write_text(data=included_content, encoding="utf-8")
+
+    # Create an ignored directory with a file
+    ignored_dir = tmp_path / "ignored"
+    ignored_dir.mkdir()
+    ignored_file = ignored_dir / "ignored.rst"
+    ignored_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            ignored_block
+        """,
+    )
+    ignored_file.write_text(data=ignored_content, encoding="utf-8")
+
+    arguments = [
+        "--language",
+        "python",
+        "--no-pad-file",
+        "--command",
+        "cat",
+        str(object=tmp_path),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, result.stderr
+    # Only the included file should be processed
+    expected_output = "included_block\n"
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
+def test_no_respect_gitignore(tmp_path: Path) -> None:
+    """
+    When --no-respect-gitignore is given, files matching .gitignore
+    patterns
+    are processed when recursively discovering files in directories.
+    """
+    runner = CliRunner()
+
+    # Initialize a git repository
+    subprocess.run(
+        args=["git", "init"],
+        cwd=tmp_path,
+        check=True,
+        capture_output=True,
+    )
+
+    # Create a .gitignore file
+    gitignore_file = tmp_path / ".gitignore"
+    gitignore_file.write_text(data="ignored/\n", encoding="utf-8")
+
+    # Create a non-ignored file
+    included_file = tmp_path / "included.rst"
+    included_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            included_block
+        """,
+    )
+    included_file.write_text(data=included_content, encoding="utf-8")
+
+    # Create an ignored directory with a file
+    ignored_dir = tmp_path / "ignored"
+    ignored_dir.mkdir()
+    ignored_file = ignored_dir / "ignored.rst"
+    ignored_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            ignored_block
+        """,
+    )
+    ignored_file.write_text(data=ignored_content, encoding="utf-8")
+
+    arguments = [
+        "--language",
+        "python",
+        "--no-pad-file",
+        "--no-respect-gitignore",
+        "--command",
+        "cat",
+        str(object=tmp_path),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, result.stderr
+    # Both files should be processed (order may vary)
+    assert "included_block" in result.stdout
+    assert "ignored_block" in result.stdout
+    assert result.stderr == ""
+
+
+def test_respect_gitignore_direct_file_not_affected(tmp_path: Path) -> None:
+    """
+    Files passed directly are not affected by .gitignore filtering,
+    even when --respect-gitignore is enabled.
+    """
+    runner = CliRunner()
+
+    # Initialize a git repository
+    subprocess.run(
+        args=["git", "init"],
+        cwd=tmp_path,
+        check=True,
+        capture_output=True,
+    )
+
+    # Create a .gitignore file
+    gitignore_file = tmp_path / ".gitignore"
+    gitignore_file.write_text(data="ignored/\n", encoding="utf-8")
+
+    # Create an ignored directory with a file
+    ignored_dir = tmp_path / "ignored"
+    ignored_dir.mkdir()
+    ignored_file = ignored_dir / "ignored.rst"
+    ignored_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            ignored_but_direct_block
+        """,
+    )
+    ignored_file.write_text(data=ignored_content, encoding="utf-8")
+
+    # Pass the ignored file directly
+    arguments = [
+        "--language",
+        "python",
+        "--no-pad-file",
+        "--command",
+        "cat",
+        str(object=ignored_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, result.stderr
+    # The directly passed file should be processed
+    expected_output = "ignored_but_direct_block\n"
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
+def test_respect_gitignore_no_git_repo(tmp_path: Path) -> None:
+    """When no git repository is found, all files are processed."""
+    runner = CliRunner()
+
+    # Create a file (no git repo)
+    rst_file = tmp_path / "example.rst"
+    rst_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            block_in_non_git
+        """,
+    )
+    rst_file.write_text(data=rst_content, encoding="utf-8")
+
+    arguments = [
+        "--language",
+        "python",
+        "--no-pad-file",
+        "--command",
+        "cat",
+        str(object=tmp_path),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, result.stderr
+    expected_output = "block_in_non_git\n"
+    assert result.stdout == expected_output
+    assert result.stderr == ""
+
+
+def test_respect_gitignore_nested_gitignore(tmp_path: Path) -> None:
+    """Nested .gitignore files are respected."""
+    runner = CliRunner()
+
+    # Initialize a git repository
+    subprocess.run(
+        args=["git", "init"],
+        cwd=tmp_path,
+        check=True,
+        capture_output=True,
+    )
+
+    # Create a root file
+    root_file = tmp_path / "root.rst"
+    root_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            root_block
+        """,
+    )
+    root_file.write_text(data=root_content, encoding="utf-8")
+
+    # Create a subdirectory with its own .gitignore
+    sub_dir = tmp_path / "subdir"
+    sub_dir.mkdir()
+
+    sub_gitignore = sub_dir / ".gitignore"
+    sub_gitignore.write_text(data="local_ignored.rst\n", encoding="utf-8")
+
+    # Create a file that should be ignored by the nested .gitignore
+    ignored_file = sub_dir / "local_ignored.rst"
+    ignored_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            locally_ignored_block
+        """,
+    )
+    ignored_file.write_text(data=ignored_content, encoding="utf-8")
+
+    # Create a file that should not be ignored
+    included_file = sub_dir / "included.rst"
+    included_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            subdir_included_block
+        """,
+    )
+    included_file.write_text(data=included_content, encoding="utf-8")
+
+    arguments = [
+        "--language",
+        "python",
+        "--no-pad-file",
+        "--command",
+        "cat",
+        str(object=tmp_path),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, result.stderr
+    # The locally ignored file should not be processed
+    assert "locally_ignored_block" not in result.stdout
+    # The other files should be processed
+    assert "root_block" in result.stdout
+    assert "subdir_included_block" in result.stdout
+    assert result.stderr == ""

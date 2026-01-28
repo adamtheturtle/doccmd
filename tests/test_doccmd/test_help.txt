@@ -172,6 +172,11 @@ File discovery options:
                                   in directories. This option can be used
                                   multiple times. Use forward slashes on all
                                   platforms.
+  --respect-gitignore / --no-respect-gitignore
+                                  Respect .gitignore files when recursively
+                                  discovering files in directories. Files passed
+                                  directly are not affected by this option.
+                                  [default: respect-gitignore]
 
 Execution options:
   --use-pty [yes|no|detect]       Whether to use a pseudo-terminal for running

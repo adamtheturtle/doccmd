@@ -19,6 +19,7 @@ from uuid import uuid4
 import charset_normalizer
 import click
 import cloup
+import pathspec
 from beartype import beartype
 from click_compose import (
     deduplicate as _deduplicate,
@@ -254,6 +255,46 @@ _validate_file_extensions: _ClickCallback[Sequence[str]] = multi_callback(
 )
 
 
+def _find_git_root(start_path: Path) -> Path | None:
+    """
+    Find the git repository root starting from the given path.
+
+    Returns None if no git repository is found.
+    """
+    current = start_path.resolve()
+    while current != current.parent:
+        if (current / ".git").exists():
+            return current
+        current = current.parent
+    # Check root directory too
+    if (current / ".git").exists():
+        return current
+    return None
+
+
+def _get_gitignore_spec(git_root: Path) -> pathspec.PathSpec:
+    """
+    Parse all .gitignore files in the repository and return a PathSpec.
+
+    This walks up from git root and collects patterns from all .gitignore
+    files.
+    """
+    patterns: list[str] = []
+
+    # Always ignore .git directory
+    patterns.append(".git/")
+
+    # Walk the repository and find all .gitignore files
+    for gitignore_path in git_root.rglob(pattern=".gitignore"):
+        gitignore_content = gitignore_path.read_text(encoding="utf-8")
+        patterns.extend(gitignore_content.splitlines())
+
+    return pathspec.PathSpec.from_lines(
+        pattern_factory="gitignore",
+        lines=patterns,
+    )
+
+
 @beartype
 def _get_file_paths(
     *,
@@ -261,16 +302,37 @@ def _get_file_paths(
     file_suffixes: Iterable[str],
     max_depth: int,
     exclude_patterns: Iterable[str],
+    respect_gitignore: bool,
 ) -> Sequence[Path]:
     """
     Get the file paths from the given document paths (files and
     directories).
     """
     file_paths: dict[Path, bool] = {}
+
+    # Build gitignore specs for directories if needed
+    gitignore_specs: dict[Path, tuple[Path, pathspec.PathSpec]] = {}
+
     for path in document_paths:
         if path.is_file():
             file_paths[path] = True
         else:
+            # Find git root for this directory if respecting gitignore
+            gitignore_spec: pathspec.PathSpec | None = None
+            git_root: Path | None = None
+            if respect_gitignore:
+                resolved_path = path.resolve()
+                if resolved_path not in gitignore_specs:
+                    git_root = _find_git_root(start_path=resolved_path)
+                    if git_root is not None:
+                        gitignore_spec = _get_gitignore_spec(git_root=git_root)
+                        gitignore_specs[resolved_path] = (
+                            git_root,
+                            gitignore_spec,
+                        )
+                else:
+                    git_root, gitignore_spec = gitignore_specs[resolved_path]
+
             for file_suffix in file_suffixes:
                 new_file_paths = (
                     path_part
@@ -278,11 +340,25 @@ def _get_file_paths(
                     if len(path_part.relative_to(path).parts) <= max_depth
                 )
                 for new_file_path in new_file_paths:
-                    if new_file_path.is_file() and not any(
+                    # Check exclude patterns
+                    if any(
                         new_file_path.match(path_pattern=pattern)
                         for pattern in exclude_patterns
                     ):
+                        continue
+
+                    # Check gitignore if enabled
+                    if gitignore_spec is not None and git_root is not None:
+                        relative_path = new_file_path.resolve().relative_to(
+                            git_root
+                        )
+                        relative_path_str = str(object=relative_path)
+                        if gitignore_spec.match_file(file=relative_path_str):
+                            continue
+
+                    if new_file_path.is_file():
                         file_paths[new_file_path] = True
+
     return tuple(file_paths.keys())
 
 
@@ -1247,6 +1323,18 @@ def _get_sybil(
             "Use forward slashes on all platforms."
         ),
     ),
+    cloup.option(
+        "--respect-gitignore/--no-respect-gitignore",
+        "respect_gitignore",
+        is_flag=True,
+        default=True,
+        show_default=True,
+        help=(
+            "Respect .gitignore files when recursively discovering files "
+            "in directories. "
+            "Files passed directly are not affected by this option."
+        ),
+    ),
 )
 @cloup.option_group(
     "Execution options",
@@ -1375,6 +1463,7 @@ def main(
     norg_suffixes: Sequence[str],
     max_depth: int,
     exclude_patterns: Sequence[str],
+    respect_gitignore: bool,
     fail_on_parse_error: bool,
     fail_on_group_write: bool,
     sphinx_jinja2: bool,
@@ -1421,6 +1510,7 @@ def main(
         file_suffixes=suffix_map.keys(),
         max_depth=max_depth,
         exclude_patterns=exclude_patterns,
+        respect_gitignore=respect_gitignore,
     )
 
     log_command_evaluators = []
