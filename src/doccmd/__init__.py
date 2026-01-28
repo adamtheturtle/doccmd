@@ -291,7 +291,7 @@ def _get_gitignore_spec(git_root: Path) -> pathspec.PathSpec:
 
     return pathspec.PathSpec.from_lines(
         pattern_factory="gitignore",
-        # See https://github.com/facebook/pyrefly/issues/1995.
+        # See https://github.com/facebook/pyrefly/issues/1422.
         lines=patterns,  # pyrefly: ignore[bad-argument-type]
     )
 
@@ -354,7 +354,7 @@ def _get_file_paths(
                     relative_path = new_file_path.resolve().relative_to(
                         git_root
                     )
-                    relative_path_str = str(relative_path)
+                    relative_path_str = str(object=relative_path)
                     if gitignore_spec.match_file(file=relative_path_str):
                         continue
 
