@@ -10,7 +10,7 @@ By default, files are named using the pattern ``{prefix}_{source}_l{line}__{uniq
 - ``{source}`` is the sanitized source filename (dots and dashes replaced with underscores)
 - ``{line}`` is the line number of the code block
 - ``{unique}`` is a short unique identifier
-- ``{suffix}`` is the file extension
+- ``{suffix}`` is the file extension (inferred from the language, or set via :option:`doccmd --temporary-file-extension`)
 
 For example, a Python code block on line 99 of :file:`README.rst` would create a file named :file:`doccmd_README_rst_l99__a1b2_.py`.
 
