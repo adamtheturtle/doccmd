@@ -25,7 +25,7 @@ For example, to create simpler file names like :file:`doccmd_a1b2.py`:
 
 You can use this information to ignore files in your linter configuration.
 
-To ignore a rule in all files created by ``doccmd`` in a ``ruff`` configuration in :file:`pyproject.toml`:
+For example, to ignore a rule in all files created by ``doccmd`` in a ``ruff`` configuration in :file:`pyproject.toml`:
 
 .. code-block:: toml
 
