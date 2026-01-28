@@ -1110,12 +1110,12 @@ def _get_sybil(
         callback=_validate_template,
         help=(
             "The template for the temporary file name. "
-            "Use placeholders: "
+            "Available placeholders: "
             "{prefix} (from --temporary-file-name-prefix), "
             "{source} (sanitized source filename), "
             "{line} (line number), "
             "{unique} (unique identifier), "
-            "{suffix} (file extension). "
+            "{suffix} (file extension, required). "
             "Example: '{prefix}_{unique}{suffix}' produces 'doccmd_a1b2.py'."
         ),
     ),

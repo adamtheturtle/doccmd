@@ -117,12 +117,12 @@ Temporary file options:
                                   other files, e.g. for ignoring in linter
                                   configurations.  [default: doccmd; required]
   --temporary-file-name-template TEXT
-                                  The template for the temporary file name. Use
-                                  placeholders: {prefix} (from --temporary-file-
-                                  name-prefix), {source} (sanitized source
-                                  filename), {line} (line number), {unique}
-                                  (unique identifier), {suffix} (file
-                                  extension). Example:
+                                  The template for the temporary file name.
+                                  Available placeholders: {prefix} (from
+                                  --temporary-file-name-prefix), {source}
+                                  (sanitized source filename), {line} (line
+                                  number), {unique} (unique identifier),
+                                  {suffix} (file extension, required). Example:
                                   '{prefix}_{unique}{suffix}' produces
                                   'doccmd_a1b2.py'.  [default:
                                   {prefix}_{source}_l{line}__{unique}_{suffix};
