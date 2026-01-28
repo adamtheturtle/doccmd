@@ -193,7 +193,7 @@ def _validate_template(
             ctx=ctx,
             param=param,
         ) from exc
-    except (ValueError, IndexError) as exc:
+    except (ValueError, IndexError, TypeError, AttributeError) as exc:
         message = f"Malformed template: {exc}"
         raise click.BadParameter(
             message=message,

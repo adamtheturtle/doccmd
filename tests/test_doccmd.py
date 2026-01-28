@@ -894,7 +894,18 @@ def test_template_requires_suffix_placeholder(
     assert result.output == expected_output
 
 
-def test_template_malformed_raises_error(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    argnames="template",
+    argvalues=[
+        pytest.param("{prefix}_{suffix", id="unclosed-brace"),
+        pytest.param("{prefix.foo}{suffix}", id="attribute-access"),
+        pytest.param("{line[0]}{suffix}", id="item-access"),
+    ],
+)
+def test_template_malformed_raises_error(
+    tmp_path: Path,
+    template: str,
+) -> None:
     """An error is raised for malformed templates."""
     runner = CliRunner()
     rst_file = tmp_path / "example.rst"
@@ -910,7 +921,7 @@ def test_template_malformed_raises_error(tmp_path: Path) -> None:
         "--language",
         "python",
         "--temporary-file-name-template",
-        "{prefix}_{suffix",
+        template,
         "--command",
         "echo",
         str(object=rst_file),
