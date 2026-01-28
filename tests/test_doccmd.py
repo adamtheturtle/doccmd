@@ -834,11 +834,25 @@ def test_invalid_template_placeholder(tmp_path: Path) -> None:
         catch_exceptions=False,
     )
     assert result.exit_code != 0
-    assert "Invalid placeholder" in result.output
+    expected_error = (
+        "Invalid placeholder in template: 'invalid'. "
+        "Valid placeholders are: {line, prefix, source, suffix, unique}."
+    )
+    assert expected_error in result.output
 
 
-def test_template_requires_suffix_placeholder(tmp_path: Path) -> None:
-    """An error is raised if the template does not contain {suffix}."""
+@pytest.mark.parametrize(
+    argnames="template",
+    argvalues=[
+        pytest.param("{prefix}_{unique}", id="missing-suffix"),
+        pytest.param("{prefix}_{{suffix}}", id="escaped-suffix"),
+    ],
+)
+def test_template_requires_suffix_placeholder(
+    tmp_path: Path,
+    template: str,
+) -> None:
+    """An error is raised if the template does not use {suffix}."""
     runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     content = textwrap.dedent(
@@ -853,7 +867,7 @@ def test_template_requires_suffix_placeholder(tmp_path: Path) -> None:
         "--language",
         "python",
         "--temporary-file-name-template",
-        "{prefix}_{unique}",
+        template,
         "--command",
         "echo",
         str(object=rst_file),
@@ -864,39 +878,10 @@ def test_template_requires_suffix_placeholder(tmp_path: Path) -> None:
         catch_exceptions=False,
     )
     assert result.exit_code != 0
-    assert "suffix" in result.output.lower()
-
-
-def test_template_escaped_suffix_rejected(tmp_path: Path) -> None:
-    """An error is raised if suffix is escaped as {{suffix}} instead of
-    used.
-    """
-    runner = CliRunner()
-    rst_file = tmp_path / "example.rst"
-    content = textwrap.dedent(
-        text="""\
-        .. code-block:: python
-
-            x = 2 + 2
-        """,
+    expected_error = (
+        "Template must contain '{suffix}' placeholder for the file extension."
     )
-    rst_file.write_text(data=content, encoding="utf-8")
-    arguments = [
-        "--language",
-        "python",
-        "--temporary-file-name-template",
-        "{prefix}_{{suffix}}",
-        "--command",
-        "echo",
-        str(object=rst_file),
-    ]
-    result = runner.invoke(
-        cli=main,
-        args=arguments,
-        catch_exceptions=False,
-    )
-    assert result.exit_code != 0
-    assert "suffix" in result.output.lower()
+    assert expected_error in result.output
 
 
 def test_template_malformed_raises_error(tmp_path: Path) -> None:
@@ -926,7 +911,7 @@ def test_template_malformed_raises_error(tmp_path: Path) -> None:
         catch_exceptions=False,
     )
     assert result.exit_code != 0
-    assert "malformed" in result.output.lower()
+    assert "Malformed template:" in result.output
 
 
 def test_temporary_file_includes_source_name(tmp_path: Path) -> None:

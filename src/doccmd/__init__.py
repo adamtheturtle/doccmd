@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from enum import Enum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
-from typing import Final, TypeVar
+from typing import TypeVar
 from uuid import uuid4
 
 import charset_normalizer
@@ -56,9 +56,6 @@ except PackageNotFoundError:  # pragma: no cover
     from ._setuptools_scm_version import __version__
 
 T = TypeVar("T")
-
-
-_DEFAULT_TEMPLATE: Final[str] = "{prefix}_{source}_l{line}__{unique}_{suffix}"
 
 
 @beartype
@@ -1101,7 +1098,7 @@ def _get_sybil(
         "temporary_file_name_template",
         "--temporary-file-name-template",
         type=str,
-        default=_DEFAULT_TEMPLATE,
+        default="{prefix}_{source}_l{line}__{unique}_{suffix}",
         show_default=True,
         required=True,
         callback=_validate_template,
