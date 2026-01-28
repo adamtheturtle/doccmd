@@ -5780,7 +5780,11 @@ def test_respect_gitignore_nested_gitignore(tmp_path: Path) -> None:
     sub_dir.mkdir()
 
     sub_gitignore = sub_dir / ".gitignore"
-    sub_gitignore.write_text(data="local_ignored.rst\n", encoding="utf-8")
+    # Include a comment and empty line to exercise those code paths
+    sub_gitignore.write_text(
+        data="# This is a comment\n\nlocal_ignored.rst\n",
+        encoding="utf-8",
+    )
 
     # Create a file that should be ignored by the nested .gitignore
     ignored_file = sub_dir / "local_ignored.rst"
@@ -5879,4 +5883,62 @@ def test_respect_gitignore_caching(tmp_path: Path) -> None:
     assert result.exit_code == 0, result.stderr
     # The file should be processed (de-duplicated at the file level)
     assert "cached_test_block" in result.stdout
+    assert result.stderr == ""
+
+
+def test_respect_gitignore_symlink_outside_repo(tmp_path: Path) -> None:
+    """
+    Symlinks pointing outside the git repository are processed normally,
+    even when --respect-gitignore is enabled.
+    """
+    runner = CliRunner()
+
+    # Create a git repository
+    repo_dir = tmp_path / "repo"
+    repo_dir.mkdir()
+    subprocess.run(
+        args=["git", "init"],
+        cwd=repo_dir,
+        check=True,
+        capture_output=True,
+    )
+
+    # Create a .gitignore file
+    gitignore_file = repo_dir / ".gitignore"
+    gitignore_file.write_text(data="ignored/\n", encoding="utf-8")
+
+    # Create a directory outside the repo with a file
+    outside_dir = tmp_path / "outside"
+    outside_dir.mkdir()
+    outside_file = outside_dir / "outside.rst"
+    outside_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            outside_block
+        """,
+    )
+    outside_file.write_text(data=outside_content, encoding="utf-8")
+
+    # Create a symlink inside the repo pointing to the file outside
+    symlink_in_repo = repo_dir / "link_to_outside.rst"
+    symlink_in_repo.symlink_to(target=outside_file)
+
+    arguments = [
+        "--language",
+        "python",
+        "--no-pad-file",
+        "--command",
+        "cat",
+        str(object=repo_dir),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, result.stderr
+    # The symlinked file outside the repo should be processed
+    assert "outside_block" in result.stdout
     assert result.stderr == ""

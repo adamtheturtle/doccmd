@@ -276,8 +276,8 @@ def _get_gitignore_spec(git_root: Path) -> pathspec.PathSpec:
     """
     Parse all .gitignore files in the repository and return a PathSpec.
 
-    This walks up from git root and collects patterns from all .gitignore
-    files.
+    This recursively finds all .gitignore files in the repository and
+    collects their patterns with proper directory scoping.
     """
     patterns: list[str] = []
 
@@ -287,7 +287,25 @@ def _get_gitignore_spec(git_root: Path) -> pathspec.PathSpec:
     # Walk the repository and find all .gitignore files
     for gitignore_path in git_root.rglob(pattern=".gitignore"):
         gitignore_content = gitignore_path.read_text(encoding="utf-8")
-        patterns.extend(gitignore_content.splitlines())
+        # Get the directory containing this .gitignore relative to git root
+        gitignore_dir = gitignore_path.parent.relative_to(git_root)
+        gitignore_dir_str = str(object=gitignore_dir)
+
+        for line in gitignore_content.splitlines():
+            # Skip empty lines and comments
+            stripped = line.strip()
+            if not stripped or stripped.startswith("#"):
+                patterns.append(line)
+                continue
+
+            # Prefix patterns with the directory containing the .gitignore
+            # so they only match files in that directory tree
+            if gitignore_dir_str == ".":
+                # Root .gitignore - no prefix needed
+                patterns.append(line)
+            else:
+                # Nested .gitignore - prefix with directory path
+                patterns.append(f"{gitignore_dir_str}/{line}")
 
     return pathspec.PathSpec.from_lines(
         pattern_factory="gitignore",
@@ -311,8 +329,9 @@ def _get_file_paths(
     """
     file_paths: dict[Path, bool] = {}
 
-    # Build gitignore specs for directories if needed
-    gitignore_specs: dict[Path, tuple[Path, pathspec.PathSpec]] = {}
+    # Cache gitignore specs keyed by git root to avoid recomputing
+    # for multiple subdirectories in the same repository
+    gitignore_specs: dict[Path, pathspec.PathSpec] = {}
 
     for path in document_paths:
         if path.is_file():
@@ -323,14 +342,13 @@ def _get_file_paths(
         gitignore_spec: pathspec.PathSpec | None = None
         git_root: Path | None = None
         if respect_gitignore:
-            resolved_path = path.resolve()
-            if resolved_path in gitignore_specs:
-                git_root, gitignore_spec = gitignore_specs[resolved_path]
-            else:
-                git_root = _find_git_root(start_path=resolved_path)
-                if git_root is not None:
+            git_root = _find_git_root(start_path=path.resolve())
+            if git_root is not None:
+                if git_root in gitignore_specs:
+                    gitignore_spec = gitignore_specs[git_root]
+                else:
                     gitignore_spec = _get_gitignore_spec(git_root=git_root)
-                    gitignore_specs[resolved_path] = (git_root, gitignore_spec)
+                    gitignore_specs[git_root] = gitignore_spec
 
         for file_suffix in file_suffixes:
             new_file_paths = (
@@ -351,12 +369,14 @@ def _get_file_paths(
 
                 # Check gitignore if enabled
                 if gitignore_spec is not None and git_root is not None:
-                    relative_path = new_file_path.resolve().relative_to(
-                        git_root
-                    )
-                    relative_path_str = str(object=relative_path)
-                    if gitignore_spec.match_file(file=relative_path_str):
-                        continue
+                    resolved_file = new_file_path.resolve()
+                    # Skip gitignore check for symlinks pointing outside the
+                    # git repository
+                    if resolved_file.is_relative_to(git_root):
+                        relative_path = resolved_file.relative_to(git_root)
+                        relative_path_str = str(object=relative_path)
+                        if gitignore_spec.match_file(file=relative_path_str):
+                            continue
 
                 file_paths[new_file_path] = True
 
