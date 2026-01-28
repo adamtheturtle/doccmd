@@ -255,6 +255,7 @@ _validate_file_extensions: _ClickCallback[Sequence[str]] = multi_callback(
 )
 
 
+@beartype
 def _find_git_root(start_path: Path) -> Path | None:
     """
     Find the git repository root starting from the given path.
@@ -272,6 +273,7 @@ def _find_git_root(start_path: Path) -> Path | None:
     return None
 
 
+@beartype
 def _get_gitignore_spec(git_root: Path) -> pathspec.PathSpec:
     """
     Parse all .gitignore files in the repository and return a PathSpec.
