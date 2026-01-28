@@ -395,8 +395,13 @@ enableTypeIgnoreComments = false
 reportUnnecessaryTypeIgnoreComment = true
 typeCheckingMode = "strict"
 
-[tool.ty.rules]
-unused-ignore-comment = "warn"
+[tool.ty.analysis]
+# Disable support for `type: ignore` comments
+respect-type-ignore-comments = false
+
+[tool.ty.terminal]
+# Error if ty emits any warning-level diagnostics.
+error-on-warning = true
 
 [tool.mypy_strict_kwargs]
 # `relative_to` and `is_relative_to` have `other` parameter that is
