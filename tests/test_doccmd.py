@@ -834,11 +834,15 @@ def test_invalid_template_placeholder(tmp_path: Path) -> None:
         catch_exceptions=False,
     )
     assert result.exit_code != 0
-    expected_error = (
+    expected_output = (
+        "Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...\n"
+        "Try 'doccmd --help' for help.\n"
+        "\n"
+        "Error: Invalid value for '--temporary-file-name-template': "
         "Invalid placeholder in template: 'invalid'. "
-        "Valid placeholders are: {line, prefix, source, suffix, unique}."
+        "Valid placeholders are: {line, prefix, source, suffix, unique}.\n"
     )
-    assert expected_error in result.output
+    assert result.output == expected_output
 
 
 @pytest.mark.parametrize(
@@ -879,10 +883,15 @@ def test_template_requires_suffix_placeholder(
         catch_exceptions=False,
     )
     assert result.exit_code != 0
-    expected_error = (
-        "Template must contain '{suffix}' placeholder for the file extension."
+    expected_output = (
+        "Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...\n"
+        "Try 'doccmd --help' for help.\n"
+        "\n"
+        "Error: Invalid value for '--temporary-file-name-template': "
+        "Template must contain '{suffix}' placeholder "
+        "for the file extension.\n"
     )
-    assert expected_error in result.output
+    assert result.output == expected_output
 
 
 def test_template_malformed_raises_error(tmp_path: Path) -> None:
@@ -912,7 +921,15 @@ def test_template_malformed_raises_error(tmp_path: Path) -> None:
         catch_exceptions=False,
     )
     assert result.exit_code != 0
-    assert "Malformed template:" in result.output
+    # The exact Python error message varies, so check for the prefix
+    expected_prefix = (
+        "Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...\n"
+        "Try 'doccmd --help' for help.\n"
+        "\n"
+        "Error: Invalid value for '--temporary-file-name-template': "
+        "Malformed template:"
+    )
+    assert result.output.startswith(expected_prefix)
 
 
 def test_temporary_file_includes_source_name(tmp_path: Path) -> None:
