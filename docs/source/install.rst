@@ -22,20 +22,16 @@ Requires `Homebrew`_.
 
 .. _Homebrew: https://docs.brew.sh/Installation
 
-..
-   TODO: Uncomment once adamtheturtle.doccmd is registered in winget-pkgs.
-   See https://github.com/adamtheturtle/doccmd/issues/727
+With winget (Windows)
+~~~~~~~~~~~~~~~~~~~~~
 
-   With winget (Windows)
-   ~~~~~~~~~~~~~~~~~~~~~
+Requires `winget`_.
 
-   Requires `winget`_.
+.. code-block:: console
 
-   .. code-block:: console
+   $ winget install --id adamtheturtle.doccmd --source winget --exact
 
-      $ winget install adamtheturtle.doccmd
-
-   .. _winget: https://learn.microsoft.com/en-us/windows/package-manager/winget/
+.. _winget: https://learn.microsoft.com/en-us/windows/package-manager/winget/
 
 Pre-built Linux (x86) binaries
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
