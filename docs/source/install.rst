@@ -31,6 +31,8 @@ Requires `winget`_.
 
    $ winget install --id adamtheturtle.doccmd --source winget --exact
 
+The winget package may not be the latest version.
+
 .. _winget: https://learn.microsoft.com/en-us/windows/package-manager/winget/
 
 Pre-built Linux (x86) binaries
