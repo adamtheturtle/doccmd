@@ -43,7 +43,6 @@ Requires `winget`_.
    $ winget install --id adamtheturtle.doccmd --source winget --exact
 
 The winget package may not be the latest version.
-For the most up-to-date release, use the `Pre-built Windows binaries`_ or install with ``pip``.
 
 .. _winget: https://learn.microsoft.com/en-us/windows/package-manager/winget/
 
