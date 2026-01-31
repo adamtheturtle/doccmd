@@ -1,7 +1,16 @@
 ---
 name: Release
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+  workflow_call:
+    secrets:
+      WINGET_TOKEN:
+        required: true
+      RELEASE_PAT:
+        required: true
+      HOMEBREW_TAP_GITHUB_TOKEN:
+        required: true
 
 jobs:
   build:
