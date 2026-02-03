@@ -43,12 +43,14 @@
       };
 
       # Read version from VERSION file, fall back to commit hash for dev builds
-      version = let
-        versionFile = ./VERSION;
-      in
-        if builtins.pathExists versionFile
-        then lib.strings.trim (builtins.readFile versionFile)
-        else "0.0.0+${self.shortRev or self.dirtyShortRev or "unknown"}";
+      version =
+        let
+          versionFile = ./VERSION;
+        in
+        if builtins.pathExists versionFile then
+          lib.strings.trim (builtins.readFile versionFile)
+        else
+          "0.0.0+${self.shortRev or self.dirtyShortRev or "unknown"}";
 
       # Override doccmd to set the version
       doccmdOverlay = final: prev: {
