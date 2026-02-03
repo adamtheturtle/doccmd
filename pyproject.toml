@@ -106,14 +106,14 @@ scripts.doccmd = "doccmd:main"
 [tool.setuptools]
 zip-safe = false
 
-[tool.setuptools.packages.find]
-where = [
-    "src",
-]
-
 [tool.setuptools.package-data]
 doccmd = [
     "py.typed",
+]
+
+[tool.setuptools.packages.find]
+where = [
+    "src",
 ]
 
 [tool.distutils.bdist_wheel]
@@ -178,6 +178,12 @@ lint.unfixable = [
 lint.pydocstyle.convention = "google"
 
 [tool.pylint]
+
+[tool.pylint.'FORMAT']
+
+# Allow the body of an if to be on the same line as the test if there is no
+# else.
+single-line-if-stmt = false
 
 [tool.pylint.'MASTER']
 
@@ -279,12 +285,6 @@ per-file-ignores = [
     "doccmd_README_rst_*.py:invalid-name",
 ]
 
-[tool.pylint.'FORMAT']
-
-# Allow the body of an if to be on the same line as the test if there is no
-# else.
-single-line-if-stmt = false
-
 [tool.pylint.'SPELLING']
 
 # Spelling dictionary name. Available dictionaries: none. To make it working
@@ -364,19 +364,19 @@ max_supported_python = "3.14"
 xfail_strict = true
 log_cli = true
 
+[tool.coverage.report]
+exclude_also = [
+    "if TYPE_CHECKING:",
+    "class .*\\bProtocol\\):",
+    "@overload",
+]
+
 [tool.coverage.run]
 
 branch = true
 omit = [
     'src/*/_setuptools_scm_version.py',
     'src/doccmd/__main__.py',
-]
-
-[tool.coverage.report]
-exclude_also = [
-    "if TYPE_CHECKING:",
-    "class .*\\bProtocol\\):",
-    "@overload",
 ]
 
 [tool.mypy]
