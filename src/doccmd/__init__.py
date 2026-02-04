@@ -741,7 +741,7 @@ def _process_file_path(
         except OSError as exc:
             error_msg = f"Error running command '{args[0]}': {exc}"
             _log_error(message=error_msg)
-            exit_code = exc.errno if exc.errno else 1
+            exit_code = exc.errno or 1
             local_errors.append(
                 _handle_error(
                     message=error_msg,
