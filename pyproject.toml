@@ -149,7 +149,7 @@ lint.ignore = [
     "D212",
     # Ruff warns that this conflicts with the formatter.
     "ISC001",
-    # Ignore "too-many-*" errors as they seem to get in the way more than
+    # Ignore 'too-many-*' errors as they seem to get in the way more than
     # helping.
     "PLR0912",
     "PLR0913",
@@ -202,21 +202,21 @@ jobs = 0
 # - pylint.extensions.while_used
 # as they seemed to get in the way.
 load-plugins = [
-    'pylint.extensions.bad_builtin',
-    'pylint.extensions.comparison_placement',
-    'pylint.extensions.consider_refactoring_into_while_condition',
-    'pylint.extensions.docparams',
-    'pylint.extensions.dunder',
-    'pylint.extensions.eq_without_hash',
-    'pylint.extensions.for_any_all',
-    'pylint.extensions.mccabe',
-    'pylint.extensions.no_self_use',
-    'pylint.extensions.overlapping_exceptions',
-    'pylint.extensions.private_import',
-    'pylint.extensions.redefined_loop_name',
-    'pylint.extensions.redefined_variable_type',
-    'pylint.extensions.set_membership',
-    'pylint.extensions.typing',
+    "pylint.extensions.bad_builtin",
+    "pylint.extensions.comparison_placement",
+    "pylint.extensions.consider_refactoring_into_while_condition",
+    "pylint.extensions.docparams",
+    "pylint.extensions.dunder",
+    "pylint.extensions.eq_without_hash",
+    "pylint.extensions.for_any_all",
+    "pylint.extensions.mccabe",
+    "pylint.extensions.no_self_use",
+    "pylint.extensions.overlapping_exceptions",
+    "pylint.extensions.private_import",
+    "pylint.extensions.redefined_loop_name",
+    "pylint.extensions.redefined_variable_type",
+    "pylint.extensions.set_membership",
+    "pylint.extensions.typing",
     "pylint_per_file_ignores",
 ]
 
@@ -225,7 +225,7 @@ load-plugins = [
 unsafe-load-any-extension = false
 
 ignore = [
-    '_setuptools_scm_version.py',
+    "_setuptools_scm_version.py",
 ]
 
 [tool.pylint.'MESSAGES CONTROL']
@@ -235,12 +235,12 @@ ignore = [
 # multiple time (only on the command line, not in the configuration file where
 # it should appear only once). See also the "--disable" option for examples.
 enable = [
-    'bad-inline-option',
-    'deprecated-pragma',
-    'file-ignored',
-    'spelling',
-    'use-symbolic-message-instead',
-    'useless-suppression',
+    "bad-inline-option",
+    "deprecated-pragma",
+    "file-ignored",
+    "spelling",
+    "use-symbolic-message-instead",
+    "useless-suppression",
 ]
 
 # Disable the message, report, category or checker with the given id(s). You
@@ -256,29 +256,29 @@ enable = [
 disable = [
     "too-many-branches",
     "too-many-statements",
-    'too-complex',
-    'too-few-public-methods',
-    'too-many-arguments',
-    'too-many-instance-attributes',
-    'too-many-lines',
-    'too-many-locals',
-    'too-many-return-statements',
-    'locally-disabled',
+    "too-complex",
+    "too-few-public-methods",
+    "too-many-arguments",
+    "too-many-instance-attributes",
+    "too-many-lines",
+    "too-many-locals",
+    "too-many-return-statements",
+    "locally-disabled",
     # Let ruff handle long lines
-    'line-too-long',
+    "line-too-long",
     # Let ruff handle unused imports
-    'unused-import',
+    "unused-import",
     # Let ruff deal with sorting
-    'ungrouped-imports',
+    "ungrouped-imports",
     # We don't need everything to be documented because of mypy
-    'missing-type-doc',
-    'missing-return-type-doc',
+    "missing-type-doc",
+    "missing-return-type-doc",
     # Too difficult to please
-    'duplicate-code',
+    "duplicate-code",
     # Let ruff handle imports
-    'wrong-import-order',
+    "wrong-import-order",
     # mypy does not want untyped parameters.
-    'useless-type-doc',
+    "useless-type-doc",
 ]
 
 per-file-ignores = [
@@ -375,8 +375,8 @@ exclude_also = [
 
 branch = true
 omit = [
-    'src/*/_setuptools_scm_version.py',
-    'src/doccmd/__main__.py',
+    "src/*/_setuptools_scm_version.py",
+    "src/doccmd/__main__.py",
 ]
 
 [tool.mypy]
