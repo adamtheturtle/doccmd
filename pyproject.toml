@@ -42,12 +42,12 @@ dependencies = [
     "click-compose>=2025.10.27.3",
     "cloup>=3.0.0",
     "dulwich>=0.22.1",
-    "pygments>=2.18.0",
-    "sybil>=9.3.0,<10.0.0",
     # Pin this dependency as we expect:
     # * It might have breaking changes
     # * It is not a direct dependency of the user
     "sybil-extras==2026.1.27",
+    "pygments>=2.18.0",
+    "sybil>=9.3.0,<10.0.0",
 ]
 optional-dependencies.dev = [
     "actionlint-py==1.7.10.24",
@@ -67,7 +67,7 @@ optional-dependencies.dev = [
     "pygments==2.19.2",
     "pylint[spelling]==4.0.4",
     "pylint-per-file-ignores==3.2.0",
-    "pyproject-fmt==2.12.1",
+    "pyproject-fmt==2.14.0",
     "pyrefly==0.51.1",
     "pyright==1.1.408",
     "pyroma==5.0.1",
@@ -76,10 +76,6 @@ optional-dependencies.dev = [
     "pytest-regressions==2.9.1",
     "pyyaml==6.0.3",
     "ruff==0.15.0",
-    # We add shellcheck-py not only for shell scripts and shell code blocks,
-    # but also because having it installed means that ``actionlint-py`` will
-    # use it to lint shell commands in GitHub workflow files.
-    "shellcheck-py==0.11.0.1",
     "shfmt-py==3.12.0.2",
     "sphinx>=8.1.3",
     "sphinx-click==6.2.0",
@@ -92,6 +88,10 @@ optional-dependencies.dev = [
     "ty==0.0.15",
     "types-pygments==2.19.0.20251121",
     "vulture==2.14",
+    # We add shellcheck-py not only for shell scripts and shell code blocks,
+    # but also because having it installed means that ``actionlint-py`` will
+    # use it to lint shell commands in GitHub workflow files.
+    "shellcheck-py==0.11.0.1",
     "yamlfix==1.19.1",
     "zizmor==1.22.0",
 ]
@@ -105,22 +105,17 @@ scripts.doccmd = "doccmd:main"
 
 [tool.setuptools]
 zip-safe = false
-
-[tool.setuptools.package-data]
-doccmd = [
+package-data.doccmd = [
     "py.typed",
 ]
-
-[tool.setuptools.packages.find]
-where = [
+packages.find.where = [
     "src",
 ]
 
-[tool.distutils.bdist_wheel]
-universal = true
+[tool.distutils]
+bdist_wheel.universal = true
 
 [tool.setuptools_scm]
-
 # We write the version to a file so that we can import it.
 # We choose a ``.py`` file so that we can read it without
 # worrying about including the file in MANIFEST.in.
@@ -134,41 +129,37 @@ version_scheme = "post-release"
 
 [tool.ruff]
 line-length = 79
-
 lint.select = [
     "ALL",
 ]
 lint.ignore = [
-    # We can manage our own complexity.
-    "C901",
-    # Ruff warns that this conflicts with the formatter.
-    "COM812",
     # Allow our chosen docstring line-style - pydocstringformatter handles formatting
     # but doesn't enforce D205 (blank line after summary) or D212 (summary on first line).
     "D205",
-    "D212",
-    # Ruff warns that this conflicts with the formatter.
-    "ISC001",
-    # Ignore "too-many-*" errors as they seem to get in the way more than
+    # Ignore 'too-many-*' errors as they seem to get in the way more than
     # helping.
     "PLR0912",
+    # Ruff warns that this conflicts with the formatter.
+    "COM812",
+    # Ruff warns that this conflicts with the formatter.
+    "ISC001",
+    # We can manage our own complexity.
+    "C901",
+    "D212",
     "PLR0913",
     "PLR0915",
 ]
-
 lint.per-file-ignores."doccmd_*.py" = [
+    # Allow asserts in docs.
+    "S101",
     # Allow our chosen docstring line-style - pydocstringformatter handles
     # formatting but docstrings in docs may not match this style.
     "D200",
-    # Allow asserts in docs.
-    "S101",
 ]
-
 lint.per-file-ignores."tests/*.py" = [
     # Do not require tests to have a one-line summary.
     "S101",
 ]
-
 # Do not automatically remove commented out code.
 # We comment out code during development, and with VSCode auto-save, this code
 # is sometimes annoyingly removed.
@@ -178,21 +169,13 @@ lint.unfixable = [
 lint.pydocstyle.convention = "google"
 
 [tool.pylint]
-
-[tool.pylint.'FORMAT']
-
 # Allow the body of an if to be on the same line as the test if there is no
 # else.
-single-line-if-stmt = false
-
-[tool.pylint.'MASTER']
-
+"FORMAT".single-line-if-stmt = false
 # Pickle collected data for later comparisons.
-persistent = true
-
+"MASTER".persistent = true
 # Use multiple processes to speed up Pylint.
-jobs = 0
-
+"MASTER".jobs = 0
 # List of plugins (as comma separated values of python modules names) to load,
 # usually to register additional checkers.
 # See https://chezsoi.org/lucas/blog/pylint-strict-base-configuration.html.
@@ -201,48 +184,42 @@ jobs = 0
 # - pylint.extensions.magic_value
 # - pylint.extensions.while_used
 # as they seemed to get in the way.
-load-plugins = [
-    'pylint.extensions.bad_builtin',
-    'pylint.extensions.comparison_placement',
-    'pylint.extensions.consider_refactoring_into_while_condition',
-    'pylint.extensions.docparams',
-    'pylint.extensions.dunder',
-    'pylint.extensions.eq_without_hash',
-    'pylint.extensions.for_any_all',
-    'pylint.extensions.mccabe',
-    'pylint.extensions.no_self_use',
-    'pylint.extensions.overlapping_exceptions',
-    'pylint.extensions.private_import',
-    'pylint.extensions.redefined_loop_name',
-    'pylint.extensions.redefined_variable_type',
-    'pylint.extensions.set_membership',
-    'pylint.extensions.typing',
+"MASTER".load-plugins = [
+    "pylint.extensions.bad_builtin",
+    "pylint.extensions.comparison_placement",
+    "pylint.extensions.consider_refactoring_into_while_condition",
+    "pylint.extensions.docparams",
+    "pylint.extensions.dunder",
+    "pylint.extensions.eq_without_hash",
+    "pylint.extensions.for_any_all",
+    "pylint.extensions.mccabe",
+    "pylint.extensions.no_self_use",
+    "pylint.extensions.overlapping_exceptions",
+    "pylint.extensions.private_import",
+    "pylint.extensions.redefined_loop_name",
+    "pylint.extensions.redefined_variable_type",
+    "pylint.extensions.set_membership",
+    "pylint.extensions.typing",
     "pylint_per_file_ignores",
 ]
-
 # Allow loading of arbitrary C extensions. Extensions are imported into the
 # active Python interpreter and may run arbitrary code.
-unsafe-load-any-extension = false
-
-ignore = [
-    '_setuptools_scm_version.py',
+"MASTER".unsafe-load-any-extension = false
+"MASTER".ignore = [
+    "_setuptools_scm_version.py",
 ]
-
-[tool.pylint.'MESSAGES CONTROL']
-
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
 # multiple time (only on the command line, not in the configuration file where
 # it should appear only once). See also the "--disable" option for examples.
-enable = [
-    'bad-inline-option',
-    'deprecated-pragma',
-    'file-ignored',
-    'spelling',
-    'use-symbolic-message-instead',
-    'useless-suppression',
+"MESSAGES CONTROL".enable = [
+    "bad-inline-option",
+    "deprecated-pragma",
+    "file-ignored",
+    "spelling",
+    "use-symbolic-message-instead",
+    "useless-suppression",
 ]
-
 # Disable the message, report, category or checker with the given id(s). You
 # can either give multiple identifiers separated by comma (,) or put this
 # option multiple times (only on the command line, not in the configuration
@@ -252,61 +229,50 @@ enable = [
 # --enable=similarities". If you want to run only the classes checker, but have
 # no Warning level messages displayed, use"--disable=all --enable=classes
 # --disable=W"
-
-disable = [
+"MESSAGES CONTROL".disable = [
     "too-many-branches",
     "too-many-statements",
-    'too-complex',
-    'too-few-public-methods',
-    'too-many-arguments',
-    'too-many-instance-attributes',
-    'too-many-lines',
-    'too-many-locals',
-    'too-many-return-statements',
-    'locally-disabled',
+    "too-complex",
+    "too-few-public-methods",
+    "too-many-arguments",
+    "too-many-instance-attributes",
+    "too-many-lines",
+    "too-many-locals",
+    "too-many-return-statements",
+    "locally-disabled",
     # Let ruff handle long lines
-    'line-too-long',
+    "line-too-long",
     # Let ruff handle unused imports
-    'unused-import',
+    "unused-import",
     # Let ruff deal with sorting
-    'ungrouped-imports',
+    "ungrouped-imports",
     # We don't need everything to be documented because of mypy
-    'missing-type-doc',
-    'missing-return-type-doc',
+    "missing-type-doc",
+    "missing-return-type-doc",
     # Too difficult to please
-    'duplicate-code',
+    "duplicate-code",
     # Let ruff handle imports
-    'wrong-import-order',
+    "wrong-import-order",
     # mypy does not want untyped parameters.
-    'useless-type-doc',
+    "useless-type-doc",
 ]
-
-per-file-ignores = [
+"MESSAGES CONTROL".per-file-ignores = [
     "doccmd_README_rst_*.py:invalid-name",
 ]
-
-[tool.pylint.'SPELLING']
-
 # Spelling dictionary name. Available dictionaries: none. To make it working
 # install python-enchant package.
-spelling-dict = 'en_US'
-
+"SPELLING".spelling-dict = "en_US"
 # A path to a file that contains private dictionary; one word per line.
-spelling-private-dict-file = 'spelling_private_dict.txt'
-
+"SPELLING".spelling-private-dict-file = "spelling_private_dict.txt"
 # Tells whether to store unknown words to indicated private dictionary in
 # --spelling-private-dict-file option instead of raising a message.
-spelling-store-unknown-words = 'no'
-
-[tool.pylint.'TYPECHECK']
-
-signature-mutators = [
+"SPELLING".spelling-store-unknown-words = "no"
+"TYPECHECK".signature-mutators = [
     "click.decorators.option",
     "click.decorators.argument",
 ]
 
 [tool.check-manifest]
-
 ignore = [
     ".checkmake-config.ini",
     "Dockerfile",
@@ -337,7 +303,6 @@ ignore = [
     "lint.mk",
     "VERSION",
     "uv.lock",
-
     "spelling_private_dict.txt",
     "src/*/_setuptools_scm_version.py",
     "tests",
@@ -359,28 +324,23 @@ indent = 4
 keep_full_version = true
 max_supported_python = "3.14"
 
-[tool.pytest.ini_options]
+[tool.pytest]
+ini_options.xfail_strict = true
+ini_options.log_cli = true
 
-xfail_strict = true
-log_cli = true
-
-[tool.coverage.report]
-exclude_also = [
+[tool.coverage]
+report.exclude_also = [
     "if TYPE_CHECKING:",
     "class .*\\bProtocol\\):",
     "@overload",
 ]
-
-[tool.coverage.run]
-
-branch = true
-omit = [
-    'src/*/_setuptools_scm_version.py',
-    'src/doccmd/__main__.py',
+run.branch = true
+run.omit = [
+    "src/*/_setuptools_scm_version.py",
+    "src/doccmd/__main__.py",
 ]
 
 [tool.mypy]
-
 strict = true
 files = [ "." ]
 exclude = [ "build" ]
@@ -390,18 +350,15 @@ plugins = [
 ]
 
 [tool.pyright]
-
 enableTypeIgnoreComments = false
 reportUnnecessaryTypeIgnoreComment = true
 typeCheckingMode = "strict"
 
-[tool.ty.analysis]
+[tool.ty]
 # Disable support for `type: ignore` comments
-respect-type-ignore-comments = false
-
-[tool.ty.terminal]
+analysis.respect-type-ignore-comments = false
 # Error if ty emits any warning-level diagnostics.
-error-on-warning = true
+terminal.error-on-warning = true
 
 [tool.mypy_strict_kwargs]
 # `relative_to` and `is_relative_to` have `other` parameter that is
@@ -425,7 +382,6 @@ exclude = [
 ]
 
 [tool.doc8]
-
 max_line_length = 2000
 ignore_path = [
     "./.eggs",
@@ -477,7 +433,6 @@ ignore_names = [
     "directive",
     "pad_groups",
 ]
-
 exclude = [
     # Duplicate some of .gitignore
     ".venv",
