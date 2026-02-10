@@ -329,15 +329,15 @@ ini_options.xfail_strict = true
 ini_options.log_cli = true
 
 [tool.coverage]
-report.exclude_also = [
-    "if TYPE_CHECKING:",
-    "class .*\\bProtocol\\):",
-    "@overload",
-]
 run.branch = true
 run.omit = [
     "src/*/_setuptools_scm_version.py",
     "src/doccmd/__main__.py",
+]
+report.exclude_also = [
+    "@overload",
+    "class .*\\bProtocol\\):",
+    "if TYPE_CHECKING:",
 ]
 
 [tool.mypy]
