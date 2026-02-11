@@ -562,7 +562,7 @@ requires-dist = [
     { name = "pyroma", marker = "extra == 'dev'", specifier = "==5.0.1" },
     { name = "pytest", marker = "extra == 'dev'", specifier = "==9.0.2" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = "==7.0.0" },
-    { name = "pytest-regressions", marker = "extra == 'dev'", specifier = "==2.9.1" },
+    { name = "pytest-regressions", marker = "extra == 'dev'", specifier = "==2.10.0" },
     { name = "pyyaml", marker = "extra == 'dev'", specifier = "==6.0.3" },
     { name = "ruff", marker = "extra == 'dev'", specifier = "==0.15.0" },
     { name = "shellcheck-py", marker = "extra == 'dev'", specifier = "==0.11.0.1" },
@@ -1665,16 +1665,16 @@ wheels = [
 
 [[package]]
 name = "pytest-regressions"
-version = "2.9.1"
+version = "2.10.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pytest" },
     { name = "pytest-datadir" },
     { name = "pyyaml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/1a/6f/fa2e2971f502b65cc3a056daf275d5d72ad98615a09da1493397a88dc797/pytest_regressions-2.9.1.tar.gz", hash = "sha256:987ed799560ab0fb3bdd7ad06c904cbee6cbad4a42c4a2a56891a54b24ee6908", size = 115361, upload-time = "2026-01-09T16:48:01.88Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/15/d7/6d7525320538d59c1763ebb9f9fdde957966fea607236b2c905ded6f8c98/pytest_regressions-2.10.0.tar.gz", hash = "sha256:5239d29ffe5760acb4a37d95d575383473a2e62c55ede2e89cff735d3bbd2ac9", size = 115513, upload-time = "2026-02-10T13:37:08.21Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2c/ac/4218ae0f0c775c043e2911d99424cb42e81c83555716c86b7fabae854b0b/pytest_regressions-2.9.1-py3-none-any.whl", hash = "sha256:6cd73913e8c3e1ee623950376f107a47a4c055fe48ca1d9214612373893d232b", size = 25052, upload-time = "2026-01-09T16:48:00.441Z" },
+    { url = "https://files.pythonhosted.org/packages/de/f0/32b0a304563e42693049e31be097427f05451aa42c04e3819b4a5c0afe78/pytest_regressions-2.10.0-py3-none-any.whl", hash = "sha256:e40b98fd1e26435bf694fbd497ac74f4580cbda3b794562faab3dcea2300c0eb", size = 25087, upload-time = "2026-02-10T13:37:06.661Z" },
 ]
 
 [[package]]
