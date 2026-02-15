@@ -30,8 +30,6 @@ jobs:
       id-token: write
       # This is needed for https://github.com/stefanzweifel/git-auto-commit-action.
       contents: write
-      # This is needed for pushing Docker images to ghcr.io.
-      packages: write
 
     steps:
       - uses: actions/checkout@v6
@@ -274,6 +272,22 @@ jobs:
           name: Release ${{ steps.tag_version.outputs.new_tag }}
           body: ${{ steps.tag_version.outputs.changelog }}
 
+  publish-docker:
+    name: Publish Docker image
+    needs: build
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      # This is needed for pushing Docker images to ghcr.io.
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.build.outputs.new_tag }}
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -296,8 +310,8 @@ jobs:
             docker buildx build \
               --push \
               --platform linux/amd64,linux/arm64 \
-              --build-arg DOCCMD_VERSION=${{ steps.calver.outputs.release }} \
-              --tag ghcr.io/adamtheturtle/doccmd:${{ steps.calver.outputs.release }} \
+              --build-arg DOCCMD_VERSION=${{ needs.build.outputs.new_tag }} \
+              --tag ghcr.io/adamtheturtle/doccmd:${{ needs.build.outputs.new_tag }} \
               --tag ghcr.io/adamtheturtle/doccmd:latest \
               .
 
