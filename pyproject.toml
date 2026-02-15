@@ -339,8 +339,8 @@ report.exclude_also = [
     "class .*\\bProtocol\\):",
     "if TYPE_CHECKING:",
 ]
-
 report.show_missing = true
+
 [tool.mypy]
 strict = true
 files = [ "." ]
