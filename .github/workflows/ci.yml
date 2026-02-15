@@ -19,6 +19,7 @@ jobs:
       matrix:
         python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
         platform: [ubuntu-latest, windows-latest]
+        hook-stage: [pre-commit, pre-push, manual]
 
     runs-on: ${{ matrix.platform }}
 
@@ -41,10 +42,8 @@ jobs:
         # Use bash to ensure the step fails if any command fails.
         # PowerShell does not fail on intermediate command failures by default.
         shell: bash
-        run: |
-          uv run --extra=dev prek run --all-files --hook-stage pre-commit --verbose
-          uv run --extra=dev prek run --all-files --hook-stage pre-push --verbose
-          uv run --extra=dev prek run --all-files --hook-stage manual --verbose
+        run: uv run --extra=dev prek run --all-files --hook-stage ${{ matrix.hook-stage }}
+          --verbose
         env:
           UV_PYTHON: ${{ matrix.python-version }}
           # nixfmt is only available on Linux.
