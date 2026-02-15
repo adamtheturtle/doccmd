@@ -1,5 +1,5 @@
 ---
-name: CI
+name: Lint
 
 on:
   push:
@@ -10,6 +10,7 @@ on:
     # * is a special character in YAML so you have to quote this string
     # Run at 1:00 every day
     - cron: 0 1 * * *
+  workflow_dispatch: {}
 
 permissions: {}
 
@@ -17,8 +18,9 @@ jobs:
   build:
     strategy:
       matrix:
-        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
+        python-version: ['3.13']
         platform: [ubuntu-latest, windows-latest]
+        hook-stage: [pre-commit, pre-push, manual]
 
     runs-on: ${{ matrix.platform }}
 
@@ -37,18 +39,28 @@ jobs:
           enable-cache: true
           cache-dependency-glob: '**/pyproject.toml'
 
-      - name: Run tests
-        run: |
-          # We run tests against "." and not the tests directory as we test the README
-          # and documentation.
-          uv run --extra=dev pytest -s -vvv --cov-fail-under=100 --cov=src/ --cov=tests .
+      - name: Lint
+        # Use bash to ensure the step fails if any command fails.
+        # PowerShell does not fail on intermediate command failures by default.
+        shell: bash
+        run: uv run --extra=dev prek run --all-files --hook-stage ${{ matrix.hook-stage }}
+          --verbose
         env:
           UV_PYTHON: ${{ matrix.python-version }}
+          # nixfmt is only available on Linux.
+          # hadolint is not available on Windows.
+          SKIP: ${{ runner.os == 'Windows' && 'nixfmt,hadolint' || '' }}
 
-  completion-ci:
+      - uses: pre-commit-ci/lite-action@v1.1.0
+        # Do not run pre-commit on Windows in order to avoid issues with
+        # line endings.
+        # We only need to run the changes from one runner in any case.
+        if: always()
+
+  completion-lint:
     needs: build
     runs-on: ubuntu-latest
-    if: always()  # Run even if one matrix job fails
+    if: always()
     steps:
       - name: Check matrix job status
         run: |-
