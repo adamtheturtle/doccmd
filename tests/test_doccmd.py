@@ -189,6 +189,7 @@ def test_not_utf_8_file_given(tmp_path: Path) -> None:
     ],
 )
 def test_unknown_encoding(
+    *,
     tmp_path: Path,
     fail_on_parse_error_options: Sequence[str],
     expected_exit_code: int,
@@ -511,6 +512,7 @@ def test_multiple_files_multiple_types(tmp_path: Path) -> None:
     ],
 )
 def test_modify_file(
+    *,
     tmp_path: Path,
     write_to_file_options: Sequence[str],
     expected_content: str,
@@ -598,6 +600,7 @@ def test_exit_code(tmp_path: Path) -> None:
     ],
 )
 def test_file_extension(
+    *,
     tmp_path: Path,
     language: str,
     expected_extension: str,
@@ -770,6 +773,7 @@ def test_given_prefix(tmp_path: Path) -> None:
     ],
 )
 def test_custom_template(
+    *,
     tmp_path: Path,
     template: str,
     expected_pattern: str,
@@ -854,6 +858,7 @@ def test_invalid_template_placeholder(tmp_path: Path) -> None:
     ],
 )
 def test_template_requires_suffix_placeholder(
+    *,
     tmp_path: Path,
     template: str,
 ) -> None:
@@ -903,6 +908,7 @@ def test_template_requires_suffix_placeholder(
     ],
 )
 def test_template_malformed_raises_error(
+    *,
     tmp_path: Path,
     template: str,
 ) -> None:
@@ -1071,6 +1077,7 @@ def test_file_given_multiple_times(tmp_path: Path) -> None:
     argvalues=["--example-workers", "--document-workers"],
 )
 def test_workers_requires_no_write_to_file(
+    *,
     tmp_path: Path,
     worker_flag: str,
 ) -> None:
@@ -1107,6 +1114,7 @@ def test_workers_requires_no_write_to_file(
     argvalues=["--example-workers", "--document-workers"],
 )
 def test_workers_runs_commands(
+    *,
     tmp_path: Path,
     worker_flag: str,
 ) -> None:
@@ -1153,6 +1161,7 @@ def test_workers_runs_commands(
     argvalues=["--example-workers", "--document-workers"],
 )
 def test_workers_zero_requires_no_write_when_auto_parallel(
+    *,
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     worker_flag: str,
@@ -1194,6 +1203,7 @@ def test_workers_zero_requires_no_write_when_auto_parallel(
     argvalues=["--example-workers", "--document-workers"],
 )
 def test_workers_zero_allows_running_when_cpu_is_single(
+    *,
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     worker_flag: str,
@@ -1231,6 +1241,7 @@ def test_workers_zero_allows_running_when_cpu_is_single(
 
 
 def test_cpu_count_returns_none(
+    *,
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -1268,6 +1279,7 @@ def test_cpu_count_returns_none(
     argvalues=["--example-workers", "--document-workers"],
 )
 def test_parallel_execution_error(
+    *,
     tmp_path: Path,
     worker_flag: str,
 ) -> None:
@@ -1358,6 +1370,7 @@ def test_document_with_no_examples(tmp_path: Path) -> None:
     ],
 )
 def test_execution_error_handling(
+    *,
     tmp_path: Path,
     worker_options: list[str],
     num_blocks: int,
@@ -1768,6 +1781,7 @@ def test_default_skip_rst(tmp_path: Path) -> None:
     ],
 )
 def test_skip_no_arguments(
+    *,
     tmp_path: Path,
     fail_on_parse_error_options: Sequence[str],
     expected_exit_code: int,
@@ -1822,6 +1836,7 @@ def test_skip_no_arguments(
     ],
 )
 def test_skip_bad_arguments(
+    *,
     tmp_path: Path,
     fail_on_parse_error_options: Sequence[str],
     expected_exit_code: int,
@@ -2508,7 +2523,7 @@ def test_one_supported_markup_in_another_extension(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize(argnames="extension", argvalues=[".unknown", ""])
-def test_unknown_file_suffix(extension: str, tmp_path: Path) -> None:
+def test_unknown_file_suffix(*, extension: str, tmp_path: Path) -> None:
     """An error is shown when the file suffix is not known."""
     runner = CliRunner()
     document_file = tmp_path / ("example" + extension)
@@ -3380,6 +3395,7 @@ def test_group_mdx_by_attribute_default_markers_in_rst(
     ],
 )
 def test_group_start_without_end(
+    *,
     tmp_path: Path,
     fail_on_parse_error_options: Sequence[str],
     expected_exit_code: int,
@@ -3691,6 +3707,7 @@ def test_custom_myst_file_suffixes(tmp_path: Path) -> None:
     ids=["use-pty-no", "use-pty-detect"],
 )
 def test_pty(
+    *,
     tmp_path: Path,
     options: Sequence[str],
     expected_output: str,
@@ -3750,6 +3767,7 @@ def test_pty(
     ],
 )
 def test_source_given_extension_no_leading_period(
+    *,
     tmp_path: Path,
     option: str,
 ) -> None:
@@ -4618,6 +4636,7 @@ def test_multiple_exclude_patterns(tmp_path: Path) -> None:
     ],
 )
 def test_lexing_exception(
+    *,
     tmp_path: Path,
     fail_on_parse_error_options: Sequence[str],
     expected_exit_code: int,
