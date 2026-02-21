@@ -357,6 +357,7 @@ def _validate_file_suffix_overlaps(
                 raise click.UsageError(message=message)
 
 
+@beartype
 @unique
 class _UsePty(Enum):
     """Choices for the use of a pseudo-terminal."""
@@ -547,6 +548,7 @@ class _GroupModifiedError(Exception):
         return message
 
 
+@beartype
 @dataclass
 class _CollectedError:
     """Error collected during continue-on-error mode."""
@@ -555,6 +557,7 @@ class _CollectedError:
     exit_code: int
 
 
+@beartype
 class _FatalProcessingError(Exception):
     """
     Error raised when processing a document requires exiting
