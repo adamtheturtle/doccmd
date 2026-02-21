@@ -465,6 +465,7 @@ def _get_skip_directives(markers: Iterable[str]) -> Iterable[str]:
 
 @beartype
 def _get_temporary_file_extension(
+    *,
     language: str,
     given_file_extension: str | None,
 ) -> str:
