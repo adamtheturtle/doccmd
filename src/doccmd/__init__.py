@@ -357,6 +357,7 @@ def _validate_file_suffix_overlaps(
                 raise click.UsageError(message=message)
 
 
+@beartype
 @unique
 class _UsePty(Enum):
     """Choices for the use of a pseudo-terminal."""
@@ -464,6 +465,7 @@ def _get_skip_directives(markers: Iterable[str]) -> Iterable[str]:
 
 @beartype
 def _get_temporary_file_extension(
+    *,
     language: str,
     given_file_extension: str | None,
 ) -> str:
