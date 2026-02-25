@@ -560,15 +560,17 @@ def test_modify_file(
     assert rst_file.read_text(encoding="utf-8") == expected_content
 
 
-def test_modify_file_python_doctest_code_block(tmp_path: Path) -> None:
-    """Python doctest prompts in Python code blocks can be formatted."""
+def test_modify_file_pycon_code_block(tmp_path: Path) -> None:
+    """Pycon code blocks can be formatted and written back."""
     runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     content = textwrap.dedent(
         text="""\
-        .. code-block:: python
+        .. code-block:: pycon
 
             >>> x=1+  2
+            >>> x
+            3
         """,
     )
     rst_file.write_text(data=content, encoding="utf-8")
@@ -593,7 +595,7 @@ def test_modify_file_python_doctest_code_block(tmp_path: Path) -> None:
         cli=main,
         args=[
             "--language",
-            "python",
+            "pycon",
             "--command",
             f"{Path(sys.executable).as_posix()} {format_code_file.as_posix()}",
             "--no-pad-file",
@@ -605,9 +607,11 @@ def test_modify_file_python_doctest_code_block(tmp_path: Path) -> None:
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_content = textwrap.dedent(
         text="""\
-        .. code-block:: python
+        .. code-block:: pycon
 
             >>> x = 1 + 2
+            >>> x
+            3
         """,
     )
     assert rst_file.read_text(encoding="utf-8") == expected_content

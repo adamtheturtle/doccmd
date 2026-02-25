@@ -51,13 +51,19 @@ from sybil_extras.parsers.mdx.attribute_grouped_source import (
 )
 
 try:
+    from sybil_extras.evaluators.pycon_shell_evaluator import (
+        PyconsShellCommandEvaluator,
+    )
+except ImportError:  # pragma: no cover
+    PyconsShellCommandEvaluator = None
+
+try:
     __version__ = version(distribution_name=__name__)
 except PackageNotFoundError:  # pragma: no cover
     # When pkg_resources and git tags are not available,
     # for example in a PyInstaller binary,
     # we write the file ``_setuptools_scm_version.py`` on ``pip install``.
     from ._setuptools_scm_version import __version__
-
 T = TypeVar("T")
 
 
@@ -850,6 +856,27 @@ def _get_sybil(
         on_modify=_raise_group_modified,
     )
 
+    pycon_shell_evaluator = (
+        PyconsShellCommandEvaluator(
+            args=args,
+            temp_file_path_maker=temp_file_path_maker,
+            pad_file=pad_temporary_file,
+            write_to_file=write_to_file,
+            newline=newline,
+            use_pty=use_pty,
+            encoding=encoding,
+        )
+        if PyconsShellCommandEvaluator is not None
+        else None
+    )
+    pycon_evaluator = (
+        MultiEvaluator(
+            evaluators=[*log_command_evaluators, pycon_shell_evaluator],
+        )
+        if pycon_shell_evaluator is not None
+        else None
+    )
+
     evaluator = MultiEvaluator(
         evaluators=[*log_command_evaluators, shell_command_evaluator],
     )
@@ -891,6 +918,12 @@ def _get_sybil(
         # - Blocks without the attribute are processed individually
         code_block_parsers = []
         for code_block_language in code_block_languages:
+            parser_evaluator = (
+                pycon_evaluator
+                if code_block_language == "pycon"
+                and pycon_evaluator is not None
+                else evaluator
+            )
             code_block_parser = markup_language.code_block_parser_cls(
                 language=code_block_language,
             )
@@ -900,7 +933,7 @@ def _get_sybil(
                     evaluator=group_evaluator,
                     attribute_name=group_mdx_by_attribute,
                     pad_groups=pad_groups,
-                    ungrouped_evaluator=evaluator,
+                    ungrouped_evaluator=parser_evaluator,
                 )
             )
         group_all_parsers = []
@@ -908,7 +941,12 @@ def _get_sybil(
         code_block_parsers = [
             markup_language.code_block_parser_cls(
                 language=code_block_language,
-                evaluator=evaluator,
+                evaluator=(
+                    pycon_evaluator
+                    if code_block_language == "pycon"
+                    and pycon_evaluator is not None
+                    else evaluator
+                ),
             )
             for code_block_language in code_block_languages
         ]
