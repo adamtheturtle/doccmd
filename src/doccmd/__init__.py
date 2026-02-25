@@ -56,9 +56,9 @@ try:
         name="sybil_extras.evaluators.pycon_shell_evaluator",
     )
 except ImportError:  # pragma: no cover
-    PyconsShellCommandEvaluator = None
+    _PyconsShellCommandEvaluator = None
 else:
-    PyconsShellCommandEvaluator = (
+    _PyconsShellCommandEvaluator = (
         _pycon_shell_evaluator_module.PyconsShellCommandEvaluator
     )
 
@@ -862,7 +862,7 @@ def _get_sybil(
     )
 
     pycon_shell_evaluator = (
-        PyconsShellCommandEvaluator(
+        _PyconsShellCommandEvaluator(
             args=args,
             temp_file_path_maker=temp_file_path_maker,
             pad_file=pad_temporary_file,
@@ -871,7 +871,7 @@ def _get_sybil(
             use_pty=use_pty,
             encoding=encoding,
         )
-        if PyconsShellCommandEvaluator is not None
+        if _PyconsShellCommandEvaluator is not None
         else None
     )
     pycon_evaluator = (
