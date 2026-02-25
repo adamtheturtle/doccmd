@@ -11,6 +11,7 @@ from collections.abc import Callable, Iterable, Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from enum import Enum, auto, unique
+from importlib import import_module
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from typing import TypeVar
@@ -51,11 +52,15 @@ from sybil_extras.parsers.mdx.attribute_grouped_source import (
 )
 
 try:
-    from sybil_extras.evaluators.pycon_shell_evaluator import (
-        PyconsShellCommandEvaluator,
+    _pycon_shell_evaluator_module = import_module(
+        name="sybil_extras.evaluators.pycon_shell_evaluator",
     )
 except ImportError:  # pragma: no cover
     PyconsShellCommandEvaluator = None
+else:
+    PyconsShellCommandEvaluator = (
+        _pycon_shell_evaluator_module.PyconsShellCommandEvaluator
+    )
 
 try:
     __version__ = version(distribution_name=__name__)
