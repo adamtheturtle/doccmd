@@ -36,10 +36,14 @@ from sybil.document import Document
 from sybil.example import Example
 from sybil.parsers.abstract.lexers import LexingException
 from sybil_extras.evaluators.multi import MultiEvaluator
-from sybil_extras.evaluators.pycon_shell_evaluator import (
-    PyconsShellCommandEvaluator as _PyconsShellCommandEvaluator,
+from sybil_extras.evaluators.result_transformer import PyconResultTransformer
+from sybil_extras.evaluators.shell_evaluator import (
+    ShellCommandEvaluator,
 )
-from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
+from sybil_extras.evaluators.shell_evaluator import (
+    create_evaluator as _create_evaluator,
+)
+from sybil_extras.evaluators.source_preparer import PyconSourcePreparer
 from sybil_extras.languages import (
     DJOT,
     MARKDOWN,
@@ -852,7 +856,7 @@ def _get_sybil(
         on_modify=_raise_group_modified,
     )
 
-    pycon_shell_evaluator = _PyconsShellCommandEvaluator(
+    pycon_shell_evaluator = _create_evaluator(
         args=args,
         temp_file_path_maker=temp_file_path_maker,
         pad_file=pad_temporary_file,
@@ -860,6 +864,9 @@ def _get_sybil(
         newline=newline,
         use_pty=use_pty,
         encoding=encoding,
+        namespace_key="_pycon_shell_evaluator_modified_content",
+        source_preparer=PyconSourcePreparer(),
+        result_transformer=PyconResultTransformer(),
     )
     pycon_evaluator = MultiEvaluator(
         evaluators=[*log_command_evaluators, pycon_shell_evaluator],
