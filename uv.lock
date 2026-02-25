@@ -2311,8 +2311,8 @@ wheels = [
 
 [[package]]
 name = "sybil-extras"
-version = "2026.1.28.dev101+gf262dbd12"
-source = { git = "https://github.com/adamtheturtle/sybil-extras.git?rev=adamtheturtle%2Fadd-rst-parser#f262dbd1221df2aacf6437242666334c0d2b3033" }
+version = "2026.1.28.dev105+gba580510f"
+source = { git = "https://github.com/adamtheturtle/sybil-extras.git?rev=adamtheturtle%2Fadd-rst-parser#ba580510f8db3497f38abfbacde68b8044e248dd" }
 dependencies = [
     { name = "beartype" },
     { name = "markdown-it-py", version = "3.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
