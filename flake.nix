@@ -52,6 +52,16 @@
         else
           "0.0.0+${self.shortRev or self.dirtyShortRev or "unknown"}";
 
+      # Override sybil-extras to provide build dependencies for the git source
+      sybilExtrasOverlay = final: prev: {
+        sybil-extras = prev.sybil-extras.overrideAttrs (old: {
+          nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [
+            final.setuptools
+            final.setuptools-scm
+          ];
+        });
+      };
+
       # Override doccmd to set the version
       doccmdOverlay = final: prev: {
         doccmd = prev.doccmd.overrideAttrs (old: {
@@ -74,6 +84,7 @@
             lib.composeManyExtensions [
               pyproject-build-systems.overlays.wheel
               overlay
+              sybilExtrasOverlay
               doccmdOverlay
             ]
           )
