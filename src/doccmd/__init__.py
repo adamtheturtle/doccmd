@@ -11,7 +11,6 @@ from collections.abc import Callable, Iterable, Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from enum import Enum, auto, unique
-from importlib import import_module
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
 from typing import TypeVar
@@ -37,6 +36,9 @@ from sybil.document import Document
 from sybil.example import Example
 from sybil.parsers.abstract.lexers import LexingException
 from sybil_extras.evaluators.multi import MultiEvaluator
+from sybil_extras.evaluators.pycon_shell_evaluator import (
+    PyconsShellCommandEvaluator as _PyconsShellCommandEvaluator,
+)
 from sybil_extras.evaluators.shell_evaluator import ShellCommandEvaluator
 from sybil_extras.languages import (
     DJOT,
@@ -50,17 +52,6 @@ from sybil_extras.languages import (
 from sybil_extras.parsers.mdx.attribute_grouped_source import (
     AttributeGroupedSourceParser as MdxAttributeGroupedSourceParser,
 )
-
-try:
-    _pycon_shell_evaluator_module = import_module(
-        name="sybil_extras.evaluators.pycon_shell_evaluator",
-    )
-except ImportError:  # pragma: no cover
-    _PyconsShellCommandEvaluator = None
-else:
-    _PyconsShellCommandEvaluator = (
-        _pycon_shell_evaluator_module.PyconsShellCommandEvaluator
-    )
 
 try:
     __version__ = version(distribution_name=__name__)
@@ -861,25 +852,17 @@ def _get_sybil(
         on_modify=_raise_group_modified,
     )
 
-    pycon_shell_evaluator = (
-        _PyconsShellCommandEvaluator(
-            args=args,
-            temp_file_path_maker=temp_file_path_maker,
-            pad_file=pad_temporary_file,
-            write_to_file=write_to_file,
-            newline=newline,
-            use_pty=use_pty,
-            encoding=encoding,
-        )
-        if _PyconsShellCommandEvaluator is not None
-        else None
+    pycon_shell_evaluator = _PyconsShellCommandEvaluator(
+        args=args,
+        temp_file_path_maker=temp_file_path_maker,
+        pad_file=pad_temporary_file,
+        write_to_file=write_to_file,
+        newline=newline,
+        use_pty=use_pty,
+        encoding=encoding,
     )
-    pycon_evaluator = (
-        MultiEvaluator(
-            evaluators=[*log_command_evaluators, pycon_shell_evaluator],
-        )
-        if pycon_shell_evaluator is not None
-        else None
+    pycon_evaluator = MultiEvaluator(
+        evaluators=[*log_command_evaluators, pycon_shell_evaluator],
     )
 
     evaluator = MultiEvaluator(
@@ -926,7 +909,6 @@ def _get_sybil(
             parser_evaluator = (
                 pycon_evaluator
                 if code_block_language == "pycon"
-                and pycon_evaluator is not None
                 else evaluator
             )
             code_block_parser = markup_language.code_block_parser_cls(
@@ -949,7 +931,6 @@ def _get_sybil(
                 evaluator=(
                     pycon_evaluator
                     if code_block_language == "pycon"
-                    and pycon_evaluator is not None
                     else evaluator
                 ),
             )
