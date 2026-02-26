@@ -151,6 +151,10 @@ Usage example
    # Run j2lint against the sphinx-jinja2 code blocks in a MyST file
    $ doccmd --sphinx-jinja2 --no-pad-file --command="j2lint" README.md
 
+   # Run ruff format against the pycon (Python interactive console) code blocks in README.rst
+   # doccmd strips the >>> prompts before running the formatter and restores them afterward
+   $ doccmd --language=pycon --no-pad-file --command="ruff format" README.rst
+
 What does it work on?
 ---------------------
 
@@ -236,6 +240,12 @@ It does this by adding padding to the code blocks before running the command.
 
 Some tools do not work well with this padding, and you can choose to obscure the line numbers in order to give the tool the original code block's content without padding, by using the ``--no-pad-file`` and ``--no-pad-groups`` flag.
 See using_groups_with_formatters_ for more information.
+
+pycon code blocks
+-----------------
+
+When ``--language=pycon`` is used, ``doccmd`` strips ``>>>`` and ``...`` prompts before passing the code to the tool, and restores them afterward, preserving output lines.
+This allows linters and formatters that expect plain Python source to work on ``pycon`` blocks.
 
 File names and linter ignores
 -----------------------------

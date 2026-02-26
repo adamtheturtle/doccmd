@@ -74,6 +74,12 @@ For example, to run ``ruff format`` against the code blocks in a Markdown file, 
 
    $ doccmd --language=python --no-pad-file --no-pad-groups --command="ruff format"
 
+pycon code blocks
+-----------------
+
+When :option:`doccmd --language` is set to ``pycon``, ``doccmd`` strips ``>>>`` and ``...`` prompts before passing the code to the tool, and restores them afterward, preserving output lines.
+This allows linters and formatters that expect plain Python source to work on ``pycon`` blocks.
+
 .. include:: file-names-and-linter-ignores.rst
 
 Running commands in parallel
