@@ -20,3 +20,7 @@ Usage example
 
    # Run j2lint against the sphinx-jinja2 code blocks in a MyST file
    $ doccmd --sphinx-jinja2 --no-pad-file --no-pad-groups --command="j2lint" README.md
+
+   # Run ruff format against the pycon (Python interactive console) code blocks in README.rst
+   # doccmd strips the >>> prompts before running the formatter and restores them afterward
+   $ doccmd --language=pycon --no-pad-file --command="ruff format" README.rst

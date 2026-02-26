@@ -36,6 +36,7 @@ parsers
 pragma
 pre
 py
+pycon
 pyperclip
 pyrefly
 pyright
