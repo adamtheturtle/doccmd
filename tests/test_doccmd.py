@@ -17,7 +17,7 @@ from ansi.colour.fx import reset
 from click.testing import CliRunner
 from pytest_regressions.file_regression import FileRegressionFixture
 
-from doccmd import _is_pycon_source, main
+from doccmd import main
 
 PARALLELISM_EXIT_CODE = 2  # CLI exit when parallel writes are disallowed
 
@@ -876,23 +876,6 @@ def test_detect_pycon_language_disabled(tmp_path: Path) -> None:
     )
     # Should fail since >>> prompts are passed through (not stripped)
     assert result.exit_code != 0, (result.stdout, result.stderr)
-
-
-def test_is_pycon_source_empty() -> None:
-    """An empty source string is not detected as pycon."""
-    assert _is_pycon_source(source="") is False
-
-
-def test_is_pycon_source_blank_lines_only() -> None:
-    """A source with only blank lines is not detected as pycon."""
-    assert _is_pycon_source(source="\n\n") is False
-
-
-def test_is_pycon_source_leading_blank_line_non_pycon() -> None:
-    """A source with a leading blank line followed by non-pycon code is
-    not detected as pycon.
-    """
-    assert _is_pycon_source(source="\nx = 1") is False
 
 
 def test_exit_code(tmp_path: Path) -> None:

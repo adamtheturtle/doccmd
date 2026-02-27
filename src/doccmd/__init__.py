@@ -817,13 +817,10 @@ def _is_pycon_source(*, source: str) -> bool:
     """Return True if source looks like a pycon (interactive console)
     block.
 
-    Checks whether the first non-empty line starts with a ``>>>`` prompt.
+    Checks whether the first line starts with a ``>>>`` prompt.
     """
-    for line in source.splitlines():
-        if line.rstrip():  # first non-empty line
-            stripped = line.rstrip()
-            return stripped == ">>>" or line.startswith(">>> ")
-    return False
+    first_line, _, _ = source.partition("\n")
+    return first_line.rstrip() == ">>>" or first_line.startswith(">>> ")
 
 
 @beartype
