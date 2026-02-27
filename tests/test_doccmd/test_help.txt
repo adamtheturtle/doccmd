@@ -14,6 +14,15 @@ Code block selection:
                                   languages. If this is not given, no code
                                   blocks are run, unless `--sphinx-jinja2` is
                                   given.
+  --pycon-language TEXT           Treat code blocks for this language as pycon
+                                  (Python interactive console) blocks, stripping
+                                  ``>>>`` and ``...`` prompts before passing the
+                                  code to the command and restoring them
+                                  afterward. Give this multiple times to use
+                                  pycon stripping for multiple languages. To
+                                  disable pycon stripping for all languages,
+                                  including the default, use `--pycon-
+                                  language=.`.  [default: pycon]
   --skip-marker TEXT              The marker used to identify code blocks to be
                                   skipped.
                                   

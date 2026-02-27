@@ -617,6 +617,67 @@ def test_modify_file_pycon_code_block(tmp_path: Path) -> None:
     assert rst_file.read_text(encoding="utf-8") == expected_content
 
 
+def test_custom_pycon_language(tmp_path: Path) -> None:
+    """The --pycon-language option allows using pycon stripping for non-
+    default language names.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python-console
+
+            >>> x=1+  2
+            >>> x
+            3
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    format_code_script = textwrap.dedent(
+        text="""\
+        import ast
+        import sys
+        from pathlib import Path
+
+        path = Path(sys.argv[1])
+        source = path.read_text(encoding="utf-8")
+        ast.parse(source)
+        path.write_text(
+            source.replace("x=1+  2", "x = 1 + 2"),
+            encoding="utf-8",
+        )
+        """,
+    )
+    format_code_file = tmp_path / "format_code.py"
+    format_code_file.write_text(data=format_code_script, encoding="utf-8")
+    result = runner.invoke(
+        cli=main,
+        args=[
+            "--language",
+            "python-console",
+            "--pycon-language",
+            "python-console",
+            "--command",
+            f"{Path(sys.executable).as_posix()} {format_code_file.as_posix()}",
+            "--no-pad-file",
+            str(object=rst_file),
+        ],
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    expected_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python-console
+
+            >>> x = 1 + 2
+            >>> x
+            3
+        """,
+    )
+    assert rst_file.read_text(encoding="utf-8") == expected_content
+
+
 def test_exit_code(tmp_path: Path) -> None:
     """The exit code of the first failure is propagated."""
     runner = CliRunner()
