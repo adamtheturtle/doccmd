@@ -298,6 +298,7 @@ ignore = [
     "doc8.ini",
     "docs",
     "docs/**",
+    "example_pycon_plain_python.md",
     "flake.lock",
     "flake.nix",
     "lint.mk",
