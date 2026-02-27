@@ -6079,3 +6079,84 @@ def test_respect_gitignore_symlink_outside_repo(tmp_path: Path) -> None:
     # The symlinked file outside the repo should be processed
     assert "outside_block" in result.stdout
     assert result.stderr == ""
+
+
+def test_invalid_pycon_code_block(tmp_path: Path) -> None:
+    """An error is shown when a pycon code block has lines before the
+    first ``>>>`` prompt.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: pycon
+
+            not a prompt
+            >>> x = 1
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "pycon",
+        "--command",
+        Path(sys.executable).as_posix(),
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 1, (result.stdout, result.stderr)
+    expected_stderr = f"{fg.red}Invalid pycon code block in {rst_file}:"
+    assert result.stderr.startswith(expected_stderr)
+
+
+def test_continue_on_error_invalid_pycon(tmp_path: Path) -> None:
+    """With --continue-on-error, InvalidPyconError is collected and
+    execution continues.
+    """
+    runner = CliRunner()
+
+    rst_file1 = tmp_path / "invalid_pycon.rst"
+    content1 = textwrap.dedent(
+        text="""\
+        .. code-block:: pycon
+
+            not a prompt
+            >>> x = 1
+        """,
+    )
+    rst_file1.write_text(data=content1, encoding="utf-8")
+
+    rst_file2 = tmp_path / "valid.rst"
+    content2 = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            x = 1 + 1
+        """,
+    )
+    rst_file2.write_text(data=content2, encoding="utf-8")
+
+    arguments = [
+        "--continue-on-error",
+        "--language",
+        "pycon",
+        "--language",
+        "python",
+        "--command",
+        Path(sys.executable).as_posix(),
+        str(object=rst_file1),
+        str(object=rst_file2),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 1, (result.stdout, result.stderr)
+    assert f"Invalid pycon code block in {rst_file1}:" in result.stderr
