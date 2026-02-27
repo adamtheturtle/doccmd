@@ -80,6 +80,12 @@ pycon code blocks
 When :option:`doccmd --language` is set to ``pycon``, ``doccmd`` strips ``>>>`` and ``...`` prompts before passing the code to the tool, and restores them afterward, preserving output lines.
 This allows linters and formatters that expect plain Python source to work on ``pycon`` blocks.
 
+The recommended approach is to label interactive Python sessions in your documentation as ``pycon``, keeping them clearly distinct from plain ``python`` blocks.
+
+If your existing documentation already uses ``python`` as the language for both plain code and interactive sessions, use :option:`doccmd --detect-pycon-language` (which defaults to ``python``) together with ``--language=python``.
+``doccmd`` will automatically detect which ``python`` blocks are interactive (by checking whether the first non-empty line starts with ``>>>``), and apply pycon stripping only to those.
+Plain ``python`` blocks are processed without stripping.
+
 .. include:: file-names-and-linter-ignores.rst
 
 Running commands in parallel

@@ -23,6 +23,18 @@ Code block selection:
                                   disable pycon stripping for all languages,
                                   including the default, use `--pycon-
                                   language=.`.  [default: pycon]
+  --detect-pycon-language TEXT    Automatically detect if code blocks for this
+                                  language are pycon (Python interactive
+                                  console) blocks by checking whether the first
+                                  non-empty line starts with ``>>>``. If so,
+                                  ``>>>`` and ``...`` prompts are stripped
+                                  before passing the code to the command and
+                                  restored afterward. If not, the block is
+                                  processed without pycon stripping. Give this
+                                  multiple times for multiple languages. To
+                                  disable auto-detection for all languages,
+                                  including the default, use `--detect-pycon-
+                                  language=.`.  [default: python]
   --skip-marker TEXT              The marker used to identify code blocks to be
                                   skipped.
                                   

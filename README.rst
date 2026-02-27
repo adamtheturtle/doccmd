@@ -155,6 +155,10 @@ Usage example
    # doccmd strips the >>> prompts before running the formatter and restores them afterward
    $ doccmd --language=pycon --no-pad-file --command="ruff format" README.rst
 
+   # Run ruff format against python blocks, auto-detecting which ones are pycon
+   # (use this if your existing docs label interactive sessions as "python" rather than "pycon")
+   $ doccmd --language=python --no-pad-file --command="ruff format" README.rst
+
 What does it work on?
 ---------------------
 
@@ -246,6 +250,12 @@ pycon code blocks
 
 When ``--language=pycon`` is used, ``doccmd`` strips ``>>>`` and ``...`` prompts before passing the code to the tool, and restores them afterward, preserving output lines.
 This allows linters and formatters that expect plain Python source to work on ``pycon`` blocks.
+
+The recommended approach is to label interactive Python sessions in your documentation as ``pycon``, keeping them clearly distinct from plain ``python`` blocks.
+
+If your existing documentation already uses ``python`` as the language for both plain code and interactive sessions, use ``--detect-pycon-language=python`` (the default) together with ``--language=python``.
+``doccmd`` will automatically detect which ``python`` blocks are interactive (by checking whether the first non-empty line starts with ``>>>``), and apply pycon stripping only to those.
+Plain ``python`` blocks are processed without stripping.
 
 File names and linter ignores
 -----------------------------
