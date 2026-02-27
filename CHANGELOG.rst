@@ -4,6 +4,8 @@ Changelog
 Next
 ----
 
+- Add ``--detect-pycon-language`` option (default: ``python``) to automatically detect pycon (Python interactive console) blocks and apply prompt stripping only when a block's first non-empty line starts with ``>>>``.
+
 2026.02.27
 ----------
 
