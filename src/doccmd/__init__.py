@@ -599,6 +599,7 @@ def _process_file_path(
     suffix_map: Mapping[str, MarkupLanguage],
     args: Sequence[str | Path],
     languages: Sequence[str],
+    pycon_languages: Sequence[str],
     pad_file: bool,
     write_to_file: bool,
     pad_groups: bool,
@@ -650,6 +651,7 @@ def _process_file_path(
         sybil = _get_sybil(
             args=args,
             code_block_languages=[code_block_language],
+            pycon_languages=pycon_languages,
             pad_temporary_file=pad_file,
             write_to_file=write_to_file,
             pad_groups=pad_groups,
@@ -674,6 +676,7 @@ def _process_file_path(
         sybil = _get_sybil(
             args=args,
             code_block_languages=[],
+            pycon_languages=pycon_languages,
             pad_temporary_file=pad_file,
             write_to_file=write_to_file,
             pad_groups=pad_groups,
@@ -798,6 +801,7 @@ def _get_sybil(
     encoding: str,
     args: Sequence[str | Path],
     code_block_languages: Sequence[str],
+    pycon_languages: Sequence[str],
     temporary_file_extension: str,
     temporary_file_name_prefix: str,
     temporary_file_name_template: str,
@@ -915,7 +919,7 @@ def _get_sybil(
         for code_block_language in code_block_languages:
             parser_evaluator = (
                 pycon_evaluator
-                if code_block_language == "pycon"
+                if code_block_language in pycon_languages
                 else evaluator
             )
             code_block_parser = markup_language.code_block_parser_cls(
@@ -937,7 +941,7 @@ def _get_sybil(
                 language=code_block_language,
                 evaluator=(
                     pycon_evaluator
-                    if code_block_language == "pycon"
+                    if code_block_language in pycon_languages
                     else evaluator
                 ),
             )
@@ -1004,6 +1008,30 @@ def _get_sybil(
             "`--sphinx-jinja2` is given."
         ),
         multiple=True,
+        callback=multi_callback(
+            callbacks=[
+                _deduplicate,
+                sequence_validator(validator=_validate_no_empty_string),
+            ]
+        ),
+    ),
+    cloup.option(
+        "--pycon-language",
+        "pycon_languages",
+        type=str,
+        help=(
+            "Treat code blocks for this language as pycon (Python interactive "
+            "console) blocks, stripping ``>>>`` and ``...`` prompts before "
+            "passing the code to the command and restoring them afterward. "
+            "Give this multiple times to use pycon stripping for multiple "
+            "languages. "
+            "To disable pycon stripping for all languages, "
+            "including the default, "
+            "use `--pycon-language=.`."
+        ),
+        multiple=True,
+        default=("pycon",),
+        show_default=True,
         callback=multi_callback(
             callbacks=[
                 _deduplicate,
@@ -1447,6 +1475,7 @@ def _get_sybil(
 def main(
     *,
     languages: Sequence[str],
+    pycon_languages: Sequence[str],
     command: str,
     document_paths: Sequence[Path],
     temporary_file_extension: str | None,
@@ -1558,6 +1587,7 @@ def main(
                         suffix_map=suffix_map,
                         args=args,
                         languages=languages,
+                        pycon_languages=pycon_languages,
                         pad_file=pad_file,
                         write_to_file=write_to_file,
                         pad_groups=pad_groups,
@@ -1589,6 +1619,7 @@ def main(
                     suffix_map=suffix_map,
                     args=args,
                     languages=languages,
+                    pycon_languages=pycon_languages,
                     pad_file=pad_file,
                     write_to_file=write_to_file,
                     pad_groups=pad_groups,
