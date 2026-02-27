@@ -603,6 +603,7 @@ def _process_file_path(
     args: Sequence[str | Path],
     languages: Sequence[str],
     pycon_languages: Sequence[str],
+    detect_pycon_languages: Sequence[str],
     pad_file: bool,
     write_to_file: bool,
     pad_groups: bool,
@@ -655,6 +656,7 @@ def _process_file_path(
             args=args,
             code_block_languages=[code_block_language],
             pycon_languages=pycon_languages,
+            detect_pycon_languages=detect_pycon_languages,
             pad_temporary_file=pad_file,
             write_to_file=write_to_file,
             pad_groups=pad_groups,
@@ -680,6 +682,7 @@ def _process_file_path(
             args=args,
             code_block_languages=[],
             pycon_languages=pycon_languages,
+            detect_pycon_languages=detect_pycon_languages,
             pad_temporary_file=pad_file,
             write_to_file=write_to_file,
             pad_groups=pad_groups,
@@ -810,12 +813,50 @@ def _get_encoding(*, document_path: Path) -> str | None:
 
 
 @beartype
+def _is_pycon_source(*, source: str) -> bool:
+    """Return True if source looks like a pycon (interactive console)
+    block.
+
+    Checks whether the first line starts with a ``>>>`` prompt.
+    """
+    first_line, _, _ = source.partition("\n")
+    return first_line.rstrip() == ">>>" or first_line.startswith(">>> ")
+
+
+@beartype
+class _DetectingPyconEvaluator:
+    """Evaluator that auto-detects pycon content at evaluation time.
+
+    If the example source starts with ``>>>`` prompts the pycon evaluator
+    is used; otherwise the regular evaluator is used.
+    """
+
+    def __init__(
+        self,
+        *,
+        pycon_evaluator: MultiEvaluator,
+        regular_evaluator: MultiEvaluator,
+    ) -> None:
+        """Initialize the detecting evaluator."""
+        self._pycon_evaluator = pycon_evaluator
+        self._regular_evaluator = regular_evaluator
+
+    def __call__(self, example: Example) -> str | None:
+        """Run the appropriate evaluator based on content detection."""
+        source = str(object=example.parsed)
+        if _is_pycon_source(source=source):
+            return self._pycon_evaluator(example)
+        return self._regular_evaluator(example)
+
+
+@beartype
 def _get_sybil(
     *,
     encoding: str,
     args: Sequence[str | Path],
     code_block_languages: Sequence[str],
     pycon_languages: Sequence[str],
+    detect_pycon_languages: Sequence[str],
     temporary_file_extension: str,
     temporary_file_name_prefix: str,
     temporary_file_name_template: str,
@@ -893,6 +934,11 @@ def _get_sybil(
     evaluator = MultiEvaluator(
         evaluators=[*log_command_evaluators, shell_command_evaluator],
     )
+
+    detecting_pycon_evaluator = _DetectingPyconEvaluator(
+        pycon_evaluator=pycon_evaluator,
+        regular_evaluator=evaluator,
+    )
     group_evaluator = MultiEvaluator(
         evaluators=[*log_command_evaluators, shell_command_group_evaluator],
     )
@@ -934,7 +980,11 @@ def _get_sybil(
             parser_evaluator = (
                 pycon_evaluator
                 if code_block_language in pycon_languages
-                else evaluator
+                else (
+                    detecting_pycon_evaluator
+                    if code_block_language in detect_pycon_languages
+                    else evaluator
+                )
             )
             code_block_parser = markup_language.code_block_parser_cls(
                 language=code_block_language,
@@ -956,7 +1006,11 @@ def _get_sybil(
                 evaluator=(
                     pycon_evaluator
                     if code_block_language in pycon_languages
-                    else evaluator
+                    else (
+                        detecting_pycon_evaluator
+                        if code_block_language in detect_pycon_languages
+                        else evaluator
+                    )
                 ),
             )
             for code_block_language in code_block_languages
@@ -1045,6 +1099,32 @@ def _get_sybil(
         ),
         multiple=True,
         default=("pycon",),
+        show_default=True,
+        callback=multi_callback(
+            callbacks=[
+                _deduplicate,
+                sequence_validator(validator=_validate_no_empty_string),
+            ]
+        ),
+    ),
+    cloup.option(
+        "--detect-pycon-language",
+        "detect_pycon_languages",
+        type=str,
+        help=(
+            "Automatically detect if code blocks for this language are pycon "
+            "(Python interactive console) blocks by checking whether the "
+            "first non-empty line starts with ``>>>``."
+            " If so, ``>>>`` and ``...`` prompts are stripped before passing "
+            "the code to the command and restored afterward. "
+            "If not, the block is processed without pycon stripping. "
+            "Give this multiple times for multiple languages. "
+            "To disable auto-detection for all languages, "
+            "including the default, "
+            "use `--detect-pycon-language=.`."
+        ),
+        multiple=True,
+        default=("python",),
         show_default=True,
         callback=multi_callback(
             callbacks=[
@@ -1490,6 +1570,7 @@ def main(
     *,
     languages: Sequence[str],
     pycon_languages: Sequence[str],
+    detect_pycon_languages: Sequence[str],
     command: str,
     document_paths: Sequence[Path],
     temporary_file_extension: str | None,
@@ -1602,6 +1683,7 @@ def main(
                         args=args,
                         languages=languages,
                         pycon_languages=pycon_languages,
+                        detect_pycon_languages=detect_pycon_languages,
                         pad_file=pad_file,
                         write_to_file=write_to_file,
                         pad_groups=pad_groups,
@@ -1634,6 +1716,7 @@ def main(
                     args=args,
                     languages=languages,
                     pycon_languages=pycon_languages,
+                    detect_pycon_languages=detect_pycon_languages,
                     pad_file=pad_file,
                     write_to_file=write_to_file,
                     pad_groups=pad_groups,

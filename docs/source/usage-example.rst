@@ -24,3 +24,7 @@ Usage example
    # Run ruff format against the pycon (Python interactive console) code blocks in README.rst
    # doccmd strips the >>> prompts before running the formatter and restores them afterward
    $ doccmd --language=pycon --no-pad-file --command="ruff format" README.rst
+
+   # Run ruff format against python blocks, auto-detecting which ones are pycon
+   # (use this if your existing docs label interactive sessions as "python" rather than "pycon")
+   $ doccmd --language=python --no-pad-file --command="ruff format" README.rst

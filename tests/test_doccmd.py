@@ -678,6 +678,206 @@ def test_custom_pycon_language(tmp_path: Path) -> None:
     assert rst_file.read_text(encoding="utf-8") == expected_content
 
 
+def test_detect_pycon_language_pycon_block(tmp_path: Path) -> None:
+    """With --detect-pycon-language, a python block that looks like pycon
+    gets pycon stripping applied.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            >>> x=1+  2
+            >>> x
+            3
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    format_code_script = textwrap.dedent(
+        text="""\
+        import ast
+        import sys
+        from pathlib import Path
+
+        path = Path(sys.argv[1])
+        source = path.read_text(encoding="utf-8")
+        ast.parse(source)
+        path.write_text(
+            source.replace("x=1+  2", "x = 1 + 2"),
+            encoding="utf-8",
+        )
+        """,
+    )
+    format_code_file = tmp_path / "format_code.py"
+    format_code_file.write_text(data=format_code_script, encoding="utf-8")
+    result = runner.invoke(
+        cli=main,
+        args=[
+            "--language",
+            "python",
+            "--detect-pycon-language",
+            "python",
+            "--command",
+            f"{Path(sys.executable).as_posix()} {format_code_file.as_posix()}",
+            "--no-pad-file",
+            str(object=rst_file),
+        ],
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    expected_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            >>> x = 1 + 2
+            >>> x
+            3
+        """,
+    )
+    assert rst_file.read_text(encoding="utf-8") == expected_content
+
+
+def test_detect_pycon_language_non_pycon_block(tmp_path: Path) -> None:
+    """With --detect-pycon-language, a python block without pycon prompts
+    is processed as a regular code block (no stripping).
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            x=1+  2
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    format_code_script = textwrap.dedent(
+        text="""\
+        import ast
+        import sys
+        from pathlib import Path
+
+        path = Path(sys.argv[1])
+        source = path.read_text(encoding="utf-8")
+        ast.parse(source)
+        path.write_text(
+            source.replace("x=1+  2", "x = 1 + 2"),
+            encoding="utf-8",
+        )
+        """,
+    )
+    format_code_file = tmp_path / "format_code.py"
+    format_code_file.write_text(data=format_code_script, encoding="utf-8")
+    result = runner.invoke(
+        cli=main,
+        args=[
+            "--language",
+            "python",
+            "--detect-pycon-language",
+            "python",
+            "--command",
+            f"{Path(sys.executable).as_posix()} {format_code_file.as_posix()}",
+            "--no-pad-file",
+            str(object=rst_file),
+        ],
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    expected_content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            x = 1 + 2
+        """,
+    )
+    assert rst_file.read_text(encoding="utf-8") == expected_content
+
+
+def test_detect_pycon_language_default_python(tmp_path: Path) -> None:
+    """The default --detect-pycon-language=python detects pycon in python
+    blocks without needing an explicit flag.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            >>> x = 1
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    result = runner.invoke(
+        cli=main,
+        args=[
+            "--language",
+            "python",
+            "--command",
+            Path(sys.executable).as_posix(),
+            "--no-pad-file",
+            str(object=rst_file),
+        ],
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+
+
+def test_detect_pycon_language_disabled(tmp_path: Path) -> None:
+    """With --detect-pycon-language=., detection is disabled and pycon
+    blocks are passed to the command as-is.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            >>> x = 1
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    # A script that would fail if it receives >>> prompts (not valid Python)
+    check_no_prompts_script = textwrap.dedent(
+        text="""\
+        import sys
+        from pathlib import Path
+
+        source = Path(sys.argv[1]).read_text(encoding="utf-8")
+        if ">>>" in source:
+            sys.exit(1)
+        """,
+    )
+    check_script_file = tmp_path / "check.py"
+    check_script_file.write_text(
+        data=check_no_prompts_script,
+        encoding="utf-8",
+    )
+    result = runner.invoke(
+        cli=main,
+        args=[
+            "--language",
+            "python",
+            "--detect-pycon-language",
+            ".",
+            "--command",
+            (
+                f"{Path(sys.executable).as_posix()} "
+                f"{check_script_file.as_posix()}"
+            ),
+            "--no-pad-file",
+            str(object=rst_file),
+        ],
+        catch_exceptions=False,
+        color=True,
+    )
+    # Should fail since >>> prompts are passed through (not stripped)
+    assert result.exit_code != 0, (result.stdout, result.stderr)
+
+
 def test_exit_code(tmp_path: Path) -> None:
     """The exit code of the first failure is propagated."""
     runner = CliRunner()
