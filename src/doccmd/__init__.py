@@ -39,6 +39,9 @@ from sybil_extras.evaluators.multi import MultiEvaluator
 from sybil_extras.evaluators.shell_evaluator import (
     ShellCommandEvaluator,
 )
+from sybil_extras.evaluators.shell_evaluator.exceptions import (
+    InvalidPyconError,
+)
 from sybil_extras.evaluators.shell_evaluator.result_transformer import (
     PyconResultTransformer,
 )
@@ -732,6 +735,17 @@ def _process_file_path(
                 )
                 continue
             _log_warning(message=str(object=exc))
+        except InvalidPyconError as exc:
+            error_msg = f"Invalid pycon code block in {file_path}: {exc}"
+            _log_error(message=error_msg)
+            local_errors.append(
+                _handle_error(
+                    message=error_msg,
+                    exit_code=1,
+                    continue_on_error=continue_on_error,
+                    exc=exc,
+                )
+            )
         except ValueError as exc:
             error_msg = f"Error running command '{args[0]}': {exc}"
             _log_error(message=error_msg)
