@@ -576,7 +576,7 @@ requires-dist = [
     { name = "sphinx-substitution-extensions", marker = "extra == 'dev'", specifier = "==2026.1.12" },
     { name = "sphinxcontrib-spelling", marker = "extra == 'dev'", specifier = "==8.0.2" },
     { name = "sybil", specifier = ">=9.3.0,<10.0.0" },
-    { name = "sybil-extras", specifier = "==2026.2.26.1" },
+    { name = "sybil-extras", specifier = "==2026.2.27" },
     { name = "ty", marker = "extra == 'dev'", specifier = "==0.0.19" },
     { name = "types-pygments", marker = "extra == 'dev'", specifier = "==2.19.0.20251121" },
     { name = "vulture", marker = "extra == 'dev'", specifier = "==2.14" },
@@ -2311,7 +2311,7 @@ wheels = [
 
 [[package]]
 name = "sybil-extras"
-version = "2026.2.26.1"
+version = "2026.2.27"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "beartype" },
@@ -2319,9 +2319,9 @@ dependencies = [
     { name = "markdown-it-py", version = "4.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "sybil" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c5/75/400b86e6c0e3fc102eb67908f27110a949d62b1c18a573480a338d328e06/sybil_extras-2026.2.26.1.tar.gz", hash = "sha256:d70a5072024f0d0fd82e82344f49b4ea017f4a9effc8a3ff8d1bdeaa2f28d520", size = 82151, upload-time = "2026-02-26T09:57:53.175Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/bf/a2/904c82b7adc14a43dc2cad8236b6a24f19dff50776e87dee167f8e74dcb7/sybil_extras-2026.2.27.tar.gz", hash = "sha256:5256d3f2abc5a02b3e51caa27415b57727478da935b1d3635ef6f630ab2ff08f", size = 82373, upload-time = "2026-02-27T07:41:51.716Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/23/f7/3a4ad206c0909375139e2330b2538f97fa0a45385581fd80f7bae87be93b/sybil_extras-2026.2.26.1-py2.py3-none-any.whl", hash = "sha256:51eb039fae54ad695fb9ed621507a8d1a72da1c6b55e4483619c05a53cd27cd0", size = 63537, upload-time = "2026-02-26T09:57:51.534Z" },
+    { url = "https://files.pythonhosted.org/packages/b6/7a/29010930e5625868bf9650336412f1488b15836c467b2e0c94d98d1cc1e9/sybil_extras-2026.2.27-py2.py3-none-any.whl", hash = "sha256:cc72aac98626f0ca22b44092add87d1a7ba694de6ea235d75b4aea858123e687", size = 64105, upload-time = "2026-02-27T07:41:49.639Z" },
 ]
 
 [[package]]
