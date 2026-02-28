@@ -6,6 +6,8 @@ Norg
 admin
 api
 args
+backtick
+backticks
 beartype
 blockquote
 changelog
