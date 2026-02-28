@@ -4213,7 +4213,7 @@ def test_overlapping_markdown_mdx_extensions(tmp_path: Path) -> None:
             Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...
             Try 'doccmd --help' for help.
 
-            Error: Overlapping suffixes between MarkdownIt and MDX: .shared.
+            Error: Overlapping suffixes between Markdown and MDX: .shared.
             """,
     )
     assert result.stdout == ""
@@ -4259,7 +4259,7 @@ def test_overlapping_markdown_djot_extensions(tmp_path: Path) -> None:
             Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...
             Try 'doccmd --help' for help.
 
-            Error: Overlapping suffixes between MarkdownIt and Djot: .shared.
+            Error: Overlapping suffixes between Markdown and Djot: .shared.
             """,
     )
     assert result.stdout == ""
