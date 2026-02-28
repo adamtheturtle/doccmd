@@ -6360,3 +6360,132 @@ def test_continue_on_error_invalid_pycon(tmp_path: Path) -> None:
     )
     assert result.exit_code == 1, (result.stdout, result.stderr)
     assert f"Invalid pycon code block in {rst_file1}:" in result.stderr
+
+
+def test_markdown_code_block_in_list_item(tmp_path: Path) -> None:
+    """A fenced code block indented inside a list item is detected.
+
+    When a Markdown fenced code block is indented inside a list item,
+    doccmd should still detect and process the code block.
+
+    See https://github.com/adamtheturtle/doccmd/issues/838 test case 1.
+    """
+    runner = CliRunner()
+    md_file = tmp_path / "example.md"
+    content = textwrap.dedent(
+        text="""\
+        - ```python
+          import asyncio
+          ```
+        """,
+    )
+    md_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--no-pad-file",
+        "--command",
+        "cat",
+        str(object=md_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert "import asyncio" in result.stdout
+
+
+def test_markdown_invalid_nested_fences_no_phantom_block(
+    tmp_path: Path,
+) -> None:
+    """Invalid nested fences should not produce phantom code blocks.
+
+    When a Markdown file has invalid syntax with what looks like nested
+    code fences, doccmd should not extract code from a non-existent
+    block.
+
+    See https://github.com/adamtheturtle/doccmd/issues/838 test case 2.
+    """
+    runner = CliRunner()
+    md_file = tmp_path / "example.md"
+    content = textwrap.dedent(
+        text="""\
+        - ```python
+          import asyncio
+          ```python
+          import httpx
+          ```
+        """,
+    )
+    md_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--no-pad-file",
+        "--command",
+        "cat",
+        str(object=md_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert "import httpx" not in result.stdout
+
+
+def test_markdown_backticks_inside_code_block(tmp_path: Path) -> None:
+    """A code block using 4+ backtick fences can contain triple backticks.
+
+    When a Markdown code block is opened with four or more backticks
+    (e.g., ````python), triple backtick fences inside the block content
+    should be treated as literal text, not as nested code fences.
+    This should not produce an overlap parse error.
+
+    See https://github.com/adamtheturtle/doccmd/issues/838 test case 3.
+    """
+    runner = CliRunner()
+    md_file = tmp_path / "example.md"
+    content = textwrap.dedent(
+        text="""\
+        ````python
+        \"\"\"
+        ```python
+        import asyncio
+        ```
+        \"\"\"
+        `````
+        """,
+    )
+    md_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--no-pad-file",
+        "--command",
+        "cat",
+        str(object=md_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert result.stderr == ""
+    expected_output = textwrap.dedent(
+        text="""\
+        \"\"\"
+        ```python
+        import asyncio
+        ```
+        \"\"\"
+        """,
+    )
+    assert result.stdout == expected_output
