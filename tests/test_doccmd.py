@@ -4213,7 +4213,7 @@ def test_overlapping_markdown_mdx_extensions(tmp_path: Path) -> None:
             Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...
             Try 'doccmd --help' for help.
 
-            Error: Overlapping suffixes between Markdown and MDX: .shared.
+            Error: Overlapping suffixes between MarkdownIt and MDX: .shared.
             """,
     )
     assert result.stdout == ""
@@ -6384,6 +6384,10 @@ def test_markdown_code_block_in_list_item(tmp_path: Path) -> None:
         "--language",
         "python",
         "--no-pad-file",
+        "--markdown-extension",
+        ".md",
+        "--myst-extension",
+        ".",
         "--command",
         "cat",
         str(object=md_file),
@@ -6426,6 +6430,10 @@ def test_markdown_closing_fence_with_info_string(
         "--language",
         "python",
         "--no-pad-file",
+        "--markdown-extension",
+        ".md",
+        "--myst-extension",
+        ".",
         "--command",
         "cat",
         str(object=md_file),
@@ -6469,6 +6477,10 @@ def test_markdown_backticks_inside_code_block(tmp_path: Path) -> None:
         "--language",
         "python",
         "--no-pad-file",
+        "--markdown-extension",
+        ".md",
+        "--myst-extension",
+        ".",
         "--command",
         "cat",
         str(object=md_file),

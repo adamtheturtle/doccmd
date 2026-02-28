@@ -50,7 +50,7 @@ from sybil_extras.evaluators.shell_evaluator.source_preparer import (
 )
 from sybil_extras.languages import (
     DJOT,
-    MARKDOWN,
+    MARKDOWN_IT,
     MDX,
     MYST,
     NORG,
@@ -1614,7 +1614,7 @@ def main(
     suffix_groups: Mapping[MarkupLanguage, Sequence[str]] = {
         MYST: myst_suffixes,
         RESTRUCTUREDTEXT: rst_suffixes,
-        MARKDOWN: markdown_suffixes,
+        MARKDOWN_IT: markdown_suffixes,
         MDX: mdx_suffixes,
         DJOT: djot_suffixes,
         NORG: norg_suffixes,
