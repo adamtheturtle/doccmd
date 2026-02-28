@@ -6398,14 +6398,15 @@ def test_markdown_code_block_in_list_item(tmp_path: Path) -> None:
     assert "import asyncio" in result.stdout
 
 
-def test_markdown_invalid_nested_fences_no_phantom_block(
+def test_markdown_closing_fence_with_info_string(
     tmp_path: Path,
 ) -> None:
-    """Invalid nested fences should not produce phantom code blocks.
+    """A closing fence with an info string is not a valid closing fence.
 
-    When a Markdown file has invalid syntax with what looks like nested
-    code fences, doccmd should not extract code from a non-existent
-    block.
+    Per CommonMark spec section 4.5, a closing code fence cannot have
+    an info string. So `````python`` on line 3 is not a closing fence,
+    and the entire content between the first opening fence and the
+    final ````` is a single code block.
 
     See https://github.com/adamtheturtle/doccmd/issues/838 test case 2.
     """
@@ -6436,7 +6437,8 @@ def test_markdown_invalid_nested_fences_no_phantom_block(
         color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
-    assert "import httpx" not in result.stdout
+    assert "import asyncio" in result.stdout
+    assert "import httpx" in result.stdout
 
 
 def test_markdown_backticks_inside_code_block(tmp_path: Path) -> None:
