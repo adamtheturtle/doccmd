@@ -4259,7 +4259,7 @@ def test_overlapping_markdown_djot_extensions(tmp_path: Path) -> None:
             Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...
             Try 'doccmd --help' for help.
 
-            Error: Overlapping suffixes between Markdown and Djot: .shared.
+            Error: Overlapping suffixes between MarkdownIt and Djot: .shared.
             """,
     )
     assert result.stdout == ""
@@ -4353,12 +4353,7 @@ def test_markdown(tmp_path: Path) -> None:
         color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
-    expected_output = textwrap.dedent(
-        text="""\
-        x = 1
-        x = 3
-        """,
-    )
+    expected_output = "    x = 1\n    x = 3\n"
     # The first skip directive is not run as "%" is not a valid comment in
     # Markdown.
     #
