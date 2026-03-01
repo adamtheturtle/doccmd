@@ -256,7 +256,7 @@ lint.pydocstyle.convention = "google"
     "useless-type-doc",
 ]
 "MESSAGES CONTROL".per-file-ignores = [
-    "doccmd_README_rst_*.py:invalid-name",
+    "**/doccmd_*.py:invalid-name",
 ]
 # Spelling dictionary name. Available dictionaries: none. To make it working
 # install python-enchant package.
