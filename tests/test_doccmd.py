@@ -4329,6 +4329,24 @@ def test_markdown(tmp_path: Path) -> None:
         ```python
             x = 3
         ```
+
+        - ```python
+          import asyncio
+          ```
+
+        - ```python
+          import asyncio
+          ```python
+          import httpx
+          ```
+
+        ````python
+        \"\"\"
+        ```python
+        import asyncio
+        ```
+        \"\"\"
+        `````
         """,
     )
     source_file.write_text(data=content, encoding="utf-8")
@@ -4353,23 +4371,34 @@ def test_markdown(tmp_path: Path) -> None:
         color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
-    expected_output = textwrap.indent(
-        text=textwrap.dedent(
-            text="""\
-            x = 1
-            x = 3
-            """,
-        ),
-        prefix="    ",
-    )
+    expected_output = textwrap.dedent(
+        text="""\
+        {indent}x = 1
+        {indent}x = 3
+        import asyncio
+        import asyncio
+        ```python
+        import httpx
+        \"\"\"
+        ```python
+        import asyncio
+        ```
+        \"\"\"
+        """,
+    ).format(indent="    ")
     # The first skip directive is not run as "%" is not a valid comment in
     # Markdown.
     #
     # The second skip directive is run as `<!--- skip doccmd[all]:
     # next -->` is a valid comment in Markdown.
     #
-    # The code block after the second skip directive is run as it is
-    # a valid Markdown code block.
+    # A fenced code block indented inside a list item is detected.
+    #
+    # A closing fence with an info string is not a valid closing fence
+    # (CommonMark spec section 4.5), so the content is part of one block.
+    #
+    # A code block opened with 4+ backticks can contain triple backticks
+    # as literal text.
     assert result.stdout == expected_output
     assert result.stderr == ""
 
@@ -6363,153 +6392,3 @@ def test_continue_on_error_invalid_pycon(tmp_path: Path) -> None:
     )
     assert result.exit_code == 1, (result.stdout, result.stderr)
     assert f"Invalid pycon code block in {rst_file1}:" in result.stderr
-
-
-def test_markdown_code_block_in_list_item(tmp_path: Path) -> None:
-    """A fenced code block indented inside a list item is detected.
-
-    When a Markdown fenced code block is indented inside a list item,
-    doccmd should still detect and process the code block.
-
-    See https://github.com/adamtheturtle/doccmd/issues/838 test case 1.
-    """
-    runner = CliRunner()
-    md_file = tmp_path / "example.md"
-    content = textwrap.dedent(
-        text="""\
-        - ```python
-          import asyncio
-          ```
-        """,
-    )
-    md_file.write_text(data=content, encoding="utf-8")
-    arguments = [
-        "--language",
-        "python",
-        "--no-pad-file",
-        "--markdown-extension",
-        ".md",
-        "--myst-extension",
-        ".",
-        "--command",
-        "cat",
-        str(object=md_file),
-    ]
-    result = runner.invoke(
-        cli=main,
-        args=arguments,
-        catch_exceptions=False,
-        color=True,
-    )
-    assert result.exit_code == 0, (result.stdout, result.stderr)
-    expected_output = "import asyncio\n"
-    assert result.stdout == expected_output
-
-
-def test_markdown_closing_fence_with_info_string(
-    tmp_path: Path,
-) -> None:
-    """A closing fence with an info string is not a valid closing fence.
-
-    Per CommonMark spec section 4.5, a closing code fence cannot have
-    an info string. So `````python`` on line 3 is not a closing fence,
-    and the entire content between the first opening fence and the
-    final ````` is a single code block.
-
-    See https://github.com/adamtheturtle/doccmd/issues/838 test case 2.
-    """
-    runner = CliRunner()
-    md_file = tmp_path / "example.md"
-    content = textwrap.dedent(
-        text="""\
-        - ```python
-          import asyncio
-          ```python
-          import httpx
-          ```
-        """,
-    )
-    md_file.write_text(data=content, encoding="utf-8")
-    arguments = [
-        "--language",
-        "python",
-        "--no-pad-file",
-        "--markdown-extension",
-        ".md",
-        "--myst-extension",
-        ".",
-        "--command",
-        "cat",
-        str(object=md_file),
-    ]
-    result = runner.invoke(
-        cli=main,
-        args=arguments,
-        catch_exceptions=False,
-        color=True,
-    )
-    assert result.exit_code == 0, (result.stdout, result.stderr)
-    expected_output = textwrap.dedent(
-        text="""\
-        import asyncio
-        ```python
-        import httpx
-        """,
-    )
-    assert result.stdout == expected_output
-
-
-def test_markdown_backticks_inside_code_block(tmp_path: Path) -> None:
-    """A code block using 4+ backtick fences can contain triple backticks.
-
-    When a Markdown code block is opened with four or more backticks
-    (e.g., ````python), triple backtick fences inside the block content
-    should be treated as literal text, not as nested code fences.
-    This should not produce an overlap parse error.
-
-    See https://github.com/adamtheturtle/doccmd/issues/838 test case 3.
-    """
-    runner = CliRunner()
-    md_file = tmp_path / "example.md"
-    content = textwrap.dedent(
-        text="""\
-        ````python
-        \"\"\"
-        ```python
-        import asyncio
-        ```
-        \"\"\"
-        `````
-        """,
-    )
-    md_file.write_text(data=content, encoding="utf-8")
-    arguments = [
-        "--language",
-        "python",
-        "--no-pad-file",
-        "--markdown-extension",
-        ".md",
-        "--myst-extension",
-        ".",
-        "--command",
-        "cat",
-        str(object=md_file),
-    ]
-    result = runner.invoke(
-        cli=main,
-        args=arguments,
-        catch_exceptions=False,
-        color=True,
-    )
-    assert result.exit_code == 0, (result.stdout, result.stderr)
-    assert result.stderr == ""
-    expected_output = textwrap.dedent(
-        text="""\
-        \"\"\"
-        ```python
-        import asyncio
-        ```
-        \"\"\"
-        """,
-    )
-    assert result.stdout == expected_output
