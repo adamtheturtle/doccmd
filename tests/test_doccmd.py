@@ -4329,6 +4329,24 @@ def test_markdown(tmp_path: Path) -> None:
         ```python
             x = 3
         ```
+
+        - ```python
+          import asyncio
+          ```
+
+        - ```python
+          import asyncio
+          ```python
+          import httpx
+          ```
+
+        ````python
+        \"\"\"
+        ```python
+        import asyncio
+        ```
+        \"\"\"
+        `````
         """,
     )
     source_file.write_text(data=content, encoding="utf-8")
@@ -4355,18 +4373,32 @@ def test_markdown(tmp_path: Path) -> None:
     assert result.exit_code == 0, (result.stdout, result.stderr)
     expected_output = textwrap.dedent(
         text="""\
-        x = 1
-        x = 3
+        {indent}x = 1
+        {indent}x = 3
+        import asyncio
+        import asyncio
+        ```python
+        import httpx
+        \"\"\"
+        ```python
+        import asyncio
+        ```
+        \"\"\"
         """,
-    )
+    ).format(indent="    ")
     # The first skip directive is not run as "%" is not a valid comment in
     # Markdown.
     #
     # The second skip directive is run as `<!--- skip doccmd[all]:
     # next -->` is a valid comment in Markdown.
     #
-    # The code block after the second skip directive is run as it is
-    # a valid Markdown code block.
+    # A fenced code block indented inside a list item is detected.
+    #
+    # A closing fence with an info string is not a valid closing fence
+    # (CommonMark spec section 4.5), so the content is part of one block.
+    #
+    # A code block opened with 4+ backticks can contain triple backticks
+    # as literal text.
     assert result.stdout == expected_output
     assert result.stderr == ""
 

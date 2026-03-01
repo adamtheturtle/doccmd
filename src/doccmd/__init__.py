@@ -9,7 +9,7 @@ import sys
 import textwrap
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from enum import Enum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
@@ -50,7 +50,7 @@ from sybil_extras.evaluators.shell_evaluator.source_preparer import (
 )
 from sybil_extras.languages import (
     DJOT,
-    MARKDOWN,
+    MARKDOWN_IT,
     MDX,
     MYST,
     NORG,
@@ -1614,7 +1614,7 @@ def main(
     suffix_groups: Mapping[MarkupLanguage, Sequence[str]] = {
         MYST: myst_suffixes,
         RESTRUCTUREDTEXT: rst_suffixes,
-        MARKDOWN: markdown_suffixes,
+        replace(MARKDOWN_IT, name="Markdown"): markdown_suffixes,
         MDX: mdx_suffixes,
         DJOT: djot_suffixes,
         NORG: norg_suffixes,
