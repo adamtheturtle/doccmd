@@ -4353,6 +4353,8 @@ def test_markdown(tmp_path: Path) -> None:
         color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
+    # Every line has leading whitespace, so textwrap.dedent would
+    # strip the indentation we need to keep.
     expected_output = "    x = 1\n    x = 3\n"
     # The first skip directive is not run as "%" is not a valid comment in
     # Markdown.
