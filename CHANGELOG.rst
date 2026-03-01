@@ -4,6 +4,10 @@ Changelog
 Next
 ----
 
+2026.03.01
+----------
+
+
 - Bump ``sybil-extras`` to ``2026.3.1``.
 - Drop support for Python 3.10.
 
