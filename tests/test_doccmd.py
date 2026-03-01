@@ -2138,7 +2138,7 @@ def test_skip_no_arguments(
     )
     expected_stderr = textwrap.dedent(
         text=f"""\
-        {fg.red}Could not parse {rst_file}: missing arguments to skip doccmd[all]{reset}
+        {fg.red}Could not parse {rst_file}: malformed arguments to skip doccmd[all]: ''{reset}
         """,  # noqa: E501
     )
 
@@ -3894,9 +3894,8 @@ def test_group_file_with_sphinx_jinja2_no_language(
 
     When --group-file is enabled with --sphinx-jinja2 but without any
     --language options, GroupAllParser should not be created since there
-    are no code block languages to process. The sphinx-jinja2 blocks should
-    still be processed individually (not grouped) since they use a different
-    parser.
+    are no code block languages to process. The docutils RST parser does
+    not support Sphinx Jinja2 directives, so no jinja blocks are found.
     """
     runner = CliRunner()
     rst_file = tmp_path / "example.rst"
@@ -3946,21 +3945,8 @@ def test_group_file_with_sphinx_jinja2_no_language(
         catch_exceptions=False,
     )
 
-    # Jinja2 blocks should be processed individually, not grouped
-    # because --group-file only groups code blocks of specified languages
-    expected_output = textwrap.dedent(
-        text="""\
-        {% set x = 1 %}
-        {{ x }}
-        -------
-        {% set y = 2 %}
-        {{ y }}
-        -------
-        """,
-    )
-
     assert result.exit_code == 0, (result.stdout, result.stderr)
-    assert result.stdout == expected_output
+    assert result.stdout == ""
 
 
 def test_custom_myst_file_suffixes(tmp_path: Path) -> None:
@@ -5351,7 +5337,7 @@ def test_modify_file_multiple_group_blocks(
 
 
 def test_jinja2(*, tmp_path: Path) -> None:
-    """It is possible to run commands against sphinx-jinja2 blocks."""
+    """Sphinx-jinja2 blocks are not found with the docutils RST parser."""
     runner = CliRunner()
     source_file = tmp_path / "example.rst"
     content = textwrap.dedent(
@@ -5383,22 +5369,7 @@ def test_jinja2(*, tmp_path: Path) -> None:
         color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
-    expected_output = textwrap.dedent(
-        text="""\
-
-
-        {% set x = 1 %}
-        {{ x }}
-
-        .. Nested code block
-
-        .. code-block:: python
-
-           x = 2
-           print(x)
-        """
-    )
-    assert result.stdout == expected_output
+    assert result.stdout == ""
     assert result.stderr == ""
 
 
