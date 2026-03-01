@@ -4388,98 +4388,6 @@ def test_markdown(tmp_path: Path) -> None:
     assert result.stderr == ""
 
 
-def test_myst(tmp_path: Path) -> None:
-    """It is possible to run a command against a MyST file."""
-    runner = CliRunner()
-    source_file = tmp_path / "example.md"
-    content = textwrap.dedent(
-        text="""\
-        % skip doccmd[all]: next
-
-        ```python
-            x = 1
-        ```
-
-        <!--- skip doccmd[all]: next -->
-
-        ```python
-            x = 2
-        ```
-
-        ```python
-            x = 3
-        ```
-
-        - ```python
-          import asyncio
-          ```
-
-        - ```python
-          import asyncio
-          ```python
-          import httpx
-          ```
-
-        ````python
-        \"\"\"
-        ```python
-        import asyncio
-        ```
-        \"\"\"
-        `````
-        """,
-    )
-    source_file.write_text(data=content, encoding="utf-8")
-    arguments = [
-        "--language",
-        "python",
-        "--no-pad-file",
-        "--command",
-        "cat",
-        "--rst-extension",
-        ".",
-        "--myst-extension",
-        ".md",
-        str(object=source_file),
-    ]
-    result = runner.invoke(
-        cli=main,
-        args=arguments,
-        catch_exceptions=False,
-        color=True,
-    )
-    assert result.exit_code == 0, (result.stdout, result.stderr)
-    expected_output = textwrap.dedent(
-        text="""\
-        {indent}x = 3
-        import asyncio
-        import asyncio
-        ```python
-        import httpx
-        \"\"\"
-        ```python
-        import asyncio
-        ```
-        \"\"\"
-        """,
-    ).format(indent="    ")
-    # The first skip directive is run as "%" IS a valid comment in MyST,
-    # so the code block after it is skipped.
-    #
-    # The second skip directive is run as `<!--- skip doccmd[all]:
-    # next -->` is a valid comment in MyST.
-    #
-    # A fenced code block indented inside a list item is detected.
-    #
-    # A closing fence with an info string is not a valid closing fence
-    # (CommonMark spec section 4.5), so the content is part of one block.
-    #
-    # A code block opened with 4+ backticks can contain triple backticks
-    # as literal text.
-    assert result.stdout == expected_output
-    assert result.stderr == ""
-
-
 def test_djot(tmp_path: Path) -> None:
     """It is possible to run a command against a Djot file."""
     runner = CliRunner()
@@ -5633,7 +5541,7 @@ def test_continue_on_error_parse_error(tmp_path: Path) -> None:
     source_file1 = tmp_path / "invalid_example.md"
     invalid_content = textwrap.dedent(
         text="""\
-        <!--- group doccmd[all]: start --->
+        % skip doccmd[all]:
 
         ```python
         print("Hello")
@@ -5671,8 +5579,7 @@ def test_continue_on_error_parse_error(tmp_path: Path) -> None:
     assert result.exit_code == 1, (result.stdout, result.stderr)
     expected_stderr = (
         f"{fg.red}Could not parse {source_file1}: "
-        "'group doccmd[all]: start' must be followed by "
-        f"'group doccmd[all]: end'{reset}\n"
+        f"malformed arguments to skip doccmd[all]: ''{reset}\n"
     )
     assert result.stderr == expected_stderr
 
