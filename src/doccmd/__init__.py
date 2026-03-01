@@ -50,11 +50,11 @@ from sybil_extras.evaluators.shell_evaluator.source_preparer import (
 )
 from sybil_extras.languages import (
     DJOT,
-    DOCUTILS_RST,
     MARKDOWN_IT,
     MDX,
     MYST_PARSER,
     NORG,
+    RESTRUCTUREDTEXT,
     MarkupLanguage,
 )
 from sybil_extras.parsers.mdx.attribute_grouped_source import (
@@ -1613,7 +1613,7 @@ def main(
 
     suffix_groups: Mapping[MarkupLanguage, Sequence[str]] = {
         replace(MYST_PARSER, name="MyST"): myst_suffixes,
-        replace(DOCUTILS_RST, name="reStructuredText"): rst_suffixes,
+        RESTRUCTUREDTEXT: rst_suffixes,
         replace(MARKDOWN_IT, name="Markdown"): markdown_suffixes,
         MDX: mdx_suffixes,
         DJOT: djot_suffixes,
