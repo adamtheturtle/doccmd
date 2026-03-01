@@ -52,7 +52,7 @@ from sybil_extras.languages import (
     DJOT,
     MARKDOWN_IT,
     MDX,
-    MYST,
+    MYST_PARSER,
     NORG,
     RESTRUCTUREDTEXT,
     MarkupLanguage,
@@ -1612,7 +1612,7 @@ def main(
     document_workers = _resolve_workers(requested_workers=document_workers)
 
     suffix_groups: Mapping[MarkupLanguage, Sequence[str]] = {
-        MYST: myst_suffixes,
+        replace(MYST_PARSER, name="MyST"): myst_suffixes,
         RESTRUCTUREDTEXT: rst_suffixes,
         replace(MARKDOWN_IT, name="Markdown"): markdown_suffixes,
         MDX: mdx_suffixes,

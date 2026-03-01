@@ -4997,11 +4997,13 @@ def test_lexing_exception(
     """
     runner = CliRunner()
     source_file = tmp_path / "invalid_example.md"
-    # Lexing error as there is a hyphen in the comment
-    # or... because of the word code!
     invalid_content = textwrap.dedent(
         text="""\
-        <!-- code -->
+        % skip doccmd[all]:
+
+        ```python
+        print("Hello")
+        ```
         """,
     )
     source_file.write_text(data=invalid_content, encoding="utf-8")
@@ -5023,11 +5025,9 @@ def test_lexing_exception(
         result.stdout,
         result.stderr,
     )
-    expected_stderr = textwrap.dedent(
-        text=f"""\
-        {fg.red}Could not parse {source_file}: Could not find end of '<!-- code -->\\n', starting at line 1, column 1, looking for '(?:(?<=\\n))?--+>' in {source_file}:
-        ''{reset}
-        """,  # noqa: E501
+    expected_stderr = (
+        f"{fg.red}Could not parse {source_file}: "
+        f"malformed arguments to skip doccmd[all]: ''{reset}\n"
     )
     assert result.stderr == expected_stderr
 
@@ -5554,7 +5554,11 @@ def test_continue_on_error_parse_error(tmp_path: Path) -> None:
     source_file1 = tmp_path / "invalid_example.md"
     invalid_content = textwrap.dedent(
         text="""\
-        <!-- code -->
+        % skip doccmd[all]:
+
+        ```python
+        print("Hello")
+        ```
         """,
     )
     source_file1.write_text(data=invalid_content, encoding="utf-8")
@@ -5586,11 +5590,9 @@ def test_continue_on_error_parse_error(tmp_path: Path) -> None:
         color=True,
     )
     assert result.exit_code == 1, (result.stdout, result.stderr)
-    expected_stderr = textwrap.dedent(
-        text=f"""\
-        {fg.red}Could not parse {source_file1}: Could not find end of '<!-- code -->\\n', starting at line 1, column 1, looking for '(?:(?<=\\n))?--+>' in {source_file1}:
-        ''{reset}
-        """,  # noqa: E501
+    expected_stderr = (
+        f"{fg.red}Could not parse {source_file1}: "
+        f"malformed arguments to skip doccmd[all]: ''{reset}\n"
     )
     assert result.stderr == expected_stderr
 
