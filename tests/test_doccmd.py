@@ -6394,7 +6394,8 @@ def test_markdown_code_block_in_list_item(tmp_path: Path) -> None:
         color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
-    assert "import asyncio" in result.stdout
+    expected_output = "import asyncio\n"
+    assert result.stdout == expected_output
 
 
 def test_markdown_closing_fence_with_info_string(
@@ -6440,8 +6441,14 @@ def test_markdown_closing_fence_with_info_string(
         color=True,
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
-    assert "import asyncio" in result.stdout
-    assert "import httpx" in result.stdout
+    expected_output = textwrap.dedent(
+        text="""\
+        import asyncio
+        ```python
+        import httpx
+        """,
+    )
+    assert result.stdout == expected_output
 
 
 def test_markdown_backticks_inside_code_block(tmp_path: Path) -> None:
