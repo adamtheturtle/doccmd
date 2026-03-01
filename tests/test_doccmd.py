@@ -437,6 +437,10 @@ def test_multiple_files_multiple_types(tmp_path: Path) -> None:
         ```python
         print("In simple markdown code block")
         ```
+
+        ```{code-block} python
+        print("In MyST directive code block")
+        ```
         """,
     )
     rst_file.write_text(data=rst_content, encoding="utf-8")
@@ -462,6 +466,7 @@ def test_multiple_files_multiple_types(tmp_path: Path) -> None:
         print("In reStructuredText code-block")
         print("In reStructuredText code")
         print("In simple markdown code block")
+        print("In MyST directive code block")
         """,
     )
 

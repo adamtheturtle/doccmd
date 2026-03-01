@@ -536,7 +536,7 @@ requires-dist = [
     { name = "sphinx-substitution-extensions", marker = "extra == 'dev'", specifier = "==2026.1.12" },
     { name = "sphinxcontrib-spelling", marker = "extra == 'dev'", specifier = "==8.0.2" },
     { name = "sybil", specifier = ">=9.3.0,<10.0.0" },
-    { name = "sybil-extras", specifier = "==2026.3.1" },
+    { name = "sybil-extras", specifier = "==2026.3.1.1" },
     { name = "ty", marker = "extra == 'dev'", specifier = "==0.0.19" },
     { name = "types-pygments", marker = "extra == 'dev'", specifier = "==2.19.0.20251121" },
     { name = "vulture", marker = "extra == 'dev'", specifier = "==2.14" },
@@ -2061,17 +2061,18 @@ wheels = [
 
 [[package]]
 name = "sybil-extras"
-version = "2026.3.1"
+version = "2026.3.1.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "beartype" },
+    { name = "docutils" },
     { name = "markdown-it-py" },
     { name = "myst-parser" },
     { name = "sybil" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f1/2e/270120b06006c47cbd86035ce0846dc3f7b2e62b25aec29beb9bfc0bdd9d/sybil_extras-2026.3.1.tar.gz", hash = "sha256:207c17fd29894dc5e8bfe98853f9dbad596b02899704502f5f9f4dce52053744", size = 87327, upload-time = "2026-03-01T09:27:02.298Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/86/85/3192a60c6059dd9fcefe1dd5f0da42db278946bd25a78a8181fc055c0432/sybil_extras-2026.3.1.1.tar.gz", hash = "sha256:e526f6c1cbdfa47eef01ed7406dd3aa59a47ced239a98c9b1d37d2546c55a71a", size = 92316, upload-time = "2026-03-01T10:57:41.052Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/71/8b/8258dfa2d9ec4b0f6e779264ac4ea03c6c7419971871131d677dfa860a7e/sybil_extras-2026.3.1-py2.py3-none-any.whl", hash = "sha256:7de486cf72f79cd8a80dcbba4e1127351a444b6ae118e137167b6534d6050910", size = 71532, upload-time = "2026-03-01T09:27:00.181Z" },
+    { url = "https://files.pythonhosted.org/packages/fc/85/8f67400c6154333cf871159b8ee663cafc57677106a6bafcfafc4ceb2b81/sybil_extras-2026.3.1.1-py2.py3-none-any.whl", hash = "sha256:981b36c961c866b30eaa44efdf97334ee0af0745848b5a702a55b205596e628c", size = 78473, upload-time = "2026-03-01T10:57:39.094Z" },
 ]
 
 [[package]]
