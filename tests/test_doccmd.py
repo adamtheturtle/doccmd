@@ -439,7 +439,15 @@ def test_multiple_files_multiple_types(tmp_path: Path) -> None:
         ```
 
         ```{code-block} python
-        print("In MyST directive code block")
+        print("In MyST code-block")
+        ```
+
+        ```{code} python
+        print("In MyST code")
+        ```
+
+        ```{code-cell} python
+        print("In MyST code-cell")
         ```
         """,
     )
@@ -466,7 +474,9 @@ def test_multiple_files_multiple_types(tmp_path: Path) -> None:
         print("In reStructuredText code-block")
         print("In reStructuredText code")
         print("In simple markdown code block")
-        print("In MyST directive code block")
+        print("In MyST code-block")
+        print("In MyST code")
+        print("In MyST code-cell")
         """,
     )
 
