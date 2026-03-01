@@ -437,18 +437,6 @@ def test_multiple_files_multiple_types(tmp_path: Path) -> None:
         ```python
         print("In simple markdown code block")
         ```
-
-        ```{code-block} python
-        print("In MyST code-block")
-        ```
-
-        ```{code} python
-        print("In MyST code")
-        ```
-
-        ```{code-cell} python
-        print("In MyST code-cell")
-        ```
         """,
     )
     rst_file.write_text(data=rst_content, encoding="utf-8")
@@ -474,9 +462,6 @@ def test_multiple_files_multiple_types(tmp_path: Path) -> None:
         print("In reStructuredText code-block")
         print("In reStructuredText code")
         print("In simple markdown code block")
-        print("In MyST code-block")
-        print("In MyST code")
-        print("In MyST code-cell")
         """,
     )
 
@@ -5089,11 +5074,14 @@ def test_lexing_exception(
     """
     runner = CliRunner()
     source_file = tmp_path / "invalid_example.md"
-    # Lexing error as there is a hyphen in the comment
-    # or... because of the word code!
+    # Lexing error: a group start directive with no matching end directive.
     invalid_content = textwrap.dedent(
         text="""\
-        <!-- code -->
+        <!--- group doccmd[all]: start --->
+
+        ```python
+        print("Hello")
+        ```
         """,
     )
     source_file.write_text(data=invalid_content, encoding="utf-8")
@@ -5115,11 +5103,10 @@ def test_lexing_exception(
         result.stdout,
         result.stderr,
     )
-    expected_stderr = textwrap.dedent(
-        text=f"""\
-        {fg.red}Could not parse {source_file}: Could not find end of '<!-- code -->\\n', starting at line 1, column 1, looking for '(?:(?<=\\n))?--+>' in {source_file}:
-        ''{reset}
-        """,  # noqa: E501
+    expected_stderr = (
+        f"{fg.red}Could not parse {source_file}: "
+        "'group doccmd[all]: start' must be followed by "
+        f"'group doccmd[all]: end'{reset}\n"
     )
     assert result.stderr == expected_stderr
 
@@ -5646,7 +5633,11 @@ def test_continue_on_error_parse_error(tmp_path: Path) -> None:
     source_file1 = tmp_path / "invalid_example.md"
     invalid_content = textwrap.dedent(
         text="""\
-        <!-- code -->
+        <!--- group doccmd[all]: start --->
+
+        ```python
+        print("Hello")
+        ```
         """,
     )
     source_file1.write_text(data=invalid_content, encoding="utf-8")
@@ -5678,11 +5669,10 @@ def test_continue_on_error_parse_error(tmp_path: Path) -> None:
         color=True,
     )
     assert result.exit_code == 1, (result.stdout, result.stderr)
-    expected_stderr = textwrap.dedent(
-        text=f"""\
-        {fg.red}Could not parse {source_file1}: Could not find end of '<!-- code -->\\n', starting at line 1, column 1, looking for '(?:(?<=\\n))?--+>' in {source_file1}:
-        ''{reset}
-        """,  # noqa: E501
+    expected_stderr = (
+        f"{fg.red}Could not parse {source_file1}: "
+        "'group doccmd[all]: start' must be followed by "
+        f"'group doccmd[all]: end'{reset}\n"
     )
     assert result.stderr == expected_stderr
 
