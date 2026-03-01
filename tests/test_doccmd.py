@@ -2138,7 +2138,7 @@ def test_skip_no_arguments(
     )
     expected_stderr = textwrap.dedent(
         text=f"""\
-        {fg.red}Could not parse {rst_file}: malformed arguments to skip doccmd[all]: ''{reset}
+        {fg.red}Could not parse {rst_file}: missing arguments to skip doccmd[all]{reset}
         """,  # noqa: E501
     )
 
