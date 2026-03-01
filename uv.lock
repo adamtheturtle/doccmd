@@ -536,7 +536,7 @@ requires-dist = [
     { name = "sphinx-substitution-extensions", marker = "extra == 'dev'", specifier = "==2026.1.12" },
     { name = "sphinxcontrib-spelling", marker = "extra == 'dev'", specifier = "==8.0.2" },
     { name = "sybil", specifier = ">=9.3.0,<10.0.0" },
-    { name = "sybil-extras", specifier = "==2026.3.1.1" },
+    { name = "sybil-extras", specifier = "==2026.3.1.6" },
     { name = "ty", marker = "extra == 'dev'", specifier = "==0.0.19" },
     { name = "types-pygments", marker = "extra == 'dev'", specifier = "==2.19.0.20251121" },
     { name = "vulture", marker = "extra == 'dev'", specifier = "==2.14" },
@@ -2061,7 +2061,7 @@ wheels = [
 
 [[package]]
 name = "sybil-extras"
-version = "2026.3.1.1"
+version = "2026.3.1.6"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "beartype" },
@@ -2070,9 +2070,9 @@ dependencies = [
     { name = "myst-parser" },
     { name = "sybil" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/86/85/3192a60c6059dd9fcefe1dd5f0da42db278946bd25a78a8181fc055c0432/sybil_extras-2026.3.1.1.tar.gz", hash = "sha256:e526f6c1cbdfa47eef01ed7406dd3aa59a47ced239a98c9b1d37d2546c55a71a", size = 92316, upload-time = "2026-03-01T10:57:41.052Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a3/af/e3ea947a4710016bc83482f69552c7ba962033dc25a2062af26b8c824b44/sybil_extras-2026.3.1.6.tar.gz", hash = "sha256:88a2518a273d5ae6f25bf4dcaaa8f35a7b8db0aa92403fcd8f005e51573d4a63", size = 101890, upload-time = "2026-03-01T15:55:13.013Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/fc/85/8f67400c6154333cf871159b8ee663cafc57677106a6bafcfafc4ceb2b81/sybil_extras-2026.3.1.1-py2.py3-none-any.whl", hash = "sha256:981b36c961c866b30eaa44efdf97334ee0af0745848b5a702a55b205596e628c", size = 78473, upload-time = "2026-03-01T10:57:39.094Z" },
+    { url = "https://files.pythonhosted.org/packages/32/17/c00359eba983d69b416fa31034919630ca303659b91e6cd880d27c1fe00e/sybil_extras-2026.3.1.6-py2.py3-none-any.whl", hash = "sha256:6d64cff310ad8c8232cfa1c38a0812fbaf7690c8c4a7831992c5c542ba859d23", size = 80324, upload-time = "2026-03-01T15:55:11.223Z" },
 ]
 
 [[package]]
