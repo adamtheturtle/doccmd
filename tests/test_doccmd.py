@@ -4997,10 +4997,9 @@ def test_lexing_exception(
     """
     runner = CliRunner()
     source_file = tmp_path / "invalid_example.md"
-    # Lexing error: a group start directive with no matching end directive.
     invalid_content = textwrap.dedent(
         text="""\
-        <!--- group doccmd[all]: start --->
+        % skip doccmd[all]:
 
         ```python
         print("Hello")
@@ -5028,8 +5027,7 @@ def test_lexing_exception(
     )
     expected_stderr = (
         f"{fg.red}Could not parse {source_file}: "
-        "'group doccmd[all]: start' must be followed by "
-        f"'group doccmd[all]: end'{reset}\n"
+        f"malformed arguments to skip doccmd[all]: ''{reset}\n"
     )
     assert result.stderr == expected_stderr
 
