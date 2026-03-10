@@ -412,6 +412,7 @@ jobs:
     name: Publish to winget
     needs: [build, build-windows]
     runs-on: windows-latest
+    environment: winget
 
     permissions:
       contents: read
