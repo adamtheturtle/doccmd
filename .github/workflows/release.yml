@@ -82,8 +82,10 @@ jobs:
           regex: false
 
       - name: Check changelog was modified
+        env:
+          MODIFIED_FILES: ${{ steps.update_changelog.outputs.modifiedFiles }}
         run: |
-          if [ "${{ steps.update_changelog.outputs.modifiedFiles }}" = "0" ]; then
+          if [ "$MODIFIED_FILES" = "0" ]; then
             echo "Error: No files were modified when updating changelog"
             exit 1
           fi
@@ -166,8 +168,10 @@ jobs:
           regex: false
 
       - name: Check Homebrew description was modified
+        env:
+          MODIFIED_FILES: ${{ steps.update_homebrew_description.outputs.modifiedFiles }}
         run: |
-          if [ "${{ steps.update_homebrew_description.outputs.modifiedFiles }}" = "0" ]; then
+          if [ "$MODIFIED_FILES" = "0" ]; then
             echo "Error: No files were modified when updating Homebrew description"
             exit 1
           fi
@@ -208,8 +212,10 @@ jobs:
           regex: true
 
       - name: Check Linux binary version was modified
+        env:
+          MODIFIED_FILES: ${{ steps.update_linux_binary.outputs.modifiedFiles }}
         run: |
-          if [ "${{ steps.update_linux_binary.outputs.modifiedFiles }}" = "0" ]; then
+          if [ "$MODIFIED_FILES" = "0" ]; then
             echo "Error: No files were modified when updating Linux binary version"
             exit 1
           fi
@@ -224,8 +230,10 @@ jobs:
           regex: true
 
       - name: Check pre-commit rev was modified
+        env:
+          MODIFIED_FILES: ${{ steps.update_precommit_rev.outputs.modifiedFiles }}
         run: |
-          if [ "${{ steps.update_precommit_rev.outputs.modifiedFiles }}" = "0" ]; then
+          if [ "$MODIFIED_FILES" = "0" ]; then
             echo "Error: No files were modified when updating pre-commit rev"
             exit 1
           fi
@@ -240,8 +248,10 @@ jobs:
           regex: true
 
       - name: Check Nix flake version was modified
+        env:
+          MODIFIED_FILES: ${{ steps.update_nix_version.outputs.modifiedFiles }}
         run: |
-          if [ "${{ steps.update_nix_version.outputs.modifiedFiles }}" = "0" ]; then
+          if [ "$MODIFIED_FILES" = "0" ]; then
             echo "Error: No files were modified when updating Nix flake version"
             exit 1
           fi
