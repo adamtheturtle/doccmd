@@ -61,8 +61,10 @@ jobs:
 
       - name: Get the changelog underline
         id: changelog_underline
+        env:
+          RELEASE: ${{ steps.calver.outputs.release }}
         run: |
-          underline="$(echo "${{ steps.calver.outputs.release }}" | tr -c '\n' '-')"
+          underline="$(echo "$RELEASE" | tr -c '\n' '-')"
           echo "underline=${underline}" >> "$GITHUB_OUTPUT"
 
       - name: Update changelog
@@ -105,10 +107,12 @@ jobs:
 
       - name: Build a binary wheel and a source tarball
         id: build-wheel
+        env:
+          NEW_TAG: ${{ steps.tag_version.outputs.new_tag }}
         run: |
           sudo rm -rf dist/ build/
           git fetch --tags
-          git checkout ${{ steps.tag_version.outputs.new_tag }}
+          git checkout "$NEW_TAG"
           uv build --sdist --wheel --out-dir dist/
           WHEEL="$(ls dist/*.whl)"
           uv run --extra=release check-wheel-contents "${WHEEL}"
@@ -127,10 +131,12 @@ jobs:
       # Here, we give PyPI time to propagate the package.
       - name: Install doccmd from PyPI
         uses: nick-fields/retry@v3
+        env:
+          RELEASE: ${{ steps.calver.outputs.release }}
         with:
           timeout_seconds: 5
           max_attempts: 50
-          command: uv pip install --refresh doccmd==${{ steps.calver.outputs.release }}
+          command: uv pip install --refresh doccmd=="$RELEASE"
 
       - name: Set up Homebrew filename
         id: set-homebrew-filename
@@ -141,11 +147,14 @@ jobs:
       - name: Create a Homebrew recipe
         id: homebrew-create
         uses: nick-fields/retry@v3
+        env:
+          RELEASE: ${{ steps.calver.outputs.release }}
+          HOMEBREW_FILENAME: ${{ steps.set-homebrew-filename.outputs.filename }}
         with:
           timeout_seconds: 5
           max_attempts: 50
           command: |
-            uv run --no-cache --with="doccmd==${{ steps.calver.outputs.release }}" --extra=release poet --formula doccmd > ${{ steps.set-homebrew-filename.outputs.filename }}
+            uv run --no-cache --with="doccmd==$RELEASE" --extra=release poet --formula doccmd > "$HOMEBREW_FILENAME"
 
       - name: Update Homebrew description
         id: update_homebrew_description
@@ -181,8 +190,10 @@ jobs:
 
       - name: Strip leading zeros from version for pre-commit
         id: calver_stripped
+        env:
+          NEW_TAG: ${{ steps.tag_version.outputs.new_tag }}
         run: |
-          tag="${{ steps.tag_version.outputs.new_tag }}"
+          tag="$NEW_TAG"
           # Strip leading zeros from each numeric segment (e.g., v2025.12.08.4 -> v2025.12.8.4)
           stripped_tag=$(echo "v$tag" | sed -E 's/\.0+([0-9])/.\1/g')
           echo "tag=${stripped_tag}" >> "$GITHUB_OUTPUT"
@@ -236,8 +247,10 @@ jobs:
           fi
 
       - name: Update VERSION file for Nix flake
+        env:
+          NEW_TAG: ${{ steps.tag_version.outputs.new_tag }}
         run: |
-          echo "${{ steps.tag_version.outputs.new_tag }}" > VERSION
+          echo "$NEW_TAG" > VERSION
 
       - uses: stefanzweifel/git-auto-commit-action@v7
         id: commit-readme
@@ -303,6 +316,8 @@ jobs:
       # container, which may hit a different CDN node than the earlier check.
       - name: Build and push Docker image
         uses: nick-fields/retry@v3
+        env:
+          NEW_TAG: ${{ needs.build.outputs.new_tag }}
         with:
           timeout_minutes: 10
           max_attempts: 5
@@ -310,8 +325,8 @@ jobs:
             docker buildx build \
               --push \
               --platform linux/amd64,linux/arm64 \
-              --build-arg DOCCMD_VERSION=${{ needs.build.outputs.new_tag }} \
-              --tag ghcr.io/adamtheturtle/doccmd:${{ needs.build.outputs.new_tag }} \
+              --build-arg DOCCMD_VERSION="$NEW_TAG" \
+              --tag ghcr.io/adamtheturtle/doccmd:"$NEW_TAG" \
               --tag ghcr.io/adamtheturtle/doccmd:latest \
               .
 
@@ -334,15 +349,19 @@ jobs:
       # Note: PEP 440 normalizes versions by stripping leading zeros (e.g., 2026.01.22 -> 2026.1.22).
       - name: Wait for PyPI propagation
         uses: nick-fields/retry@v3
+        env:
+          NEW_TAG: ${{ needs.build.outputs.new_tag }}
         with:
           timeout_seconds: 10
           max_attempts: 50
           command: |
-            normalized_version=$(echo "${{ needs.build.outputs.new_tag }}" | sed -E 's/\.0+([0-9])/.\1/g')
+            normalized_version=$(echo "$NEW_TAG" | sed -E 's/\.0+([0-9])/.\1/g')
             pip index versions doccmd | grep -wq "$normalized_version"
 
       - name: Create requirements file
-        run: echo "doccmd==${{ needs.build.outputs.new_tag }}" > requirements.txt
+        env:
+          NEW_TAG: ${{ needs.build.outputs.new_tag }}
+        run: echo "doccmd==$NEW_TAG" > requirements.txt
 
       - name: Create macOS binary
         uses: sayyid5416/pyinstaller@v1
@@ -358,8 +377,9 @@ jobs:
       - name: Upload macOS binary to release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEW_TAG: ${{ needs.build.outputs.new_tag }}
         run: |
-          gh release upload ${{ needs.build.outputs.new_tag }} dist/doccmd-macos --clobber
+          gh release upload "$NEW_TAG" dist/doccmd-macos --clobber
 
   build-windows:
     name: Build Windows binary
@@ -380,16 +400,20 @@ jobs:
       # Note: PEP 440 normalizes versions by stripping leading zeros (e.g., 2026.01.22 -> 2026.1.22).
       - name: Wait for PyPI propagation
         uses: nick-fields/retry@v3
+        env:
+          NEW_TAG: ${{ needs.build.outputs.new_tag }}
         with:
           timeout_seconds: 10
           max_attempts: 50
           shell: bash
           command: |
-            normalized_version=$(echo "${{ needs.build.outputs.new_tag }}" | sed -E 's/\.0+([0-9])/.\1/g')
+            normalized_version=$(echo "$NEW_TAG" | sed -E 's/\.0+([0-9])/.\1/g')
             pip index versions doccmd | grep -wq "$normalized_version"
 
       - name: Create requirements file
-        run: echo "doccmd==${{ needs.build.outputs.new_tag }}" > requirements.txt
+        env:
+          NEW_TAG: ${{ needs.build.outputs.new_tag }}
+        run: echo "doccmd==$NEW_TAG" > requirements.txt
 
       - name: Create Windows binary
         uses: sayyid5416/pyinstaller@v1
@@ -405,8 +429,9 @@ jobs:
       - name: Upload Windows binary to release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEW_TAG: ${{ needs.build.outputs.new_tag }}
         run: |
-          gh release upload ${{ needs.build.outputs.new_tag }} dist/doccmd-windows.exe --clobber
+          gh release upload "$NEW_TAG" dist/doccmd-windows.exe --clobber
 
   publish-winget:
     name: Publish to winget
