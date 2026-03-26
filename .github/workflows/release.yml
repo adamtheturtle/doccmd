@@ -421,6 +421,7 @@ jobs:
             pip index versions doccmd | grep -wq "$normalized_version"
 
       - name: Create requirements file
+        shell: bash
         env:
           NEW_TAG: ${{ needs.build.outputs.new_tag }}
         run: echo "doccmd==$NEW_TAG" > requirements.txt
