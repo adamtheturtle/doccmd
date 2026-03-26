@@ -438,6 +438,7 @@ jobs:
           clean_checkout: false
 
       - name: Upload Windows binary to release
+        shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NEW_TAG: ${{ needs.build.outputs.new_tag }}
