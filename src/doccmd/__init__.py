@@ -560,7 +560,7 @@ class _GroupModifiedError(Exception):
 
 
 @beartype
-@dataclass
+@dataclass(frozen=True)
 class _CollectedError:
     """Error collected during continue-on-error mode."""
 
