@@ -944,7 +944,7 @@ def _get_sybil(
     )
 
     skip_parsers = [
-        markup_language.skip_parser_cls(
+        markup_language.thread_safe_skip_parser_cls(
             directive=skip_directive,
         )
         for skip_directive in skip_directives
