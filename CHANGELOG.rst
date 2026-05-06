@@ -4,6 +4,8 @@ Changelog
 Next
 ----
 
+- Bump ``sybil-extras`` to ``2026.5.6``.
+
 2026.03.26.2
 ------------
 
