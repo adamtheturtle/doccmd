@@ -2686,6 +2686,82 @@ def test_skip_multiple(tmp_path: Path) -> None:
     assert result.stderr == ""
 
 
+def test_skip_with_parallel_workers(tmp_path: Path) -> None:
+    """Skip directives are honored under concurrent example evaluation.
+
+    Exercises sybil-extras' ``ThreadSafeSkipParser``: a single document
+    with many code blocks, ``skip: next`` directives, and a ``skip:
+    start``/``skip: end`` interval is evaluated with
+    ``--example-workers`` greater than one. The exact set of non-skipped
+    blocks must execute on every iteration; output ordering may
+    interleave so membership (not ordering) is asserted. The loop shakes
+    out skip-state races such as simplistix/sybil#166.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    block_lines: list[str] = []
+    expected_run: set[str] = set()
+    expected_skipped: set[str] = set()
+
+    def _block(name: str) -> str:
+        """Return an rST code block printing ``name``."""
+        return textwrap.dedent(
+            text=f"""\
+            .. code-block:: python
+
+                print("{name}")
+
+            """,
+        )
+
+    skip_next_indices = {3, 7, 11, 15}
+    skip_start_index = 5
+    skip_end_index = 6
+    for index in range(20):
+        name = f"block_{index}"
+        if index in skip_next_indices:
+            block_lines.append(".. skip doccmd[all]: next\n\n")
+            block_lines.append(_block(name=name))
+            expected_skipped.add(name)
+        elif index == skip_start_index:
+            block_lines.append(".. skip doccmd[all]: start\n\n")
+            block_lines.append(_block(name=name))
+            expected_skipped.add(name)
+        elif index == skip_end_index:
+            block_lines.append(_block(name=name))
+            block_lines.append(".. skip doccmd[all]: end\n\n")
+            expected_skipped.add(name)
+        else:
+            block_lines.append(_block(name=name))
+            expected_run.add(name)
+
+    rst_file.write_text(data="".join(block_lines), encoding="utf-8")
+
+    for _ in range(5):
+        result = runner.invoke(
+            cli=main,
+            args=[
+                "--no-pad-file",
+                "--no-write-to-file",
+                "--language",
+                "python",
+                "--command",
+                "python",
+                "--example-workers",
+                "8",
+                str(object=rst_file),
+            ],
+            catch_exceptions=False,
+        )
+        assert result.exit_code == 0, (result.stdout, result.stderr)
+        printed = set(result.stdout.split())
+        assert expected_run <= printed, (expected_run - printed, result.stdout)
+        assert not expected_skipped & printed, (
+            expected_skipped & printed,
+            result.stdout,
+        )
+
+
 def test_bad_skips(tmp_path: Path) -> None:
     """Bad skip orders are flagged."""
     runner = CliRunner()
