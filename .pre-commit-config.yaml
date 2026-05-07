@@ -175,7 +175,7 @@ repos:
       - id: mypy
         name: mypy
         stages: [pre-push]
-        entry: uv run --extra=dev -m mypy
+        entry: uv run --extra=dev -m mypy --num-workers=4
         language: python
         types_or: [python, toml]
         pass_filenames: false
@@ -185,7 +185,9 @@ repos:
       - id: mypy-docs
         name: mypy-docs
         stages: [pre-push]
-        entry: uv run --extra=dev doccmd --no-write-to-file --language=python --command="mypy"
+        entry: >-
+          uv run --extra=dev doccmd --no-write-to-file --language=python
+          --command="mypy --num-workers=4"
         language: python
         types_or: [markdown, rst]
         additional_dependencies:
