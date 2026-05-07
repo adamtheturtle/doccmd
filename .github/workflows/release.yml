@@ -461,4 +461,11 @@ jobs:
           identifier: adamtheturtle.doccmd
           installers-regex: \.exe$
           release-tag: ${{ needs.build.outputs.new_tag }}
+          # Classic PAT (fine-grained is not supported by winget-releaser)
+          # with scopes: `public_repo` (or `repo`) AND `workflow`.
+          # `workflow` is required because komac syncs the
+          # adamtheturtle/winget-pkgs fork from microsoft/winget-pkgs, which
+          # contains workflow files — without it the sync/branch creation
+          # fails with "does not have the correct permissions to execute
+          # CreateRef".
           token: ${{ secrets.WINGET_TOKEN }}
