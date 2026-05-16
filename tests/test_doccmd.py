@@ -6540,19 +6540,36 @@ def test_parallel_no_write_to_file_directory_scanning_command_succeeds(
             return False
 
 
+        def stat_state(path):
+            # True if the path exists, False if it definitely does not,
+            # or None if a transient error (e.g. a Windows file-sharing
+            # violation while another process is creating, replacing or
+            # deleting the file) prevents a determination. Callers keep
+            # polling on None so the handshake stays deterministic.
+            try:
+                path.stat()
+            except FileNotFoundError:
+                return False
+            except OSError:
+                return None
+            return True
+
+
         def announced_fast_file():
             # The announcement is written atomically (write + rename), so
             # any successful read sees the complete path. Only trust it
             # once it names a file that currently exists, which rules out
-            # reading a not-yet-populated marker.
+            # reading a not-yet-populated marker. On Windows, reading the
+            # marker while it is being replaced raises ``PermissionError``
+            # (an ``OSError``); treat that as "not ready yet".
             try:
                 text = FAST_READY.read_text(encoding="utf-8")
-            except FileNotFoundError:
+            except OSError:
                 return None
             if not text:
                 return None
             candidate = pathlib.Path(text).resolve()
-            return candidate if candidate.exists() else None
+            return candidate if stat_state(candidate) is True else None
 
 
         temp_file = pathlib.Path(sys.argv[1]).resolve()
@@ -6582,7 +6599,7 @@ def test_parallel_no_write_to_file_directory_scanning_command_succeeds(
             # a scanning tool would: if the directory scan enumerated the
             # other worker's now-deleted file, the read fails -- the
             # exact symptom from the issue.
-            if not wait_until(lambda: not fast_file.exists()):
+            if not wait_until(lambda: stat_state(fast_file) is False):
                 raise AssertionError("FAST worker's file never went away.")
             for path in discovered:
                 try:
@@ -6605,7 +6622,7 @@ def test_parallel_no_write_to_file_directory_scanning_command_succeeds(
         announcement = FAST_READY.with_suffix(".tmp")
         announcement.write_text(data=str(temp_file), encoding="utf-8")
         os.replace(announcement, FAST_READY)
-        if not wait_until(SLOW_RELEASE.exists):
+        if not wait_until(lambda: stat_state(SLOW_RELEASE) is True):
             raise AssertionError("SLOW worker never released us.")
         sys.exit(0)
         """,
