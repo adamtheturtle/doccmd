@@ -6520,6 +6520,7 @@ def test_parallel_no_write_to_file_directory_scanning_command_succeeds(
 
     scanner_script = textwrap.dedent(
         text="""\
+        import os
         import pathlib
         import sys
         import time
@@ -6539,6 +6540,21 @@ def test_parallel_no_write_to_file_directory_scanning_command_succeeds(
             return False
 
 
+        def announced_fast_file():
+            # The announcement is written atomically (write + rename), so
+            # any successful read sees the complete path. Only trust it
+            # once it names a file that currently exists, which rules out
+            # reading a not-yet-populated marker.
+            try:
+                text = FAST_READY.read_text(encoding="utf-8")
+            except FileNotFoundError:
+                return None
+            if not text:
+                return None
+            candidate = pathlib.Path(text).resolve()
+            return candidate if candidate.exists() else None
+
+
         temp_file = pathlib.Path(sys.argv[1]).resolve()
         block_content = temp_file.read_text(encoding="utf-8")
 
@@ -6547,8 +6563,9 @@ def test_parallel_no_write_to_file_directory_scanning_command_succeeds(
             # other worker is in flight, then enumerate the source files
             # in the directory we were pointed at -- exactly what a tool
             # with no explicit ``include`` does.
-            if not wait_until(FAST_READY.exists):
+            if not wait_until(lambda: announced_fast_file() is not None):
                 raise AssertionError("FAST worker never announced itself.")
+            fast_file = announced_fast_file()
 
             discovered = [
                 path
@@ -6558,14 +6575,16 @@ def test_parallel_no_write_to_file_directory_scanning_command_succeeds(
 
             SLOW_RELEASE.write_text(data="release", encoding="utf-8")
 
-            # Read every discovered source file, as a scanning tool would.
             # The enumerate-then-read window is forced to elapse
-            # deterministically here; a real tool hits it intermittently.
+            # deterministically by waiting for the FAST worker's normal
+            # cleanup to unlink its file; a real tool hits this window
+            # intermittently. Then read every discovered source file, as
+            # a scanning tool would: if the directory scan enumerated the
+            # other worker's now-deleted file, the read fails -- the
+            # exact symptom from the issue.
+            if not wait_until(lambda: not fast_file.exists()):
+                raise AssertionError("FAST worker's file never went away.")
             for path in discovered:
-                if not wait_until(lambda p=path: not p.exists()):
-                    raise AssertionError(
-                        "Discovered file never went away.",
-                    )
                 try:
                     with path.open(encoding="utf-8") as handle:
                         handle.read()
@@ -6579,9 +6598,13 @@ def test_parallel_no_write_to_file_directory_scanning_command_succeeds(
             sys.exit(0)
 
         # FAST worker: announce that our temp file exists, then keep it
-        # alive until the SLOW worker has scanned the directory. Exiting
+        # alive until the SLOW worker has scanned the directory. The
+        # announcement is written to a sibling and atomically renamed so
+        # the SLOW worker can never read a half-written path. Exiting
         # triggers the normal per-worker cleanup that unlinks our file.
-        FAST_READY.write_text(data=str(temp_file), encoding="utf-8")
+        announcement = FAST_READY.with_suffix(".tmp")
+        announcement.write_text(data=str(temp_file), encoding="utf-8")
+        os.replace(announcement, FAST_READY)
         if not wait_until(SLOW_RELEASE.exists):
             raise AssertionError("SLOW worker never released us.")
         sys.exit(0)
@@ -6609,3 +6632,50 @@ def test_parallel_no_write_to_file_directory_scanning_command_succeeds(
     # The directory-scanning command must not have failed with a
     # "does not exist" error caused by a vanished foreign temp file.
     assert result.exit_code == 0, (result.stdout, result.stderr)
+
+
+def test_temp_file_directories_are_cleaned_up(*, tmp_path: Path) -> None:
+    """The per-example temp-file directories do not leak.
+
+    Each example's temporary file is isolated in its own directory
+    alongside the source file. Those directories must be removed once
+    evaluation finishes so that they do not accumulate in the user's
+    source tree.
+    """
+    runner = CliRunner()
+    source_dir = tmp_path / "src"
+    source_dir.mkdir()
+    rst_file = source_dir / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            x = 1
+
+        .. code-block:: python
+
+            y = 2
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+
+    result = runner.invoke(
+        cli=main,
+        args=[
+            "--language",
+            "python",
+            "--no-pad-file",
+            "--no-write-to-file",
+            "--command",
+            "true",
+            str(object=rst_file),
+        ],
+        catch_exceptions=False,
+        color=True,
+    )
+
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    # Only the original source file remains; no temp-file directories.
+    assert sorted(path.name for path in source_dir.iterdir()) == [
+        "example.rst",
+    ]

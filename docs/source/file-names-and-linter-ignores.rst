@@ -2,7 +2,11 @@ File names and linter ignores
 -----------------------------
 
 ``doccmd`` creates temporary files for each code block in the documentation file.
-These files are created in the same directory as the documentation file.
+Each file is created in its own uniquely-named directory alongside the documentation file.
+This isolation means that examples running in parallel (see :option:`doccmd --example-workers`) cannot enumerate or race each other's temporary files.
+The directory name uses the same prefix as the temporary file (see below), so linter per-file-ignore patterns such as ``*doccmd_*`` continue to match the file's path.
+Because each temporary file now lives in its own directory (made an importable package with an ``__init__.py``), some linters treat it as a package submodule.
+With ``ruff`` you may therefore want to also ignore ``N999`` (invalid module name, as the file name is derived from the document name and line number) for ``doccmd`` files, as shown below.
 
 By default, files are named using the pattern ``{prefix}_{source}_l{line}__{unique}_{suffix}``, where:
 
@@ -34,6 +38,9 @@ For example, to ignore a rule in all files created by ``doccmd`` in a ``ruff`` c
    lint.per-file-ignores."*doccmd_*.py" = [
       # Allow hardcoded secrets in documentation.
       "S105",
+      # Each example's temporary file is isolated in its own directory,
+      # so its generated name is treated as a module name.
+      "N999",
    ]
 
 To ignore a rule in files created by ``doccmd`` when using ``pylint``, use `pylint-per-file-ignores <https://pypi.org/project/pylint-per-file-ignores/>`_, and a configuration like the following (if using :file:`pyproject.toml`):
