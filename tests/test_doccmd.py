@@ -6491,7 +6491,7 @@ def test_parallel_no_write_to_file_directory_scanning_command_succeeds(
 
     See https://github.com/adamtheturtle/doccmd/issues/1041.
 
-    The command modelled here knows nothing about doccmd internals: it
+    The command modeled here knows nothing about doccmd internals: it
     globs the source directory it was handed a file in and reads what it
     finds. The test is deterministic and edge-triggered (no sleeps): a
     handshake via marker files makes the enumerate-then-read window
