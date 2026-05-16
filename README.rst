@@ -275,9 +275,6 @@ For example, to ignore a rule in all files created by ``doccmd`` in a ``ruff`` c
    lint.per-file-ignores."doccmd_*.py" = [
       # Allow hardcoded secrets in documentation.
       "S105",
-      # Each example's temporary file is isolated in its own directory,
-      # so its generated name is treated as a module name.
-      "N999",
    ]
 
 Running commands in parallel

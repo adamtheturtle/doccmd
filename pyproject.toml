@@ -152,10 +152,6 @@ lint.per-file-ignores."doccmd_*.py" = [
     # Allow our chosen docstring line-style - pydocstringformatter handles
     # formatting but docstrings in docs may not match this style.
     "D200",
-    # ``doccmd`` isolates each example's temporary file in its own
-    # directory, so the generated file name (derived from the source
-    # document name and line number) is treated as a module name.
-    "N999",
     # Allow asserts in docs.
     "S101",
 ]

@@ -122,9 +122,16 @@ class _TempFilePathMaker:
             A path to the temporary file.
         """
         source_path = Path(example.path)
-        # Sanitize the source filename (replace dots and dashes with _)
-        # Use .name (not .stem) to include the extension in the sanitized name
-        sanitized_source = source_path.name.replace(".", "_").replace("-", "_")
+        # Sanitize the source filename: replace dots and dashes with ``_``
+        # and lower-case it. Use ``.name`` (not ``.stem``) to include the
+        # extension. Lower-casing keeps the generated name a valid module
+        # name now that each temporary file lives in its own package
+        # directory, so tools such as ``ruff`` (rule ``N999``) do not
+        # flag it for a source document with upper-case letters in its
+        # name (for example ``README.rst``).
+        sanitized_source = (
+            source_path.name.replace(".", "_").replace("-", "_").lower()
+        )
         unique_id = uuid4().hex[:4]
         filename = self._template.format(
             prefix=self._prefix,
