@@ -166,6 +166,19 @@ class _TempFilePathMaker:
 
 
 @beartype
+@dataclass(frozen=True, kw_only=True)
+class _SybilWithTempFileMaker:
+    """A Sybil together with the temp-file-path maker it uses.
+
+    The maker is kept alongside the Sybil so that the directories it
+    creates can be cleaned up once all examples have been evaluated.
+    """
+
+    sybil: Sybil
+    temp_file_path_maker: _TempFilePathMaker
+
+
+@beartype
 class _LogCommandEvaluator:
     """Log a command before running it."""
 
@@ -690,13 +703,13 @@ def _process_file_path(
     newline = (
         newline_bytes.decode(encoding=encoding) if newline_bytes else None
     )
-    sybils_and_makers: Sequence[tuple[Sybil, _TempFilePathMaker]] = []
+    sybils_with_makers: Sequence[_SybilWithTempFileMaker] = []
     for code_block_language in languages:
         temporary_file_extension = _get_temporary_file_extension(
             language=code_block_language,
             given_file_extension=given_temporary_file_extension,
         )
-        sybil_and_maker = _get_sybil(
+        sybil_with_maker = _get_sybil(
             args=args,
             code_block_languages=[code_block_language],
             pycon_languages=pycon_languages,
@@ -718,11 +731,11 @@ def _process_file_path(
             newline=newline,
             parse_sphinx_jinja2=False,
         )
-        sybils_and_makers = [*sybils_and_makers, sybil_and_maker]
+        sybils_with_makers = [*sybils_with_makers, sybil_with_maker]
 
     if sphinx_jinja2:
         temporary_file_extension = given_temporary_file_extension or ".jinja"
-        sybil_and_maker = _get_sybil(
+        sybil_with_maker = _get_sybil(
             args=args,
             code_block_languages=[],
             pycon_languages=pycon_languages,
@@ -744,11 +757,11 @@ def _process_file_path(
             newline=newline,
             parse_sphinx_jinja2=True,
         )
-        sybils_and_makers = [*sybils_and_makers, sybil_and_maker]
+        sybils_with_makers = [*sybils_with_makers, sybil_with_maker]
 
     try:
         _evaluate_sybils(
-            sybils_and_makers=sybils_and_makers,
+            sybils_with_makers=sybils_with_makers,
             file_path=file_path,
             args=args,
             example_workers=example_workers,
@@ -758,8 +771,8 @@ def _process_file_path(
             local_errors=local_errors,
         )
     finally:
-        for _, temp_file_path_maker in sybils_and_makers:
-            temp_file_path_maker.cleanup()
+        for sybil_with_maker in sybils_with_makers:
+            sybil_with_maker.temp_file_path_maker.cleanup()
 
     return local_errors
 
@@ -767,7 +780,7 @@ def _process_file_path(
 @beartype
 def _evaluate_sybils(
     *,
-    sybils_and_makers: Sequence[tuple[Sybil, _TempFilePathMaker]],
+    sybils_with_makers: Sequence[_SybilWithTempFileMaker],
     file_path: Path,
     args: Sequence[str | Path],
     example_workers: int,
@@ -777,9 +790,9 @@ def _evaluate_sybils(
     local_errors: list[_CollectedError],
 ) -> None:
     """Parse and evaluate each Sybil, collecting any errors."""
-    for sybil, _ in sybils_and_makers:
+    for sybil_with_maker in sybils_with_makers:
         try:
-            document = sybil.parse(path=file_path)
+            document = sybil_with_maker.sybil.parse(path=file_path)
         except (LexingException, ValueError) as exc:
             message = f"Could not parse {file_path}: {exc}"
             _log_error(message=message)
@@ -945,7 +958,7 @@ def _get_sybil(
     log_command_evaluators: Sequence[_LogCommandEvaluator],
     newline: str | None,
     parse_sphinx_jinja2: bool,
-) -> tuple[Sybil, _TempFilePathMaker]:
+) -> _SybilWithTempFileMaker:
     """Get a Sybil for running commands on the given file.
 
     Returns:
@@ -1126,7 +1139,10 @@ def _get_sybil(
         ),
         encoding=encoding,
     )
-    return sybil, temp_file_path_maker
+    return _SybilWithTempFileMaker(
+        sybil=sybil,
+        temp_file_path_maker=temp_file_path_maker,
+    )
 
 
 @cloup.command(name="doccmd", show_constraints=True)
