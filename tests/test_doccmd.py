@@ -6470,3 +6470,142 @@ def test_continue_on_error_invalid_pycon(tmp_path: Path) -> None:
     )
     assert result.exit_code == 1, (result.stdout, result.stderr)
     assert f"Invalid pycon code block in {rst_file1}:" in result.stderr
+
+
+def test_parallel_no_write_to_file_directory_scanning_command_succeeds(
+    *,
+    tmp_path: Path,
+) -> None:
+    """Directory-scanning commands do not fail with "does not exist".
+
+    A command that does project/directory-wide file discovery (e.g.
+    ``pyright`` with no ``include``) enumerates the source files in the
+    directory it is pointed at and then reads each one. Under
+    ``--no-write-to-file`` with parallel workers it must never enumerate
+    a file that disappears before it can read it: doing so makes the
+    command fail with e.g.::
+
+        File or directory "..." does not exist
+
+    even though the user's code is fine.
+
+    See https://github.com/adamtheturtle/doccmd/issues/1041.
+
+    The command modelled here knows nothing about doccmd internals: it
+    globs the source directory it was handed a file in and reads what it
+    finds. The test is deterministic and edge-triggered (no sleeps): a
+    handshake via marker files makes the enumerate-then-read window
+    elapse deterministically so that, if a foreign file is ever visible,
+    the symptom is reproduced every time.
+    """
+    runner = CliRunner()
+    coord_dir = tmp_path / "coord"
+    coord_dir.mkdir()
+    source_dir = tmp_path / "src"
+    source_dir.mkdir()
+    rst_file = source_dir / "example.rst"
+    script = tmp_path / "scanner.py"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            FAST
+
+        .. code-block:: python
+
+            SLOW
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+
+    scanner_script = textwrap.dedent(
+        text="""\
+        import pathlib
+        import sys
+        import time
+
+        COORD = pathlib.Path({coord_dir!r})
+        FAST_READY = COORD / "fast_ready"
+        SLOW_RELEASE = COORD / "slow_release"
+
+        TIMEOUT_SECONDS = 60
+
+
+        def wait_until(predicate):
+            deadline = time.monotonic() + TIMEOUT_SECONDS
+            while time.monotonic() < deadline:
+                if predicate():
+                    return True
+            return False
+
+
+        temp_file = pathlib.Path(sys.argv[1]).resolve()
+        block_content = temp_file.read_text(encoding="utf-8")
+
+        if "SLOW" in block_content:
+            # Model a project/directory-scanning command: wait until the
+            # other worker is in flight, then enumerate the source files
+            # in the directory we were pointed at -- exactly what a tool
+            # with no explicit ``include`` does.
+            if not wait_until(FAST_READY.exists):
+                raise AssertionError("FAST worker never announced itself.")
+
+            discovered = [
+                path
+                for path in temp_file.parent.glob("*.py")
+                if path.resolve() != temp_file
+            ]
+
+            SLOW_RELEASE.write_text(data="release", encoding="utf-8")
+
+            # Read every discovered source file, as a scanning tool would.
+            # The enumerate-then-read window is forced to elapse
+            # deterministically here; a real tool hits it intermittently.
+            for path in discovered:
+                if not wait_until(lambda p=path: not p.exists()):
+                    raise AssertionError(
+                        "Discovered file never went away.",
+                    )
+                try:
+                    with path.open(encoding="utf-8") as handle:
+                        handle.read()
+                except FileNotFoundError:
+                    print(
+                        'File or directory "' + str(path) +
+                        '" does not exist',
+                        file=sys.stderr,
+                    )
+                    sys.exit(4)
+            sys.exit(0)
+
+        # FAST worker: announce that our temp file exists, then keep it
+        # alive until the SLOW worker has scanned the directory. Exiting
+        # triggers the normal per-worker cleanup that unlinks our file.
+        FAST_READY.write_text(data=str(temp_file), encoding="utf-8")
+        if not wait_until(SLOW_RELEASE.exists):
+            raise AssertionError("SLOW worker never released us.")
+        sys.exit(0)
+        """,
+    ).format(coord_dir=coord_dir.as_posix())
+    script.write_text(data=scanner_script, encoding="utf-8")
+
+    result = runner.invoke(
+        cli=main,
+        args=[
+            "--language",
+            "python",
+            "--no-pad-file",
+            "--no-write-to-file",
+            "--example-workers",
+            "2",
+            "--command",
+            f"{Path(sys.executable).as_posix()} {script.as_posix()}",
+            str(object=rst_file),
+        ],
+        catch_exceptions=False,
+        color=True,
+    )
+
+    # The directory-scanning command must not have failed with a
+    # "does not exist" error caused by a vanished foreign temp file.
+    assert result.exit_code == 0, (result.stdout, result.stderr)
