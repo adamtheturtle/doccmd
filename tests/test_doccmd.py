@@ -6470,3 +6470,229 @@ def test_continue_on_error_invalid_pycon(tmp_path: Path) -> None:
     )
     assert result.exit_code == 1, (result.stdout, result.stderr)
     assert f"Invalid pycon code block in {rst_file1}:" in result.stderr
+
+
+def test_parallel_no_write_to_file_directory_scanning_command_succeeds(
+    *,
+    tmp_path: Path,
+) -> None:
+    """Directory-scanning commands do not fail with "does not exist".
+
+    A command that does project/directory-wide file discovery (e.g.
+    ``pyright`` with no ``include``) enumerates the source files in the
+    directory it is pointed at and then reads each one. Under
+    ``--no-write-to-file`` with parallel workers it must never enumerate
+    a file that disappears before it can read it: doing so makes the
+    command fail with e.g.::
+
+        File or directory "..." does not exist
+
+    even though the user's code is fine.
+
+    See https://github.com/adamtheturtle/doccmd/issues/1041.
+
+    The command modeled here knows nothing about doccmd internals: it
+    globs the source directory it was handed a file in and reads what it
+    finds. The test is deterministic and edge-triggered (no sleeps): a
+    handshake via marker files makes the enumerate-then-read window
+    elapse deterministically so that, if a foreign file is ever visible,
+    the symptom is reproduced every time.
+    """
+    runner = CliRunner()
+    coord_dir = tmp_path / "coord"
+    coord_dir.mkdir()
+    source_dir = tmp_path / "src"
+    source_dir.mkdir()
+    rst_file = source_dir / "example.rst"
+    script = tmp_path / "scanner.py"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            FAST
+
+        .. code-block:: python
+
+            SLOW
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+
+    scanner_script = textwrap.dedent(
+        text="""\
+        import os
+        import pathlib
+        import sys
+        import time
+
+        COORD = pathlib.Path({coord_dir!r})
+        FAST_READY = COORD / "fast_ready"
+        SLOW_RELEASE = COORD / "slow_release"
+
+        TIMEOUT_SECONDS = 60
+
+
+        def wait_until(predicate):
+            deadline = time.monotonic() + TIMEOUT_SECONDS
+            while time.monotonic() < deadline:
+                if predicate():
+                    return True
+            return False
+
+
+        def stat_state(path):
+            # True if the path exists, False if it definitely does not,
+            # or None if a transient error (e.g. a Windows file-sharing
+            # violation while another process is creating, replacing or
+            # deleting the file) prevents a determination. Callers keep
+            # polling on None so the handshake stays deterministic.
+            try:
+                path.stat()
+            except FileNotFoundError:
+                return False
+            except OSError:
+                return None
+            return True
+
+
+        def announced_fast_file():
+            # The announcement is written atomically (write + rename), so
+            # any successful read sees the complete path. Only trust it
+            # once it names a file that currently exists, which rules out
+            # reading a not-yet-populated marker. On Windows, reading the
+            # marker while it is being replaced raises ``PermissionError``
+            # (an ``OSError``); treat that as "not ready yet".
+            try:
+                text = FAST_READY.read_text(encoding="utf-8")
+            except OSError:
+                return None
+            if not text:
+                return None
+            candidate = pathlib.Path(text).resolve()
+            return candidate if stat_state(candidate) is True else None
+
+
+        temp_file = pathlib.Path(sys.argv[1]).resolve()
+        block_content = temp_file.read_text(encoding="utf-8")
+
+        if "SLOW" in block_content:
+            # Model a project/directory-scanning command: wait until the
+            # other worker is in flight, then enumerate the source files
+            # in the directory we were pointed at -- exactly what a tool
+            # with no explicit ``include`` does.
+            if not wait_until(lambda: announced_fast_file() is not None):
+                raise AssertionError("FAST worker never announced itself.")
+            fast_file = announced_fast_file()
+
+            discovered = [
+                path
+                for path in temp_file.parent.glob("*.py")
+                if path.resolve() != temp_file
+            ]
+
+            SLOW_RELEASE.write_text(data="release", encoding="utf-8")
+
+            # The enumerate-then-read window is forced to elapse
+            # deterministically by waiting for the FAST worker's normal
+            # cleanup to unlink its file; a real tool hits this window
+            # intermittently. Then read every discovered source file, as
+            # a scanning tool would: if the directory scan enumerated the
+            # other worker's now-deleted file, the read fails -- the
+            # exact symptom from the issue.
+            if not wait_until(lambda: stat_state(fast_file) is False):
+                raise AssertionError("FAST worker's file never went away.")
+            for path in discovered:
+                try:
+                    with path.open(encoding="utf-8") as handle:
+                        handle.read()
+                except FileNotFoundError:
+                    print(
+                        'File or directory "' + str(path) +
+                        '" does not exist',
+                        file=sys.stderr,
+                    )
+                    sys.exit(4)
+            sys.exit(0)
+
+        # FAST worker: announce that our temp file exists, then keep it
+        # alive until the SLOW worker has scanned the directory. The
+        # announcement is written to a sibling and atomically renamed so
+        # the SLOW worker can never read a half-written path. Exiting
+        # triggers the normal per-worker cleanup that unlinks our file.
+        announcement = FAST_READY.with_suffix(".tmp")
+        announcement.write_text(data=str(temp_file), encoding="utf-8")
+        os.replace(announcement, FAST_READY)
+        if not wait_until(lambda: stat_state(SLOW_RELEASE) is True):
+            raise AssertionError("SLOW worker never released us.")
+        sys.exit(0)
+        """,
+    ).format(coord_dir=coord_dir.as_posix())
+    script.write_text(data=scanner_script, encoding="utf-8")
+
+    result = runner.invoke(
+        cli=main,
+        args=[
+            "--language",
+            "python",
+            "--no-pad-file",
+            "--no-write-to-file",
+            "--example-workers",
+            "2",
+            "--command",
+            f"{Path(sys.executable).as_posix()} {script.as_posix()}",
+            str(object=rst_file),
+        ],
+        catch_exceptions=False,
+        color=True,
+    )
+
+    # The directory-scanning command must not have failed with a
+    # "does not exist" error caused by a vanished foreign temp file.
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+
+
+def test_temp_file_directories_are_cleaned_up(*, tmp_path: Path) -> None:
+    """The per-example temp-file directories do not leak.
+
+    Each example's temporary file is isolated in its own directory
+    alongside the source file. Those directories must be removed once
+    evaluation finishes so that they do not accumulate in the user's
+    source tree.
+    """
+    runner = CliRunner()
+    source_dir = tmp_path / "src"
+    source_dir.mkdir()
+    rst_file = source_dir / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            x = 1
+
+        .. code-block:: python
+
+            y = 2
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+
+    result = runner.invoke(
+        cli=main,
+        args=[
+            "--language",
+            "python",
+            "--no-pad-file",
+            "--no-write-to-file",
+            "--command",
+            "true",
+            str(object=rst_file),
+        ],
+        catch_exceptions=False,
+        color=True,
+    )
+
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    # Only the original source file remains; no temp-file directories.
+    assert sorted(path.name for path in source_dir.iterdir()) == [
+        "example.rst",
+    ]

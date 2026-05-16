@@ -32,6 +32,7 @@ login
 macOS
 metadata
 myst
+namespace
 noqa
 parallelizing
 parsers
@@ -52,6 +53,7 @@ simplistix
 stderr
 strikethrough
 subdirectories
+subdirectory
 sybil
 symlink
 symlinked
@@ -59,6 +61,8 @@ symlinks
 txt
 typeshed
 ubuntu
+unlink
+unlinks
 validator
 validators
 versioned

@@ -4,6 +4,7 @@ import difflib
 import os
 import platform
 import shlex
+import shutil
 import subprocess
 import sys
 import textwrap
@@ -13,6 +14,7 @@ from dataclasses import dataclass, replace
 from enum import Enum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path
+from threading import Lock
 from typing import TypeVar
 from uuid import uuid4
 
@@ -92,6 +94,8 @@ class _TempFilePathMaker:
         self._prefix = prefix
         self._suffix = suffix
         self._template = template
+        self._lock = Lock()
+        self._created_directories: list[Path] = []
 
     def __call__(
         self,
@@ -100,6 +104,17 @@ class _TempFilePathMaker:
     ) -> Path:
         """Create a temporary file path for an example.
 
+        Each example's file is placed in its own unique directory
+        (a sibling of the source file) rather than directly alongside
+        the source file. When ``doccmd`` runs examples in parallel,
+        commands that scan a directory for files (for example
+        ``pyright`` with no ``include``) would otherwise enumerate, and
+        then race the deletion of, another concurrently-running worker's
+        temporary file. Isolating each file in its own directory makes
+        such files invisible to one another.
+
+        See https://github.com/adamtheturtle/doccmd/issues/1041.
+
         Args:
             example: The example to create a temporary file for.
 
@@ -107,9 +122,16 @@ class _TempFilePathMaker:
             A path to the temporary file.
         """
         source_path = Path(example.path)
-        # Sanitize the source filename (replace dots and dashes with _)
-        # Use .name (not .stem) to include the extension in the sanitized name
-        sanitized_source = source_path.name.replace(".", "_").replace("-", "_")
+        # Sanitize the source filename: replace dots and dashes with ``_``
+        # and lower-case it. Use ``.name`` (not ``.stem``) to include the
+        # extension. Lower-casing keeps the generated name a valid module
+        # name now that each temporary file lives in its own package
+        # directory, so tools such as ``ruff`` (rule ``N999``) do not
+        # flag it for a source document with upper-case letters in its
+        # name (for example ``README.rst``).
+        sanitized_source = (
+            source_path.name.replace(".", "_").replace("-", "_").lower()
+        )
         unique_id = uuid4().hex[:4]
         filename = self._template.format(
             prefix=self._prefix,
@@ -118,7 +140,49 @@ class _TempFilePathMaker:
             unique=unique_id,
             suffix=self._suffix,
         )
-        return source_path.parent / filename
+        # The directory name keeps the prefix so that linter
+        # per-file-ignore patterns such as ``*doccmd_*`` continue to
+        # match the temporary file's path.
+        directory = source_path.parent / f"{self._prefix}_{uuid4().hex}"
+        directory.mkdir(parents=True, exist_ok=True)
+        # Make the directory a regular package so that the temporary
+        # file is not treated as part of an implicit namespace package.
+        # Without this, tools such as ``ruff`` (rule ``INP001``) flag the
+        # file purely because it now lives in its own directory.
+        init_file = directory / "__init__.py"
+        init_file.write_text(
+            data='"""Isolated package for a ``doccmd`` temporary file."""\n',
+            encoding="utf-8",
+        )
+        with self._lock:
+            self._created_directories.append(directory)
+        return directory / filename
+
+    def cleanup(self) -> None:
+        """Remove every directory created for this maker's examples.
+
+        Called once all examples have been evaluated, so each directory
+        is empty (``sybil-extras`` unlinks the temporary file in its own
+        cleanup); any residue is removed defensively.
+        """
+        with self._lock:
+            directories = tuple(self._created_directories)
+            self._created_directories.clear()
+        for directory in directories:
+            shutil.rmtree(path=directory, ignore_errors=True)
+
+
+@beartype
+@dataclass(frozen=True, kw_only=True)
+class _SybilWithTempFileMaker:
+    """A Sybil together with the temp-file-path maker it uses.
+
+    The maker is kept alongside the Sybil so that the directories it
+    creates can be cleaned up once all examples have been evaluated.
+    """
+
+    sybil: Sybil
+    temp_file_path_maker: _TempFilePathMaker
 
 
 @beartype
@@ -646,13 +710,13 @@ def _process_file_path(
     newline = (
         newline_bytes.decode(encoding=encoding) if newline_bytes else None
     )
-    sybils: Sequence[Sybil] = []
+    sybils_with_makers: Sequence[_SybilWithTempFileMaker] = []
     for code_block_language in languages:
         temporary_file_extension = _get_temporary_file_extension(
             language=code_block_language,
             given_file_extension=given_temporary_file_extension,
         )
-        sybil = _get_sybil(
+        sybil_with_maker = _get_sybil(
             args=args,
             code_block_languages=[code_block_language],
             pycon_languages=pycon_languages,
@@ -674,11 +738,11 @@ def _process_file_path(
             newline=newline,
             parse_sphinx_jinja2=False,
         )
-        sybils = [*sybils, sybil]
+        sybils_with_makers = [*sybils_with_makers, sybil_with_maker]
 
     if sphinx_jinja2:
         temporary_file_extension = given_temporary_file_extension or ".jinja"
-        sybil = _get_sybil(
+        sybil_with_maker = _get_sybil(
             args=args,
             code_block_languages=[],
             pycon_languages=pycon_languages,
@@ -700,11 +764,42 @@ def _process_file_path(
             newline=newline,
             parse_sphinx_jinja2=True,
         )
-        sybils = [*sybils, sybil]
+        sybils_with_makers = [*sybils_with_makers, sybil_with_maker]
 
-    for sybil in sybils:
+    try:
+        _evaluate_sybils(
+            sybils_with_makers=sybils_with_makers,
+            file_path=file_path,
+            args=args,
+            example_workers=example_workers,
+            fail_on_parse_error=fail_on_parse_error,
+            fail_on_group_write=fail_on_group_write,
+            continue_on_error=continue_on_error,
+            local_errors=local_errors,
+        )
+    finally:
+        for sybil_with_maker in sybils_with_makers:
+            sybil_with_maker.temp_file_path_maker.cleanup()
+
+    return local_errors
+
+
+@beartype
+def _evaluate_sybils(
+    *,
+    sybils_with_makers: Sequence[_SybilWithTempFileMaker],
+    file_path: Path,
+    args: Sequence[str | Path],
+    example_workers: int,
+    fail_on_parse_error: bool,
+    fail_on_group_write: bool,
+    continue_on_error: bool,
+    local_errors: list[_CollectedError],
+) -> None:
+    """Parse and evaluate each Sybil, collecting any errors."""
+    for sybil_with_maker in sybils_with_makers:
         try:
-            document = sybil.parse(path=file_path)
+            document = sybil_with_maker.sybil.parse(path=file_path)
         except (LexingException, ValueError) as exc:
             message = f"Could not parse {file_path}: {exc}"
             _log_error(message=message)
@@ -781,8 +876,6 @@ def _process_file_path(
                     exc=exc,
                 )
             )
-
-    return local_errors
 
 
 @beartype
@@ -872,8 +965,14 @@ def _get_sybil(
     log_command_evaluators: Sequence[_LogCommandEvaluator],
     newline: str | None,
     parse_sphinx_jinja2: bool,
-) -> Sybil:
-    """Get a Sybil for running commands on the given file."""
+) -> _SybilWithTempFileMaker:
+    """Get a Sybil for running commands on the given file.
+
+    Returns:
+        The Sybil and the temporary-file-path maker it uses. The maker
+        is returned so that the directories it creates can be cleaned
+        up once all examples have been evaluated.
+    """
     # Add default "all" marker if:
     # - Not using group_file
     # - AND (not using group_mdx_by_attribute OR this is not an MDX file)
@@ -1036,7 +1135,7 @@ def _get_sybil(
         else []
     )
 
-    return Sybil(
+    sybil = Sybil(
         parsers=(
             *code_block_parsers,
             *sphinx_jinja2_parsers,
@@ -1046,6 +1145,10 @@ def _get_sybil(
             *mdx_attribute_grouped_parsers,
         ),
         encoding=encoding,
+    )
+    return _SybilWithTempFileMaker(
+        sybil=sybil,
+        temp_file_path_maker=temp_file_path_maker,
     )
 
 
