@@ -88,6 +88,7 @@ optional-dependencies.dev = [
     "sphinx-pyproject==0.3.0",
     "sphinx-substitution-extensions==2026.1.12",
     "sphinxcontrib-spelling==8.0.2",
+    "strict-kwargs==2026.5.18.post1",
     "ty==0.0.37",
     "types-pygments==2.20.0.20260508",
     "vulture==2.16",
@@ -366,6 +367,12 @@ report.exclude_also = [
 report.show_missing = true
 
 [tool.mypy_strict_kwargs]
+# `relative_to` and `is_relative_to` have `other` parameter that is
+# positional-only on Python 3.14+.
+# We need to support older versions, so we ignore them.
+ignore_names = [ "pathlib.Path.is_relative_to", "pathlib.Path.relative_to" ]
+
+[tool.strict_kwargs]
 # `relative_to` and `is_relative_to` have `other` parameter that is
 # positional-only on Python 3.14+.
 # We need to support older versions, so we ignore them.
