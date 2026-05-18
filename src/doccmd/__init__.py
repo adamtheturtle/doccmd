@@ -1153,9 +1153,11 @@ def _get_sybil(
 
 
 @cloup.command(name="doccmd", show_constraints=True)
+# cloup.option exposes ParamType[Unknown] to pyright.
+# See https://github.com/janluke/cloup/issues/88.
 @cloup.option_group(
     "Required options",
-    cloup.option(
+    cloup.option(  # pyright: ignore[reportUnknownMemberType]
         "command",
         "-c",
         "--command",
@@ -1166,7 +1168,7 @@ def _get_sybil(
 )
 @cloup.option_group(
     "Code block selection",
-    cloup.option(
+    cloup.option(  # pyright: ignore[reportUnknownMemberType]
         "languages",
         "-l",
         "--language",
@@ -1186,7 +1188,7 @@ def _get_sybil(
             ]
         ),
     ),
-    cloup.option(
+    cloup.option(  # pyright: ignore[reportUnknownMemberType]
         "--pycon-language",
         "pycon_languages",
         type=str,
@@ -1210,7 +1212,7 @@ def _get_sybil(
             ]
         ),
     ),
-    cloup.option(
+    cloup.option(  # pyright: ignore[reportUnknownMemberType]
         "--detect-pycon-language",
         "detect_pycon_languages",
         type=str,
@@ -1236,7 +1238,7 @@ def _get_sybil(
             ]
         ),
     ),
-    cloup.option(
+    cloup.option(  # pyright: ignore[reportUnknownMemberType]
         "skip_markers",
         "--skip-marker",
         type=str,
@@ -1267,7 +1269,7 @@ def _get_sybil(
         multiple=True,
         callback=_deduplicate,
     ),
-    cloup.option(
+    cloup.option(  # pyright: ignore[reportUnknownMemberType]
         "--sphinx-jinja2/--no-sphinx-jinja2",
         "sphinx_jinja2",
         default=False,
@@ -1282,7 +1284,7 @@ def _get_sybil(
 )
 @cloup.option_group(
     "Grouping options",
-    cloup.option(
+    cloup.option(  # pyright: ignore[reportUnknownMemberType]
         "group_markers",
         "--group-marker",
         type=str,
@@ -1312,7 +1314,7 @@ def _get_sybil(
         multiple=True,
         callback=_deduplicate,
     ),
-    cloup.option(
+    cloup.option(  # pyright: ignore[reportUnknownMemberType]
         "--group-file/--no-group-file",
         "group_file",
         default=False,
@@ -1328,7 +1330,7 @@ def _get_sybil(
             "them."
         ),
     ),
-    cloup.option(
+    cloup.option(  # pyright: ignore[reportUnknownMemberType]
         "--pad-groups/--no-pad-groups",
         is_flag=True,
         default=True,
@@ -1342,7 +1344,7 @@ def _get_sybil(
             "they generally need to look at the file without padding."
         ),
     ),
-    cloup.option(
+    cloup.option(  # pyright: ignore[reportUnknownMemberType]
         "--fail-on-group-write/--no-fail-on-group-write",
         "fail_on_group_write",
         default=True,
@@ -1354,7 +1356,7 @@ def _get_sybil(
             "``doccmd`` does not support writing to grouped code blocks."
         ),
     ),
-    cloup.option(
+    cloup.option(  # pyright: ignore[reportUnknownMemberType]
         "group_mdx_by_attribute",
         "--group-mdx-by-attribute",
         type=str,
@@ -1377,7 +1379,7 @@ def _get_sybil(
 )
 @cloup.option_group(
     "Temporary file options",
-    cloup.option(
+    cloup.option(  # pyright: ignore[reportUnknownMemberType]
         "temporary_file_extension",
         "--temporary-file-extension",
         type=str,
@@ -1389,7 +1391,7 @@ def _get_sybil(
         ),
         callback=_validate_file_extension_or_none,
     ),
-    cloup.option(
+    cloup.option(  # pyright: ignore[reportUnknownMemberType]
         "temporary_file_name_prefix",
         "--temporary-file-name-prefix",
         type=str,
@@ -1403,7 +1405,7 @@ def _get_sybil(
             "configurations."
         ),
     ),
-    cloup.option(
+    cloup.option(  # pyright: ignore[reportUnknownMemberType]
         "temporary_file_name_template",
         "--temporary-file-name-template",
         type=str,
@@ -1422,7 +1424,7 @@ def _get_sybil(
             "Example: '{prefix}_{unique}{suffix}' produces 'doccmd_a1b2.py'."
         ),
     ),
-    cloup.option(
+    cloup.option(  # pyright: ignore[reportUnknownMemberType]
         "--pad-file/--no-pad-file",
         is_flag=True,
         default=True,
@@ -1435,7 +1437,7 @@ def _get_sybil(
             "they generally need to look at the file without padding."
         ),
     ),
-    cloup.option(
+    cloup.option(  # pyright: ignore[reportUnknownMemberType]
         "--write-to-file/--no-write-to-file",
         "write_to_file",
         is_flag=True,
@@ -1450,7 +1452,7 @@ def _get_sybil(
 )
 @cloup.option_group(
     "File discovery options",
-    cloup.option(
+    cloup.option(  # pyright: ignore[reportUnknownMemberType]
         "--rst-extension",
         "rst_suffixes",
         type=str,
@@ -1466,7 +1468,7 @@ def _get_sybil(
         show_default=True,
         callback=_validate_file_extensions,
     ),
-    cloup.option(
+    cloup.option(  # pyright: ignore[reportUnknownMemberType]
         "--myst-extension",
         "myst_suffixes",
         type=str,
@@ -1482,7 +1484,7 @@ def _get_sybil(
         show_default=True,
         callback=_validate_file_extensions,
     ),
-    cloup.option(
+    cloup.option(  # pyright: ignore[reportUnknownMemberType]
         "--markdown-extension",
         "markdown_suffixes",
         type=str,
@@ -1496,7 +1498,7 @@ def _get_sybil(
         show_default=True,
         callback=_validate_file_extensions,
     ),
-    cloup.option(
+    cloup.option(  # pyright: ignore[reportUnknownMemberType]
         "--mdx-extension",
         "mdx_suffixes",
         type=str,
@@ -1509,7 +1511,7 @@ def _get_sybil(
         show_default=True,
         callback=_validate_file_extensions,
     ),
-    cloup.option(
+    cloup.option(  # pyright: ignore[reportUnknownMemberType]
         "--djot-extension",
         "djot_suffixes",
         type=str,
@@ -1522,7 +1524,7 @@ def _get_sybil(
         show_default=True,
         callback=_validate_file_extensions,
     ),
-    cloup.option(
+    cloup.option(  # pyright: ignore[reportUnknownMemberType]
         "--norg-extension",
         "norg_suffixes",
         type=str,
@@ -1535,14 +1537,14 @@ def _get_sybil(
         show_default=True,
         callback=_validate_file_extensions,
     ),
-    cloup.option(
+    cloup.option(  # pyright: ignore[reportUnknownMemberType]
         "--max-depth",
         type=click.IntRange(min=1),
         default=sys.maxsize,
         show_default=False,
         help="Maximum depth to search for files in directories.",
     ),
-    cloup.option(
+    cloup.option(  # pyright: ignore[reportUnknownMemberType]
         "--exclude",
         "exclude_patterns",
         type=str,
@@ -1554,7 +1556,7 @@ def _get_sybil(
             "Use forward slashes on all platforms."
         ),
     ),
-    cloup.option(
+    cloup.option(  # pyright: ignore[reportUnknownMemberType]
         "--respect-gitignore/--no-respect-gitignore",
         "respect_gitignore",
         is_flag=True,
@@ -1569,7 +1571,7 @@ def _get_sybil(
 )
 @cloup.option_group(
     "Execution options",
-    cloup.option(
+    cloup.option(  # pyright: ignore[reportUnknownMemberType]
         "--use-pty",
         "use_pty_option",
         type=click.Choice(choices=_UsePty, case_sensitive=False),
@@ -1589,7 +1591,7 @@ def _get_sybil(
             "'detect': Automatically determine based on environment (default)."
         ),
     ),
-    cloup.option(
+    cloup.option(  # pyright: ignore[reportUnknownMemberType]
         "--example-workers",
         type=click.IntRange(min=0),
         default=1,
@@ -1604,7 +1606,7 @@ def _get_sybil(
             "Output may be interleaved when using parallel execution."
         ),
     ),
-    cloup.option(
+    cloup.option(  # pyright: ignore[reportUnknownMemberType]
         "--document-workers",
         type=click.IntRange(min=0),
         default=1,
@@ -1622,7 +1624,7 @@ def _get_sybil(
 )
 @cloup.option_group(
     "Error handling",
-    cloup.option(
+    cloup.option(  # pyright: ignore[reportUnknownMemberType]
         "--fail-on-parse-error/--no-fail-on-parse-error",
         "fail_on_parse_error",
         default=False,
@@ -1633,7 +1635,7 @@ def _get_sybil(
             "parsed."
         ),
     ),
-    cloup.option(
+    cloup.option(  # pyright: ignore[reportUnknownMemberType]
         "--continue-on-error/--no-continue-on-error",
         "continue_on_error",
         default=False,
@@ -1649,7 +1651,7 @@ def _get_sybil(
 )
 @cloup.option_group(
     "Output options",
-    cloup.option(
+    cloup.option(  # pyright: ignore[reportUnknownMemberType]
         "--verbose",
         "-v",
         is_flag=True,
