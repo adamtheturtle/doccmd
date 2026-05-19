@@ -12,6 +12,7 @@ beartype
 blockquote
 changelog
 cli
+cloup
 de
 doccmd
 dockerfile
@@ -48,6 +49,7 @@ reStructuredText
 reco
 recursing
 repo
+reportUnknownMemberType
 rst
 simplistix
 stderr

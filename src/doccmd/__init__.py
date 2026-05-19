@@ -1153,7 +1153,7 @@ def _get_sybil(
 
 
 @cloup.command(name="doccmd", show_constraints=True)
-# cloup.option exposes ParamType[Unknown] to pyright.
+# Option decorators expose an unknown parameter type to pyright.
 # See https://github.com/janluke/cloup/issues/88.
 @cloup.option_group(
     "Required options",
