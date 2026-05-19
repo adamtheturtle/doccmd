@@ -565,7 +565,7 @@ requires-dist = [
     { name = "homebrew-pypi-poet", marker = "extra == 'release'", specifier = "==0.10" },
     { name = "interrogate", marker = "extra == 'dev'", specifier = "==1.7.0" },
     { name = "mypy", extras = ["faster-cache"], marker = "extra == 'dev'", specifier = "==2.1.0" },
-    { name = "mypy-strict-kwargs", marker = "extra == 'dev'", specifier = "==2026.1.12" },
+    { name = "mypy-strict-kwargs", marker = "extra == 'dev'", specifier = "==2026.5.19" },
     { name = "prek", marker = "extra == 'dev'", specifier = "==0.4.0" },
     { name = "pydocstringformatter", marker = "extra == 'dev'", specifier = "==0.7.5" },
     { name = "pydocstyle", marker = "extra == 'dev'", specifier = "==6.3" },
@@ -1073,15 +1073,14 @@ wheels = [
 
 [[package]]
 name = "mypy-strict-kwargs"
-version = "2026.1.12"
+version = "2026.5.19"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "mypy" },
-    { name = "tomli" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/8c/77/869682567b0953f3f9ea6b44639a2a520e0976679a93e4fd4a91840ac43a/mypy_strict_kwargs-2026.1.12.tar.gz", hash = "sha256:abc688be88661e14f19626e00686f42cc6ce3a959e9cd86e0523dee2b5509cac", size = 18756, upload-time = "2026-01-12T06:12:03.509Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b6/06/f4439b419089bb4ad5fa9f5ca16be94b01599f081e32354c13943e7ac897/mypy_strict_kwargs-2026.5.19.tar.gz", hash = "sha256:386dd2195a25cbd1bf0183e6c24bce8ec765a0f110329dac622fc02135cb0bd4", size = 20000, upload-time = "2026-05-19T11:51:43.362Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/af/93/918273959da1d3364478742f45e5579489acd100a6184061f57d64b37be7/mypy_strict_kwargs-2026.1.12-py2.py3-none-any.whl", hash = "sha256:54529ed7d9912be26f4aedb200e5c4d577fb592398c4038b551a3a07ea83361d", size = 7095, upload-time = "2026-01-12T06:12:01.884Z" },
+    { url = "https://files.pythonhosted.org/packages/78/6f/9486d091884361ca4137dab3e2543dcced410d40d9b8604a0ba4c932799a/mypy_strict_kwargs-2026.5.19-py2.py3-none-any.whl", hash = "sha256:3c3ef1f45d6dbca0800ddddff8f521d33f35a2d9e753f68d06f634b8622c3e26", size = 7772, upload-time = "2026-05-19T11:51:41.695Z" },
 ]
 
 [[package]]
