@@ -534,7 +534,9 @@ dev = [
     { name = "sphinx-pyproject" },
     { name = "sphinx-substitution-extensions" },
     { name = "sphinxcontrib-spelling" },
+    { name = "sphinxcontrib-towncrier" },
     { name = "strict-kwargs" },
+    { name = "towncrier" },
     { name = "ty" },
     { name = "types-pygments" },
     { name = "vulture" },
@@ -592,9 +594,11 @@ requires-dist = [
     { name = "sphinx-pyproject", marker = "extra == 'dev'", specifier = "==0.3.0" },
     { name = "sphinx-substitution-extensions", marker = "extra == 'dev'", specifier = "==2026.1.12" },
     { name = "sphinxcontrib-spelling", marker = "extra == 'dev'", specifier = "==8.0.2" },
+    { name = "sphinxcontrib-towncrier", marker = "extra == 'dev'", specifier = "==0.5.0a0" },
     { name = "strict-kwargs", marker = "extra == 'dev'", specifier = "==2026.5.19.post3" },
     { name = "sybil", specifier = ">=9.3.0,<11.0.0" },
     { name = "sybil-extras", specifier = "==2026.5.6" },
+    { name = "towncrier", marker = "extra == 'dev'", specifier = "==25.8.0" },
     { name = "ty", marker = "extra == 'dev'", specifier = "==0.0.38" },
     { name = "types-pygments", marker = "extra == 'dev'", specifier = "==2.20.0.20260518" },
     { name = "vulture", marker = "extra == 'dev'", specifier = "==2.16" },
@@ -2152,6 +2156,20 @@ wheels = [
 ]
 
 [[package]]
+name = "sphinxcontrib-towncrier"
+version = "0.5.0a0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "sphinx", version = "9.0.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "sphinx", version = "9.1.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "towncrier" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/21/fe/72ed57093e28af10595c50839b183c5fdf0952482e9ef0ca6eb90eb85c5d/sphinxcontrib_towncrier-0.5.0a0.tar.gz", hash = "sha256:294e69df6e275e7a86df7ea6a927cc7c28c2c370a884cd5c45de6ec989858f27", size = 62453, upload-time = "2025-02-28T01:59:16.894Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ac/5c/f7e39f243636a5e1894f2f5a72579977bf3968922afdb75175ee45062066/sphinxcontrib_towncrier-0.5.0a0-py3-none-any.whl", hash = "sha256:11d130c3ad5e4649821d543c4ea7ab64bbe78df4d859ef94f4298e7845dc0f59", size = 12609, upload-time = "2025-02-28T01:59:15.178Z" },
+]
+
+[[package]]
 name = "stevedore"
 version = "5.6.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2276,6 +2294,19 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/c3/af/14b24e41977adb296d6bd1fb59402cf7d60ce364f90c890bd2ec65c43b5a/tomlkit-0.14.0.tar.gz", hash = "sha256:cf00efca415dbd57575befb1f6634c4f42d2d87dbba376128adb42c121b87064", size = 187167, upload-time = "2026-01-13T01:14:53.304Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b5/11/87d6d29fb5d237229d67973a6c9e06e048f01cf4994dee194ab0ea841814/tomlkit-0.14.0-py3-none-any.whl", hash = "sha256:592064ed85b40fa213469f81ac584f67a4f2992509a7c3ea2d632208623a3680", size = 39310, upload-time = "2026-01-13T01:14:51.965Z" },
+]
+
+[[package]]
+name = "towncrier"
+version = "25.8.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "click" },
+    { name = "jinja2" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/c2/eb/5bf25a34123698d3bbab39c5bc5375f8f8bcbcc5a136964ade66935b8b9d/towncrier-25.8.0.tar.gz", hash = "sha256:eef16d29f831ad57abb3ae32a0565739866219f1ebfbdd297d32894eb9940eb1", size = 76322, upload-time = "2025-08-30T11:41:55.393Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/42/06/8ba22ec32c74ac1be3baa26116e3c28bc0e76a5387476921d20b6fdade11/towncrier-25.8.0-py3-none-any.whl", hash = "sha256:b953d133d98f9aeae9084b56a3563fd2519dfc6ec33f61c9cd2c61ff243fb513", size = 65101, upload-time = "2025-08-30T11:41:53.644Z" },
 ]
 
 [[package]]
