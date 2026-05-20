@@ -21,10 +21,19 @@ author = _pyproject_config.author
 extensions = [
     "sphinx_copybutton",
     "sphinxcontrib.spelling",
+    "sphinxcontrib.towncrier.ext",
     "sphinx_click.ext",
     "sphinx_inline_tabs",
     "sphinx_substitution_extensions",
 ]
+
+# Render the unreleased ``newsfragments/`` entries into
+# ``docs/source/unreleased.rst`` so the Sphinx spelling, doc-build and
+# link-checking gates cover the prose before it is assembled into
+# CHANGELOG.rst at release time.
+towncrier_draft_autoversion_mode = "draft"
+towncrier_draft_include_empty = True
+towncrier_draft_working_directory = f"{_pyproject_file.parent}"
 
 templates_path = ["_templates"]
 source_suffix = ".rst"

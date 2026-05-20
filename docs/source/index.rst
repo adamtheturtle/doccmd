@@ -118,4 +118,5 @@ Reference
    group-code-blocks
    contributing
    release-process
+   unreleased
    changelog
