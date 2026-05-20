@@ -102,6 +102,7 @@ optional-dependencies.dev = [
 optional-dependencies.release = [
     "check-wheel-contents==0.6.3",
     "homebrew-pypi-poet==0.10",
+    "towncrier==25.8.0",
 ]
 urls.Documentation = "https://adamtheturtle.github.io/doccmd/"
 urls.Source = "https://github.com/adamtheturtle/doccmd"
