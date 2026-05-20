@@ -1498,11 +1498,7 @@ def test_workers_zero_requires_no_write_when_auto_parallel(
         """,
     )
     rst_file.write_text(data=content, encoding="utf-8")
-    monkeypatch.setattr(  # pylint: disable=bad-builtin
-        target=os,
-        name="cpu_count",
-        value=lambda: 4,
-    )
+    monkeypatch.setattr(target=os, name="cpu_count", value=lambda: 4)  # pylint: disable=bad-builtin
     result = runner.invoke(
         cli=main,
         args=[
@@ -1544,11 +1540,7 @@ def test_workers_zero_allows_running_when_cpu_is_single(
         """,
     )
     rst_file.write_text(data=content, encoding="utf-8")
-    monkeypatch.setattr(  # pylint: disable=bad-builtin
-        target=os,
-        name="cpu_count",
-        value=lambda: 1,
-    )
+    monkeypatch.setattr(target=os, name="cpu_count", value=lambda: 1)  # pylint: disable=bad-builtin
     result = runner.invoke(
         cli=main,
         args=[
@@ -1582,11 +1574,7 @@ def test_cpu_count_returns_none(
         """,
     )
     rst_file.write_text(data=content, encoding="utf-8")
-    monkeypatch.setattr(  # pylint: disable=bad-builtin
-        target=os,
-        name="cpu_count",
-        value=lambda: None,
-    )
+    monkeypatch.setattr(target=os, name="cpu_count", value=lambda: None)  # pylint: disable=bad-builtin
     result = runner.invoke(
         cli=main,
         args=[
