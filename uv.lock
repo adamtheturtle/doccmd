@@ -546,6 +546,7 @@ dev = [
 release = [
     { name = "check-wheel-contents" },
     { name = "homebrew-pypi-poet" },
+    { name = "towncrier" },
 ]
 
 [package.metadata]
@@ -599,6 +600,7 @@ requires-dist = [
     { name = "sybil", specifier = ">=9.3.0,<11.0.0" },
     { name = "sybil-extras", specifier = "==2026.5.6" },
     { name = "towncrier", marker = "extra == 'dev'", specifier = "==25.8.0" },
+    { name = "towncrier", marker = "extra == 'release'", specifier = "==25.8.0" },
     { name = "ty", marker = "extra == 'dev'", specifier = "==0.0.38" },
     { name = "types-pygments", marker = "extra == 'dev'", specifier = "==2.20.0.20260518" },
     { name = "vulture", marker = "extra == 'dev'", specifier = "==2.16" },
