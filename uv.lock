@@ -598,7 +598,7 @@ requires-dist = [
     { name = "sphinxcontrib-towncrier", marker = "extra == 'dev'", specifier = "==0.5.0a0" },
     { name = "strict-kwargs", marker = "extra == 'dev'", specifier = "==2026.5.20" },
     { name = "sybil", specifier = ">=9.3.0,<11.0.0" },
-    { name = "sybil-extras", specifier = "==2026.5.20" },
+    { name = "sybil-extras", specifier = "==2026.5.25" },
     { name = "towncrier", marker = "extra == 'dev'", specifier = "==25.8.0" },
     { name = "towncrier", marker = "extra == 'release'", specifier = "==25.8.0" },
     { name = "ty", marker = "extra == 'dev'", specifier = "==0.0.38" },
@@ -2204,7 +2204,7 @@ wheels = [
 
 [[package]]
 name = "sybil-extras"
-version = "2026.5.20"
+version = "2026.5.25"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "beartype" },
@@ -2212,9 +2212,9 @@ dependencies = [
     { name = "myst-parser" },
     { name = "sybil" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/10/2d/dc589094a0e6fb4b0fb7430979f0e166a57a72552b2e6586f44a63096ed1/sybil_extras-2026.5.20.tar.gz", hash = "sha256:2a0d4f58c646ee912381d8d4eb841b6a9f4c447cd34ef0b9fa8b1efaa7c7ca54", size = 103390, upload-time = "2026-05-20T08:11:58.997Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/5b/7e/fe6068c73d54469ee10a9f9ee0bdca9d188e745c1e2416dff213a11273ff/sybil_extras-2026.5.25.tar.gz", hash = "sha256:6d96ed90170bd36329b7e4463eb609a500beae4b95bb90b0aade789b893baf25", size = 105629, upload-time = "2026-05-25T09:17:56.635Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2d/a7/c2d281ae411fc2a16d6d479155719b8ec890a55cfcdd0496e7f64355ac15/sybil_extras-2026.5.20-py2.py3-none-any.whl", hash = "sha256:e38a479cfe66bfe82d16b09ad0148c3f0443d16533aec323ae808d7062144279", size = 81441, upload-time = "2026-05-20T08:11:56.838Z" },
+    { url = "https://files.pythonhosted.org/packages/b4/16/214e3ba975a56ae401205504a800ff5cb6990f9d0a3b1546f7866367f409/sybil_extras-2026.5.25-py2.py3-none-any.whl", hash = "sha256:42059c87473278f0b83d39d9547f44cc44dbfce3a31e8dd67ec8336263c00657", size = 82291, upload-time = "2026-05-25T09:17:54.516Z" },
 ]
 
 [[package]]
