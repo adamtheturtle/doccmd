@@ -1157,7 +1157,7 @@ def _get_sybil(
 @cloup.option_group(
     "Required options",
     # See https://github.com/janluke/cloup/issues/200.
-    cloup.option(  # pyright: ignore[reportUnknownMemberType]
+    cloup.option(
         "command",
         "-c",
         "--command",
@@ -1169,7 +1169,7 @@ def _get_sybil(
 @cloup.option_group(
     "Code block selection",
     # See https://github.com/janluke/cloup/issues/200.
-    cloup.option(  # pyright: ignore[reportUnknownMemberType]
+    cloup.option(
         "languages",
         "-l",
         "--language",
@@ -1190,7 +1190,7 @@ def _get_sybil(
         ),
     ),
     # See https://github.com/janluke/cloup/issues/200.
-    cloup.option(  # pyright: ignore[reportUnknownMemberType]
+    cloup.option(
         "--pycon-language",
         "pycon_languages",
         type=str,
@@ -1215,7 +1215,7 @@ def _get_sybil(
         ),
     ),
     # See https://github.com/janluke/cloup/issues/200.
-    cloup.option(  # pyright: ignore[reportUnknownMemberType]
+    cloup.option(
         "--detect-pycon-language",
         "detect_pycon_languages",
         type=str,
@@ -1242,7 +1242,7 @@ def _get_sybil(
         ),
     ),
     # See https://github.com/janluke/cloup/issues/200.
-    cloup.option(  # pyright: ignore[reportUnknownMemberType]
+    cloup.option(
         "skip_markers",
         "--skip-marker",
         type=str,
@@ -1274,7 +1274,7 @@ def _get_sybil(
         callback=_deduplicate,
     ),
     # See https://github.com/janluke/cloup/issues/200.
-    cloup.option(  # pyright: ignore[reportUnknownMemberType]
+    cloup.option(
         "--sphinx-jinja2/--no-sphinx-jinja2",
         "sphinx_jinja2",
         default=False,
@@ -1290,7 +1290,7 @@ def _get_sybil(
 @cloup.option_group(
     "Grouping options",
     # See https://github.com/janluke/cloup/issues/200.
-    cloup.option(  # pyright: ignore[reportUnknownMemberType]
+    cloup.option(
         "group_markers",
         "--group-marker",
         type=str,
@@ -1321,7 +1321,7 @@ def _get_sybil(
         callback=_deduplicate,
     ),
     # See https://github.com/janluke/cloup/issues/200.
-    cloup.option(  # pyright: ignore[reportUnknownMemberType]
+    cloup.option(
         "--group-file/--no-group-file",
         "group_file",
         default=False,
@@ -1338,7 +1338,7 @@ def _get_sybil(
         ),
     ),
     # See https://github.com/janluke/cloup/issues/200.
-    cloup.option(  # pyright: ignore[reportUnknownMemberType]
+    cloup.option(
         "--pad-groups/--no-pad-groups",
         is_flag=True,
         default=True,
@@ -1353,7 +1353,7 @@ def _get_sybil(
         ),
     ),
     # See https://github.com/janluke/cloup/issues/200.
-    cloup.option(  # pyright: ignore[reportUnknownMemberType]
+    cloup.option(
         "--fail-on-group-write/--no-fail-on-group-write",
         "fail_on_group_write",
         default=True,
@@ -1366,7 +1366,7 @@ def _get_sybil(
         ),
     ),
     # See https://github.com/janluke/cloup/issues/200.
-    cloup.option(  # pyright: ignore[reportUnknownMemberType]
+    cloup.option(
         "group_mdx_by_attribute",
         "--group-mdx-by-attribute",
         type=str,
@@ -1390,7 +1390,7 @@ def _get_sybil(
 @cloup.option_group(
     "Temporary file options",
     # See https://github.com/janluke/cloup/issues/200.
-    cloup.option(  # pyright: ignore[reportUnknownMemberType]
+    cloup.option(
         "temporary_file_extension",
         "--temporary-file-extension",
         type=str,
@@ -1403,7 +1403,7 @@ def _get_sybil(
         callback=_validate_file_extension_or_none,
     ),
     # See https://github.com/janluke/cloup/issues/200.
-    cloup.option(  # pyright: ignore[reportUnknownMemberType]
+    cloup.option(
         "temporary_file_name_prefix",
         "--temporary-file-name-prefix",
         type=str,
@@ -1418,7 +1418,7 @@ def _get_sybil(
         ),
     ),
     # See https://github.com/janluke/cloup/issues/200.
-    cloup.option(  # pyright: ignore[reportUnknownMemberType]
+    cloup.option(
         "temporary_file_name_template",
         "--temporary-file-name-template",
         type=str,
@@ -1438,7 +1438,7 @@ def _get_sybil(
         ),
     ),
     # See https://github.com/janluke/cloup/issues/200.
-    cloup.option(  # pyright: ignore[reportUnknownMemberType]
+    cloup.option(
         "--pad-file/--no-pad-file",
         is_flag=True,
         default=True,
@@ -1452,7 +1452,7 @@ def _get_sybil(
         ),
     ),
     # See https://github.com/janluke/cloup/issues/200.
-    cloup.option(  # pyright: ignore[reportUnknownMemberType]
+    cloup.option(
         "--write-to-file/--no-write-to-file",
         "write_to_file",
         is_flag=True,
@@ -1468,7 +1468,7 @@ def _get_sybil(
 @cloup.option_group(
     "File discovery options",
     # See https://github.com/janluke/cloup/issues/200.
-    cloup.option(  # pyright: ignore[reportUnknownMemberType]
+    cloup.option(
         "--rst-extension",
         "rst_suffixes",
         type=str,
@@ -1485,7 +1485,7 @@ def _get_sybil(
         callback=_validate_file_extensions,
     ),
     # See https://github.com/janluke/cloup/issues/200.
-    cloup.option(  # pyright: ignore[reportUnknownMemberType]
+    cloup.option(
         "--myst-extension",
         "myst_suffixes",
         type=str,
@@ -1502,7 +1502,7 @@ def _get_sybil(
         callback=_validate_file_extensions,
     ),
     # See https://github.com/janluke/cloup/issues/200.
-    cloup.option(  # pyright: ignore[reportUnknownMemberType]
+    cloup.option(
         "--markdown-extension",
         "markdown_suffixes",
         type=str,
@@ -1517,7 +1517,7 @@ def _get_sybil(
         callback=_validate_file_extensions,
     ),
     # See https://github.com/janluke/cloup/issues/200.
-    cloup.option(  # pyright: ignore[reportUnknownMemberType]
+    cloup.option(
         "--mdx-extension",
         "mdx_suffixes",
         type=str,
@@ -1531,7 +1531,7 @@ def _get_sybil(
         callback=_validate_file_extensions,
     ),
     # See https://github.com/janluke/cloup/issues/200.
-    cloup.option(  # pyright: ignore[reportUnknownMemberType]
+    cloup.option(
         "--djot-extension",
         "djot_suffixes",
         type=str,
@@ -1545,7 +1545,7 @@ def _get_sybil(
         callback=_validate_file_extensions,
     ),
     # See https://github.com/janluke/cloup/issues/200.
-    cloup.option(  # pyright: ignore[reportUnknownMemberType]
+    cloup.option(
         "--norg-extension",
         "norg_suffixes",
         type=str,
@@ -1559,7 +1559,7 @@ def _get_sybil(
         callback=_validate_file_extensions,
     ),
     # See https://github.com/janluke/cloup/issues/200.
-    cloup.option(  # pyright: ignore[reportUnknownMemberType]
+    cloup.option(
         "--max-depth",
         type=click.IntRange(min=1),
         default=sys.maxsize,
@@ -1567,7 +1567,7 @@ def _get_sybil(
         help="Maximum depth to search for files in directories.",
     ),
     # See https://github.com/janluke/cloup/issues/200.
-    cloup.option(  # pyright: ignore[reportUnknownMemberType]
+    cloup.option(
         "--exclude",
         "exclude_patterns",
         type=str,
@@ -1580,7 +1580,7 @@ def _get_sybil(
         ),
     ),
     # See https://github.com/janluke/cloup/issues/200.
-    cloup.option(  # pyright: ignore[reportUnknownMemberType]
+    cloup.option(
         "--respect-gitignore/--no-respect-gitignore",
         "respect_gitignore",
         is_flag=True,
@@ -1596,7 +1596,7 @@ def _get_sybil(
 @cloup.option_group(
     "Execution options",
     # See https://github.com/janluke/cloup/issues/200.
-    cloup.option(  # pyright: ignore[reportUnknownMemberType]
+    cloup.option(
         "--use-pty",
         "use_pty_option",
         type=click.Choice(choices=_UsePty, case_sensitive=False),
@@ -1617,7 +1617,7 @@ def _get_sybil(
         ),
     ),
     # See https://github.com/janluke/cloup/issues/200.
-    cloup.option(  # pyright: ignore[reportUnknownMemberType]
+    cloup.option(
         "--example-workers",
         type=click.IntRange(min=0),
         default=1,
@@ -1633,7 +1633,7 @@ def _get_sybil(
         ),
     ),
     # See https://github.com/janluke/cloup/issues/200.
-    cloup.option(  # pyright: ignore[reportUnknownMemberType]
+    cloup.option(
         "--document-workers",
         type=click.IntRange(min=0),
         default=1,
@@ -1652,7 +1652,7 @@ def _get_sybil(
 @cloup.option_group(
     "Error handling",
     # See https://github.com/janluke/cloup/issues/200.
-    cloup.option(  # pyright: ignore[reportUnknownMemberType]
+    cloup.option(
         "--fail-on-parse-error/--no-fail-on-parse-error",
         "fail_on_parse_error",
         default=False,
@@ -1664,7 +1664,7 @@ def _get_sybil(
         ),
     ),
     # See https://github.com/janluke/cloup/issues/200.
-    cloup.option(  # pyright: ignore[reportUnknownMemberType]
+    cloup.option(
         "--continue-on-error/--no-continue-on-error",
         "continue_on_error",
         default=False,
@@ -1681,7 +1681,7 @@ def _get_sybil(
 @cloup.option_group(
     "Output options",
     # See https://github.com/janluke/cloup/issues/200.
-    cloup.option(  # pyright: ignore[reportUnknownMemberType]
+    cloup.option(
         "--verbose",
         "-v",
         is_flag=True,
