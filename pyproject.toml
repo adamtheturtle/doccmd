@@ -70,7 +70,7 @@ optional-dependencies.dev = [
     "pyrefly==1.0.0",
     "pyright==1.1.410",
     "pyroma==5.0.1",
-    "pytest==9.0.3",
+    "pytest==9.1.0",
     "pytest-cov==7.1.0",
     "pytest-regressions==2.11.0",
     "pyyaml==6.0.3",
