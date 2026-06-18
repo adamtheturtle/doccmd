@@ -86,7 +86,7 @@ optional-dependencies.dev = [
     "sphinx-inline-tabs==2025.12.21.14",
     "sphinx-lint==1.0.2",
     "sphinx-pyproject==0.3.0",
-    "sphinx-substitution-extensions==2026.1.12",
+    "sphinx-substitution-extensions==2026.6.17",
     "sphinxcontrib-spelling==8.0.2",
     # ``sphinxcontrib-towncrier`` renders unreleased news fragments
     # into docs/source/unreleased.rst during Sphinx builds.
