@@ -59,7 +59,7 @@ repos:
       - id: check-useless-excludes
         stages: [pre-commit]
   - repo: https://github.com/NixOS/nixfmt
-    rev: v1.3.1
+    rev: v1.4.0
     hooks:
       - id: nixfmt
         stages: [manual]
