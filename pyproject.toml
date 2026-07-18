@@ -117,9 +117,6 @@ package-data.doccmd = [
 ]
 zip-safe = false
 
-[tool.distutils]
-bdist_wheel.universal = true
-
 [tool.setuptools_scm]
 # We write the version to a file so that we can import it.
 # We choose a ``.py`` file so that we can read it without
