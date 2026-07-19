@@ -1203,6 +1203,43 @@ def test_invalid_template_placeholder(tmp_path: Path) -> None:
     assert result.output == expected_output
 
 
+def test_empty_exclude_pattern(tmp_path: Path) -> None:
+    """An error is raised for an empty ``--exclude`` pattern."""
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            x = 2 + 2
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--exclude",
+        "",
+        "--command",
+        "echo",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code != 0
+    expected_output = (
+        "Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...\n"
+        "Try 'doccmd --help' for help.\n"
+        "\n"
+        "Error: Invalid value for '--exclude': "
+        "This value cannot be empty.\n"
+    )
+    assert result.output == expected_output
+
+
 @pytest.mark.parametrize(
     argnames=("command", "expected_message"),
     argvalues=[
