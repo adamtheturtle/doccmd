@@ -14,7 +14,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, replace
 from enum import Enum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from threading import Lock
 from typing import TypeVar
 from uuid import uuid4
@@ -167,7 +167,13 @@ class _TempFilePathMaker:
         )
         with self._lock:
             self._created_directories.append(directory)
-        return directory / filename
+        final_path = directory / filename
+        # Defense in depth: ``_validate_template`` guarantees that the
+        # formatted file name is a base name confined to ``directory``, so
+        # the resolved parent must be ``directory`` itself. A violation
+        # would mean the file could escape the isolation directory.
+        assert final_path.parent == directory  # noqa: S101
+        return final_path
 
     def cleanup(self) -> None:
         """Remove every directory created for this maker's examples.
@@ -294,6 +300,25 @@ def _validate_template(
         message = (
             "Template must contain '{suffix}' placeholder "
             "for the file extension."
+        )
+        raise click.BadParameter(message=message, ctx=ctx, param=param)
+
+    # Reject templates that could resolve outside the per-example
+    # isolation directory. The formatted name is joined directly to a
+    # freshly-created directory, so it must be a single safe path
+    # component (a base name): no path separators, parent references, or
+    # absolute paths. Both separator conventions are treated as
+    # separators regardless of the host OS.
+    posix_path = PurePosixPath(formatted)
+    windows_path = PureWindowsPath(formatted)
+    has_separator = any(separator in formatted for separator in ("/", "\\"))
+    is_absolute = posix_path.is_absolute() or windows_path.is_absolute()
+    has_parent_reference = ".." in (*posix_path.parts, *windows_path.parts)
+    if has_separator or is_absolute or has_parent_reference:
+        message = (
+            "Template must produce a file name within the temporary "
+            "directory: it may not contain path separators, parent "
+            "references, or absolute paths."
         )
         raise click.BadParameter(message=message, ctx=ctx, param=param)
 
