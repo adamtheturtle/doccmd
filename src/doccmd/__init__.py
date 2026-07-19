@@ -290,16 +290,44 @@ def _validate_template(
 
 
 @beartype
+def _get_markup_language(
+    *,
+    file_path: Path,
+    suffix_map: Mapping[str, MarkupLanguage],
+) -> MarkupLanguage | None:
+    """Return the markup language for a file based on its configured
+    suffix.
+
+    Matches the file name against configured suffixes (which may contain
+    more than one dot, e.g. ``.test.rst``), preferring the longest match.
+    """
+    file_name = file_path.name
+    matching_suffixes = [
+        suffix
+        for suffix in suffix_map
+        if suffix != "." and file_name.endswith(suffix)
+    ]
+    if not matching_suffixes:
+        return None
+    longest_suffix = max(matching_suffixes, key=len)
+    return suffix_map[longest_suffix]
+
+
+@beartype
 def _validate_given_files_have_known_suffixes(
     *,
     given_files: Iterable[Path],
-    known_suffixes: Iterable[str],
+    suffix_map: Mapping[str, MarkupLanguage],
 ) -> None:
     """Validate that the given files have known suffixes."""
     given_files_unknown_suffix = [
         document_path
         for document_path in given_files
-        if document_path.suffix not in known_suffixes
+        if _get_markup_language(
+            file_path=document_path,
+            suffix_map=suffix_map,
+        )
+        is None
     ]
 
     for given_file_unknown_suffix in given_files_unknown_suffix:
@@ -712,7 +740,11 @@ def _process_file_path(
 ) -> list[_CollectedError]:
     """Process a single documentation file."""
     local_errors: list[_CollectedError] = []
-    markup_language = suffix_map[file_path.suffix]
+    markup_language = _get_markup_language(
+        file_path=file_path,
+        suffix_map=suffix_map,
+    )
+    assert markup_language is not None  # noqa: S101
     encoding = _get_encoding(document_path=file_path)
     if encoding is None:
         could_not_determine_encoding_msg = (
@@ -1765,7 +1797,7 @@ def main(
             for document_path in document_paths
             if document_path.is_file()
         ],
-        known_suffixes=suffix_map.keys(),
+        suffix_map=suffix_map,
     )
 
     file_paths = _get_file_paths(
