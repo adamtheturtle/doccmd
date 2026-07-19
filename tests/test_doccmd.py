@@ -1303,6 +1303,43 @@ def test_temporary_file_includes_source_name(tmp_path: Path) -> None:
     assert "_l1__" in output_path.name
 
 
+def test_temporary_file_name_is_valid_module_name(tmp_path: Path) -> None:
+    """
+    The temporary file name is a valid Python module name even when the
+    source file name is not (for example a leading digit and a space).
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "123 bad.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            x = 2 + 2
+            assert x == 4
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        "echo",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    output = result.stdout
+    output_path = Path(output.strip())
+    stem = output_path.stem
+    assert stem.isidentifier(), stem
+    assert not stem[0].isdigit(), stem
+
+
 def test_file_extension_unknown_language(tmp_path: Path) -> None:
     """
     The file extension of the temporary file is `.txt` for any unknown

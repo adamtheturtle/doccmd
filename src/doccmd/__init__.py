@@ -3,6 +3,7 @@
 import difflib
 import os
 import platform
+import re
 import shlex
 import shutil
 import subprocess
@@ -122,16 +123,26 @@ class _TempFilePathMaker:
             A path to the temporary file.
         """
         source_path = Path(example.path)
-        # Sanitize the source filename: replace dots and dashes with ``_``
-        # and lower-case it. Use ``.name`` (not ``.stem``) to include the
-        # extension. Lower-casing keeps the generated name a valid module
-        # name now that each temporary file lives in its own package
-        # directory, so tools such as ``ruff`` (rule ``N999``) do not
-        # flag it for a source document with upper-case letters in its
-        # name (for example ``README.rst``).
-        sanitized_source = (
-            source_path.name.replace(".", "_").replace("-", "_").lower()
+        # Sanitize the source filename into a valid Python module name.
+        # Use ``.name`` (not ``.stem``) to include the extension, then
+        # lower-case it and replace every character that is not a valid
+        # Python identifier character (i.e. not alphanumeric and not
+        # ``_``) with ``_``. This subsumes replacing dots and dashes (and
+        # spaces) with ``_``. If the result starts with a digit, prefix
+        # it with ``_`` because module names cannot start with a digit.
+        # Keeping the generated name a valid module name means that tools
+        # such as ``ruff`` (rule ``N999``) do not flag it for a source
+        # document whose name would otherwise be invalid (for example
+        # ``README.rst`` with upper-case letters or ``123 bad.rst`` with a
+        # leading digit and a space).
+        raw_name = source_path.name.lower()
+        sanitized_source = re.sub(
+            pattern=r"[^0-9a-z_]",
+            repl="_",
+            string=raw_name,
         )
+        if sanitized_source and sanitized_source[0].isdigit():
+            sanitized_source = f"_{sanitized_source}"
         unique_id = uuid4().hex[:4]
         filename = self._template.format(
             prefix=self._prefix,
