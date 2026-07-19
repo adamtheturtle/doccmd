@@ -1,1 +1,1 @@
-Always generate a valid Python module name for temporary files so linters do not flag ``doccmd``'s own filenames (`#1214 <https://github.com/adamtheturtle/doccmd/issues/1214>`_).
+Keep generated temporary filenames simple and portable by replacing spaces and other awkward characters, so they are safe for the command being run (and no longer trip Python linters such as ``ruff``'s ``N999``) (`#1214 <https://github.com/adamtheturtle/doccmd/issues/1214>`_).

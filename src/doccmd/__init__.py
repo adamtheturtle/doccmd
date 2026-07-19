@@ -123,18 +123,19 @@ class _TempFilePathMaker:
             A path to the temporary file.
         """
         source_path = Path(example.path)
-        # Sanitize the source filename into a valid Python module name.
-        # Use ``.name`` (not ``.stem``) to include the extension, then
-        # lower-case it and replace every character that is not a valid
-        # Python identifier character (i.e. not alphanumeric and not
-        # ``_``) with ``_``. This subsumes replacing dots and dashes (and
-        # spaces) with ``_``. If the result starts with a digit, prefix
-        # it with ``_`` because module names cannot start with a digit.
-        # Keeping the generated name a valid module name means that tools
-        # such as ``ruff`` (rule ``N999``) do not flag it for a source
-        # document whose name would otherwise be invalid (for example
-        # ``README.rst`` with upper-case letters or ``123 bad.rst`` with a
-        # leading digit and a space).
+        # Keep the generated temporary filename simple and portable so it
+        # is safe to hand to whatever command runs against it, regardless
+        # of language. Use ``.name`` (not ``.stem``) to include the
+        # extension, lower-case it, and replace every character that is
+        # not alphanumeric or ``_`` with ``_``. This drops spaces and
+        # other awkward characters (and subsumes replacing dots and
+        # dashes). If the result starts with a digit, prefix it with
+        # ``_``. As a bonus for Python code blocks this also keeps the
+        # name a valid module name, so tools such as ``ruff`` (rule
+        # ``N999``) do not flag it for a source document whose name would
+        # otherwise be invalid (for example ``README.rst`` with
+        # upper-case letters or ``123 bad.rst`` with a leading digit and
+        # a space).
         raw_name = source_path.name.lower()
         sanitized_source = re.sub(
             pattern=r"[^0-9a-z_]",
