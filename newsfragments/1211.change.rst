@@ -1,0 +1,1 @@
+Reject ``--temporary-file-name-template`` values that could resolve outside the temporary directory, preventing accidental overwrite or deletion of unrelated files. See `#1211 <https://github.com/adamtheturtle/doccmd/issues/1211>`__.

@@ -13,7 +13,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, replace
 from enum import Enum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from threading import Lock
 from typing import TypeVar
 from uuid import uuid4
@@ -156,7 +156,13 @@ class _TempFilePathMaker:
         )
         with self._lock:
             self._created_directories.append(directory)
-        return directory / filename
+        final_path = directory / filename
+        # Defense in depth: ``_validate_template`` guarantees that the
+        # formatted file name is a basename confined to ``directory``, so
+        # the resolved parent must be ``directory`` itself. A violation
+        # would mean the file could escape the isolation directory.
+        assert final_path.parent == directory  # noqa: S101
+        return final_path
 
     def cleanup(self) -> None:
         """Remove every directory created for this maker's examples.
@@ -283,6 +289,27 @@ def _validate_template(
         message = (
             "Template must contain '{suffix}' placeholder "
             "for the file extension."
+        )
+        raise click.BadParameter(message=message, ctx=ctx, param=param)
+
+    # Reject templates that could resolve outside the per-example
+    # isolation directory. The formatted name is joined directly to a
+    # freshly-created directory, so it must be a single safe path
+    # component (a basename): no path separators, parent references, or
+    # absolute paths. Both separator conventions are treated as
+    # separators regardless of the host OS.
+    if (
+        "/" in formatted
+        or "\\" in formatted
+        or PurePosixPath(formatted).is_absolute()
+        or PureWindowsPath(formatted).is_absolute()
+        or ".." in PurePosixPath(formatted).parts
+        or ".." in PureWindowsPath(formatted).parts
+    ):
+        message = (
+            "Template must produce a file name within the temporary "
+            "directory: it may not contain path separators, parent "
+            "references, or absolute paths."
         )
         raise click.BadParameter(message=message, ctx=ctx, param=param)
 

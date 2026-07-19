@@ -1267,6 +1267,130 @@ def test_template_malformed_raises_error(
     assert result.output.startswith(expected_prefix)
 
 
+@pytest.mark.parametrize(
+    argnames="template",
+    argvalues=[
+        pytest.param("../victim{suffix}", id="parent-escape"),
+        pytest.param("sub/dir{suffix}", id="path-separator"),
+        pytest.param("/tmp/evil{suffix}", id="absolute-path"),  # noqa: S108
+    ],
+)
+def test_template_escaping_directory_rejected(
+    *,
+    tmp_path: Path,
+    template: str,
+) -> None:
+    """Templates that could resolve outside the temporary directory are
+    rejected.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            x = 2 + 2
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--temporary-file-name-template",
+        template,
+        "--command",
+        "echo",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code != 0
+    expected_output = (
+        "Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...\n"
+        "Try 'doccmd --help' for help.\n"
+        "\n"
+        "Error: Invalid value for '--temporary-file-name-template': "
+        "Template must produce a file name within the temporary "
+        "directory: it may not contain path separators, parent "
+        "references, or absolute paths.\n"
+    )
+    assert result.output == expected_output
+
+
+def test_template_within_directory_accepted(tmp_path: Path) -> None:
+    """A normal template that stays within the temporary directory is
+    accepted and works.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            x = 2 + 2
+            assert x == 4
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--temporary-file-name-template",
+        "{prefix}_{unique}{suffix}",
+        "--command",
+        "echo",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+
+
+def test_template_escape_does_not_delete_sibling(tmp_path: Path) -> None:
+    """A template that escapes the isolation directory is rejected and
+    leaves unrelated sibling files untouched.
+    """
+    runner = CliRunner()
+    source_file = tmp_path / "source.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            x = 2 + 2
+        """,
+    )
+    source_file.write_text(data=content, encoding="utf-8")
+    victim_file = tmp_path / "victim.txt"
+    sentinel = "do not delete me"
+    victim_file.write_text(data=sentinel, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--temporary-file-name-template",
+        "../victim{suffix}",
+        "--temporary-file-extension",
+        ".txt",
+        "--command",
+        "true",
+        str(object=source_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code != 0
+    assert victim_file.exists()
+    assert victim_file.read_text(encoding="utf-8") == sentinel
+
+
 def test_temporary_file_includes_source_name(tmp_path: Path) -> None:
     """The temporary file name includes the sanitized source file name."""
     runner = CliRunner()
