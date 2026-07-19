@@ -320,6 +320,30 @@ def _validate_no_empty_string(
     return value
 
 
+@beartype
+def _validate_command(
+    ctx: click.Context | None,
+    param: click.Parameter | None,
+    value: str,
+) -> str:
+    """Validate that the command is not empty and is well-formed."""
+    try:
+        args = shlex.split(s=value)
+    except ValueError as exc:
+        message = f"Malformed command: {exc}"
+        raise click.BadParameter(
+            message=message,
+            ctx=ctx,
+            param=param,
+        ) from exc
+
+    if not args:
+        message = "The command cannot be empty."
+        raise click.BadParameter(message=message, ctx=ctx, param=param)
+
+    return value
+
+
 _ClickCallback = Callable[[click.Context | None, click.Parameter | None, T], T]
 
 
@@ -1162,6 +1186,7 @@ def _get_sybil(
         "--command",
         type=str,
         required=True,
+        callback=_validate_command,
         help="The command to run against code blocks.",
     ),
 )

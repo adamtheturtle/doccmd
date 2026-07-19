@@ -1168,6 +1168,59 @@ def test_invalid_template_placeholder(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize(
+    argnames=("command", "expected_message"),
+    argvalues=[
+        pytest.param("", "The command cannot be empty.", id="empty"),
+        pytest.param(
+            "'",
+            "Malformed command: No closing quotation",
+            id="malformed-quoting",
+        ),
+    ],
+)
+def test_invalid_command(
+    *,
+    tmp_path: Path,
+    command: str,
+    expected_message: str,
+) -> None:
+    """An error is raised for an empty or malformed ``--command``
+    value.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            x = 2 + 2
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        command,
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code != 0
+    expected_output = (
+        "Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...\n"
+        "Try 'doccmd --help' for help.\n"
+        "\n"
+        "Error: Invalid value for '-c' / '--command': "
+        f"{expected_message}\n"
+    )
+    assert result.output == expected_output
+
+
+@pytest.mark.parametrize(
     argnames="template",
     argvalues=[
         pytest.param("{prefix}_{unique}", id="missing-suffix"),
