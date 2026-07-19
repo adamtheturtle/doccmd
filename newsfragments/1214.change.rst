@@ -1,0 +1,1 @@
+Always generate a valid Python module name for temporary files so linters do not flag ``doccmd``'s own filenames (`#1214 <https://github.com/adamtheturtle/doccmd/issues/1214>`_).
