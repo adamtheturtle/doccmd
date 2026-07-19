@@ -58,15 +58,15 @@ optional-dependencies.dev = [
     # hadolint is not available on Windows.
     "hadolint-bin==2.14.0; sys_platform!='win32'",
     "interrogate==1.7.0",
-    "mypy[faster-cache]==2.2.0",
+    "mypy[faster-cache]==2.3.0",
     "mypy-strict-kwargs==2026.5.20.1",
-    "prek==0.4.8",
+    "prek==0.4.10",
     "pydocstringformatter==1.0.0",
     "pydocstyle==6.3",
     "pygments==2.20.0",
     "pylint[spelling]==4.0.6",
     "pylint-per-file-ignores==3.2.1",
-    "pyproject-fmt==2.25.1",
+    "pyproject-fmt==2.25.3",
     "pyrefly==1.1.1",
     "pyright==1.1.411",
     "pyroma==5.0.1",
@@ -74,7 +74,7 @@ optional-dependencies.dev = [
     "pytest-cov==7.1.0",
     "pytest-regressions==2.11.0",
     "pyyaml==6.0.3",
-    "ruff==0.15.20",
+    "ruff==0.15.22",
     # We add shellcheck-py not only for shell scripts and shell code blocks,
     # but also because having it installed means that ``actionlint-py`` will
     # use it to lint shell commands in GitHub workflow files.
@@ -93,11 +93,11 @@ optional-dependencies.dev = [
     "sphinxcontrib-towncrier==0.5.0a0",
     "strict-kwargs==2026.6.8.post1",
     "towncrier==25.8.0",
-    "ty==0.0.56",
+    "ty==0.0.60",
     "types-pygments==2.20.0.20260518",
     "vulture==2.16",
     "yamlfix==1.19.1",
-    "zizmor==1.26.1",
+    "zizmor==1.27.0",
 ]
 optional-dependencies.release = [
     "check-wheel-contents==0.6.3",
@@ -116,9 +116,6 @@ package-data.doccmd = [
     "py.typed",
 ]
 zip-safe = false
-
-[tool.distutils]
-bdist_wheel.universal = true
 
 [tool.setuptools_scm]
 # We write the version to a file so that we can import it.

@@ -220,6 +220,42 @@ def test_unknown_encoding(
     assert result.stderr == expected_stderr
 
 
+def test_utf_16_file_given(tmp_path: Path) -> None:
+    """A UTF-16 document is processed and its newline is preserved.
+
+    Newlines are detected on the decoded text rather than the raw
+    bytes, so a UTF-16 document does not crash during newline
+    detection.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            block_1
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-16", newline="\r\n")
+    arguments = [
+        "--no-pad-file",
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert result.stderr == ""
+    assert result.stdout_bytes.decode(encoding="utf-16") == "block_1\r\n"
+
+
 def test_multiple_code_blocks(tmp_path: Path) -> None:
     """
     It is possible to run a command against multiple code blocks in a
@@ -1163,6 +1199,96 @@ def test_invalid_template_placeholder(tmp_path: Path) -> None:
         "Error: Invalid value for '--temporary-file-name-template': "
         "Invalid placeholder in template: 'invalid'. "
         "Valid placeholders are: {line, prefix, source, suffix, unique}.\n"
+    )
+    assert result.output == expected_output
+
+
+def test_empty_exclude_pattern(tmp_path: Path) -> None:
+    """An error is raised for an empty ``--exclude`` pattern."""
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            x = 2 + 2
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--exclude",
+        "",
+        "--command",
+        "echo",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code != 0
+    expected_output = (
+        "Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...\n"
+        "Try 'doccmd --help' for help.\n"
+        "\n"
+        "Error: Invalid value for '--exclude': "
+        "This value cannot be empty.\n"
+    )
+    assert result.output == expected_output
+
+
+@pytest.mark.parametrize(
+    argnames=("command", "expected_message"),
+    argvalues=[
+        pytest.param("", "The command cannot be empty.", id="empty"),
+        pytest.param(
+            "'",
+            "Malformed command: No closing quotation",
+            id="malformed-quoting",
+        ),
+    ],
+)
+def test_invalid_command(
+    *,
+    tmp_path: Path,
+    command: str,
+    expected_message: str,
+) -> None:
+    """An error is raised for an empty or malformed ``--command``
+    value.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            x = 2 + 2
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--language",
+        "python",
+        "--command",
+        command,
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+    )
+    assert result.exit_code != 0
+    expected_output = (
+        "Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...\n"
+        "Try 'doccmd --help' for help.\n"
+        "\n"
+        "Error: Invalid value for '-c' / '--command': "
+        f"{expected_message}\n"
     )
     assert result.output == expected_output
 
@@ -3003,6 +3129,86 @@ def test_custom_rst_file_suffixes(tmp_path: Path) -> None:
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     assert result.stdout == expected_output
+
+
+def test_multi_part_rst_extension_direct_file(tmp_path: Path) -> None:
+    """A direct file with a multi-dot configured suffix is processed.
+
+    This is a regression test for a bug where a direct file ending in a
+    configured multi-dot suffix (e.g. ``.test.rst``) was rejected with
+    "Markup language not known".
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.test.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            multi_part_block
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--no-pad-file",
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        "--rst-extension",
+        ".test.rst",
+        "--myst-extension",
+        ".",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert "multi_part_block" in result.stdout
+
+
+def test_multi_part_rst_extension_in_directory(tmp_path: Path) -> None:
+    """A multi-dot configured suffix is discovered in a directory.
+
+    This is a regression test for a bug where directory discovery found a
+    file ending in a configured multi-dot suffix (e.g. ``.test.rst``) but
+    then crashed with ``KeyError`` when processing it.
+    """
+    runner = CliRunner()
+    docs_dir = tmp_path / "docs"
+    docs_dir.mkdir()
+    rst_file = docs_dir / "example.test.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            multi_part_block
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--no-pad-file",
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        "--rst-extension",
+        ".test.rst",
+        "--myst-extension",
+        ".",
+        str(object=tmp_path),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert "multi_part_block" in result.stdout
 
 
 def test_markdown_code_block_line_number(tmp_path: Path) -> None:
