@@ -1548,6 +1548,12 @@ def _get_sybil(
         "exclude_patterns",
         type=str,
         multiple=True,
+        callback=multi_callback(
+            callbacks=[
+                _deduplicate,
+                sequence_validator(validator=_validate_no_empty_string),
+            ]
+        ),
         help=(
             "A glob-style pattern that matches file paths to ignore while "
             "recursively discovering files in directories. "
