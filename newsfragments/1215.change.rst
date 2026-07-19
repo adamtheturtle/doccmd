@@ -1,1 +1,0 @@
-Support UTF-16 documents by detecting newlines on the decoded text (`#1215 <https://github.com/adamtheturtle/doccmd/issues/1215>`_).

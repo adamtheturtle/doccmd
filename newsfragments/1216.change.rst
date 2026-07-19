@@ -1,1 +1,0 @@
-Reject an empty ``--exclude`` pattern with a usage error instead of crashing.

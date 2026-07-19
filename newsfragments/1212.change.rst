@@ -1,1 +1,0 @@
-Support configured file extensions with more than one dot (for example ``--rst-extension=.test.rst``) for both direct files and directory discovery (`#1212 <https://github.com/adamtheturtle/doccmd/issues/1212>`_).

@@ -3,6 +3,21 @@ Changelog
 
 .. towncrier release notes start
 
+2026.07.19
+----------
+
+- Reject ``--temporary-file-name-template`` values that could resolve outside the temporary directory, preventing accidental overwrite or deletion of unrelated files. See `#1211 <https://github.com/adamtheturtle/doccmd/issues/1211>`__.
+
+- Support configured file extensions with more than one dot (for example ``--rst-extension=.test.rst``) for both direct files and directory discovery (`#1212 <https://github.com/adamtheturtle/doccmd/issues/1212>`_).
+
+- Reject an empty or malformed ``--command`` value with a usage error instead of crashing (`#1213 <https://github.com/adamtheturtle/doccmd/issues/1213>`_).
+
+- Always generate a valid Python module name for temporary files so linters do not flag ``doccmd``'s own filenames (`#1214 <https://github.com/adamtheturtle/doccmd/issues/1214>`_).
+
+- Support UTF-16 documents by detecting newlines on the decoded text (`#1215 <https://github.com/adamtheturtle/doccmd/issues/1215>`_).
+
+- Reject an empty ``--exclude`` pattern with a usage error instead of crashing.
+
 2026.05.25
 ----------
 
