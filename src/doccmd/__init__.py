@@ -488,10 +488,10 @@ def _log_error(message: str) -> None:
 
 
 @beartype
-def _detect_newline(content_bytes: bytes) -> bytes | None:
+def _detect_newline(content: str) -> str | None:
     """Detect the newline character used in the content."""
-    for newline in (b"\r\n", b"\n", b"\r"):
-        if newline in content_bytes:
+    for newline in ("\r\n", "\n", "\r"):
+        if newline in content:
             return newline
     return None
 
@@ -706,10 +706,8 @@ def _process_file_path(
         return local_errors
 
     content_bytes = file_path.read_bytes()
-    newline_bytes = _detect_newline(content_bytes=content_bytes)
-    newline = (
-        newline_bytes.decode(encoding=encoding) if newline_bytes else None
-    )
+    content_str = content_bytes.decode(encoding=encoding)
+    newline = _detect_newline(content=content_str)
     sybils_with_makers: Sequence[_SybilWithTempFileMaker] = []
     for code_block_language in languages:
         temporary_file_extension = _get_temporary_file_extension(

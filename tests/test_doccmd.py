@@ -220,6 +220,42 @@ def test_unknown_encoding(
     assert result.stderr == expected_stderr
 
 
+def test_utf_16_file_given(tmp_path: Path) -> None:
+    """A UTF-16 document is processed and its newline is preserved.
+
+    Newlines are detected on the decoded text rather than the raw
+    bytes, so a UTF-16 document does not crash during newline
+    detection.
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            block_1
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-16", newline="\r\n")
+    arguments = [
+        "--no-pad-file",
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert result.stderr == ""
+    assert result.stdout_bytes.decode(encoding="utf-16") == "block_1\r\n"
+
+
 def test_multiple_code_blocks(tmp_path: Path) -> None:
     """
     It is possible to run a command against multiple code blocks in a
