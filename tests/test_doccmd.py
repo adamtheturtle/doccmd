@@ -3005,6 +3005,86 @@ def test_custom_rst_file_suffixes(tmp_path: Path) -> None:
     assert result.stdout == expected_output
 
 
+def test_multi_part_rst_extension_direct_file(tmp_path: Path) -> None:
+    """A direct file with a multi-dot configured suffix is processed.
+
+    This is a regression test for a bug where a direct file ending in a
+    configured multi-dot suffix (e.g. ``.test.rst``) was rejected with
+    "Markup language not known".
+    """
+    runner = CliRunner()
+    rst_file = tmp_path / "example.test.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            multi_part_block
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--no-pad-file",
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        "--rst-extension",
+        ".test.rst",
+        "--myst-extension",
+        ".",
+        str(object=rst_file),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert "multi_part_block" in result.stdout
+
+
+def test_multi_part_rst_extension_in_directory(tmp_path: Path) -> None:
+    """A multi-dot configured suffix is discovered in a directory.
+
+    This is a regression test for a bug where directory discovery found a
+    file ending in a configured multi-dot suffix (e.g. ``.test.rst``) but
+    then crashed with ``KeyError`` when processing it.
+    """
+    runner = CliRunner()
+    docs_dir = tmp_path / "docs"
+    docs_dir.mkdir()
+    rst_file = docs_dir / "example.test.rst"
+    content = textwrap.dedent(
+        text="""\
+        .. code-block:: python
+
+            multi_part_block
+        """,
+    )
+    rst_file.write_text(data=content, encoding="utf-8")
+    arguments = [
+        "--no-pad-file",
+        "--language",
+        "python",
+        "--command",
+        "cat",
+        "--rst-extension",
+        ".test.rst",
+        "--myst-extension",
+        ".",
+        str(object=tmp_path),
+    ]
+    result = runner.invoke(
+        cli=main,
+        args=arguments,
+        catch_exceptions=False,
+        color=True,
+    )
+    assert result.exit_code == 0, (result.stdout, result.stderr)
+    assert "multi_part_block" in result.stdout
+
+
 def test_markdown_code_block_line_number(tmp_path: Path) -> None:
     """Line numbers in error messages for Markdown code blocks are correct.
 
