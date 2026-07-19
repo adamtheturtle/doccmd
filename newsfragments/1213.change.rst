@@ -1,0 +1,1 @@
+Reject an empty or malformed ``--command`` value with a usage error instead of crashing (`#1213 <https://github.com/adamtheturtle/doccmd/issues/1213>`_).
