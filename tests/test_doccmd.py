@@ -1184,7 +1184,9 @@ def test_invalid_command(
     command: str,
     expected_message: str,
 ) -> None:
-    """An error is raised for an empty or malformed ``--command`` value."""
+    """An error is raised for an empty or malformed ``--command``
+    value.
+    """
     runner = CliRunner()
     rst_file = tmp_path / "example.rst"
     content = textwrap.dedent(
