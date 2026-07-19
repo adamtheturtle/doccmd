@@ -158,7 +158,7 @@ class _TempFilePathMaker:
             self._created_directories.append(directory)
         final_path = directory / filename
         # Defense in depth: ``_validate_template`` guarantees that the
-        # formatted file name is a basename confined to ``directory``, so
+        # formatted file name is a base name confined to ``directory``, so
         # the resolved parent must be ``directory`` itself. A violation
         # would mean the file could escape the isolation directory.
         assert final_path.parent == directory  # noqa: S101
@@ -295,17 +295,15 @@ def _validate_template(
     # Reject templates that could resolve outside the per-example
     # isolation directory. The formatted name is joined directly to a
     # freshly-created directory, so it must be a single safe path
-    # component (a basename): no path separators, parent references, or
+    # component (a base name): no path separators, parent references, or
     # absolute paths. Both separator conventions are treated as
     # separators regardless of the host OS.
-    if (
-        "/" in formatted
-        or "\\" in formatted
-        or PurePosixPath(formatted).is_absolute()
-        or PureWindowsPath(formatted).is_absolute()
-        or ".." in PurePosixPath(formatted).parts
-        or ".." in PureWindowsPath(formatted).parts
-    ):
+    posix_path = PurePosixPath(formatted)
+    windows_path = PureWindowsPath(formatted)
+    has_separator = any(separator in formatted for separator in ("/", "\\"))
+    is_absolute = posix_path.is_absolute() or windows_path.is_absolute()
+    has_parent_reference = ".." in (*posix_path.parts, *windows_path.parts)
+    if has_separator or is_absolute or has_parent_reference:
         message = (
             "Template must produce a file name within the temporary "
             "directory: it may not contain path separators, parent "
