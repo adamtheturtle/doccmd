@@ -59,7 +59,7 @@ optional-dependencies.dev = [
     "hadolint-bin==2.14.0; sys_platform!='win32'",
     "interrogate==1.7.0",
     "mypy[faster-cache]==2.3.0",
-    "mypy-strict-kwargs==2026.5.20.1",
+    "mypy-strict-kwargs==2026.7.19.1",
     "prek==0.4.10",
     "pydocstringformatter==1.0.0",
     "pydocstyle==6.3",
