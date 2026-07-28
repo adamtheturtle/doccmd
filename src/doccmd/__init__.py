@@ -1028,8 +1028,8 @@ class _DetectingPyconEvaluator:
         """Run the appropriate evaluator based on content detection."""
         source = str(object=example.parsed)
         if _is_pycon_source(source=source):
-            return self._pycon_evaluator(example)
-        return self._regular_evaluator(example)
+            return self._pycon_evaluator(example=example)
+        return self._regular_evaluator(example=example)
 
 
 @beartype
