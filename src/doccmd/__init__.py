@@ -739,7 +739,7 @@ def _handle_error(
     message: str,
     exit_code: int,
     continue_on_error: bool,
-    exc: Exception | None = None,
+    exc: Exception | None = None,  # noqa: NOD001
 ) -> _CollectedError:
     """Handle an error by either returning it or raising a fatal error."""
     if continue_on_error:
