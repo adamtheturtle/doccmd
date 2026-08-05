@@ -40,22 +40,17 @@ jobs:
           cache-dependency-glob: '**/pyproject.toml'
 
       - name: Lint
-        # Use bash to ensure the step fails if any command fails.
-        # PowerShell does not fail on intermediate command failures by default.
-        shell: bash
-        run: uv run --extra=dev prek run --all-files --hook-stage ${{ matrix.hook-stage }}
-          --verbose
+        uses: j178/prek-action@v3.0.0
+        with:
+          prek-version: 0.4.11
+          extra-args: >-
+            --all-files --hook-stage ${{ matrix.hook-stage }} --verbose
         env:
+          UV_NO_CACHE: '1'
           UV_PYTHON: ${{ matrix.python-version }}
           # nixfmt is only available on Linux.
           # hadolint is not available on Windows.
           SKIP: ${{ runner.os == 'Windows' && 'nixfmt,hadolint' || '' }}
-
-      - uses: pre-commit-ci/lite-action@v1.1.0
-        # Do not run pre-commit on Windows in order to avoid issues with
-        # line endings.
-        # We only need to run the changes from one runner in any case.
-        if: always()
 
   completion-lint:
     needs: build
