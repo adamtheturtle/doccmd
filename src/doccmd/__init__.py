@@ -739,7 +739,7 @@ def _handle_error(
     message: str,
     exit_code: int,
     continue_on_error: bool,
-    exc: Exception | None = None,  # noqa: NOD001
+    exc: Exception | None,
 ) -> _CollectedError:
     """Handle an error by either returning it or raising a fatal error."""
     if continue_on_error:
@@ -793,6 +793,7 @@ def _process_file_path(
                     message=could_not_determine_encoding_msg,
                     exit_code=1,
                     continue_on_error=continue_on_error,
+                    exc=None,
                 )
             )
         return local_errors
