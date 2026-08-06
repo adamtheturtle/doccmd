@@ -496,6 +496,7 @@ dev = [
     { name = "interrogate" },
     { name = "mypy", extra = ["faster-cache"] },
     { name = "mypy-strict-kwargs" },
+    { name = "no-defaults" },
     { name = "prek" },
     { name = "pydocstringformatter" },
     { name = "pydocstyle" },
@@ -557,6 +558,7 @@ requires-dist = [
     { name = "interrogate", marker = "extra == 'dev'", specifier = "==1.7.0" },
     { name = "mypy", extras = ["faster-cache"], marker = "extra == 'dev'", specifier = "==2.3.0" },
     { name = "mypy-strict-kwargs", marker = "extra == 'dev'", specifier = "==2026.7.19.1" },
+    { name = "no-defaults", marker = "extra == 'dev'", specifier = "==1.0.1" },
     { name = "prek", marker = "extra == 'dev'", specifier = "==0.4.11" },
     { name = "pydocstringformatter", marker = "extra == 'dev'", specifier = "==1.0.0" },
     { name = "pydocstyle", marker = "extra == 'dev'", specifier = "==6.3" },
@@ -1105,6 +1107,17 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/e2/a9/a0c57aee75f77794adaf35322f8b6404cbd0f89ad45c87197a937764b7d0/natsort-8.4.0.tar.gz", hash = "sha256:45312c4a0e5507593da193dedd04abb1469253b601ecaf63445ad80f0a1ea581", size = 76575, upload-time = "2023-06-20T04:17:19.925Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ef/82/7a9d0550484a62c6da82858ee9419f3dd1ccc9aa1c26a1e43da3ecd20b0d/natsort-8.4.0-py3-none-any.whl", hash = "sha256:4732914fb471f56b5cce04d7bae6f164a592c7712e1c85f9ef585e197299521c", size = 38268, upload-time = "2023-06-20T04:17:17.522Z" },
+]
+
+[[package]]
+name = "no-defaults"
+version = "1.0.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/f2/54/3454e62945b092758b587e0e4b7cf35aa77f88da5fc43f20790bf5d433ad/no_defaults-1.0.1.tar.gz", hash = "sha256:c309ae30960a08ebc2436e7a45aeea46b5eb1c73c65bf02220e41e5b5d01721c", size = 28426, upload-time = "2026-08-05T22:15:00.523Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/6d/de/1e7659c6ce5babd9fa57c14463e2b50536b9d6d1754f58db0f0307da6986/no_defaults-1.0.1-py3-none-macosx_11_0_arm64.whl", hash = "sha256:4584dff7a7bdf632ccff600bae628276ba66a9ede156808e55e6c9c411982d4f", size = 2034147, upload-time = "2026-08-05T22:14:55.306Z" },
+    { url = "https://files.pythonhosted.org/packages/8a/2c/ff7f38b88649560ca6d18a0a5652c30f969438f0a8d993991825ba8c7ee9/no_defaults-1.0.1-py3-none-manylinux_2_34_x86_64.whl", hash = "sha256:da5ed90cedddebddfbda4bd3fa180eba42b39814e118b7f297cd6f7705edb6a7", size = 2206221, upload-time = "2026-08-05T22:14:57.542Z" },
+    { url = "https://files.pythonhosted.org/packages/fe/a0/66a4ac44d0216e88e924e54756cee8282f4f04f646c02c5931b7f9bed933/no_defaults-1.0.1-py3-none-win_amd64.whl", hash = "sha256:31c9f3252b54d5e04e061f7aaf3b08571236eec5db1f20be91cc3cbf4be92827", size = 1931806, upload-time = "2026-08-05T22:14:59.254Z" },
 ]
 
 [[package]]
