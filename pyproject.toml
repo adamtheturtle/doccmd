@@ -165,6 +165,8 @@ lint.per-file-ignores."doccmd_*.py" = [
 lint.per-file-ignores."tests/*.py" = [
     # Do not require tests to have a one-line summary.
     "S101",
+    # Tests intentionally invoke Git from the test environment's PATH.
+    "S607",
 ]
 # Do not automatically remove commented out code.
 # We comment out code during development, and with VSCode auto-save, this code
