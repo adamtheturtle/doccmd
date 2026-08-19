@@ -75,7 +75,7 @@ optional-dependencies.dev = [
     "pytest-cov==7.1.0",
     "pytest-regressions==2.11.0",
     "pyyaml==6.0.3",
-    "ruff==0.16.2",
+    "ruff==0.16.3",
     # We add shellcheck-py not only for shell scripts and shell code blocks,
     # but also because having it installed means that ``actionlint-py`` will
     # use it to lint shell commands in GitHub workflow files.
@@ -165,6 +165,8 @@ lint.per-file-ignores."doccmd_*.py" = [
 lint.per-file-ignores."tests/*.py" = [
     # Do not require tests to have a one-line summary.
     "S101",
+    # Tests intentionally invoke Git from the test environment's PATH.
+    "S607",
 ]
 # Do not automatically remove commented out code.
 # We comment out code during development, and with VSCode auto-save, this code
