@@ -660,7 +660,7 @@ requires-dist = [
     { name = "sphinx-substitution-extensions", marker = "extra == 'dev'", specifier = "==2026.8.13.1" },
     { name = "sphinxcontrib-spelling", marker = "extra == 'dev'", specifier = "==8.0.2" },
     { name = "sphinxcontrib-towncrier", marker = "extra == 'dev'", specifier = "==0.5.0a0" },
-    { name = "strict-kwargs", marker = "extra == 'dev'", specifier = "==2026.7.24" },
+    { name = "strict-kwargs", marker = "extra == 'dev'", specifier = "==2026.8.16" },
     { name = "sybil", specifier = ">=9.3.0,<11.0.0" },
     { name = "sybil-extras", specifier = "==2026.7.19" },
     { name = "towncrier", marker = "extra == 'dev'", specifier = "==25.8.0" },
@@ -2267,15 +2267,15 @@ wheels = [
 
 [[package]]
 name = "strict-kwargs"
-version = "2026.7.24"
+version = "2026.8.16"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "ty" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/67/ea/5be0b5ba196632ae08842b7e7a45c2baa4ad14be3aa0c410e9ffede761d2/strict_kwargs-2026.7.24-py3-none-macosx_11_0_arm64.whl", hash = "sha256:94a8679e751918df94239ae4513ce99d89653cbdf55eb7d9181037ded0a79562", size = 2897038, upload-time = "2026-07-24T09:33:29.353Z" },
-    { url = "https://files.pythonhosted.org/packages/88/dd/5e23899b7ff873217aead4d0f6a89fa50b1fd7c0cac04c93d713ae9ba4a8/strict_kwargs-2026.7.24-py3-none-manylinux_2_39_x86_64.whl", hash = "sha256:b788a347f66f5ee1ebc424632a2bce223ed0162da97a12327af75e0438df2836", size = 3084814, upload-time = "2026-07-24T09:33:30.907Z" },
-    { url = "https://files.pythonhosted.org/packages/43/ad/ef1e18303b9684e81dc9ffdb4ec3e8bb5065d5b8ec1b1da6cae0451341cc/strict_kwargs-2026.7.24-py3-none-win_amd64.whl", hash = "sha256:b727e83eff48ef0c6e14618f1ce04e70e4b9b8c7f0ee5f2a546bf8d30e77c729", size = 2799438, upload-time = "2026-07-24T09:33:32.471Z" },
+    { url = "https://files.pythonhosted.org/packages/b4/0e/e925e408b94e702fae72a79fb073f04c1aa1b15f324cf4da1b506b639555/strict_kwargs-2026.8.16-py3-none-macosx_11_0_arm64.whl", hash = "sha256:96275b4c9a8e9a82c0506cf57839d123ccb660b8f1fa864bc7c04b33361ee50f", size = 3040170, upload-time = "2026-08-16T09:42:31.675Z" },
+    { url = "https://files.pythonhosted.org/packages/69/45/66aa3e9e2c036a3411c078ab131f3e097ba864d2f71835c295387728d3d3/strict_kwargs-2026.8.16-py3-none-manylinux_2_39_x86_64.whl", hash = "sha256:bd16cdde87a09874ec8daae654b8ab5fe20a0a65a7e62a67277ffbcc82a1cf84", size = 3236278, upload-time = "2026-08-16T09:42:33.681Z" },
+    { url = "https://files.pythonhosted.org/packages/33/48/dba6f677e89fc85de3f1fa603c5d101aba2e69e254e55199771ae93a263c/strict_kwargs-2026.8.16-py3-none-win_amd64.whl", hash = "sha256:42d2ae37cb8925b85f4ad29452bfe3e4eeb7778fba2b2604c5ae1aa77c9c2a34", size = 2938297, upload-time = "2026-08-16T09:42:35.369Z" },
 ]
 
 [[package]]
