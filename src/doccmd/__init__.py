@@ -1146,6 +1146,7 @@ def _get_sybil(
         code_block_parsers = [
             markup_language.code_block_parser_cls(
                 language=code_block_language,
+                evaluator=None,
             )
             for code_block_language in code_block_languages
         ]
@@ -1178,6 +1179,7 @@ def _get_sybil(
             )
             code_block_parser = markup_language.code_block_parser_cls(
                 language=code_block_language,
+                evaluator=None,
             )
             mdx_attribute_grouped_parsers.append(
                 MdxAttributeGroupedSourceParser(
