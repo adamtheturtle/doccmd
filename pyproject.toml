@@ -59,7 +59,7 @@ optional-dependencies.dev = [
     "hadolint-bin==2.15.1; sys_platform!='win32'",
     "interrogate==1.7.0",
     "mypy[faster-cache]==2.3.1",
-    "mypy-strict-kwargs==2026.8.20.1",
+    "mypy-strict-kwargs==2026.8.25.1",
     "no-defaults==2.1.0",
     "prek==0.4.14",
     "pydocstringformatter==1.0.0",
@@ -480,12 +480,12 @@ type = [
 # `relative_to` and `is_relative_to` have `other` parameter that is
 # positional-only on Python 3.14+.
 # We need to support older versions, so we ignore them.
-# ``@beartype`` / ``@cloup.option_group`` apply with one positional argument;
-# the plugin resolves those callables to these internal names.
+# ``@cloup.option_group("...", opt, opt)`` passes the option group's name
+# and its options positionally; the plugin resolves that callable to this
+# internal name.
 ignore_names = [
     "pathlib.Path.is_relative_to",
     "pathlib.Path.relative_to",
-    "beartype._decor.decorcache.beartype",
     "cloup._option_groups.option_group",
 ]
 
