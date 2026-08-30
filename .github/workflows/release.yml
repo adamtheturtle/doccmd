@@ -11,6 +11,16 @@ on:
         required: true
       HOMEBREW_TAP_GITHUB_TOKEN:
         required: true
+      DEVELOPER_ID_APP_CERT_P12_BASE64:
+        required: true
+      DEVELOPER_ID_APP_CERT_PASSWORD:
+        required: true
+      APPLE_ID:
+        required: true
+      APPLE_TEAM_ID:
+        required: true
+      APPLE_APP_PASSWORD:
+        required: true
 
 jobs:
   build:
@@ -368,6 +378,43 @@ jobs:
           options: --onefile, --name "doccmd-macos"
           upload_exe_with_name: doccmd-macos
           clean_checkout: false
+
+      - name: Import the Developer ID certificate
+        uses: Apple-Actions/import-codesign-certs@5142e029c445c10ffc7149d172e540235a065466  # v7.0.0
+        with:
+          p12-file-base64: ${{ secrets.DEVELOPER_ID_APP_CERT_P12_BASE64 }}
+          p12-password: ${{ secrets.DEVELOPER_ID_APP_CERT_PASSWORD }}
+
+      - name: Sign the macOS binary
+        run: |
+          codesign --force --timestamp --options runtime \
+              --entitlements bin/entitlements.plist \
+              --sign "Developer ID Application" dist/doccmd-macos
+          codesign --verify --strict --verbose=2 dist/doccmd-macos
+
+      - name: Check the signed binary still runs
+        run: dist/doccmd-macos --version
+
+      - name: Notarize the macOS binary
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+        run: |
+          ditto -c -k --sequesterRsrc dist/doccmd-macos "${RUNNER_TEMP}/doccmd-macos.zip"
+          xcrun notarytool submit "${RUNNER_TEMP}/doccmd-macos.zip" \
+              --apple-id "${APPLE_ID}" --team-id "${APPLE_TEAM_ID}" \
+              --password "${APPLE_APP_PASSWORD}" --wait --timeout 30m \
+              2>&1 | tee "${RUNNER_TEMP}/notarization.log" || true
+          grep -q 'status: Accepted' "${RUNNER_TEMP}/notarization.log"
+
+      - name: Check Gatekeeper accepts the binary
+        uses: nick-fields/retry@v4
+        with:
+          timeout_seconds: 60
+          max_attempts: 10
+          retry_wait_seconds: 30
+          command: spctl --assess --type exec -vv dist/doccmd-macos
 
       - name: Upload macOS binary to release
         env:
