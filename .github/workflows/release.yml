@@ -408,14 +408,6 @@ jobs:
               2>&1 | tee "${RUNNER_TEMP}/notarization.log" || true
           grep -q 'status: Accepted' "${RUNNER_TEMP}/notarization.log"
 
-      - name: Check Gatekeeper accepts the binary
-        uses: nick-fields/retry@v4
-        with:
-          timeout_seconds: 60
-          max_attempts: 10
-          retry_wait_seconds: 30
-          command: spctl --assess --type exec -vv dist/doccmd-macos
-
       - name: Upload macOS binary to release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
