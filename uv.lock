@@ -620,7 +620,7 @@ requires-dist = [
     { name = "charset-normalizer", specifier = ">=3.4.1" },
     { name = "check-manifest", marker = "extra == 'dev'", specifier = "==0.51" },
     { name = "check-wheel-contents", marker = "extra == 'release'", specifier = "==0.6.3" },
-    { name = "click", specifier = ">=8.3.0,<8.5.0" },
+    { name = "click", specifier = ">=8.3.0,<8.6.0" },
     { name = "click-compose", specifier = ">=2025.10.27.3" },
     { name = "cloup", specifier = ">=3.0.0" },
     { name = "deptry", marker = "extra == 'dev'", specifier = "==0.25.1" },
