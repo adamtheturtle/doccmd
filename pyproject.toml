@@ -92,7 +92,7 @@ optional-dependencies.dev = [
     # ``sphinxcontrib-towncrier`` renders unreleased news fragments
     # into docs/source/unreleased.rst during Sphinx builds.
     "sphinxcontrib-towncrier==0.5.0a0",
-    "strict-kwargs==2026.8.24",
+    "strict-kwargs==2026.8.27.post2",
     "towncrier==25.8.0",
     "ty==0.0.74",
     "types-pygments==2.21.0.20260819",
