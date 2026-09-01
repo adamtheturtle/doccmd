@@ -3,6 +3,11 @@ Changelog
 
 .. towncrier release notes start
 
+2026.09.01
+----------
+
+- Support Click 8.5.
+
 2026.08.30.1
 ------------
 
