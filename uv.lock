@@ -647,7 +647,7 @@ requires-dist = [
     { name = "pyyaml", marker = "extra == 'dev'", specifier = "==6.0.3" },
     { name = "ruff", marker = "extra == 'dev'", specifier = "==0.16.5" },
     { name = "shellcheck-py", marker = "extra == 'dev'", specifier = "==0.11.0.1" },
-    { name = "shfmt-py", marker = "extra == 'dev'", specifier = "==4.0.0" },
+    { name = "shfmt-py", marker = "extra == 'dev'", specifier = "==4.1.0" },
     { name = "sphinx", marker = "extra == 'dev'", specifier = ">=8.1.3" },
     { name = "sphinx-click", marker = "extra == 'dev'", specifier = "==6.2.0" },
     { name = "sphinx-copybutton", marker = "extra == 'dev'", specifier = "==0.5.2" },
@@ -1996,15 +1996,15 @@ wheels = [
 
 [[package]]
 name = "shfmt-py"
-version = "4.0.0"
+version = "4.1.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/06/d5/c2ad5c6593a34da7344cf39bde65763e8cda752589074ba1619e55b317ad/shfmt_py-4.0.0.tar.gz", hash = "sha256:1e5fdacf40aabaa77a97639d52a6220df0893b46658d82b7f136f4e66e2b2fb0", size = 11947, upload-time = "2026-05-13T09:25:50.153Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/9e/2f/c9616d3716a8e75a4c36427bede49d61b68c2d1595a76b3de2347e040fa7/shfmt_py-4.1.0.tar.gz", hash = "sha256:e863c07885e2e976b1441e38f660b3262a87a52bf84124415b866e48eed7c00b", size = 29913, upload-time = "2026-08-29T11:26:35.27Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5a/1d/8f72824e2a0e06dc0bc2687baacaba0573be7d2e93c01d1e895fddd8c13e/shfmt_py-4.0.0-py2.py3-none-macosx_10_9_x86_64.whl", hash = "sha256:75a4919a03fb3bcff9795e3cc7b971e37e74905654d2f11605001cab42e5f92f", size = 1343695, upload-time = "2026-05-13T09:25:42.969Z" },
-    { url = "https://files.pythonhosted.org/packages/a8/82/9564a2c2a76fbec94db1b3a3c37a9a1d00e7eafca2cdd2e0d19082618d7e/shfmt_py-4.0.0-py2.py3-none-macosx_11_0_arm64.whl", hash = "sha256:bb3d236163ff39c7790953e069938caf247e7646399f7a059f00f65d4e6916d6", size = 1237947, upload-time = "2026-05-13T09:25:44.767Z" },
-    { url = "https://files.pythonhosted.org/packages/9a/a9/6fce944efa530db941edd11388d70dc7384aaf12169a3b0847b6a6c987b0/shfmt_py-4.0.0-py2.py3-none-manylinux2014_aarch64.whl", hash = "sha256:4701336c3cb5f3959a5e85481b14f02054ea094b3c666f3d04649bbe10de3c25", size = 1218771, upload-time = "2026-05-13T09:25:46.225Z" },
-    { url = "https://files.pythonhosted.org/packages/64/43/e3965a25bb39555f2791c6860214f62b6f976f9ac7e9786073364bcdd9a6/shfmt_py-4.0.0-py2.py3-none-manylinux2014_x86_64.whl", hash = "sha256:e57877abe0177a9da7bbb5390fe7e96aa19b00958189a025634039aef8834d44", size = 1350939, upload-time = "2026-05-13T09:25:47.584Z" },
-    { url = "https://files.pythonhosted.org/packages/95/20/db2430d9262d2cffadcad2b330441e13031f1ab849ec069659edb7f23257/shfmt_py-4.0.0-py2.py3-none-win_amd64.whl", hash = "sha256:bd4f3d36264d4ba8b014ff73e5e702aaa2345845c021f563480128de3705135b", size = 1427721, upload-time = "2026-05-13T09:25:48.865Z" },
+    { url = "https://files.pythonhosted.org/packages/88/e1/1d0129c8baaf943921a8b1402fc9bb2a1fc9753a35ddc068a639828e91d8/shfmt_py-4.1.0-py2.py3-none-macosx_10_9_x86_64.whl", hash = "sha256:7186d0cdb21d8a5e6cb647c1b0ae7ee264751be3cac755277d060df90b1cfa8f", size = 1552154, upload-time = "2026-08-29T11:26:28.435Z" },
+    { url = "https://files.pythonhosted.org/packages/36/03/e8f10813c498247f6ddff63c82e4bb351fda188ec73e3821433f913cb651/shfmt_py-4.1.0-py2.py3-none-macosx_11_0_arm64.whl", hash = "sha256:8e0201449fc35f3cf16abed3189f1de0c5c30d5c4c989b8d367fd5cd1d35e779", size = 1424817, upload-time = "2026-08-29T11:26:29.854Z" },
+    { url = "https://files.pythonhosted.org/packages/ff/91/0bc95e1f3ba2b591986701d00c8ee80eef228fb08c338a873d0df3444092/shfmt_py-4.1.0-py2.py3-none-manylinux2014_aarch64.whl", hash = "sha256:887a7a04a297302f3472edaeabb5f33f146d9a681234743acc5932a2a39bdb22", size = 1398676, upload-time = "2026-08-29T11:26:31.064Z" },
+    { url = "https://files.pythonhosted.org/packages/0f/b2/101c166f6f1895a7e4b2062d350bf156097087ffc95f772877e51c04358d/shfmt_py-4.1.0-py2.py3-none-manylinux2014_x86_64.whl", hash = "sha256:4f1573856d84725f148175ef56532365dc4a7e5332e27c31b6c82be544ad2bda", size = 1557748, upload-time = "2026-08-29T11:26:32.471Z" },
+    { url = "https://files.pythonhosted.org/packages/e0/e8/be46d2141ec18d30c713258c97c4a8d85f5e39cedf8c9b2ba642c28a2199/shfmt_py-4.1.0-py2.py3-none-win_amd64.whl", hash = "sha256:7e5c55ac4b619fc4d215259459ac80e8513735245ec621ca290574fa7ab2811d", size = 1661642, upload-time = "2026-08-29T11:26:34.018Z" },
 ]
 
 [[package]]
