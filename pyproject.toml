@@ -67,7 +67,7 @@ optional-dependencies.dev = [
     "pygments==2.21.0",
     "pylint[spelling]==4.0.8",
     "pylint-per-file-ignores==3.2.1",
-    "pyproject-fmt==2.28.2",
+    "pyproject-fmt==2.29.2",
     "pyrefly==1.2.0",
     "pyright==1.1.411",
     "pyroma==5.0.1",
@@ -175,7 +175,9 @@ lint.unfixable = [
     "ERA001",
 ]
 lint.external = [ "NOD" ]
-lint.flake8-tidy-imports.banned-api."typing.cast".msg = "typing.cast is banned: use explicit type narrowing or a typed variable instead."
+lint.flake8-tidy-imports.banned-api."typing.cast".msg = """\
+    typing.cast is banned: use explicit type narrowing or a typed variable instead.\
+    """
 lint.pydocstyle.convention = "google"
 
 [tool.pylint]
