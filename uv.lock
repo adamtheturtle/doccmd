@@ -629,7 +629,7 @@ requires-dist = [
     { name = "interrogate", marker = "extra == 'dev'", specifier = "==1.7.0" },
     { name = "mypy", extras = ["faster-cache"], marker = "extra == 'dev'", specifier = "==2.3.1" },
     { name = "mypy-strict-kwargs", marker = "extra == 'dev'", specifier = "==2026.8.25.1" },
-    { name = "no-defaults", marker = "extra == 'dev'", specifier = "==2.1.0" },
+    { name = "no-defaults", marker = "extra == 'dev'", specifier = "==2.3.0" },
     { name = "prek", marker = "extra == 'dev'", specifier = "==0.5.0" },
     { name = "pydocstringformatter", marker = "extra == 'dev'", specifier = "==1.0.0" },
     { name = "pydocstyle", marker = "extra == 'dev'", specifier = "==6.3" },
@@ -1205,13 +1205,16 @@ wheels = [
 
 [[package]]
 name = "no-defaults"
-version = "2.1.0"
+version = "2.3.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/8a/dd/37d0ae30b5d74d039d9e9c1b0e7dd5ebee509fe848314825505f2798a444/no_defaults-2.1.0.tar.gz", hash = "sha256:d98d78c7dace794bed068fbbada2ee7e94705141aa17c2a8d7047bacb3da2562", size = 96084, upload-time = "2026-08-07T12:35:34.71Z" }
+dependencies = [
+    { name = "ty" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/fb/c2/b614a65ae8a75aff88141eba3e1966edf3953ecdeb0d265b717d014a64a2/no_defaults-2.3.0.tar.gz", hash = "sha256:402c8eb9c874b774b6300252800c004fa61b0a4ac036973eafa875e78d0c4bb2", size = 318771, upload-time = "2026-08-31T09:24:57.214Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/6c/5e/2efb07ac90e5db3623a6ee6fbacbd3635d4d63c359cfc94ed39cca685649/no_defaults-2.1.0-py3-none-macosx_11_0_arm64.whl", hash = "sha256:94b884e31e7727f6a476b6dff0b655fd37b65f6f209ddccba917888260050ca0", size = 2141080, upload-time = "2026-08-07T12:35:30.314Z" },
-    { url = "https://files.pythonhosted.org/packages/1d/be/33eacae5d5b420df33a9b5a716eae4a8c3528a795e6435cbcf7fe00d0041/no_defaults-2.1.0-py3-none-manylinux_2_34_x86_64.whl", hash = "sha256:bed135d188635d786cca6dde75982d507f8e2b46fbc17f047c794af2153186d3", size = 2328857, upload-time = "2026-08-07T12:35:31.861Z" },
-    { url = "https://files.pythonhosted.org/packages/35/a2/8cdeb0081d019275c86a1e120aa744b13de6ca4260162b6c41215fa0e007/no_defaults-2.1.0-py3-none-win_amd64.whl", hash = "sha256:d14855c701f5e1310e304e3011cbc5836fa19e7494125e6673dd14701fc49b7e", size = 2052526, upload-time = "2026-08-07T12:35:33.435Z" },
+    { url = "https://files.pythonhosted.org/packages/38/b4/ccc2bb556fa5f15310f889dee6e85b117b5582ad53795189a7d2d52f2cd8/no_defaults-2.3.0-py3-none-macosx_11_0_arm64.whl", hash = "sha256:ce5fd1412edb6e77f26196520d03d7ff25e93fcd4cfa13457a7032d68bbd3283", size = 2669659, upload-time = "2026-08-31T09:24:52.193Z" },
+    { url = "https://files.pythonhosted.org/packages/1b/5b/f5a558b182221d3ed382d4180e5824dac43b7705c98e9b0efc3907c95a51/no_defaults-2.3.0-py3-none-manylinux_2_39_x86_64.whl", hash = "sha256:b7e94852c4c5855470b460854908be0ff662538c896fae5844d13a54baacf21c", size = 2905208, upload-time = "2026-08-31T09:24:53.958Z" },
+    { url = "https://files.pythonhosted.org/packages/23/fa/8c9f40e59cf7159ab4fb19a64f079c3800f6425b2d8752085601ac665916/no_defaults-2.3.0-py3-none-win_amd64.whl", hash = "sha256:f1c30cb8bc7bff71f575ca3607f3b92abd643bcc333df2ff4f9f299a32815967", size = 2616366, upload-time = "2026-08-31T09:24:55.738Z" },
 ]
 
 [[package]]
