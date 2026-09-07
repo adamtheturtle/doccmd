@@ -16,7 +16,7 @@ from enum import Enum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from threading import Lock
-from typing import TypeVar
+from typing import TYPE_CHECKING, TypeVar
 from uuid import uuid4
 
 import charset_normalizer
@@ -63,6 +63,10 @@ from sybil_extras.languages import (
 from sybil_extras.parsers.mdx.attribute_grouped_source import (
     AttributeGroupedSourceParser as MdxAttributeGroupedSourceParser,
 )
+from typing_extensions import override
+
+if TYPE_CHECKING:
+    from sybil.typing import Parser
 
 try:
     __version__ = version(distribution_name=__name__)
@@ -688,6 +692,7 @@ class _GroupModifiedError(Exception):
         self._example = example
         self._modified_example_content = modified_example_content
 
+    @override
     def __str__(self) -> str:
         """Get the string representation of the error."""
         unified_diff = difflib.unified_diff(
@@ -1141,6 +1146,8 @@ def _get_sybil(
     ]
 
     mdx_attribute_grouped_parsers: list[MdxAttributeGroupedSourceParser] = []
+    code_block_parsers: list[Parser]
+    group_all_parsers: list[Parser]
 
     if group_file:
         code_block_parsers = [
@@ -1847,7 +1854,7 @@ def main(
         respect_gitignore=respect_gitignore,
     )
 
-    log_command_evaluators = []
+    log_command_evaluators: list[_LogCommandEvaluator] = []
     if verbose:
         _log_info(
             message="Using PTY for running commands."

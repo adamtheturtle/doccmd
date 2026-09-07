@@ -552,6 +552,7 @@ dependencies = [
     { name = "pygments" },
     { name = "sybil" },
     { name = "sybil-extras" },
+    { name = "typing-extensions" },
 ]
 
 [package.optional-dependencies]
@@ -664,6 +665,7 @@ requires-dist = [
     { name = "towncrier", marker = "extra == 'release'", specifier = "==25.8.0" },
     { name = "ty", marker = "extra == 'dev'", specifier = "==0.0.78" },
     { name = "types-pygments", marker = "extra == 'dev'", specifier = "==2.21.0.20260819" },
+    { name = "typing-extensions", specifier = ">=4.12.0" },
     { name = "vale", marker = "extra == 'dev'", specifier = "==3.20.0.0" },
     { name = "vulture", marker = "extra == 'dev'", specifier = "==2.16" },
     { name = "yamlfix", marker = "extra == 'dev'", specifier = "==1.19.1" },

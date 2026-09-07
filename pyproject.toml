@@ -47,6 +47,7 @@ dependencies = [
     # * It might have breaking changes
     # * It is not a direct dependency of the user
     "sybil-extras==2026.8.16",
+    "typing-extensions>=4.12.0",
 ]
 optional-dependencies.dev = [
     "actionlint-py==1.7.12.24",
@@ -425,7 +426,7 @@ plugins = [
 
 [tool.pyrefly]
 errors.non-exhaustive-match = "error"
-errors.unused-ignore = "error"
+preset = "strict"
 
 [tool.pyright]
 typeCheckingMode = "strict"
