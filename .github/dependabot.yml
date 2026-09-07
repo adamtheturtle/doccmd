@@ -2,17 +2,14 @@
 version: 2
 
 updates:
-  - package-ecosystem: pip
+  # Keep ``pyproject.toml`` and ``uv.lock`` updates in one Dependabot commit so
+  # Dependabot can continue rebasing its branches after another update merges.
+  - package-ecosystem: uv
     directory: /
     schedule:
       interval: daily
     open-pull-requests-limit: 10
   - package-ecosystem: github-actions
-    directory: /
-    schedule:
-      interval: daily
-    open-pull-requests-limit: 10
-  - package-ecosystem: uv
     directory: /
     schedule:
       interval: daily
