@@ -379,6 +379,15 @@ jobs:
           upload_exe_with_name: doccmd-macos
           clean_checkout: false
 
+      # PyInstaller ad-hoc signs the binary, which is enough to run it
+      # locally but not enough for Gatekeeper, which blocks anything
+      # carrying ``com.apple.quarantine`` - the attribute a browser sets on
+      # a downloaded file.  A Developer ID signature plus notarization
+      # clears that.
+      #
+      # This action deletes its temporary keychain in a post step, so no
+      # cleanup step is needed.  It is pinned to a commit rather than a tag
+      # because it handles the certificate and its password.
       - name: Import the Developer ID certificate
         uses: Apple-Actions/import-codesign-certs@5142e029c445c10ffc7149d172e540235a065466  # v7.0.0
         with:
@@ -387,26 +396,70 @@ jobs:
 
       - name: Sign the macOS binary
         run: |
-          codesign --force --timestamp --options runtime \
+          # ``--sign`` takes a name prefix, and matches the one Developer ID
+          # identity in the keychain the previous step added to the search
+          # list.  It fails with "ambiguous" if more than one matches, so
+          # this needs no lookup.  There is deliberately no ``--keychain``:
+          # that flag silently falls back to the search list when it cannot
+          # resolve what it is given, so it constrains nothing.
+          #
+          # A secure timestamp and the hardened runtime are both
+          # prerequisites for notarization.  The hardened runtime needs the
+          # entitlements file to leave a ``--onefile`` binary runnable; see
+          # the comments in that file.
+          codesign \
+              --force \
+              --timestamp \
+              --options runtime \
               --entitlements bin/entitlements.plist \
-              --sign "Developer ID Application" dist/doccmd-macos
+              --sign "Developer ID Application" \
+              dist/doccmd-macos
           codesign --verify --strict --verbose=2 dist/doccmd-macos
 
+      # Signing a ``--onefile`` binary with the hardened runtime can leave
+      # it unable to load its own bundled libraries, and nothing before
+      # this point would notice.  Starting up is the whole test: the
+      # bootloader unpacks and loads every bundled library before any
+      # command runs.
       - name: Check the signed binary still runs
         run: dist/doccmd-macos --version
 
+      # A notarization ticket cannot be stapled to a bare Mach-O
+      # executable - ``stapler`` handles only ``.app`` bundles, ``.dmg``,
+      # ``.pkg`` and kexts - so Gatekeeper verifies this binary online.
+      # Shipping a ``.pkg`` instead would allow stapling, at the cost of
+      # the documented ``curl ... && chmod +x`` one-liner.
+      #
+      # There is no ``spctl --assess`` step: it rejects every bare
+      # executable with "does not seem to be an app", notarized or not.
       - name: Notarize the macOS binary
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
         run: |
+          : "${APPLE_ID:?see docs/source/release-process.rst}" "${APPLE_TEAM_ID:?see docs/source/release-process.rst}" "${APPLE_APP_PASSWORD:?see docs/source/release-process.rst}"
+          # ``notarytool`` takes an archive, not a bare executable.
+          # ``--sequesterRsrc`` keeps extended attributes out of the archive
+          # as stray ``._`` entries, which is what Apple documents for
+          # notarization archives.
           ditto -c -k --sequesterRsrc dist/doccmd-macos "${RUNNER_TEMP}/doccmd-macos.zip"
           xcrun notarytool submit "${RUNNER_TEMP}/doccmd-macos.zip" \
-              --apple-id "${APPLE_ID}" --team-id "${APPLE_TEAM_ID}" \
-              --password "${APPLE_APP_PASSWORD}" --wait --timeout 30m \
-              2>&1 | tee "${RUNNER_TEMP}/notarization.log" || true
-          grep -q 'status: Accepted' "${RUNNER_TEMP}/notarization.log"
+              --apple-id "${APPLE_ID}" \
+              --team-id "${APPLE_TEAM_ID}" \
+              --password "${APPLE_APP_PASSWORD}" \
+              --wait \
+              --timeout 30m 2>&1 | tee "${RUNNER_TEMP}/notarization.log" || true
+          # ``notarytool`` does not reliably exit non-zero on a rejected
+          # submission, so check the reported status.  Only the log says why
+          # a submission was rejected; the submission output does not.
+          if ! grep -q 'status: Accepted' "${RUNNER_TEMP}/notarization.log"; then
+              xcrun notarytool log "$(awk '/^[[:space:]]*id:/ { print $2; exit }' "${RUNNER_TEMP}/notarization.log")" \
+                  --apple-id "${APPLE_ID}" \
+                  --team-id "${APPLE_TEAM_ID}" \
+                  --password "${APPLE_APP_PASSWORD}" || true
+              exit 1
+          fi
 
       - name: Upload macOS binary to release
         env:
