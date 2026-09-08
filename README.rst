@@ -220,7 +220,8 @@ Use ``--norg-extension`` if you need additional suffixes.
    echo "Hello, Norg!"
    @end
 
-* Want more? Open an issue!
+* Want more?
+  Open an issue!
 
 Formatters and padding
 ----------------------

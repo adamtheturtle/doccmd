@@ -57,7 +57,8 @@ What does it work on?
    console.log("Hello, MDX!")
    ```
 
-* Want more? Open an issue!
+* Want more?
+  Open an issue!
 
 Formatters and padding
 ----------------------
