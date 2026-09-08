@@ -145,7 +145,7 @@ class _TempFilePathMaker:
             repl="_",
             string=raw_name,
         )
-        if sanitized_source and sanitized_source[0].isdigit():
+        if sanitized_source != "" and sanitized_source[0].isdigit():
             sanitized_source = f"_{sanitized_source}"
         unique_id = uuid4().hex[:4]
         filename = self._template.format(
@@ -165,7 +165,7 @@ class _TempFilePathMaker:
         # Without this, tools such as ``ruff`` (rule ``INP001``) flag the
         # file purely because it now lives in its own directory.
         init_file = directory / "__init__.py"
-        init_file.write_text(
+        _ = init_file.write_text(
             data='"""Isolated package for a ``doccmd`` temporary file."""\n',
             encoding="utf-8",
         )
@@ -347,7 +347,7 @@ def _get_markup_language(
         for suffix in suffix_map
         if suffix != "." and file_name.endswith(suffix)
     ]
-    if not matching_suffixes:
+    if len(matching_suffixes) == 0:
         return None
     longest_suffix = max(matching_suffixes, key=len)
     return suffix_map[longest_suffix]
@@ -382,7 +382,7 @@ def _validate_no_empty_string(
     value: str,
 ) -> str:
     """Validate that the input strings are not empty."""
-    if not value:
+    if value == "":
         msg = "This value cannot be empty."
         raise click.BadParameter(message=msg, ctx=ctx, param=param)
     return value
@@ -405,7 +405,7 @@ def _validate_command(
             param=param,
         ) from exc
 
-    if not args:
+    if len(args) == 0:
         message = "The command cannot be empty."
         raise click.BadParameter(message=message, ctx=ctx, param=param)
 
@@ -491,7 +491,10 @@ def _get_file_paths(
                         continue
                     relative_path = resolved_file.relative_to(repo_path)
                     relative_path_str = str(object=relative_path)
-                    if ignore_manager.is_ignored(path=relative_path_str):
+                    if (
+                        ignore_manager.is_ignored(path=relative_path_str)
+                        is True
+                    ):
                         continue
 
                 file_paths[new_file_path] = True
@@ -514,7 +517,7 @@ def _validate_file_suffix_overlaps(
             # "no extensions".
             overlapping_suffixes_ignoring_dot = overlapping_suffixes - {"."}
 
-            if overlapping_suffixes_ignoring_dot:
+            if len(overlapping_suffixes_ignoring_dot) > 0:
                 message = (
                     f"Overlapping suffixes between {markup_language.name} and "
                     f"{other_markup_language.name}: "
@@ -596,7 +599,7 @@ def _map_languages_to_suffix() -> dict[str, str]:
     for lexer in get_all_lexers():
         language_name = lexer[0]
         file_extensions = lexer[2]
-        if file_extensions:
+        if len(file_extensions) > 0:
             canonical_file_extension = file_extensions[0]
             if canonical_file_extension.startswith("*."):
                 canonical_file_suffix = canonical_file_extension[1:]
@@ -650,7 +653,7 @@ def _resolve_workers(*, requested_workers: int) -> int:
         return requested_workers
 
     detected_cpus = os.cpu_count()
-    if not detected_cpus or detected_cpus < 1:
+    if detected_cpus is None or detected_cpus < 1:
         return 1
     return detected_cpus
 
@@ -689,6 +692,7 @@ class _GroupModifiedError(Exception):
         modified_example_content: str,
     ) -> None:
         """Initialize the error."""
+        super().__init__()
         self._example = example
         self._modified_example_content = modified_example_content
 
@@ -837,7 +841,11 @@ def _process_file_path(
         sybils_with_makers = [*sybils_with_makers, sybil_with_maker]
 
     if sphinx_jinja2:
-        temporary_file_extension = given_temporary_file_extension or ".jinja"
+        temporary_file_extension = (
+            given_temporary_file_extension
+            if given_temporary_file_extension not in (None, "")
+            else ".jinja"
+        )
         sybil_with_maker = _get_sybil(
             args=args,
             code_block_languages=[],
@@ -963,7 +971,9 @@ def _evaluate_sybils(
         except OSError as exc:
             error_msg = f"Error running command '{args[0]}': {exc}"
             _log_error(message=error_msg)
-            exit_code = exc.errno or 1
+            exit_code = (
+                exc.errno if exc.errno is not None and exc.errno != 0 else 1
+            )
             local_errors.append(
                 _handle_error(
                     message=error_msg,
@@ -1165,7 +1175,7 @@ def _get_sybil(
                     pad_groups=pad_groups,
                 )
             ]
-            if code_block_languages
+            if len(code_block_languages) > 0
             else []
         )
     elif group_mdx_by_attribute is not None and markup_language == MDX:
@@ -1231,7 +1241,10 @@ def _get_sybil(
                 evaluator=evaluator,
             )
         ]
-        if markup_language.sphinx_jinja_parser_cls and parse_sphinx_jinja2
+        if (
+            markup_language.sphinx_jinja_parser_cls is not None
+            and parse_sphinx_jinja2 is True
+        )
         else []
     )
 
@@ -1884,7 +1897,7 @@ def main(
         raise click.UsageError(message=message)
 
     collected_errors: list[_CollectedError] = []
-    if document_workers == 1 or not file_paths:
+    if document_workers == 1 or len(file_paths) == 0:
         try:
             for file_path in file_paths:
                 collected_errors.extend(
@@ -1953,9 +1966,9 @@ def main(
                     collected_errors.extend(future.result())
             except _FatalProcessingError as exc:
                 for pending_future in futures:
-                    pending_future.cancel()
+                    _ = pending_future.cancel()
                 sys.exit(exc.exit_code)
 
-    if collected_errors:
+    if len(collected_errors) > 0:
         max_exit_code = max(error.exit_code for error in collected_errors)
         sys.exit(max_exit_code)

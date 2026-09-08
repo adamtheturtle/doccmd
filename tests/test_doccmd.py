@@ -55,7 +55,7 @@ def test_run_command(tmp_path: Path) -> None:
             assert x == 4
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -97,7 +97,7 @@ def test_double_language(tmp_path: Path) -> None:
             assert x == 4
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -160,7 +160,7 @@ def test_not_utf_8_file_given(tmp_path: Path) -> None:
            print("\xc0\x80")
         """,
     )
-    rst_file.write_text(data=content, encoding="latin1")
+    _ = rst_file.write_text(data=content, encoding="latin1")
     arguments = [
         "--language",
         "python",
@@ -197,7 +197,7 @@ def test_unknown_encoding(
     """An error is shown when a file cannot be decoded."""
     runner = CliRunner()
     rst_file = tmp_path / "example.rst"
-    rst_file.write_bytes(data=Path(sys.executable).read_bytes())
+    _ = rst_file.write_bytes(data=Path(sys.executable).read_bytes())
     arguments = [
         *fail_on_parse_error_options,
         "--language",
@@ -236,7 +236,7 @@ def test_utf_16_file_given(tmp_path: Path) -> None:
             block_1
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-16", newline="\r\n")
+    _ = rst_file.write_text(data=content, encoding="utf-16", newline="\r\n")
     arguments = [
         "--no-pad-file",
         "--language",
@@ -276,7 +276,7 @@ def test_multiple_code_blocks(tmp_path: Path) -> None:
             assert y == 6
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -330,7 +330,7 @@ def test_language_filters(tmp_path: Path) -> None:
             console.assert(y === 6);
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -370,7 +370,7 @@ def test_run_command_no_pad_file(tmp_path: Path) -> None:
             assert x == 4
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -414,8 +414,8 @@ def test_multiple_files(tmp_path: Path) -> None:
         y = 3 + 3
         assert y == 6
     """
-    rst_file1.write_text(data=content1, encoding="utf-8")
-    rst_file2.write_text(data=content2, encoding="utf-8")
+    _ = rst_file1.write_text(data=content1, encoding="utf-8")
+    _ = rst_file2.write_text(data=content2, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -487,8 +487,8 @@ def test_multiple_files_multiple_types(tmp_path: Path) -> None:
         ```
         """,
     )
-    rst_file.write_text(data=rst_content, encoding="utf-8")
-    md_file.write_text(data=md_content, encoding="utf-8")
+    _ = rst_file.write_text(data=rst_content, encoding="utf-8")
+    _ = md_file.write_text(data=md_content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -565,7 +565,7 @@ def test_modify_file(
             c = 1
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     modify_code_script = textwrap.dedent(
         text="""\
         #!/usr/bin/env python
@@ -577,7 +577,7 @@ def test_modify_file(
         """,
     )
     modify_code_file = tmp_path / "modify_code.py"
-    modify_code_file.write_text(data=modify_code_script, encoding="utf-8")
+    _ = modify_code_file.write_text(data=modify_code_script, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -609,7 +609,7 @@ def test_modify_file_pycon_code_block(tmp_path: Path) -> None:
             3
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     format_code_script = textwrap.dedent(
         text="""\
         import ast
@@ -626,7 +626,7 @@ def test_modify_file_pycon_code_block(tmp_path: Path) -> None:
         """,
     )
     format_code_file = tmp_path / "format_code.py"
-    format_code_file.write_text(data=format_code_script, encoding="utf-8")
+    _ = format_code_file.write_text(data=format_code_script, encoding="utf-8")
     result = runner.invoke(
         cli=main,
         args=[
@@ -668,7 +668,7 @@ def test_custom_pycon_language(tmp_path: Path) -> None:
             3
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     format_code_script = textwrap.dedent(
         text="""\
         import ast
@@ -685,7 +685,7 @@ def test_custom_pycon_language(tmp_path: Path) -> None:
         """,
     )
     format_code_file = tmp_path / "format_code.py"
-    format_code_file.write_text(data=format_code_script, encoding="utf-8")
+    _ = format_code_file.write_text(data=format_code_script, encoding="utf-8")
     result = runner.invoke(
         cli=main,
         args=[
@@ -729,7 +729,7 @@ def test_detect_pycon_language_pycon_block(tmp_path: Path) -> None:
             3
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     format_code_script = textwrap.dedent(
         text="""\
         import ast
@@ -746,7 +746,7 @@ def test_detect_pycon_language_pycon_block(tmp_path: Path) -> None:
         """,
     )
     format_code_file = tmp_path / "format_code.py"
-    format_code_file.write_text(data=format_code_script, encoding="utf-8")
+    _ = format_code_file.write_text(data=format_code_script, encoding="utf-8")
     result = runner.invoke(
         cli=main,
         args=[
@@ -788,7 +788,7 @@ def test_detect_pycon_language_non_pycon_block(tmp_path: Path) -> None:
             x=1+  2
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     format_code_script = textwrap.dedent(
         text="""\
         import ast
@@ -805,7 +805,7 @@ def test_detect_pycon_language_non_pycon_block(tmp_path: Path) -> None:
         """,
     )
     format_code_file = tmp_path / "format_code.py"
-    format_code_file.write_text(data=format_code_script, encoding="utf-8")
+    _ = format_code_file.write_text(data=format_code_script, encoding="utf-8")
     result = runner.invoke(
         cli=main,
         args=[
@@ -845,7 +845,7 @@ def test_detect_pycon_language_default_python(tmp_path: Path) -> None:
             >>> x = 1
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     result = runner.invoke(
         cli=main,
         args=[
@@ -875,7 +875,7 @@ def test_detect_pycon_language_disabled(tmp_path: Path) -> None:
             >>> x = 1
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     # A script that would fail if it receives >>> prompts (not valid Python)
     check_no_prompts_script = textwrap.dedent(
         text="""\
@@ -888,7 +888,7 @@ def test_detect_pycon_language_disabled(tmp_path: Path) -> None:
         """,
     )
     check_script_file = tmp_path / "check.py"
-    check_script_file.write_text(
+    _ = check_script_file.write_text(
         data=check_no_prompts_script,
         encoding="utf-8",
     )
@@ -927,7 +927,7 @@ def test_exit_code(tmp_path: Path) -> None:
             sys.exit({exit_code})
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -973,7 +973,7 @@ def test_file_extension(
             assert x == 4
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         language,
@@ -1008,7 +1008,7 @@ def test_given_temporary_file_extension(tmp_path: Path) -> None:
             assert x == 4
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -1048,7 +1048,7 @@ def test_given_temporary_file_extension_no_leading_period(
             assert x == 4
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -1089,7 +1089,7 @@ def test_given_prefix(tmp_path: Path) -> None:
             assert x == 4
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -1143,7 +1143,7 @@ def test_custom_template(
             assert x == 4
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -1162,7 +1162,9 @@ def test_custom_template(
     assert result.exit_code == 0, (result.stdout, result.stderr)
     output = result.stdout
     output_path = Path(output.strip())
-    assert re.match(pattern=expected_pattern, string=output_path.name)
+    assert (
+        re.match(pattern=expected_pattern, string=output_path.name) is not None
+    )
 
 
 def test_invalid_template_placeholder(tmp_path: Path) -> None:
@@ -1176,7 +1178,7 @@ def test_invalid_template_placeholder(tmp_path: Path) -> None:
             x = 2 + 2
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -1214,7 +1216,7 @@ def test_empty_exclude_pattern(tmp_path: Path) -> None:
             x = 2 + 2
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -1269,7 +1271,7 @@ def test_invalid_command(
             x = 2 + 2
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -1316,7 +1318,7 @@ def test_template_requires_suffix_placeholder(
             x = 2 + 2
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -1366,7 +1368,7 @@ def test_template_malformed_raises_error(
             x = 2 + 2
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -1418,7 +1420,7 @@ def test_template_escaping_directory_rejected(
             x = 2 + 2
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -1460,7 +1462,7 @@ def test_template_within_directory_accepted(tmp_path: Path) -> None:
             assert x == 4
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -1492,10 +1494,10 @@ def test_template_escape_does_not_delete_sibling(tmp_path: Path) -> None:
             x = 2 + 2
         """,
     )
-    source_file.write_text(data=content, encoding="utf-8")
+    _ = source_file.write_text(data=content, encoding="utf-8")
     victim_file = tmp_path / "victim.txt"
     sentinel = "do not delete me"
-    victim_file.write_text(data=sentinel, encoding="utf-8")
+    _ = victim_file.write_text(data=sentinel, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -1530,7 +1532,7 @@ def test_temporary_file_includes_source_name(tmp_path: Path) -> None:
             assert x == 4
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -1568,7 +1570,7 @@ def test_temporary_file_name_is_valid_module_name(tmp_path: Path) -> None:
             assert x == 4
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -1605,7 +1607,7 @@ def test_file_extension_unknown_language(tmp_path: Path) -> None:
             assert x == 4
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "unknown",
@@ -1644,8 +1646,8 @@ def test_file_given_multiple_times(tmp_path: Path) -> None:
             other_block
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
-    other_rst_file.write_text(data=other_content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
+    _ = other_rst_file.write_text(data=other_content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -1696,7 +1698,7 @@ def test_workers_requires_no_write_to_file(
             print("Hello")
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     result = runner.invoke(
         cli=main,
         args=[
@@ -1740,7 +1742,7 @@ def test_workers_runs_commands(
             print("From the second block")
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     result = runner.invoke(
         cli=main,
         args=[
@@ -1784,7 +1786,7 @@ def test_workers_zero_requires_no_write_when_auto_parallel(
             print("Hello")
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     monkeypatch.setattr(target=os, name="cpu_count", value=lambda: 4)
     result = runner.invoke(
         cli=main,
@@ -1826,7 +1828,7 @@ def test_workers_zero_allows_running_when_cpu_is_single(
             print("Only one CPU")
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     monkeypatch.setattr(target=os, name="cpu_count", value=lambda: 1)
     result = runner.invoke(
         cli=main,
@@ -1860,7 +1862,7 @@ def test_cpu_count_returns_none(
             print("CPU count is None")
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     monkeypatch.setattr(target=os, name="cpu_count", value=lambda: None)
     result = runner.invoke(
         cli=main,
@@ -1906,7 +1908,7 @@ def test_parallel_execution_error(
             print("Third block")
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     non_existent_command = uuid.uuid4().hex
     result = runner.invoke(
         cli=main,
@@ -1938,7 +1940,7 @@ def test_document_with_no_examples(tmp_path: Path) -> None:
         Just some text.
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     result = runner.invoke(
         cli=main,
         args=[
@@ -1989,7 +1991,7 @@ def test_execution_error_handling(
     block_text = "\n\n.. code-block:: python\n\n    ".join(blocks)
     content = f".. code-block:: python\n\n    {block_text}\n"
 
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     non_existent_command = uuid.uuid4().hex
     result = runner.invoke(
         cli=main,
@@ -2042,7 +2044,7 @@ def test_single_example_with_parallel_workers(
             print("Only one block")
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     result = runner.invoke(
         cli=main,
         args=[
@@ -2088,7 +2090,7 @@ def test_verbose_running(tmp_path: Path) -> None:
             echo 1
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -2159,7 +2161,7 @@ def test_verbose_running_with_stderr(tmp_path: Path) -> None:
         f"{Path(sys.executable).as_posix()} -c "
         "'import sys; sys.stderr.write(\"error\\n\")'"
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -2214,7 +2216,7 @@ def test_command_not_found(tmp_path: Path) -> None:
             assert x == 4
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -2253,7 +2255,7 @@ def test_not_executable(tmp_path: Path) -> None:
             assert x == 4
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -2295,7 +2297,7 @@ def test_multiple_languages(tmp_path: Path) -> None:
             console.assert(y === 6);
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--no-pad-file",
         "--language",
@@ -2351,7 +2353,7 @@ def test_default_skip_rst(tmp_path: Path) -> None:
             block_3
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--no-pad-file",
         "--language",
@@ -2403,7 +2405,7 @@ def test_skip_no_arguments(
             block_2
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         *fail_on_parse_error_options,
         "--no-pad-file",
@@ -2458,7 +2460,7 @@ def test_skip_bad_arguments(
             block_2
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         *fail_on_parse_error_options,
         "--no-pad-file",
@@ -2514,7 +2516,7 @@ def test_custom_skip_markers_rst(tmp_path: Path) -> None:
             block_3
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--no-pad-file",
         "--language",
@@ -2576,7 +2578,7 @@ def test_default_skip_myst(tmp_path: Path) -> None:
         ```
         """,
     )
-    myst_file.write_text(data=content, encoding="utf-8")
+    _ = myst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--no-pad-file",
         "--language",
@@ -2637,7 +2639,7 @@ def test_custom_skip_markers_myst(tmp_path: Path) -> None:
         ```
         """,
     )
-    myst_file.write_text(data=content, encoding="utf-8")
+    _ = myst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--no-pad-file",
         "--language",
@@ -2700,7 +2702,7 @@ def test_multiple_skip_markers(tmp_path: Path) -> None:
             block_4
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--no-pad-file",
         "--language",
@@ -2759,7 +2761,7 @@ def test_skip_start_end(tmp_path: Path) -> None:
             block_4
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--no-pad-file",
         "--language",
@@ -2814,7 +2816,7 @@ def test_duplicate_skip_marker(tmp_path: Path) -> None:
             block_3
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--no-pad-file",
         "--language",
@@ -2868,7 +2870,7 @@ def test_default_skip_marker_given(tmp_path: Path) -> None:
             block_3
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--no-pad-file",
         "--language",
@@ -2919,7 +2921,7 @@ def test_skip_multiple(tmp_path: Path) -> None:
             block_2
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--no-pad-file",
         "--language",
@@ -3022,7 +3024,7 @@ def test_skip_with_parallel_workers(tmp_path: Path) -> None:
             block_lines.append(_block(name=name))
             expected_run.add(name)
 
-    rst_file.write_text(data="".join(block_lines), encoding="utf-8")
+    _ = rst_file.write_text(data="".join(block_lines), encoding="utf-8")
 
     for _ in range(5):
         result = runner.invoke(
@@ -3043,7 +3045,7 @@ def test_skip_with_parallel_workers(tmp_path: Path) -> None:
         assert result.exit_code == 0, (result.stdout, result.stderr)
         printed = set(result.stdout.split())
         assert expected_run <= printed, (expected_run - printed, result.stdout)
-        assert not expected_skipped & printed, (
+        assert len(expected_skipped & printed) == 0, (
             expected_skipped & printed,
             result.stdout,
         )
@@ -3063,7 +3065,7 @@ def test_bad_skips(tmp_path: Path) -> None:
             block_2
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--no-pad-file",
         "--language",
@@ -3141,7 +3143,11 @@ def test_detect_line_endings(
             block_1
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8", newline=source_newline)
+    _ = rst_file.write_text(
+        data=content,
+        encoding="utf-8",
+        newline=source_newline,
+    )
     arguments = [
         "--no-pad-file",
         "--language",
@@ -3158,9 +3164,9 @@ def test_detect_line_endings(
     )
     assert result.exit_code == 0, (result.stdout, result.stderr)
     assert result.stderr == ""
-    assert bool(b"\r\n" in result.stdout_bytes) == expect_crlf
-    assert bool(b"\r" in result.stdout_bytes) == expect_cr
-    assert bool(b"\n" in result.stdout_bytes) == expect_lf
+    assert (b"\r\n" in result.stdout_bytes) == expect_crlf
+    assert (b"\r" in result.stdout_bytes) == expect_cr
+    assert (b"\n" in result.stdout_bytes) == expect_lf
 
 
 def test_one_supported_markup_in_another_extension(tmp_path: Path) -> None:
@@ -3182,7 +3188,7 @@ def test_one_supported_markup_in_another_extension(tmp_path: Path) -> None:
         ```
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -3216,7 +3222,7 @@ def test_unknown_file_suffix(*, extension: str, tmp_path: Path) -> None:
             assert x == 4
         """,
     )
-    document_file.write_text(data=content, encoding="utf-8")
+    _ = document_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -3255,14 +3261,14 @@ def test_custom_rst_file_suffixes(tmp_path: Path) -> None:
             x = 1
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     rst_file_2 = tmp_path / "example.customrst2"
     content_2 = """\
     .. code-block:: python
 
         x = 2
     """
-    rst_file_2.write_text(data=content_2, encoding="utf-8")
+    _ = rst_file_2.write_text(data=content_2, encoding="utf-8")
     arguments = [
         "--no-pad-file",
         "--language",
@@ -3308,7 +3314,7 @@ def test_multi_part_rst_extension_direct_file(tmp_path: Path) -> None:
             multi_part_block
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--no-pad-file",
         "--language",
@@ -3349,7 +3355,7 @@ def test_multi_part_rst_extension_in_directory(tmp_path: Path) -> None:
             multi_part_block
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--no-pad-file",
         "--language",
@@ -3408,7 +3414,7 @@ def test_markdown_code_block_line_number(tmp_path: Path) -> None:
         ```
         """,
     )
-    md_file.write_text(data=content, encoding="utf-8")
+    _ = md_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -3449,7 +3455,7 @@ def test_norg(tmp_path: Path) -> None:
         @end
         """,
     )
-    source_file.write_text(data=content, encoding="utf-8")
+    _ = source_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -3487,7 +3493,7 @@ def test_norg_in_directory(tmp_path: Path) -> None:
         @end
         """,
     )
-    norg_file.write_text(data=norg_content, encoding="utf-8")
+    _ = norg_file.write_text(data=norg_content, encoding="utf-8")
 
     arguments = [
         "--language",
@@ -3518,7 +3524,7 @@ def test_custom_norg_extension(tmp_path: Path) -> None:
         @end
         """,
     )
-    source_file.write_text(data=content, encoding="utf-8")
+    _ = source_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -3586,7 +3592,7 @@ def test_group_mdx_by_attribute(
         ```
         """,
     )
-    mdx_file.write_text(data=content, encoding="utf-8")
+    _ = mdx_file.write_text(data=content, encoding="utf-8")
 
     print_underlined_script = textwrap.dedent(
         text="""\
@@ -3599,7 +3605,7 @@ def test_group_mdx_by_attribute(
         print("-------")
         """,
     )
-    script.write_text(data=print_underlined_script, encoding="utf-8")
+    _ = script.write_text(data=print_underlined_script, encoding="utf-8")
 
     arguments = [
         "--no-pad-file",
@@ -3682,7 +3688,7 @@ def test_group_mdx_by_attribute_no_matches(
         ```
         """,
     )
-    mdx_file.write_text(data=content, encoding="utf-8")
+    _ = mdx_file.write_text(data=content, encoding="utf-8")
 
     arguments = [
         "--no-pad-file",
@@ -3738,7 +3744,7 @@ def test_group_mdx_by_attribute_custom_attribute_name(
         ```
         """,
     )
-    mdx_file.write_text(data=content, encoding="utf-8")
+    _ = mdx_file.write_text(data=content, encoding="utf-8")
 
     print_underlined_script = textwrap.dedent(
         text="""\
@@ -3749,7 +3755,7 @@ def test_group_mdx_by_attribute_custom_attribute_name(
         print("-------")
         """,
     )
-    script.write_text(data=print_underlined_script, encoding="utf-8")
+    _ = script.write_text(data=print_underlined_script, encoding="utf-8")
 
     arguments = [
         "--no-pad-file",
@@ -3804,7 +3810,7 @@ def test_group_mdx_by_attribute_only_mdx_files(
             rst_block
         """,
     )
-    rst_file.write_text(data=rst_content, encoding="utf-8")
+    _ = rst_file.write_text(data=rst_content, encoding="utf-8")
 
     mdx_content = textwrap.dedent(
         text="""\
@@ -3817,7 +3823,7 @@ def test_group_mdx_by_attribute_only_mdx_files(
         ```
         """,
     )
-    mdx_file.write_text(data=mdx_content, encoding="utf-8")
+    _ = mdx_file.write_text(data=mdx_content, encoding="utf-8")
 
     script = tmp_path / "print_underlined.py"
     print_underlined_script = textwrap.dedent(
@@ -3829,7 +3835,7 @@ def test_group_mdx_by_attribute_only_mdx_files(
         print("-------")
         """,
     )
-    script.write_text(data=print_underlined_script, encoding="utf-8")
+    _ = script.write_text(data=print_underlined_script, encoding="utf-8")
 
     arguments = [
         "--no-pad-file",
@@ -3901,7 +3907,7 @@ def test_group_mdx_by_attribute_modify_file(
         ```
         """,
     )
-    mdx_file.write_text(data=content, encoding="utf-8")
+    _ = mdx_file.write_text(data=content, encoding="utf-8")
     modify_code_script = textwrap.dedent(
         text="""\
         #!/usr/bin/env python
@@ -3913,7 +3919,7 @@ def test_group_mdx_by_attribute_modify_file(
         """,
     )
     modify_code_file = tmp_path / "modify_code.py"
-    modify_code_file.write_text(data=modify_code_script, encoding="utf-8")
+    _ = modify_code_file.write_text(data=modify_code_script, encoding="utf-8")
     arguments = [
         *fail_on_group_write_options,
         "--group-mdx-by-attribute",
@@ -3996,7 +4002,7 @@ def test_group_mdx_by_attribute_no_default_markers_in_mdx(
         ```
         """,
     )
-    mdx_file.write_text(data=content, encoding="utf-8")
+    _ = mdx_file.write_text(data=content, encoding="utf-8")
 
     script = tmp_path / "print_underlined.py"
     print_underlined_script = textwrap.dedent(
@@ -4008,7 +4014,7 @@ def test_group_mdx_by_attribute_no_default_markers_in_mdx(
         print("-------")
         """,
     )
-    script.write_text(data=print_underlined_script, encoding="utf-8")
+    _ = script.write_text(data=print_underlined_script, encoding="utf-8")
 
     arguments = [
         "--no-pad-file",
@@ -4081,7 +4087,7 @@ def test_group_mdx_by_attribute_default_markers_in_rst(
             rst_single_block
         """,
     )
-    rst_file.write_text(data=rst_content, encoding="utf-8")
+    _ = rst_file.write_text(data=rst_content, encoding="utf-8")
 
     mdx_content = textwrap.dedent(
         text="""\
@@ -4094,7 +4100,7 @@ def test_group_mdx_by_attribute_default_markers_in_rst(
         ```
         """,
     )
-    mdx_file.write_text(data=mdx_content, encoding="utf-8")
+    _ = mdx_file.write_text(data=mdx_content, encoding="utf-8")
 
     script = tmp_path / "print_underlined.py"
     print_underlined_script = textwrap.dedent(
@@ -4106,7 +4112,7 @@ def test_group_mdx_by_attribute_default_markers_in_rst(
         print("-------")
         """,
     )
-    script.write_text(data=print_underlined_script, encoding="utf-8")
+    _ = script.write_text(data=print_underlined_script, encoding="utf-8")
 
     arguments = [
         "--no-pad-file",
@@ -4173,7 +4179,7 @@ def test_group_start_without_end(
             print("Hello")
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
 
     arguments = [
         *fail_on_parse_error_options,
@@ -4222,7 +4228,7 @@ def test_group_nested_start_without_end(tmp_path: Path) -> None:
         .. group doccmd[all]: end
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
 
     arguments = [
         "--fail-on-parse-error",
@@ -4283,7 +4289,7 @@ def test_group_file_with_manual_group_directive(
             block_3
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
 
     print_underlined_script = textwrap.dedent(
         text="""\
@@ -4294,7 +4300,7 @@ def test_group_file_with_manual_group_directive(
         print("-------")
         """,
     )
-    script.write_text(data=print_underlined_script, encoding="utf-8")
+    _ = script.write_text(data=print_underlined_script, encoding="utf-8")
 
     arguments = [
         "--no-pad-file",
@@ -4361,7 +4367,7 @@ def test_group_file_with_sphinx_jinja2_no_language(
             {{ y }}
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
 
     print_underlined_script = textwrap.dedent(
         text="""\
@@ -4372,7 +4378,7 @@ def test_group_file_with_sphinx_jinja2_no_language(
         print("-------")
         """,
     )
-    script.write_text(data=print_underlined_script, encoding="utf-8")
+    _ = script.write_text(data=print_underlined_script, encoding="utf-8")
 
     arguments = [
         "--no-pad-file",
@@ -4417,14 +4423,14 @@ def test_custom_myst_file_suffixes(tmp_path: Path) -> None:
         ```
         """,
     )
-    myst_file.write_text(data=content, encoding="utf-8")
+    _ = myst_file.write_text(data=content, encoding="utf-8")
     myst_file_2 = tmp_path / "example.custommyst2"
     content_2 = """\
     ```python
     x = 2
     ```
     """
-    myst_file_2.write_text(data=content_2, encoding="utf-8")
+    _ = myst_file_2.write_text(data=content_2, encoding="utf-8")
     arguments = [
         "--no-pad-file",
         "--language",
@@ -4487,7 +4493,7 @@ def test_pty(
         """,
     )
     script = tmp_path / "my_script.py"
-    script.write_text(data=tty_test)
+    _ = script.write_text(data=tty_test)
     script.chmod(mode=stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR)
     content = textwrap.dedent(
         text="""\
@@ -4496,7 +4502,7 @@ def test_pty(
             block_1
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         *options,
         "--no-pad-file",
@@ -4540,7 +4546,7 @@ def test_source_given_extension_no_leading_period(
     runner = CliRunner()
     source_file = tmp_path / "example.rst"
     content = "Hello world"
-    source_file.write_text(data=content, encoding="utf-8")
+    _ = source_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -4583,7 +4589,7 @@ def test_overlapping_extensions(tmp_path: Path) -> None:
             x = 1
         """,
     )
-    source_file.write_text(data=content, encoding="utf-8")
+    _ = source_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -4632,7 +4638,7 @@ def test_overlapping_markdown_mdx_extensions(tmp_path: Path) -> None:
         ```
         """,
     )
-    source_file.write_text(data=content, encoding="utf-8")
+    _ = source_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -4678,7 +4684,7 @@ def test_overlapping_markdown_djot_extensions(tmp_path: Path) -> None:
         ```
         """,
     )
-    source_file.write_text(data=content, encoding="utf-8")
+    _ = source_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -4720,7 +4726,7 @@ def test_overlapping_extensions_dot(tmp_path: Path) -> None:
             x = 1
         """,
     )
-    source_file.write_text(data=content, encoding="utf-8")
+    _ = source_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -4792,7 +4798,7 @@ def test_markdown(tmp_path: Path) -> None:
         `````
         """,
     )
-    source_file.write_text(data=content, encoding="utf-8")
+    _ = source_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -4869,7 +4875,7 @@ def test_djot(tmp_path: Path) -> None:
         ```
         """,
     )
-    source_file.write_text(data=content, encoding="utf-8")
+    _ = source_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -4908,7 +4914,7 @@ def test_djot_implicit_code_block_closure(tmp_path: Path) -> None:
         Paragraph.
         """,
     )
-    source_file.write_text(data=content, encoding="utf-8")
+    _ = source_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -4953,7 +4959,7 @@ def test_mdx(tmp_path: Path) -> None:
         ```
         """,
     )
-    source_file.write_text(data=content, encoding="utf-8")
+    _ = source_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -4996,7 +5002,7 @@ def test_mdx_parametrized_code_blocks(tmp_path: Path) -> None:
         ```
         """,
     )
-    source_file.write_text(data=content, encoding="utf-8")
+    _ = source_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "python",
@@ -5032,7 +5038,7 @@ def test_directory(tmp_path: Path) -> None:
             rst_1_block
         """,
     )
-    rst_file.write_text(data=rst_content, encoding="utf-8")
+    _ = rst_file.write_text(data=rst_content, encoding="utf-8")
     md_file = tmp_path / "example.md"
     md_content = textwrap.dedent(
         text="""\
@@ -5041,7 +5047,7 @@ def test_directory(tmp_path: Path) -> None:
         ```
         """,
     )
-    md_file.write_text(data=md_content, encoding="utf-8")
+    _ = md_file.write_text(data=md_content, encoding="utf-8")
     sub_directory = tmp_path / "subdir"
     sub_directory.mkdir()
     rst_file_in_sub_directory = sub_directory / "subdir_example.rst"
@@ -5052,7 +5058,7 @@ def test_directory(tmp_path: Path) -> None:
             rst_subdir_1_block
         """,
     )
-    rst_file_in_sub_directory.write_text(
+    _ = rst_file_in_sub_directory.write_text(
         data=subdir_rst_content,
         encoding="utf-8",
     )
@@ -5102,7 +5108,7 @@ def test_de_duplication_source_files_and_dirs(tmp_path: Path) -> None:
             rst_1_block
         """,
     )
-    rst_file.write_text(data=rst_content, encoding="utf-8")
+    _ = rst_file.write_text(data=rst_content, encoding="utf-8")
     sub_directory = tmp_path / "subdir"
     sub_directory.mkdir()
     rst_file_in_sub_directory = sub_directory / "subdir_example.rst"
@@ -5113,7 +5119,7 @@ def test_de_duplication_source_files_and_dirs(tmp_path: Path) -> None:
             rst_subdir_1_block
         """,
     )
-    rst_file_in_sub_directory.write_text(
+    _ = rst_file_in_sub_directory.write_text(
         data=subdir_rst_content,
         encoding="utf-8",
     )
@@ -5160,7 +5166,7 @@ def test_max_depth(tmp_path: Path) -> None:
             rst_1_block
         """,
     )
-    rst_file.write_text(data=rst_content, encoding="utf-8")
+    _ = rst_file.write_text(data=rst_content, encoding="utf-8")
 
     sub_directory = tmp_path / "subdir"
     sub_directory.mkdir()
@@ -5172,7 +5178,7 @@ def test_max_depth(tmp_path: Path) -> None:
             rst_subdir_1_block
         """,
     )
-    rst_file_in_sub_directory.write_text(
+    _ = rst_file_in_sub_directory.write_text(
         data=subdir_rst_content,
         encoding="utf-8",
     )
@@ -5187,7 +5193,7 @@ def test_max_depth(tmp_path: Path) -> None:
             rst_subsubdir_1_block
         """,
     )
-    rst_file_in_sub_sub_directory.write_text(
+    _ = rst_file_in_sub_sub_directory.write_text(
         data=subsubdir_rst_content,
         encoding="utf-8",
     )
@@ -5288,7 +5294,7 @@ def test_exclude_files_from_recursed_directories(tmp_path: Path) -> None:
             rst_1_block
         """,
     )
-    rst_file.write_text(data=rst_content, encoding="utf-8")
+    _ = rst_file.write_text(data=rst_content, encoding="utf-8")
 
     sub_directory = tmp_path / "subdir"
     sub_directory.mkdir()
@@ -5300,7 +5306,7 @@ def test_exclude_files_from_recursed_directories(tmp_path: Path) -> None:
             rst_subdir_1_block
         """,
     )
-    rst_file_in_sub_directory.write_text(
+    _ = rst_file_in_sub_directory.write_text(
         data=subdir_rst_content,
         encoding="utf-8",
     )
@@ -5313,7 +5319,7 @@ def test_exclude_files_from_recursed_directories(tmp_path: Path) -> None:
             excluded_block
         """,
     )
-    excluded_file.write_text(data=excluded_content, encoding="utf-8")
+    _ = excluded_file.write_text(data=excluded_content, encoding="utf-8")
 
     arguments = [
         "--language",
@@ -5358,7 +5364,7 @@ def test_multiple_exclude_patterns(tmp_path: Path) -> None:
             rst_1_block
         """,
     )
-    rst_file.write_text(data=rst_content, encoding="utf-8")
+    _ = rst_file.write_text(data=rst_content, encoding="utf-8")
 
     sub_directory = tmp_path / "subdir"
     sub_directory.mkdir()
@@ -5370,7 +5376,7 @@ def test_multiple_exclude_patterns(tmp_path: Path) -> None:
             rst_subdir_1_block
         """,
     )
-    rst_file_in_sub_directory.write_text(
+    _ = rst_file_in_sub_directory.write_text(
         data=subdir_rst_content,
         encoding="utf-8",
     )
@@ -5381,7 +5387,7 @@ def test_multiple_exclude_patterns(tmp_path: Path) -> None:
 
         excluded_block_1
     """
-    excluded_file_1.write_text(data=excluded_content_1, encoding="utf-8")
+    _ = excluded_file_1.write_text(data=excluded_content_1, encoding="utf-8")
 
     excluded_file_2 = sub_directory / "ignore_me.rst"
     excluded_content_2 = """\
@@ -5389,7 +5395,7 @@ def test_multiple_exclude_patterns(tmp_path: Path) -> None:
 
         excluded_block_2
     """
-    excluded_file_2.write_text(data=excluded_content_2, encoding="utf-8")
+    _ = excluded_file_2.write_text(data=excluded_content_2, encoding="utf-8")
 
     arguments = [
         "--language",
@@ -5449,7 +5455,7 @@ def test_lexing_exception(
         ```
         """,
     )
-    source_file.write_text(data=invalid_content, encoding="utf-8")
+    _ = source_file.write_text(data=invalid_content, encoding="utf-8")
     arguments = [
         *fail_on_parse_error_options,
         "--language",
@@ -5536,7 +5542,7 @@ def test_group_blocks(
             block_3
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
 
     print_underlined_script = textwrap.dedent(
         text="""\
@@ -5549,7 +5555,7 @@ def test_group_blocks(
         print("-------")
         """,
     )
-    script.write_text(data=print_underlined_script, encoding="utf-8")
+    _ = script.write_text(data=print_underlined_script, encoding="utf-8")
 
     arguments = [
         *file_padding_options,
@@ -5636,7 +5642,7 @@ def test_modify_file_single_group_block(
         .. group doccmd[all]: end
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     modify_code_script = textwrap.dedent(
         text="""\
         #!/usr/bin/env python
@@ -5648,7 +5654,7 @@ def test_modify_file_single_group_block(
         """,
     )
     modify_code_file = tmp_path / "modify_code.py"
-    modify_code_file.write_text(data=modify_code_script, encoding="utf-8")
+    _ = modify_code_file.write_text(data=modify_code_script, encoding="utf-8")
     arguments = [
         *fail_on_group_write_options,
         "--language",
@@ -5732,7 +5738,7 @@ def test_modify_file_multiple_group_blocks(
         .. group doccmd[all]: end
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     modify_code_script = textwrap.dedent(
         text="""\
         #!/usr/bin/env python
@@ -5744,7 +5750,7 @@ def test_modify_file_multiple_group_blocks(
         """,
     )
     modify_code_file = tmp_path / "modify_code.py"
-    modify_code_file.write_text(data=modify_code_script, encoding="utf-8")
+    _ = modify_code_file.write_text(data=modify_code_script, encoding="utf-8")
     arguments = [
         *fail_on_group_write_options,
         "--language",
@@ -5812,7 +5818,7 @@ def test_jinja2(*, tmp_path: Path) -> None:
                print(x)
         """,
     )
-    source_file.write_text(data=content, encoding="utf-8")
+    _ = source_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--sphinx-jinja2",
         "--command",
@@ -5850,7 +5856,7 @@ def test_empty_language_given(*, tmp_path: Path) -> None:
     runner = CliRunner()
     source_file = tmp_path / "example.rst"
     content = ""
-    source_file.write_text(data=content, encoding="utf-8")
+    _ = source_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--command",
         "cat",
@@ -5897,7 +5903,7 @@ def test_continue_on_error_multiple_files(tmp_path: Path) -> None:
             sys.exit({highest_exit_code})
         """,
     )
-    rst_file1.write_text(data=content1, encoding="utf-8")
+    _ = rst_file1.write_text(data=content1, encoding="utf-8")
 
     rst_file2 = tmp_path / "example2.rst"
     content2 = textwrap.dedent(
@@ -5908,7 +5914,7 @@ def test_continue_on_error_multiple_files(tmp_path: Path) -> None:
             assert x == 4
         """,
     )
-    rst_file2.write_text(data=content2, encoding="utf-8")
+    _ = rst_file2.write_text(data=content2, encoding="utf-8")
 
     rst_file3 = tmp_path / "example3.rst"
     content3 = textwrap.dedent(
@@ -5919,7 +5925,7 @@ def test_continue_on_error_multiple_files(tmp_path: Path) -> None:
             sys.exit({lowest_exit_code})
         """,
     )
-    rst_file3.write_text(data=content3, encoding="utf-8")
+    _ = rst_file3.write_text(data=content3, encoding="utf-8")
 
     arguments = [
         "--language",
@@ -5952,7 +5958,7 @@ def test_continue_on_error_encoding_error(tmp_path: Path) -> None:
     runner = CliRunner()
 
     rst_file1 = tmp_path / "bad_encoding.rst"
-    rst_file1.write_bytes(data=Path(sys.executable).read_bytes())
+    _ = rst_file1.write_bytes(data=Path(sys.executable).read_bytes())
 
     rst_file2 = tmp_path / "valid.rst"
     content2 = textwrap.dedent(
@@ -5962,7 +5968,7 @@ def test_continue_on_error_encoding_error(tmp_path: Path) -> None:
             x = 1 + 1
         """,
     )
-    rst_file2.write_text(data=content2, encoding="utf-8")
+    _ = rst_file2.write_text(data=content2, encoding="utf-8")
 
     arguments = [
         "--fail-on-parse-error",
@@ -6004,7 +6010,7 @@ def test_continue_on_error_parse_error(tmp_path: Path) -> None:
         ```
         """,
     )
-    source_file1.write_text(data=invalid_content, encoding="utf-8")
+    _ = source_file1.write_text(data=invalid_content, encoding="utf-8")
 
     source_file2 = tmp_path / "valid.rst"
     content2 = textwrap.dedent(
@@ -6014,7 +6020,7 @@ def test_continue_on_error_parse_error(tmp_path: Path) -> None:
             x = 1 + 1
         """,
     )
-    source_file2.write_text(data=content2, encoding="utf-8")
+    _ = source_file2.write_text(data=content2, encoding="utf-8")
 
     arguments = [
         "--fail-on-parse-error",
@@ -6060,7 +6066,7 @@ def test_continue_on_error_group_write_error(tmp_path: Path) -> None:
         .. group doccmd[all]: end
         """,
     )
-    rst_file1.write_text(data=content1, encoding="utf-8")
+    _ = rst_file1.write_text(data=content1, encoding="utf-8")
 
     rst_file2 = tmp_path / "valid.rst"
     content2 = textwrap.dedent(
@@ -6070,7 +6076,7 @@ def test_continue_on_error_group_write_error(tmp_path: Path) -> None:
             x = 1 + 1
         """,
     )
-    rst_file2.write_text(data=content2, encoding="utf-8")
+    _ = rst_file2.write_text(data=content2, encoding="utf-8")
 
     modify_code_script = textwrap.dedent(
         text="""\
@@ -6083,7 +6089,7 @@ def test_continue_on_error_group_write_error(tmp_path: Path) -> None:
         """,
     )
     modify_code_file = tmp_path / "modify_code.py"
-    modify_code_file.write_text(data=modify_code_script, encoding="utf-8")
+    _ = modify_code_file.write_text(data=modify_code_script, encoding="utf-8")
 
     arguments = [
         "--fail-on-group-write",
@@ -6122,7 +6128,7 @@ def test_continue_on_error_command_not_found(tmp_path: Path) -> None:
             x = 1 + 1
         """,
     )
-    rst_file1.write_text(data=content1, encoding="utf-8")
+    _ = rst_file1.write_text(data=content1, encoding="utf-8")
 
     rst_file2 = tmp_path / "valid.rst"
     content2 = textwrap.dedent(
@@ -6132,7 +6138,7 @@ def test_continue_on_error_command_not_found(tmp_path: Path) -> None:
             y = 2 + 2
         """,
     )
-    rst_file2.write_text(data=content2, encoding="utf-8")
+    _ = rst_file2.write_text(data=content2, encoding="utf-8")
 
     arguments = [
         "--continue-on-error",
@@ -6171,7 +6177,7 @@ def test_continue_on_error_vs_default_behavior(tmp_path: Path) -> None:
             sys.exit({exit_code_42})
         """,
     )
-    rst_file1.write_text(data=content1, encoding="utf-8")
+    _ = rst_file1.write_text(data=content1, encoding="utf-8")
 
     rst_file2 = tmp_path / "example2.rst"
     content2 = textwrap.dedent(
@@ -6182,7 +6188,7 @@ def test_continue_on_error_vs_default_behavior(tmp_path: Path) -> None:
             sys.exit({exit_code_7})
         """,
     )
-    rst_file2.write_text(data=content2, encoding="utf-8")
+    _ = rst_file2.write_text(data=content2, encoding="utf-8")
 
     arguments_without_continue = [
         "--language",
@@ -6270,7 +6276,7 @@ def test_group_file(
             block_3
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
 
     print_underlined_script = textwrap.dedent(
         text="""\
@@ -6283,7 +6289,7 @@ def test_group_file(
         print("-------")
         """,
     )
-    script.write_text(data=print_underlined_script, encoding="utf-8")
+    _ = script.write_text(data=print_underlined_script, encoding="utf-8")
 
     arguments = [
         "--no-pad-file",
@@ -6355,7 +6361,7 @@ def test_respect_gitignore_default(tmp_path: Path) -> None:
     runner = CliRunner()
 
     # Initialize a git repository
-    subprocess.run(
+    _ = subprocess.run(
         args=["git", "init"],
         cwd=tmp_path,
         check=True,
@@ -6364,7 +6370,7 @@ def test_respect_gitignore_default(tmp_path: Path) -> None:
 
     # Create a .gitignore file
     gitignore_file = tmp_path / ".gitignore"
-    gitignore_file.write_text(data="ignored/\n", encoding="utf-8")
+    _ = gitignore_file.write_text(data="ignored/\n", encoding="utf-8")
 
     # Create a non-ignored file
     included_file = tmp_path / "included.rst"
@@ -6375,7 +6381,7 @@ def test_respect_gitignore_default(tmp_path: Path) -> None:
             included_block
         """,
     )
-    included_file.write_text(data=included_content, encoding="utf-8")
+    _ = included_file.write_text(data=included_content, encoding="utf-8")
 
     # Create an ignored directory with a file
     ignored_dir = tmp_path / "ignored"
@@ -6388,7 +6394,7 @@ def test_respect_gitignore_default(tmp_path: Path) -> None:
             ignored_block
         """,
     )
-    ignored_file.write_text(data=ignored_content, encoding="utf-8")
+    _ = ignored_file.write_text(data=ignored_content, encoding="utf-8")
 
     arguments = [
         "--language",
@@ -6420,7 +6426,7 @@ def test_no_respect_gitignore(tmp_path: Path) -> None:
     runner = CliRunner()
 
     # Initialize a git repository
-    subprocess.run(
+    _ = subprocess.run(
         args=["git", "init"],
         cwd=tmp_path,
         check=True,
@@ -6429,7 +6435,7 @@ def test_no_respect_gitignore(tmp_path: Path) -> None:
 
     # Create a .gitignore file
     gitignore_file = tmp_path / ".gitignore"
-    gitignore_file.write_text(data="ignored/\n", encoding="utf-8")
+    _ = gitignore_file.write_text(data="ignored/\n", encoding="utf-8")
 
     # Create a non-ignored file
     included_file = tmp_path / "included.rst"
@@ -6440,7 +6446,7 @@ def test_no_respect_gitignore(tmp_path: Path) -> None:
             included_block
         """,
     )
-    included_file.write_text(data=included_content, encoding="utf-8")
+    _ = included_file.write_text(data=included_content, encoding="utf-8")
 
     # Create an ignored directory with a file
     ignored_dir = tmp_path / "ignored"
@@ -6453,7 +6459,7 @@ def test_no_respect_gitignore(tmp_path: Path) -> None:
             ignored_block
         """,
     )
-    ignored_file.write_text(data=ignored_content, encoding="utf-8")
+    _ = ignored_file.write_text(data=ignored_content, encoding="utf-8")
 
     arguments = [
         "--language",
@@ -6485,7 +6491,7 @@ def test_respect_gitignore_direct_file_not_affected(tmp_path: Path) -> None:
     runner = CliRunner()
 
     # Initialize a git repository
-    subprocess.run(
+    _ = subprocess.run(
         args=["git", "init"],
         cwd=tmp_path,
         check=True,
@@ -6494,7 +6500,7 @@ def test_respect_gitignore_direct_file_not_affected(tmp_path: Path) -> None:
 
     # Create a .gitignore file
     gitignore_file = tmp_path / ".gitignore"
-    gitignore_file.write_text(data="ignored/\n", encoding="utf-8")
+    _ = gitignore_file.write_text(data="ignored/\n", encoding="utf-8")
 
     # Create an ignored directory with a file
     ignored_dir = tmp_path / "ignored"
@@ -6507,7 +6513,7 @@ def test_respect_gitignore_direct_file_not_affected(tmp_path: Path) -> None:
             ignored_but_direct_block
         """,
     )
-    ignored_file.write_text(data=ignored_content, encoding="utf-8")
+    _ = ignored_file.write_text(data=ignored_content, encoding="utf-8")
 
     # Pass the ignored file directly
     arguments = [
@@ -6544,7 +6550,7 @@ def test_respect_gitignore_no_git_repo(tmp_path: Path) -> None:
             block_in_non_git
         """,
     )
-    rst_file.write_text(data=rst_content, encoding="utf-8")
+    _ = rst_file.write_text(data=rst_content, encoding="utf-8")
 
     arguments = [
         "--language",
@@ -6571,7 +6577,7 @@ def test_respect_gitignore_nested_gitignore(tmp_path: Path) -> None:
     runner = CliRunner()
 
     # Initialize a git repository
-    subprocess.run(
+    _ = subprocess.run(
         args=["git", "init"],
         cwd=tmp_path,
         check=True,
@@ -6587,7 +6593,7 @@ def test_respect_gitignore_nested_gitignore(tmp_path: Path) -> None:
             root_block
         """,
     )
-    root_file.write_text(data=root_content, encoding="utf-8")
+    _ = root_file.write_text(data=root_content, encoding="utf-8")
 
     # Create a subdirectory with its own .gitignore
     sub_dir = tmp_path / "subdir"
@@ -6595,7 +6601,7 @@ def test_respect_gitignore_nested_gitignore(tmp_path: Path) -> None:
 
     sub_gitignore = sub_dir / ".gitignore"
     # Include a comment and empty line to exercise those code paths
-    sub_gitignore.write_text(
+    _ = sub_gitignore.write_text(
         data="# This is a comment\n\nlocal_ignored.rst\n",
         encoding="utf-8",
     )
@@ -6609,7 +6615,7 @@ def test_respect_gitignore_nested_gitignore(tmp_path: Path) -> None:
             locally_ignored_block
         """,
     )
-    ignored_file.write_text(data=ignored_content, encoding="utf-8")
+    _ = ignored_file.write_text(data=ignored_content, encoding="utf-8")
 
     # Create a file that should not be ignored
     included_file = sub_dir / "included.rst"
@@ -6620,7 +6626,7 @@ def test_respect_gitignore_nested_gitignore(tmp_path: Path) -> None:
             subdir_included_block
         """,
     )
-    included_file.write_text(data=included_content, encoding="utf-8")
+    _ = included_file.write_text(data=included_content, encoding="utf-8")
 
     arguments = [
         "--language",
@@ -6653,7 +6659,7 @@ def test_respect_gitignore_caching(tmp_path: Path) -> None:
     runner = CliRunner()
 
     # Initialize a git repository
-    subprocess.run(
+    _ = subprocess.run(
         args=["git", "init"],
         cwd=tmp_path,
         check=True,
@@ -6662,7 +6668,7 @@ def test_respect_gitignore_caching(tmp_path: Path) -> None:
 
     # Create a .gitignore file
     gitignore_file = tmp_path / ".gitignore"
-    gitignore_file.write_text(data="ignored/\n", encoding="utf-8")
+    _ = gitignore_file.write_text(data="ignored/\n", encoding="utf-8")
 
     # Create a file to process
     rst_file = tmp_path / "example.rst"
@@ -6673,7 +6679,7 @@ def test_respect_gitignore_caching(tmp_path: Path) -> None:
             cached_test_block
         """,
     )
-    rst_file.write_text(data=rst_content, encoding="utf-8")
+    _ = rst_file.write_text(data=rst_content, encoding="utf-8")
 
     # Create a symlink to the same directory to exercise the caching code path
     symlink_path = tmp_path.parent / "symlink_to_dir"
@@ -6710,7 +6716,7 @@ def test_respect_gitignore_symlink_outside_repo(tmp_path: Path) -> None:
     # Create a git repository
     repo_dir = tmp_path / "repo"
     repo_dir.mkdir()
-    subprocess.run(
+    _ = subprocess.run(
         args=["git", "init"],
         cwd=repo_dir,
         check=True,
@@ -6719,7 +6725,7 @@ def test_respect_gitignore_symlink_outside_repo(tmp_path: Path) -> None:
 
     # Create a .gitignore file
     gitignore_file = repo_dir / ".gitignore"
-    gitignore_file.write_text(data="ignored/\n", encoding="utf-8")
+    _ = gitignore_file.write_text(data="ignored/\n", encoding="utf-8")
 
     # Create a directory outside the repo with a file
     outside_dir = tmp_path / "outside"
@@ -6732,7 +6738,7 @@ def test_respect_gitignore_symlink_outside_repo(tmp_path: Path) -> None:
             outside_block
         """,
     )
-    outside_file.write_text(data=outside_content, encoding="utf-8")
+    _ = outside_file.write_text(data=outside_content, encoding="utf-8")
 
     # Create a symlink inside the repo pointing to the file outside
     symlink_in_repo = repo_dir / "link_to_outside.rst"
@@ -6772,7 +6778,7 @@ def test_invalid_pycon_code_block(tmp_path: Path) -> None:
             >>> x = 1
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
     arguments = [
         "--language",
         "pycon",
@@ -6806,7 +6812,7 @@ def test_continue_on_error_invalid_pycon(tmp_path: Path) -> None:
             >>> x = 1
         """,
     )
-    rst_file1.write_text(data=content1, encoding="utf-8")
+    _ = rst_file1.write_text(data=content1, encoding="utf-8")
 
     rst_file2 = tmp_path / "valid.rst"
     content2 = textwrap.dedent(
@@ -6816,7 +6822,7 @@ def test_continue_on_error_invalid_pycon(tmp_path: Path) -> None:
             x = 1 + 1
         """,
     )
-    rst_file2.write_text(data=content2, encoding="utf-8")
+    _ = rst_file2.write_text(data=content2, encoding="utf-8")
 
     arguments = [
         "--continue-on-error",
@@ -6883,7 +6889,7 @@ def test_parallel_no_write_to_file_directory_scanning_command_succeeds(
             SLOW
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
 
     scanner_script = textwrap.dedent(
         text="""\
@@ -6994,7 +7000,7 @@ def test_parallel_no_write_to_file_directory_scanning_command_succeeds(
         sys.exit(0)
         """,
     ).format(coord_dir=coord_dir.as_posix())
-    script.write_text(data=scanner_script, encoding="utf-8")
+    _ = script.write_text(data=scanner_script, encoding="utf-8")
 
     result = runner.invoke(
         cli=main,
@@ -7041,7 +7047,7 @@ def test_temp_file_directories_are_cleaned_up(*, tmp_path: Path) -> None:
             y = 2
         """,
     )
-    rst_file.write_text(data=content, encoding="utf-8")
+    _ = rst_file.write_text(data=content, encoding="utf-8")
 
     result = runner.invoke(
         cli=main,
