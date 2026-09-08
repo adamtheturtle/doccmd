@@ -1,0 +1,5 @@
+# These files contain markup constructs that Snapper main does not yet preserve.
+ignore = [
+  "docs/source/commands.rst",
+]
+
