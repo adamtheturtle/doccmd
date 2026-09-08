@@ -12,7 +12,7 @@ Install Python dependencies in a virtual environment.
 
 .. code-block:: console
 
-   $ pip install --editable '.[dev]'
+   $ pip install --editable . --group dev
 
 Spell checking requires ``enchant``.
 This can be installed on macOS, for example, with `Homebrew`_:
@@ -64,7 +64,7 @@ Run the following commands to build and view documentation locally:
 
 .. code-block:: console
 
-   $ uv run --extra=dev sphinx-build -M html docs/source docs/build -W
+   $ uv run --group=dev sphinx-build -M html docs/source docs/build -W
    $ python -c 'import os, webbrowser; webbrowser.open("file://" + os.path.abspath("docs/build/html/index.html"))'
 
 Continuous integration

@@ -31,7 +31,7 @@ jobs:
         uses: sphinx-notes/pages@v3
         with:
           documentation_path: docs/source
-          pyproject_extras: dev
+          pyproject_group: dev
           python_version: '3.13'
           sphinx_build_options: -W
           publish: ${{ github.ref_name == 'main' }}
