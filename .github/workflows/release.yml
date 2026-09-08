@@ -429,9 +429,6 @@ jobs:
       # ``.pkg`` and kexts - so Gatekeeper verifies this binary online.
       # Shipping a ``.pkg`` instead would allow stapling, at the cost of
       # the documented ``curl ... && chmod +x`` one-liner.
-      #
-      # There is no ``spctl --assess`` step: it rejects every bare
-      # executable with "does not seem to be an app", notarized or not.
       - name: Notarize the macOS binary
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
@@ -460,6 +457,19 @@ jobs:
                   --password "${APPLE_APP_PASSWORD}" || true
               exit 1
           fi
+
+      # ``spctl --assess --type exec`` is intended for app bundles and
+      # rejects a bare command-line executable with "does not seem to be an
+      # app" even when it is notarized.  For standalone code, require the
+      # notarization ticket directly.  Retry because the ticket is published
+      # online and can take a short time to become available after acceptance.
+      - name: Check the notarization ticket is available
+        uses: nick-fields/retry@v4
+        with:
+          timeout_seconds: 60
+          max_attempts: 10
+          retry_wait_seconds: 30
+          command: codesign -vvvv -R="notarized" --check-notarization dist/doccmd-macos
 
       - name: Upload macOS binary to release
         env:
