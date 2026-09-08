@@ -554,7 +554,7 @@ class _UsePty(Enum):
     def use_pty(self) -> bool:
         """Whether to use a pseudo-terminal."""
         if self is _UsePty.DETECT:
-            return sys.stdout.isatty() and platform.system() != "Windows"
+            return bool(sys.stdout.isatty()) and platform.system() != "Windows"
         return {
             _UsePty.YES: True,
             _UsePty.NO: False,
@@ -613,22 +613,22 @@ def _map_languages_to_suffix() -> dict[str, str]:
 @beartype
 def _get_group_directives(markers: Iterable[str]) -> Sequence[str]:
     """Group directives based on the provided markers."""
-    directives: Sequence[str] = []
+    directives: list[str] = []
 
     for marker in markers:
         directive = rf"group doccmd[{marker}]"
-        directives = [*directives, directive]
+        directives.append(directive)
     return directives
 
 
 @beartype
 def _get_skip_directives(markers: Iterable[str]) -> Iterable[str]:
     """Skip directives based on the provided markers."""
-    directives: Sequence[str] = []
+    directives: list[str] = []
 
     for marker in markers:
         directive = rf"skip doccmd[{marker}]"
-        directives = [*directives, directive]
+        directives.append(directive)
     return directives
 
 
@@ -810,7 +810,7 @@ def _process_file_path(
     content_bytes = file_path.read_bytes()
     content_str = content_bytes.decode(encoding=encoding)
     newline = _detect_newline(content=content_str)
-    sybils_with_makers: Sequence[_SybilWithTempFileMaker] = []
+    sybils_with_makers: list[_SybilWithTempFileMaker] = []
     for code_block_language in languages:
         temporary_file_extension = _get_temporary_file_extension(
             language=code_block_language,
@@ -838,7 +838,7 @@ def _process_file_path(
             newline=newline,
             parse_sphinx_jinja2=False,
         )
-        sybils_with_makers = [*sybils_with_makers, sybil_with_maker]
+        sybils_with_makers.append(sybil_with_maker)
 
     if sphinx_jinja2:
         temporary_file_extension = (
@@ -868,7 +868,7 @@ def _process_file_path(
             newline=newline,
             parse_sphinx_jinja2=True,
         )
-        sybils_with_makers = [*sybils_with_makers, sybil_with_maker]
+        sybils_with_makers.append(sybil_with_maker)
 
     try:
         _evaluate_sybils(
