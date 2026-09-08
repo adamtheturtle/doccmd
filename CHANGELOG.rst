@@ -6,9 +6,8 @@ Changelog
 2026.09.07
 ----------
 
-- Sign the macOS binary with a Developer ID certificate and notarize it, so
-  Gatekeeper no longer blocks it when it is downloaded in a browser.  The
-  ``xattr -d com.apple.quarantine`` workaround is no longer needed.
+- Sign the macOS binary with a Developer ID certificate and notarize it, so Gatekeeper no longer blocks it when it is downloaded in a browser.
+  The ``xattr -d com.apple.quarantine`` workaround is no longer needed.
 
 2026.09.01
 ----------
@@ -33,7 +32,8 @@ No significant changes.
 2026.07.19
 ----------
 
-- Reject ``--temporary-file-name-template`` values that could resolve outside the temporary directory, preventing accidental overwrite or deletion of unrelated files. See `#1211 <https://github.com/adamtheturtle/doccmd/issues/1211>`__.
+- Reject ``--temporary-file-name-template`` values that could resolve outside the temporary directory, preventing accidental overwrite or deletion of unrelated files.
+  See `#1211 <https://github.com/adamtheturtle/doccmd/issues/1211>`__.
 
 - Support configured file extensions with more than one dot (for example ``--rst-extension=.test.rst``) for both direct files and directory discovery (`#1212 <https://github.com/adamtheturtle/doccmd/issues/1212>`_).
 
