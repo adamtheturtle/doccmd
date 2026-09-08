@@ -585,6 +585,7 @@ dev = [
     { name = "ruff" },
     { name = "shellcheck-py" },
     { name = "shfmt-py" },
+    { name = "snapper-fmt" },
     { name = "sphinx", version = "9.0.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "sphinx", version = "9.1.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "sphinx-click" },
@@ -654,6 +655,7 @@ dev = [
     { name = "ruff", specifier = "==0.16.6" },
     { name = "shellcheck-py", specifier = "==0.11.0.1" },
     { name = "shfmt-py", specifier = "==4.1.0" },
+    { name = "snapper-fmt", specifier = "==0.11.0" },
     { name = "sphinx", specifier = ">=8.1.3" },
     { name = "sphinx-click", specifier = "==6.2.0" },
     { name = "sphinx-copybutton", specifier = "==0.5.2" },
@@ -2007,6 +2009,19 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/ff/91/0bc95e1f3ba2b591986701d00c8ee80eef228fb08c338a873d0df3444092/shfmt_py-4.1.0-py2.py3-none-manylinux2014_aarch64.whl", hash = "sha256:887a7a04a297302f3472edaeabb5f33f146d9a681234743acc5932a2a39bdb22", size = 1398676, upload-time = "2026-08-29T11:26:31.064Z" },
     { url = "https://files.pythonhosted.org/packages/0f/b2/101c166f6f1895a7e4b2062d350bf156097087ffc95f772877e51c04358d/shfmt_py-4.1.0-py2.py3-none-manylinux2014_x86_64.whl", hash = "sha256:4f1573856d84725f148175ef56532365dc4a7e5332e27c31b6c82be544ad2bda", size = 1557748, upload-time = "2026-08-29T11:26:32.471Z" },
     { url = "https://files.pythonhosted.org/packages/e0/e8/be46d2141ec18d30c713258c97c4a8d85f5e39cedf8c9b2ba642c28a2199/shfmt_py-4.1.0-py2.py3-none-win_amd64.whl", hash = "sha256:7e5c55ac4b619fc4d215259459ac80e8513735245ec621ca290574fa7ab2811d", size = 1661642, upload-time = "2026-08-29T11:26:34.018Z" },
+]
+
+[[package]]
+name = "snapper-fmt"
+version = "0.11.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/72/b7/22229f6fe3fd821fac544093acec7a56e4a31f194d174d266f4b74e03b75/snapper_fmt-0.11.0.tar.gz", hash = "sha256:43dd09debff923670e599422d100a5303db31ea12c96e2842832c37e54926ae1", size = 211613, upload-time = "2026-09-08T18:15:48.981Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/28/75/53d978f7ffc63e40a01d431dfb077ae6c457e1adebb37c3d32dbed42eb6e/snapper_fmt-0.11.0-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:aa760101012b9786b30bcd7ac5ffda2783beda0cfde7f98df725526130292f31", size = 16287991, upload-time = "2026-09-08T18:15:37.424Z" },
+    { url = "https://files.pythonhosted.org/packages/5e/d1/7450839bd35e192f06a75079f6099095cc6118c09106e1fc71eb2661e91b/snapper_fmt-0.11.0-py3-none-macosx_11_0_arm64.whl", hash = "sha256:54f0c231258c69c5464f7dd4247c279f6df53b1e7bb1074d90466eb69d36bbc9", size = 15218993, upload-time = "2026-09-08T18:15:40.164Z" },
+    { url = "https://files.pythonhosted.org/packages/82/f9/f495c45653e33047c9a6ade91b9145df1322db91129c7eee764ec645d373/snapper_fmt-0.11.0-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:802efad11aad7636e0abd16ae0fb84a75e5ecd2c3e8955b2fd22d25ef7574efd", size = 16945383, upload-time = "2026-09-08T18:15:42.158Z" },
+    { url = "https://files.pythonhosted.org/packages/bb/59/74d0b2cfd7c93e219bfb03f40b312f32155503cbbfb82f87316ba78d018a/snapper_fmt-0.11.0-py3-none-manylinux_2_28_aarch64.whl", hash = "sha256:d7c55fe52dc33d88060586323bb49dee2b47c810f7f659da4e483553fe625678", size = 15558319, upload-time = "2026-09-08T18:15:44.404Z" },
+    { url = "https://files.pythonhosted.org/packages/0e/72/ac99137b907c37d47e282e0a0e96f9d7f26bf7e4880cd2b66094bb011457/snapper_fmt-0.11.0-py3-none-win_amd64.whl", hash = "sha256:5e2ef4b5c6ecbff9449ba44c6b3057a2e54d290be1a0a180b1b0c7bf0a1ba3f5", size = 17704912, upload-time = "2026-09-08T18:15:46.981Z" },
 ]
 
 [[package]]
