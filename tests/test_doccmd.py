@@ -1112,6 +1112,42 @@ def test_given_prefix(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize(
+    argnames="prefix",
+    argvalues=["../escape", "sub/directory", "sub\\directory", "C:escape"],
+)
+def test_prefix_cannot_escape_temporary_directory(
+    *,
+    tmp_path: Path,
+    prefix: str,
+) -> None:
+    """The temporary-file prefix cannot add a path component."""
+    rst_file = tmp_path / "example.rst"
+    _ = rst_file.write_text(
+        data=".. code-block:: python\n\n    pass\n",
+        encoding="utf-8",
+    )
+    result = CliRunner().invoke(
+        cli=main,
+        args=[
+            "--language",
+            "python",
+            "--temporary-file-name-prefix",
+            prefix,
+            "--command",
+            "echo",
+            str(object=rst_file),
+        ],
+        catch_exceptions=False,
+    )
+
+    assert result.exit_code != 0
+    assert (
+        "Invalid value for '--temporary-file-name-prefix': Prefix must be a "
+        "single file-name component."
+    ) in result.output
+
+
+@pytest.mark.parametrize(
     argnames=("template", "expected_pattern"),
     argvalues=[
         pytest.param(

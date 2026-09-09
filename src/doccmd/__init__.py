@@ -171,13 +171,7 @@ class _TempFilePathMaker:
         )
         with self._lock:
             self._created_directories.append(directory)
-        final_path = directory / filename
-        # Defense in depth: ``_validate_template`` guarantees that the
-        # formatted file name is a base name confined to ``directory``, so
-        # the resolved parent must be ``directory`` itself. A violation
-        # would mean the file could escape the isolation directory.
-        assert final_path.parent == directory  # noqa: S101
-        return final_path
+        return directory / filename
 
     def cleanup(self) -> None:
         """Remove every directory created for this maker's examples.
@@ -260,6 +254,28 @@ def _validate_file_extension_or_none(
 
 
 @beartype
+def _validate_temporary_file_name_prefix(
+    ctx: click.Context | None,
+    param: click.Parameter | None,
+    value: str,
+) -> str:
+    """Require the temporary-file prefix to be one path component."""
+    posix_path = PurePosixPath(value)
+    windows_path = PureWindowsPath(value)
+    has_separator = any(separator in value for separator in ("/", "\\"))
+    if (
+        has_separator
+        or posix_path.is_absolute()
+        or windows_path.is_absolute()
+        or windows_path.drive != ""
+        or ".." in (*posix_path.parts, *windows_path.parts)
+    ):
+        message = "Prefix must be a single file-name component."
+        raise click.BadParameter(message=message, ctx=ctx, param=param)
+    return value
+
+
+@beartype
 def _validate_template(
     ctx: click.Context | None,
     param: click.Parameter | None,
@@ -334,7 +350,7 @@ def _get_markup_language(
     *,
     file_path: Path,
     suffix_map: Mapping[str, MarkupLanguage],
-) -> MarkupLanguage | None:
+) -> MarkupLanguage:
     """Return the markup language for a file based on its configured
     suffix.
 
@@ -348,7 +364,8 @@ def _get_markup_language(
         if suffix != "." and file_name.endswith(suffix)
     ]
     if len(matching_suffixes) == 0:
-        return None
+        message = f"Markup language not known for {file_path}."
+        raise click.UsageError(message=message)
     longest_suffix = max(matching_suffixes, key=len)
     return suffix_map[longest_suffix]
 
@@ -360,19 +377,11 @@ def _validate_given_files_have_known_suffixes(
     suffix_map: Mapping[str, MarkupLanguage],
 ) -> None:
     """Validate that the given files have known suffixes."""
-    given_files_unknown_suffix = [
-        document_path
-        for document_path in given_files
-        if _get_markup_language(
+    for document_path in given_files:
+        _ = _get_markup_language(
             file_path=document_path,
             suffix_map=suffix_map,
         )
-        is None
-    ]
-
-    for given_file_unknown_suffix in given_files_unknown_suffix:
-        message = f"Markup language not known for {given_file_unknown_suffix}."
-        raise click.UsageError(message=message)
 
 
 @beartype
@@ -789,7 +798,6 @@ def _process_file_path(
         file_path=file_path,
         suffix_map=suffix_map,
     )
-    assert markup_language is not None  # noqa: S101
     encoding = _get_encoding(document_path=file_path)
     if encoding is None:
         could_not_determine_encoding_msg = (
@@ -1511,6 +1519,7 @@ def _get_sybil(
         default="doccmd",
         show_default=True,
         required=True,
+        callback=_validate_temporary_file_name_prefix,
         help=(
             "The prefix to give to the temporary file made from the code "
             "block. This is useful for distinguishing files created by this "
