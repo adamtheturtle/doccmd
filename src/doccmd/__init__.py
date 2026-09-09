@@ -12,7 +12,7 @@ import textwrap
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, replace
-from enum import Enum, auto, unique
+from enum import StrEnum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from threading import Lock
@@ -537,28 +537,16 @@ def _validate_file_suffix_overlaps(
 
 @beartype
 @unique
-class _UsePty(Enum):
+class _UsePty(StrEnum):
     """Choices for the use of a pseudo-terminal."""
 
     YES = auto()
     NO = auto()
     DETECT = auto()
 
-    def __str__(self) -> str:  # pragma: no cover
-        """String representation of the value.
-
-        This is used by ``sphinx-click`` to render the default when used as a
-        ``click.Choices`` choice.
-        """
-        return self.name.lower()
-
     def __repr__(self) -> str:  # pragma: no cover
-        """String representation of the value.
-
-        This is used by ``sphinx-click`` to render the option when used as a
-        ``click.Choices`` choice.
-        """
-        return self.name.lower()
+        """String representation used by ``sphinx-click``."""
+        return self.value
 
     def use_pty(self) -> bool:
         """Whether to use a pseudo-terminal."""
