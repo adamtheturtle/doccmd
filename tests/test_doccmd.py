@@ -1066,13 +1066,11 @@ def test_given_temporary_file_extension_no_leading_period(
     )
     assert result.exit_code != 0, (result.stdout, result.stderr)
     assert result.stdout == ""
-    expected_stderr = textwrap.dedent(
-        text="""\
-        Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...
-        Try 'doccmd --help' for help.
-
-        Error: Invalid value for '--temporary-file-extension': 'foobar' does not start with a '.'.
-        """,  # noqa: E501
+    expected_stderr = (
+        "Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...\n"
+        "Try 'doccmd --help' for help.\n\n"
+        "Error: Invalid value for '--temporary-file-extension': 'foobar' "
+        "does not start with a '.'.\n"
     )
     assert result.stderr == expected_stderr
 
@@ -2461,10 +2459,9 @@ def test_skip_no_arguments(
         result.stdout,
         result.stderr,
     )
-    expected_stderr = textwrap.dedent(
-        text=f"""\
-        {fg.red}Could not parse {rst_file}: missing arguments to skip doccmd[all]{reset}
-        """,  # noqa: E501
+    expected_stderr = (
+        f"{fg.red}Could not parse {rst_file}: missing arguments to skip "
+        f"doccmd[all]{reset}\n"
     )
 
     assert result.stdout == ""
@@ -2516,10 +2513,9 @@ def test_skip_bad_arguments(
         result.stdout,
         result.stderr,
     )
-    expected_stderr = textwrap.dedent(
-        text=f"""\
-        {fg.red}Could not parse {rst_file}: malformed arguments to skip doccmd[all]: '!!!'{reset}
-        """,  # noqa: E501
+    expected_stderr = (
+        f"{fg.red}Could not parse {rst_file}: malformed arguments to skip "
+        f"doccmd[all]: '!!!'{reset}\n"
     )
 
     assert result.stdout == ""
@@ -3119,10 +3115,10 @@ def test_bad_skips(tmp_path: Path) -> None:
         color=True,
     )
     assert result.exit_code != 0, (result.stdout, result.stderr)
-    expected_stderr = textwrap.dedent(
-        text=f"""\
-        {fg.red}Error running command 'cat': 'skip doccmd[{skip_marker_1}]: end' must follow 'skip doccmd[{skip_marker_1}]: start'{reset}
-        """,  # noqa: E501
+    expected_stderr = (
+        f"{fg.red}Error running command 'cat': "
+        f"'skip doccmd[{skip_marker_1}]: end' must follow "
+        f"'skip doccmd[{skip_marker_1}]: start'{reset}\n"
     )
 
     assert result.stdout == ""
@@ -3984,7 +3980,9 @@ def test_group_mdx_by_attribute_modify_file(
         text=f"""\
             {message_colour}Writing to a group is not supported.
 
-            A command modified the contents of examples in the group ending on line 1 in {mdx_file.as_posix()}.
+            A command modified the contents of examples in the group """
+        f"ending on line 1 in {mdx_file.as_posix()}.\n"
+        f"""\
 
             Diff:
 
@@ -3998,7 +3996,7 @@ def test_group_mdx_by_attribute_modify_file(
             -b = 1
             -c = 1
             +foobar{reset}
-            """,  # noqa: E501
+            """,
     )
     assert result.stderr == expected_stderr
 
@@ -4599,13 +4597,11 @@ def test_source_given_extension_no_leading_period(
         color=True,
     )
     assert result.exit_code != 0, (result.stdout, result.stderr)
-    expected_stderr = textwrap.dedent(
-        text=f"""\
-            Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...
-            Try 'doccmd --help' for help.
-
-            Error: Invalid value for '{option}': 'customrst' does not start with a '.'.
-            """,  # noqa: E501
+    expected_stderr = (
+        "Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...\n"
+        "Try 'doccmd --help' for help.\n\n"
+        f"Error: Invalid value for '{option}': 'customrst' does not start "
+        "with a '.'.\n"
     )
     assert result.stdout == ""
     assert result.stderr == expected_stderr
@@ -4648,13 +4644,11 @@ def test_overlapping_extensions(tmp_path: Path) -> None:
         color=True,
     )
     assert result.exit_code != 0, (result.stdout, result.stderr)
-    expected_stderr = textwrap.dedent(
-        text="""\
-            Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...
-            Try 'doccmd --help' for help.
-
-            Error: Overlapping suffixes between MyST and reStructuredText: .custom, .custom2.
-            """,  # noqa: E501
+    expected_stderr = (
+        "Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...\n"
+        "Try 'doccmd --help' for help.\n\n"
+        "Error: Overlapping suffixes between MyST and reStructuredText: "
+        ".custom, .custom2.\n"
     )
     assert result.stdout == ""
     assert result.stderr == expected_stderr
@@ -5717,7 +5711,9 @@ def test_modify_file_single_group_block(
         text=f"""\
             {message_colour}Writing to a group is not supported.
 
-            A command modified the contents of examples in the group ending on line 3 in {rst_file.as_posix()}.
+            A command modified the contents of examples in the group """
+        f"ending on line 3 in {rst_file.as_posix()}.\n"
+        f"""\
 
             Diff:
 
@@ -5731,7 +5727,7 @@ def test_modify_file_single_group_block(
             -b = 1
             -c = 1
             +foobar{reset}
-            """,  # noqa: E501
+            """,
     )
     assert result.stderr == expected_stderr
 
@@ -5813,7 +5809,9 @@ def test_modify_file_multiple_group_blocks(
         text=f"""\
             {message_colour}Writing to a group is not supported.
 
-            A command modified the contents of examples in the group ending on line 3 in {rst_file.as_posix()}.
+            A command modified the contents of examples in the group """
+        f"ending on line 3 in {rst_file.as_posix()}.\n"
+        f"""\
 
             Diff:
 
@@ -5830,7 +5828,7 @@ def test_modify_file_multiple_group_blocks(
             -
             -c = 1
             +foobar{reset}
-            """,  # noqa: E501
+            """,
     )
     assert result.stderr == expected_stderr
 
@@ -5907,13 +5905,11 @@ def test_empty_language_given(*, tmp_path: Path) -> None:
         color=True,
     )
     assert result.exit_code != 0, (result.stdout, result.stderr)
-    expected_stderr = textwrap.dedent(
-        text="""\
-            Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...
-            Try 'doccmd --help' for help.
-
-            Error: Invalid value for '-l' / '--language': This value cannot be empty.
-            """,  # noqa: E501
+    expected_stderr = (
+        "Usage: doccmd [OPTIONS] [DOCUMENT_PATHS]...\n"
+        "Try 'doccmd --help' for help.\n\n"
+        "Error: Invalid value for '-l' / '--language': This value cannot be "
+        "empty.\n"
     )
     assert result.stdout == ""
     assert result.stderr == expected_stderr

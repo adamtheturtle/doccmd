@@ -8,7 +8,6 @@ import shlex
 import shutil
 import subprocess
 import sys
-import textwrap
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, replace
@@ -702,15 +701,12 @@ class _GroupModifiedError(Exception):
             fromfile="original",
             tofile="modified",
         )
-        message = textwrap.dedent(
-            text=f"""\
-            Writing to a group is not supported.
-
-            A command modified the contents of examples in the group ending on line {self._example.line} in {Path(self._example.path).as_posix()}.
-
-            Diff:
-
-            """,  # noqa: E501
+        message = (
+            "Writing to a group is not supported.\n\n"
+            "A command modified the contents of examples in the group ending "
+            f"on line {self._example.line} in "
+            f"{Path(self._example.path).as_posix()}.\n\n"
+            "Diff:\n\n"
         )
 
         message += "\n".join(unified_diff)
