@@ -544,10 +544,6 @@ class _UsePty(StrEnum):
     NO = auto()
     DETECT = auto()
 
-    def __repr__(self) -> str:  # pragma: no cover
-        """String representation used by ``sphinx-click``."""
-        return self.value
-
     def use_pty(self) -> bool:
         """Whether to use a pseudo-terminal."""
         if self is _UsePty.DETECT:
@@ -1691,7 +1687,7 @@ def _get_sybil(
         "--use-pty",
         "use_pty_option",
         type=click.Choice(choices=_UsePty, case_sensitive=False),
-        default=_UsePty.DETECT,
+        default=_UsePty.DETECT.name,
         show_default=True,
         help=(
             "Whether to use a pseudo-terminal for running commands. "
