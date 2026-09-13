@@ -544,7 +544,7 @@ class _UsePty(StrEnum):
     NO = auto()
     DETECT = auto()
 
-    def __repr__(self) -> str:  # pragma: no cover
+    def __repr__(self) -> str:
         """String representation used by ``sphinx-click``."""
         return self.value
 
