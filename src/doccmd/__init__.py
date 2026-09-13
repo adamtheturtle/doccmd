@@ -13,7 +13,6 @@ from collections.abc import Callable, Iterable, Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, replace
 from enum import StrEnum, auto, unique
-from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from threading import Lock
 from typing import TYPE_CHECKING, TypeVar
@@ -65,16 +64,11 @@ from sybil_extras.parsers.mdx.attribute_grouped_source import (
 )
 from typing_extensions import override
 
+from doccmd._setuptools_scm_version import __version__
+
 if TYPE_CHECKING:
     from sybil.typing import Parser
 
-try:
-    __version__ = version(distribution_name=__name__)
-except PackageNotFoundError:  # pragma: no cover
-    # When pkg_resources and git tags are not available,
-    # for example in a PyInstaller binary,
-    # we write the file ``_setuptools_scm_version.py`` on ``pip install``.
-    from ._setuptools_scm_version import __version__
 T = TypeVar("T")
 
 
