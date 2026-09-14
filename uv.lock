@@ -655,7 +655,7 @@ dev = [
     { name = "ruff", specifier = "==0.16.7" },
     { name = "shellcheck-py", specifier = "==0.11.0.1" },
     { name = "shfmt-py", specifier = "==4.2.0" },
-    { name = "snapper-fmt", specifier = "==0.11.0" },
+    { name = "snapper-fmt", specifier = "==0.11.1" },
     { name = "sphinx", specifier = ">=8.1.3" },
     { name = "sphinx-click", specifier = "==6.2.0" },
     { name = "sphinx-copybutton", specifier = "==0.5.2" },
@@ -2013,15 +2013,15 @@ wheels = [
 
 [[package]]
 name = "snapper-fmt"
-version = "0.11.0"
+version = "0.11.1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/72/b7/22229f6fe3fd821fac544093acec7a56e4a31f194d174d266f4b74e03b75/snapper_fmt-0.11.0.tar.gz", hash = "sha256:43dd09debff923670e599422d100a5303db31ea12c96e2842832c37e54926ae1", size = 211613, upload-time = "2026-09-08T18:15:48.981Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b1/1e/011997013ae3a08f57deffff6c0b310ff3650116f6a712596d583c6ea65c/snapper_fmt-0.11.1.tar.gz", hash = "sha256:398e8e2197ed671d436ec416f11b33089ba230dc830456eee065a9ef39015d1a", size = 232103, upload-time = "2026-09-09T16:05:13.95Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/28/75/53d978f7ffc63e40a01d431dfb077ae6c457e1adebb37c3d32dbed42eb6e/snapper_fmt-0.11.0-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:aa760101012b9786b30bcd7ac5ffda2783beda0cfde7f98df725526130292f31", size = 16287991, upload-time = "2026-09-08T18:15:37.424Z" },
-    { url = "https://files.pythonhosted.org/packages/5e/d1/7450839bd35e192f06a75079f6099095cc6118c09106e1fc71eb2661e91b/snapper_fmt-0.11.0-py3-none-macosx_11_0_arm64.whl", hash = "sha256:54f0c231258c69c5464f7dd4247c279f6df53b1e7bb1074d90466eb69d36bbc9", size = 15218993, upload-time = "2026-09-08T18:15:40.164Z" },
-    { url = "https://files.pythonhosted.org/packages/82/f9/f495c45653e33047c9a6ade91b9145df1322db91129c7eee764ec645d373/snapper_fmt-0.11.0-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:802efad11aad7636e0abd16ae0fb84a75e5ecd2c3e8955b2fd22d25ef7574efd", size = 16945383, upload-time = "2026-09-08T18:15:42.158Z" },
-    { url = "https://files.pythonhosted.org/packages/bb/59/74d0b2cfd7c93e219bfb03f40b312f32155503cbbfb82f87316ba78d018a/snapper_fmt-0.11.0-py3-none-manylinux_2_28_aarch64.whl", hash = "sha256:d7c55fe52dc33d88060586323bb49dee2b47c810f7f659da4e483553fe625678", size = 15558319, upload-time = "2026-09-08T18:15:44.404Z" },
-    { url = "https://files.pythonhosted.org/packages/0e/72/ac99137b907c37d47e282e0a0e96f9d7f26bf7e4880cd2b66094bb011457/snapper_fmt-0.11.0-py3-none-win_amd64.whl", hash = "sha256:5e2ef4b5c6ecbff9449ba44c6b3057a2e54d290be1a0a180b1b0c7bf0a1ba3f5", size = 17704912, upload-time = "2026-09-08T18:15:46.981Z" },
+    { url = "https://files.pythonhosted.org/packages/3a/b6/a37ce6a064808f23bbc3e9be483dcdf447969d80d29f5be764e845cd1da3/snapper_fmt-0.11.1-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:27933c0d11859052b7c3a9d6e6735e28d177871c78f650799e003c3ab53dc89a", size = 16364850, upload-time = "2026-09-09T16:04:59.622Z" },
+    { url = "https://files.pythonhosted.org/packages/51/e0/018410becc3e2a5ef128be26ba0632d11429c3c6e8543ccf1ec41f5c8e00/snapper_fmt-0.11.1-py3-none-macosx_11_0_arm64.whl", hash = "sha256:989a28a947e62912b3582619de7678b7a610ac2431d946c226dc44eacd07da97", size = 15286551, upload-time = "2026-09-09T16:05:02.482Z" },
+    { url = "https://files.pythonhosted.org/packages/68/72/917298d6e384079d653aeea6a9ec3b17025452fbd9dac304afab2c5ca36e/snapper_fmt-0.11.1-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:02092761f9e65cf520c6502742a8abe483d39fe0e30cdbeb1614e9b732c9f70c", size = 17015645, upload-time = "2026-09-09T16:05:05.382Z" },
+    { url = "https://files.pythonhosted.org/packages/dd/30/84a4fd904c1f2879a71db5b5cb998255b7e1139d611c860c00ca59ff4c65/snapper_fmt-0.11.1-py3-none-manylinux_2_28_aarch64.whl", hash = "sha256:79fe41dfff8b7548fb6f314b2bde0eb98558984f4db4bfc4f83ffae89ff8ec01", size = 15621972, upload-time = "2026-09-09T16:05:08.512Z" },
+    { url = "https://files.pythonhosted.org/packages/11/9d/23ac6e40e9c60b4b1c91170f46ddc36ca76f51e29dd504badf7ec2bc775d/snapper_fmt-0.11.1-py3-none-win_amd64.whl", hash = "sha256:3e18bddb2719e2ddd669c22c08b0b6a409142fc27684e6401d3fa78e70bc2c80", size = 17787762, upload-time = "2026-09-09T16:05:11.447Z" },
 ]
 
 [[package]]
