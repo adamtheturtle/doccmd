@@ -352,15 +352,15 @@ wheels = [
 
 [[package]]
 name = "click-compose"
-version = "2025.10.27.3"
+version = "2026.9.8"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "beartype" },
     { name = "click" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/45/9f/7b380e5318643348e256ec31df1362b74dfa12733f76b1a97e1171ba74fe/click_compose-2025.10.27.3.tar.gz", hash = "sha256:6d3326a13b690ac7a0f0e99de785aa78ea81d130ba02d609e6367a7af23477a5", size = 18056, upload-time = "2025-10-27T11:49:45.228Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/cb/6f/3e0ff3ce9b9cdcf17f53ff94f18b8f5e624c3dc7aed0e5647ef0476f2982/click_compose-2026.9.8.tar.gz", hash = "sha256:c0001eb72d2700ae05154f9461acd1ec2c86ac6da8ffeeeb8aabb27f77955dbc", size = 22236, upload-time = "2026-09-08T13:22:49.344Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/45/3a/411c2ad30f87b2e874a4a4d1578dc9fe11a6ea8f139b4e1f7ff291a934ca/click_compose-2025.10.27.3-py2.py3-none-any.whl", hash = "sha256:6821fb769067e76d2b2e9c5d4d5e8d974002137322ab71cde65b10bf9c025834", size = 4731, upload-time = "2025-10-27T11:49:43.857Z" },
+    { url = "https://files.pythonhosted.org/packages/83/84/7065c00dee205d90fea468e456f886e3cf8a1b2e8c20208b97a4252c982d/click_compose-2026.9.8-py3-none-any.whl", hash = "sha256:c356a32d866e2dacb3221c9ad46711ef2d5810553d4edb13f1d54955333133a9", size = 4462, upload-time = "2026-09-08T13:22:47.989Z" },
 ]
 
 [[package]]
