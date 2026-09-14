@@ -73,7 +73,7 @@ dev = [
     "pygments==2.21.0",
     "pylint[spelling]==4.0.8",
     "pylint-per-file-ignores==3.2.1",
-    "pyproject-fmt==2.29.3",
+    "pyproject-fmt==2.29.4",
     "pyrefly==1.2.0",
     "pyright==1.1.411",
     "pyroma==5.0.1",
