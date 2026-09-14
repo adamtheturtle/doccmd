@@ -418,11 +418,13 @@ def _validate_command(
 _ClickCallback = Callable[[click.Context | None, click.Parameter | None, T], T]
 
 
-_validate_file_extensions: _ClickCallback[Sequence[str]] = multi_callback(
-    callbacks=[
-        _deduplicate,
-        sequence_validator(validator=_validate_file_extension),
-    ]
+_validate_file_extensions: _ClickCallback[Sequence[str] | None] = (
+    multi_callback(
+        callbacks=[
+            _deduplicate,
+            sequence_validator(validator=_validate_file_extension),
+        ]
+    )
 )
 
 
