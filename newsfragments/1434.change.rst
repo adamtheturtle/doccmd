@@ -1,1 +1,0 @@
-Use the typed ``compose_callbacks`` API from click-compose 2026.09.16 for option validation.

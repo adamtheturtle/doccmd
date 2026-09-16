@@ -3,6 +3,15 @@ Changelog
 
 .. towncrier release notes start
 
+2026.09.16
+----------
+
+- Reject temporary-file prefixes which could escape the isolation directory.
+
+  Resolve document languages before processing and report missing metadata explicitly.
+
+- Use the typed ``compose_callbacks`` API from click-compose 2026.09.16 for option validation.
+
 2026.09.07
 ----------
 

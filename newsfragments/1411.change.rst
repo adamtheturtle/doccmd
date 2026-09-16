@@ -1,3 +1,0 @@
-Reject temporary-file prefixes which could escape the isolation directory.
-
-Resolve document languages before processing and report missing metadata explicitly.
