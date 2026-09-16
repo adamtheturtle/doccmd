@@ -425,6 +425,16 @@ def _validate_command(
 _ClickCallback = Callable[[click.Context | None, click.Parameter | None, T], T]
 
 
+_validate_no_empty_strings: _ClickCallback[Sequence[str] | None] = (
+    multi_callback(
+        callbacks=[
+            _deduplicate,
+            sequence_validator(validator=_validate_no_empty_string),
+        ]
+    )
+)
+
+
 _validate_file_extensions: _ClickCallback[Sequence[str] | None] = (
     multi_callback(
         callbacks=[
@@ -1293,12 +1303,7 @@ def _get_sybil(
             "`--sphinx-jinja2` is given."
         ),
         multiple=True,
-        callback=multi_callback(
-            callbacks=[
-                _deduplicate,
-                sequence_validator(validator=_validate_no_empty_string),
-            ]
-        ),
+        callback=_validate_no_empty_strings,
     ),
     cloup.option(
         "--pycon-language",
@@ -1317,12 +1322,7 @@ def _get_sybil(
         multiple=True,
         default=("pycon",),
         show_default=True,
-        callback=multi_callback(
-            callbacks=[
-                _deduplicate,
-                sequence_validator(validator=_validate_no_empty_string),
-            ]
-        ),
+        callback=_validate_no_empty_strings,
     ),
     cloup.option(
         "--detect-pycon-language",
@@ -1343,12 +1343,7 @@ def _get_sybil(
         multiple=True,
         default=("python",),
         show_default=True,
-        callback=multi_callback(
-            callbacks=[
-                _deduplicate,
-                sequence_validator(validator=_validate_no_empty_string),
-            ]
-        ),
+        callback=_validate_no_empty_strings,
     ),
     cloup.option(
         "skip_markers",
@@ -1662,12 +1657,7 @@ def _get_sybil(
         "exclude_patterns",
         type=str,
         multiple=True,
-        callback=multi_callback(
-            callbacks=[
-                _deduplicate,
-                sequence_validator(validator=_validate_no_empty_string),
-            ]
-        ),
+        callback=_validate_no_empty_strings,
         help=(
             "A glob-style pattern that matches file paths to ignore while "
             "recursively discovering files in directories. "
