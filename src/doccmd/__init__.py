@@ -24,11 +24,11 @@ import click
 import cloup
 from beartype import beartype
 from click_compose import (
-    deduplicate as _deduplicate,
+    compose_callbacks,
+    sequence_validator,
 )
 from click_compose import (
-    multi_callback,
-    sequence_validator,
+    deduplicate as _deduplicate,
 )
 from dulwich.errors import NotGitRepository
 from dulwich.ignore import IgnoreFilterManager
@@ -425,23 +425,15 @@ def _validate_command(
 _ClickCallback = Callable[[click.Context | None, click.Parameter | None, T], T]
 
 
-_validate_no_empty_strings: _ClickCallback[Sequence[str] | None] = (
-    multi_callback(
-        callbacks=[
-            _deduplicate,
-            sequence_validator(validator=_validate_no_empty_string),
-        ]
-    )
+_validate_no_empty_strings: _ClickCallback[Sequence[str]] = compose_callbacks(
+    first=_deduplicate,
+    second=sequence_validator(validator=_validate_no_empty_string),
 )
 
 
-_validate_file_extensions: _ClickCallback[Sequence[str] | None] = (
-    multi_callback(
-        callbacks=[
-            _deduplicate,
-            sequence_validator(validator=_validate_file_extension),
-        ]
-    )
+_validate_file_extensions: _ClickCallback[Sequence[str]] = compose_callbacks(
+    first=_deduplicate,
+    second=sequence_validator(validator=_validate_file_extension),
 )
 
 
