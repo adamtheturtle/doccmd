@@ -352,15 +352,15 @@ wheels = [
 
 [[package]]
 name = "click-compose"
-version = "2026.9.16"
+version = "2026.9.16.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "beartype" },
     { name = "click" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/e1/64/a665f6fe6c2e8fd6e2e59fd4169bc98c95851375e4d8894f3af3f95b0272/click_compose-2026.9.16.tar.gz", hash = "sha256:26dc10490e8757bf70a74f3a9401f2df1da4e9592b4040341e719f6fa1861318", size = 23406, upload-time = "2026-09-16T05:35:17.293Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/4b/d2/e20f646d494df34e6c8fe5f13480910158cea85d414322f6823c4d9c8cce/click_compose-2026.9.16.1.tar.gz", hash = "sha256:b1416164b558f4e3fbf40b3684c64559bbad708b69303910f4f605d0efc08e45", size = 24654, upload-time = "2026-09-16T21:20:28.68Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/58/0b/a42ebeebb775a1d3463630134df8e90146d2f3c2e533dec775c971a0a6b7/click_compose-2026.9.16-py3-none-any.whl", hash = "sha256:17684df7b5292a4f9fdd6faf3b29e36d426404a51152e7afa71f8e6c69eb5152", size = 4427, upload-time = "2026-09-16T05:35:16.094Z" },
+    { url = "https://files.pythonhosted.org/packages/13/39/8141061e7aea59126c36444544fab7dd89eb3df00bb3764108e32207ecac/click_compose-2026.9.16.1-py3-none-any.whl", hash = "sha256:259fe12e96702d70287db2b3c99346c6c9232ff5cad17f73c08f659603d4baa2", size = 4945, upload-time = "2026-09-16T21:20:27.207Z" },
 ]
 
 [[package]]
@@ -617,7 +617,7 @@ requires-dist = [
     { name = "beartype", specifier = ">=0.22.9" },
     { name = "charset-normalizer", specifier = ">=3.4.1" },
     { name = "click", specifier = ">=8.3.0,<8.6.0" },
-    { name = "click-compose", specifier = ">=2026.9.16" },
+    { name = "click-compose", specifier = ">=2026.9.16.1" },
     { name = "cloup", specifier = ">=3.0.0" },
     { name = "dulwich", specifier = ">=0.22.1" },
     { name = "pygments", specifier = ">=2.18.0" },

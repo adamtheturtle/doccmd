@@ -9,14 +9,14 @@ import shutil
 import subprocess
 import sys
 import textwrap
-from collections.abc import Callable, Iterable, Mapping, Sequence
+from collections.abc import Iterable, Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, replace
 from enum import StrEnum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from threading import Lock
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING
 from uuid import uuid4
 
 import charset_normalizer
@@ -24,11 +24,11 @@ import click
 import cloup
 from beartype import beartype
 from click_compose import (
-    compose_callbacks,
-    sequence_validator,
+    deduplicate as _deduplicate,
 )
 from click_compose import (
-    deduplicate as _deduplicate,
+    multi_callback,
+    sequence_validator,
 )
 from dulwich.errors import NotGitRepository
 from dulwich.ignore import IgnoreFilterManager
@@ -75,8 +75,6 @@ try:
 except PackageNotFoundError:  # pragma: no cover
     # Frozen applications may omit metadata but retain the generated file.
     from ._setuptools_scm_version import __version__
-
-T = TypeVar("T")
 
 
 @beartype
@@ -422,18 +420,19 @@ def _validate_command(
     return value
 
 
-_ClickCallback = Callable[[click.Context | None, click.Parameter | None, T], T]
-
-
-_validate_no_empty_strings: _ClickCallback[Sequence[str]] = compose_callbacks(
-    first=_deduplicate,
-    second=sequence_validator(validator=_validate_no_empty_string),
+_validate_no_empty_strings = multi_callback(
+    callbacks=(
+        _deduplicate,
+        sequence_validator(validator=_validate_no_empty_string),
+    ),
 )
 
 
-_validate_file_extensions: _ClickCallback[Sequence[str]] = compose_callbacks(
-    first=_deduplicate,
-    second=sequence_validator(validator=_validate_file_extension),
+_validate_file_extensions = multi_callback(
+    callbacks=(
+        _deduplicate,
+        sequence_validator(validator=_validate_file_extension),
+    ),
 )
 
 
