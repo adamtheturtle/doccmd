@@ -361,7 +361,7 @@ jobs:
           max_attempts: 50
           command: |
             normalized_version=$(echo "$NEW_TAG" | sed -E 's/\.0+([0-9])/.\1/g')
-            pip index versions doccmd | grep -wq "$normalized_version"
+            curl --fail --silent --show-error "https://pypi.org/pypi/doccmd/$normalized_version/json" > /dev/null
 
       - name: Create requirements file
         env:
