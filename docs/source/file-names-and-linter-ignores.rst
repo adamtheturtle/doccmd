@@ -16,6 +16,7 @@ By default, files are named using the pattern ``{prefix}_{source}_l{line}__{uniq
 - ``{suffix}`` is the file extension (inferred from the language, or set via :option:`doccmd --temporary-file-extension`)
 
 For example, a Python code block on line 99 of :file:`README.rst` would create a file named :file:`doccmd_readme_rst_l99__a1b2_.py`.
+JSONC code blocks selected with ``--language=jsonc`` use the ``.jsonc`` extension by default.
 
 You can customize the file name format using the :option:`doccmd --temporary-file-name-template` option.
 This is useful for creating simpler patterns for linter per-file-ignores.

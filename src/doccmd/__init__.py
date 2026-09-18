@@ -595,7 +595,9 @@ def _detect_newline(content: str) -> str | None:
 @beartype
 def _map_languages_to_suffix() -> dict[str, str]:
     """Map programming languages to their corresponding file extension."""
-    language_extension_map: dict[str, str] = {}
+    # Pygments highlights JSON with comments using its JSON lexer, but does
+    # not expose JSONC as a separate language or file extension.
+    language_extension_map: dict[str, str] = {"jsonc": ".jsonc"}
 
     for lexer in get_all_lexers():
         language_name = lexer[0]

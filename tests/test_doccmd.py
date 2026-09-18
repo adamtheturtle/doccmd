@@ -951,6 +951,7 @@ def test_exit_code(tmp_path: Path) -> None:
     argvalues=[
         ("python", ".py"),
         ("javascript", ".js"),
+        ("jsonc", ".jsonc"),
     ],
 )
 def test_file_extension(
