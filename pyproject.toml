@@ -55,7 +55,7 @@ scripts.doccmd = "doccmd:main"
 
 [dependency-groups]
 dev = [
-    "actionlint-py==1.7.12.24",
+    "actionlint-py==1.7.12.25",
     "ansi==0.3.7",
     "check-manifest==0.51",
     "deptry==0.25.1",
