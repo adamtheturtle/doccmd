@@ -437,17 +437,7 @@ enableTypeIgnoreComments = false
 reportUnnecessaryTypeIgnoreComment = true
 
 [tool.ty]
-rules.blanket-ignore-comment = "error"
-rules.division-by-zero = "warn"
-rules.dynamic-function-decorator-return = "error"
-rules.missing-type-argument = "error"
-rules.possibly-missing-attribute = "warn"
-rules.possibly-missing-import = "warn"
-rules.possibly-unresolved-reference = "warn"
-rules.unsound-assignment = "error"
-rules.unsound-return-statement = "error"
-rules.unsound-yield = "error"
-rules.unsupported-dynamic-base = "warn"
+rules.all = "error"
 # Error if ty emits any warning-level diagnostics.
 terminal.error-on-warning = true
 # Disable support for `type: ignore` comments

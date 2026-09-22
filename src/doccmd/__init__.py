@@ -548,6 +548,7 @@ class _UsePty(StrEnum):
     NO = auto()
     DETECT = auto()
 
+    @override
     def __repr__(self) -> str:
         """String representation used by ``sphinx-click``."""
         return self.value
