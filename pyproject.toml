@@ -453,11 +453,13 @@ log_cli = true
 xfail_strict = true
 
 [tool.coverage]
+run.source = [ "src/", "tests" ]
 run.omit = [
     "src/*/_setuptools_scm_version.py",
     "src/doccmd/__main__.py",
 ]
 run.branch = true
+report.fail_under = 100
 report.exclude_also = [
     "@overload",
     "class .*\\bProtocol\\):",
