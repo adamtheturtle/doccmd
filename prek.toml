@@ -451,7 +451,7 @@ uv run --group=dev doccmd --language=python --no-pad-file --no-pad-groups --comm
     name = "linkcheck",
     entry = "uv run --group=dev sphinx-build -M linkcheck docs/source docs/build -W",
     language = "python",
-    types_or = ["rst"],
+    types_or = ["rst", "markdown"],
     stages = ["manual"],
     pass_filenames = false,
     additional_dependencies = ["uv==0.11.7"]
@@ -461,7 +461,7 @@ uv run --group=dev doccmd --language=python --no-pad-file --no-pad-groups --comm
     name = "spelling",
     entry = "uv run --group=dev sphinx-build -M spelling docs/source docs/build -W",
     language = "python",
-    types_or = ["rst"],
+    types_or = ["rst", "markdown"],
     stages = ["manual"],
     pass_filenames = false,
     additional_dependencies = ["uv==0.11.7"]

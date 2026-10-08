@@ -19,6 +19,7 @@ project = _pyproject_config.name
 author = _pyproject_config.author
 
 extensions = [
+    "myst_parser",
     "sphinx_copybutton",
     "sphinxcontrib.spelling",
     "sphinxcontrib.towncrier.ext",
@@ -28,15 +29,15 @@ extensions = [
 ]
 
 # Render the unreleased ``newsfragments/`` entries into
-# ``docs/source/unreleased.rst`` so the Sphinx spelling, doc-build and
+# ``docs/source/unreleased.md`` so the Sphinx spelling, doc-build and
 # link-checking gates cover the prose before it is assembled into
-# CHANGELOG.rst at release time.
+# the versioned Markdown notes at release time.
 towncrier_draft_autoversion_mode = "draft"
 towncrier_draft_include_empty = True
 towncrier_draft_working_directory = f"{_pyproject_file.parent}"
 
 templates_path = ["_templates"]
-source_suffix = ".rst"
+source_suffix = {".rst": "restructuredtext", ".md": "markdown"}
 master_doc = "index"
 
 project_copyright = f"%Y, {author}"
