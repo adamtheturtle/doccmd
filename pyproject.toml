@@ -69,7 +69,7 @@ dev = [
     "mypy-strict-kwargs==2026.8.25.1",
     "myst-parser==5.1.0",
     "no-defaults==2026.9.1",
-    "prek==0.5.4",
+    "prek==0.5.5",
     "pydocstringformatter==1.0.0",
     "pydocstyle==6.3",
     "pygments==2.21.0",
