@@ -662,7 +662,7 @@ dev = [
     { name = "hadolint-bin", marker = "sys_platform != 'win32'", specifier = "==2.15.1" },
     { name = "interrogate", specifier = "==1.7.0" },
     { name = "mypy", specifier = "==2.4.0" },
-    { name = "mypy-pytest-parametrize", specifier = "==2026.10.5" },
+    { name = "mypy-pytest-parametrize", specifier = "==2026.10.5.1" },
     { name = "mypy-strict-kwargs", specifier = "==2026.8.25.1" },
     { name = "myst-parser", specifier = "==5.1.0" },
     { name = "no-defaults", specifier = "==2026.9.1" },
@@ -1239,16 +1239,16 @@ wheels = [
 
 [[package]]
 name = "mypy-pytest-parametrize"
-version = "2026.10.5"
+version = "2026.10.5.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "mypy" },
     { name = "pytest" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ae/14/5adf231330daad6ec6e5f1c3433ec181ac554d75b3e0d4bc51a54576a371/mypy_pytest_parametrize-2026.10.5.tar.gz", hash = "sha256:a4776e5b13816a40b7677b6e9d777d8fa75f49bc08e656731235b4e66071bb74", size = 27576, upload-time = "2026-10-05T11:59:42.493Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c4/68/5f9e34edc922b6e29e94e4857d2593e6db89474afc829849cbd19ef72ff1/mypy_pytest_parametrize-2026.10.5.1.tar.gz", hash = "sha256:c8b2ec94c216260ee3b1bf942574b9e5e7f1960245418fe491bf658b9acc733e", size = 29198, upload-time = "2026-10-05T17:06:32.582Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/47/3e/78fc9b9351a6b0dcf398bab37467b043928927caf78481d9d0bcbe1c9700/mypy_pytest_parametrize-2026.10.5-py3-none-any.whl", hash = "sha256:b4ac6fbae8ee9b5b4d3200d45393d322ede45bdda677030612d64bff0dfb05c0", size = 8654, upload-time = "2026-10-05T11:59:41.282Z" },
+    { url = "https://files.pythonhosted.org/packages/4c/78/203545c44cd67b10e24f0d6946b902366e38dc38e171e8c0ada065088d79/mypy_pytest_parametrize-2026.10.5.1-py3-none-any.whl", hash = "sha256:46963da42e30f35e05fc6b2508aa9167761de67836490a5cf5ed9c563946fa54", size = 9304, upload-time = "2026-10-05T17:06:31.378Z" },
 ]
 
 [[package]]
