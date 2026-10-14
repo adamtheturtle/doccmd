@@ -647,7 +647,7 @@ requires-dist = [
     { name = "dulwich", specifier = ">=0.22.1" },
     { name = "pygments", specifier = ">=2.18.0" },
     { name = "sybil", specifier = ">=9.3.0,<11.0.0" },
-    { name = "sybil-extras", specifier = "==2026.8.16" },
+    { name = "sybil-extras", specifier = "==2026.10.9" },
     { name = "typing-extensions", specifier = ">=4.12.0" },
 ]
 
@@ -2368,17 +2368,18 @@ wheels = [
 
 [[package]]
 name = "sybil-extras"
-version = "2026.8.16"
+version = "2026.10.9"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "beartype" },
     { name = "markdown-it-py" },
     { name = "myst-parser" },
     { name = "sybil" },
+    { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/af/15/2a3b048a6d12e03641b5ce5df69eac13aa3b579542354adca78c0db66480/sybil_extras-2026.8.16.tar.gz", hash = "sha256:79c8dda5d2261b93d7885edbdfb534a0b6ebf3c4f8c8a53d400734a556fd402d", size = 119266, upload-time = "2026-08-16T09:17:42.801Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/06/b7/a47e9aa997d82d23106da3dcc9747a15584835029a7c490f1d8ef7fb1fab/sybil_extras-2026.10.9.tar.gz", hash = "sha256:d4d407aa9bbdbf659a52fb7fa1af09d1f7a6354f592e001c14059b1494af494a", size = 129704, upload-time = "2026-10-09T16:25:58.464Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/43/fb/8f1ebdd721b12be7f1428f820c983f3cbe3ef3e39d9d78240db1b260e3bd/sybil_extras-2026.8.16-py3-none-any.whl", hash = "sha256:9dd08d8a2b24c643170f88bc4d9c15464fc4a3c2829d844d68c1f3f76c3597ce", size = 87648, upload-time = "2026-08-16T09:17:41.183Z" },
+    { url = "https://files.pythonhosted.org/packages/b6/b5/f908d8ba513aa3937cbc3096b1b52d43044048336a4d8e951c429a09aa18/sybil_extras-2026.10.9-py3-none-any.whl", hash = "sha256:89b528ade4809e95ba93474281587033ebf0575055252d2953043a056da9af99", size = 91262, upload-time = "2026-10-09T16:25:56.927Z" },
 ]
 
 [[package]]
