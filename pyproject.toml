@@ -102,7 +102,7 @@ dev = [
     # ``sphinxcontrib-towncrier`` renders unreleased news fragments
     # as Markdown in docs/source/unreleased.md during Sphinx builds.
     "sphinxcontrib-towncrier==0.5.0a0",
-    "strict-kwargs==2026.8.28.post2",
+    "strict-kwargs==2026.10.9",
     "towncrier==26.9.0",
     "ty==0.0.85",
     "types-pygments==2.21.0.20260819",
