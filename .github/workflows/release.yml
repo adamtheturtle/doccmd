@@ -381,20 +381,23 @@ jobs:
       # cleanup step is needed.  It is pinned to a commit rather than a tag
       # because it handles the certificate and its password.
       - name: Import the Developer ID certificate
+        id: signing_certificate
         uses: Apple-Actions/import-codesign-certs@77ba2a2a8f5cfc8c405ebf3159f767c323e238f9  # v7.1.0
         with:
           p12-file-base64: ${{ secrets.DEVELOPER_ID_APP_CERT_P12_BASE64 }}
           p12-password: ${{ secrets.DEVELOPER_ID_APP_CERT_PASSWORD }}
 
       - name: Sign the macOS binary
+        env:
+          IDENTITIES: ${{ steps.signing_certificate.outputs.identities }}
         run: |
-          # ``--sign`` takes a name prefix, and matches the one Developer ID
-          # identity in the keychain the previous step added to the search
-          # list.  It fails with "ambiguous" if more than one matches, so
-          # this needs no lookup.  There is deliberately no ``--keychain``:
-          # that flag silently falls back to the search list when it cannot
-          # resolve what it is given, so it constrains nothing.
-          #
+          signing_identity="$(jq -er '
+            [.[] | select(.name | startswith("Developer ID Application:"))]
+            | if length == 1 then .[0].hash
+              else error("Expected exactly one Developer ID Application identity; found \(length)")
+              end
+          ' <<< "$IDENTITIES")"
+
           # A secure timestamp and the hardened runtime are both
           # prerequisites for notarization.  The hardened runtime needs the
           # entitlements file to leave a ``--onefile`` binary runnable; see
@@ -404,7 +407,7 @@ jobs:
               --timestamp \
               --options runtime \
               --entitlements bin/entitlements.plist \
-              --sign "Developer ID Application" \
+              --sign "$signing_identity" \
               dist/doccmd-macos
           codesign --verify --strict --verbose=2 dist/doccmd-macos
 
