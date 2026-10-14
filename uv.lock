@@ -690,7 +690,7 @@ dev = [
     { name = "sphinx-inline-tabs", specifier = "==2025.12.21.14" },
     { name = "sphinx-lint", specifier = "==1.0.2" },
     { name = "sphinx-pyproject", specifier = "==0.3.0" },
-    { name = "sphinx-substitution-extensions", specifier = "==2026.8.13.1" },
+    { name = "sphinx-substitution-extensions", specifier = "==2026.10.9" },
     { name = "sphinxcontrib-spelling", specifier = "==8.0.2" },
     { name = "sphinxcontrib-towncrier", specifier = "==0.5.0a0" },
     { name = "strict-kwargs", specifier = "==2026.10.9" },
@@ -2237,7 +2237,7 @@ wheels = [
 
 [[package]]
 name = "sphinx-substitution-extensions"
-version = "2026.8.13.1"
+version = "2026.10.9"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "beartype" },
@@ -2245,10 +2245,11 @@ dependencies = [
     { name = "myst-parser" },
     { name = "sphinx", version = "9.0.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "sphinx", version = "9.1.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ae/bc/50d6cc6ddb2249843edaa15857f4292c486304d6ea957d752a5a0118f19a/sphinx_substitution_extensions-2026.8.13.1.tar.gz", hash = "sha256:a4c64ed45614af028b6e397f001852e3968d8d06db2e02f79cceec8de53623a8", size = 44974, upload-time = "2026-08-13T10:01:38.054Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d2/e5/1572723fdaa9a721c55bc6bc0c19f26d806d050c5d71a07fa159ec648c6f/sphinx_substitution_extensions-2026.10.9.tar.gz", hash = "sha256:8778fbb7816199238a3cd2df3acb01e9d99f792a9c9d9456f03704e79285d5ad", size = 47338, upload-time = "2026-10-09T16:26:17.061Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d5/55/c28ec57ed403496dcb688c49110d77259b916e715178d78391299def33a7/sphinx_substitution_extensions-2026.8.13.1-py3-none-any.whl", hash = "sha256:6006ee556fed311f57113337cb095b31aef5014875ba2d905e9271e6210c8e04", size = 12333, upload-time = "2026-08-13T10:01:36.923Z" },
+    { url = "https://files.pythonhosted.org/packages/94/b9/1187b721eadfee3819f310c6c5bd449b6244738f2988068a537b40a13173/sphinx_substitution_extensions-2026.10.9-py3-none-any.whl", hash = "sha256:e1b9365f462eaaaca50dd80f21504255345a08ce980a8b10c35be5afd972e73d", size = 12062, upload-time = "2026-10-09T16:26:15.895Z" },
 ]
 
 [[package]]
