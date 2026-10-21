@@ -5,6 +5,8 @@ updates:
   # Keep ``pyproject.toml`` and ``uv.lock`` updates in one Dependabot commit so
   # Dependabot can continue rebasing its branches after another update merges.
   - package-ecosystem: uv
+    allow:
+      - dependency-type: all
     directory: /
     schedule:
       interval: daily
@@ -15,7 +17,5 @@ updates:
       interval: daily
     open-pull-requests-limit: 10
 
-  - package-ecosystem: pre-commit
-    directory: /
-    schedule:
-      interval: daily
+  # Dependabot cannot read prek.toml yet:
+  # https://github.com/dependabot/dependabot-core/issues/14624
