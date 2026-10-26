@@ -742,7 +742,7 @@ dev = [
     { name = "towncrier", specifier = "==26.9.0" },
     { name = "ty", specifier = "==0.0.91" },
     { name = "types-pygments", specifier = "==2.21.0.20260819" },
-    { name = "vale", specifier = "==3.22.0.0" },
+    { name = "vale", specifier = "==3.24.0.0" },
     { name = "vulture", specifier = "==2.16" },
     { name = "yamlfix", specifier = "==1.19.1" },
     { name = "zizmor", specifier = "==1.31.1" },
@@ -2744,11 +2744,11 @@ wheels = [
 
 [[package]]
 name = "vale"
-version = "3.22.0.0"
+version = "3.24.0.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/a3/53/4ac171f2521de4985c7f097f29a7057ee35c27c61b7513e701aeda101f99/vale-3.22.0.0.tar.gz", hash = "sha256:7597e92958de6b6c951e807b050fc78366026a35dc1e593561b6fccc6f76cf12", size = 5386, upload-time = "2026-09-18T07:35:07.675Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b8/0c/6b0d9d963bb093e2bb38cb6965a6b01a19cf5722a40d7717fcfac2407eb8/vale-3.24.0.0.tar.gz", hash = "sha256:9a3d183ccde25b19685e4aac1a55475c02cba3246a83b06cfe688882421e195b", size = 5365, upload-time = "2026-10-22T22:37:08.917Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/87/6f/23c2cd295e419e0f803e55232144357e1c696e8f7980c123ca013460effb/vale-3.22.0.0-py3-none-any.whl", hash = "sha256:db7de242dd36f5eaf0b705e5cf5a8f957a693066879434ff192c735372c51d31", size = 5942, upload-time = "2026-09-18T07:35:06.538Z" },
+    { url = "https://files.pythonhosted.org/packages/02/c7/0cdbdfd0b034ff7a496d89a5418f45fa35dd0953d79a733add83920351f9/vale-3.24.0.0-py3-none-any.whl", hash = "sha256:01f4c6fa5b9b2938b6ecc5bd0dfb53184cb6d36e10d9bdfd9c2b0914c18b6a4c", size = 5942, upload-time = "2026-10-22T22:37:07.658Z" },
 ]
 
 [[package]]
