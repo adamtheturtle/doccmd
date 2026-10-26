@@ -769,15 +769,15 @@ wheels = [
 
 [[package]]
 name = "domdf-python-tools"
-version = "3.10.0"
+version = "3.11.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "natsort" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/36/8b/ab2d8a292bba8fe3135cacc8bfd3576710a14b8f2d0a8cde19130d5c9d21/domdf_python_tools-3.10.0.tar.gz", hash = "sha256:2ae308d2f4f1e9145f5f4ba57f840fbfd1c2983ee26e4824347789649d3ae298", size = 100458, upload-time = "2025-02-12T17:34:05.747Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/da/5b/7e881abe89982fcf74a405e2b1eef22122ad463d82340aaadc9818a13dfc/domdf_python_tools-3.11.0.tar.gz", hash = "sha256:518ac47b27a799a72b01377f21588e41550a59918c25a74fb55fc7d15fbb2434", size = 105820, upload-time = "2026-10-22T14:09:57.224Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5b/11/208f72084084d3f6a2ed5ebfdfc846692c3f7ad6dce65e400194924f7eed/domdf_python_tools-3.10.0-py3-none-any.whl", hash = "sha256:5e71c1be71bbcc1f881d690c8984b60e64298ec256903b3147f068bc33090c36", size = 126860, upload-time = "2025-02-12T17:34:04.093Z" },
+    { url = "https://files.pythonhosted.org/packages/c0/a8/a913c670a4e15140510add5c0ac9bba85cff7d0a733296ce3b4b9fd76095/domdf_python_tools-3.11.0-py3-none-any.whl", hash = "sha256:561ac19b452cdfee01121f50117a338d03c51b36084d2f9617651113eec6aac8", size = 133717, upload-time = "2026-10-22T14:09:55.867Z" },
 ]
 
 [[package]]
