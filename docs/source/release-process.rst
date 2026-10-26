@@ -15,7 +15,8 @@ Repository secrets
 
 The release workflow signs and notarizes the macOS binary, which needs five repository secrets.
 Setting them is a one-off, repeated when the signing certificate expires.
-Binaries signed and notarized before an expiry keep working afterwards, because ``--timestamp`` records that the signature was made while the certificate was valid; only new signatures need a renewed certificate.
+Binaries signed and notarized before an expiry keep working afterwards, because ``--timestamp`` records that the signature was made while the certificate was valid.
+Only new signatures need a renewed certificate.
 
 Signing certificate
 ^^^^^^^^^^^^^^^^^^^
