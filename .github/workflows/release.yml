@@ -382,7 +382,7 @@ jobs:
       # because it handles the certificate and its password.
       - name: Import the Developer ID certificate
         id: signing_certificate
-        uses: Apple-Actions/import-codesign-certs@77ba2a2a8f5cfc8c405ebf3159f767c323e238f9  # v7.1.0
+        uses: Apple-Actions/import-codesign-certs@288b8ec97b82c66b6f2a6baaf7acc8dfbcbe331c  # v7.2.0
         with:
           p12-file-base64: ${{ secrets.DEVELOPER_ID_APP_CERT_P12_BASE64 }}
           p12-password: ${{ secrets.DEVELOPER_ID_APP_CERT_PASSWORD }}
