@@ -5,7 +5,7 @@
 import importlib.metadata
 from pathlib import Path
 
-from packaging.specifiers import SpecifierSet
+from packaging.specifiers import Specifier, SpecifierSet
 from packaging.version import Version
 from sphinx_pyproject import SphinxConfig
 
@@ -54,6 +54,7 @@ copybutton_exclude = ".linenos, .gp"
 # https://setuptools-scm.readthedocs.io/en/latest/usage/#usage-from-sphinx.
 _version_string = importlib.metadata.version(distribution_name=project)
 _version = Version(version=_version_string)
+msg: str
 if _version.major == 0:
     msg = (
         f"The version is {_version_string}. "
@@ -66,16 +67,19 @@ if _version.major == 0:
 # GitHub release tags have the format YYYY.MM.DD, while Python requirement
 # versions may have the format YYYY.M.D for single digit months and days.
 _num_date_parts = 3
-release = ".".join(
+release: str = ".".join(
     [
         f"{part:02d}" if index < _num_date_parts else str(object=part)
         for index, part in enumerate(iterable=_version.release)
     ]
 )
 
-project_metadata = importlib.metadata.metadata(distribution_name=project)
+project_metadata: importlib.metadata.PackageMetadata = (
+    importlib.metadata.metadata(distribution_name=project)
+)
 requires_python = project_metadata["Requires-Python"]
-specifiers = SpecifierSet(specifiers=requires_python)
+specifiers: SpecifierSet = SpecifierSet(specifiers=requires_python)
+specifier: Specifier
 (specifier,) = specifiers
 if specifier.operator != ">=":
     msg = (
