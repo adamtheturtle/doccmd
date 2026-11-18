@@ -74,7 +74,7 @@ dev = [
     "pydocstringformatter==1.0.0",
     "pydocstyle==6.3",
     "pygments==2.21.0",
-    "pylint[spelling]==4.1.3",
+    "pylint[spelling]==4.1.4",
     "pylint-per-file-ignores==4.0.0",
     "pyproject-fmt==2.30.6",
     "pyrefly==1.4.1",
