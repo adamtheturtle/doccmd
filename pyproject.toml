@@ -61,6 +61,7 @@ dev = [
     "check-manifest==0.51",
     "deptry==0.25.1",
     "doc8==2.0.0",
+    "doc8-inline-markup==2026.11.18.3; python_version>='3.12'",
     "furo==2025.12.19",
     # hadolint is not available on Windows.
     "hadolint-bin==2.15.1; sys_platform!='win32'",
