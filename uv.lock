@@ -738,7 +738,7 @@ dev = [
     { name = "sphinx-substitution-extensions", specifier = "==2026.10.9" },
     { name = "sphinxcontrib-spelling", specifier = "==8.0.2" },
     { name = "sphinxcontrib-towncrier", specifier = "==0.5.0a0" },
-    { name = "strict-kwargs", specifier = "==2026.10.9" },
+    { name = "strict-kwargs", specifier = "==2026.11.14" },
     { name = "towncrier", specifier = "==26.9.0" },
     { name = "ty", specifier = "==0.0.104" },
     { name = "types-pygments", specifier = "==2.21.0.20260819" },
@@ -2524,17 +2524,14 @@ wheels = [
 
 [[package]]
 name = "strict-kwargs"
-version = "2026.10.9"
+version = "2026.11.14"
 source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "ty" },
-]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/27/eb/c8397fb286768ce6ee88f398b649884e58aa4ff51627e9ccb59e0b75fafb/strict_kwargs-2026.10.9-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:995a04a4edb22f3738bbf30e89501c72758fbfe0b935910c7d3e67674a63e53f", size = 3350585, upload-time = "2026-10-09T17:48:27.088Z" },
-    { url = "https://files.pythonhosted.org/packages/41/2e/295ac57a5597909a54837c82198289c5bfeb8b7b8b9dda253101899bf01f/strict_kwargs-2026.10.9-py3-none-macosx_11_0_arm64.whl", hash = "sha256:05f5b3da30d53c839468b29ca5280e8434f009798f9cd81d980a4a0e06b9ca0f", size = 3279637, upload-time = "2026-10-09T17:48:28.857Z" },
-    { url = "https://files.pythonhosted.org/packages/3a/b8/5e5b9f84f6bde9756d2b276685d1811a67e943ceea46307013b095f74aea/strict_kwargs-2026.10.9-py3-none-manylinux_2_39_aarch64.whl", hash = "sha256:2aa33be97e7a183ae14b803463968611aa0247d8353771b7616a7f62025aba87", size = 3406340, upload-time = "2026-10-09T17:48:30.405Z" },
-    { url = "https://files.pythonhosted.org/packages/36/3e/3a9f3a53d3aadd9f5c59723b342e42a178f6c4256a8ca44b2daf5a21ebf3/strict_kwargs-2026.10.9-py3-none-manylinux_2_39_x86_64.whl", hash = "sha256:10aa17bdebfa99fe31d90aa0ca0bfa6497877bb0701165a85e139aeeb872d47e", size = 3486032, upload-time = "2026-10-09T17:48:32.458Z" },
-    { url = "https://files.pythonhosted.org/packages/88/cc/2c7cfe7033665ac4d1eb5b4f0d41465534be0364d4627f8cbfb994bc0da9/strict_kwargs-2026.10.9-py3-none-win_amd64.whl", hash = "sha256:a7733c834ce928e129ea967bac4b3d55df2ea123c7b43a95cfbca95fb13411c3", size = 3175137, upload-time = "2026-10-09T17:48:33.985Z" },
+    { url = "https://files.pythonhosted.org/packages/43/77/482d21d517b24ab6b623e6a15ae6a8b4909733c9d8aafd8e45ecbeb8a3c0/strict_kwargs-2026.11.14-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:6ee5264cffd6fa938811ff26d5547f325e76bb8fb3ed1978d7fe6dedf4ad78b5", size = 15548440, upload-time = "2026-11-14T22:59:54.962Z" },
+    { url = "https://files.pythonhosted.org/packages/f6/c3/4e804aef06ebdaa6c9a073c6d5bd818b00251845406b5b9c8dd1df44faad/strict_kwargs-2026.11.14-py3-none-macosx_11_0_arm64.whl", hash = "sha256:af59d5299d3e864bfe68e787bd6c993d70c2865862c15a82b3a3afa4679b02e0", size = 15110919, upload-time = "2026-11-14T22:59:57.632Z" },
+    { url = "https://files.pythonhosted.org/packages/bb/e6/830281514bed915a79e1180ed57e82fa6dee1584ecfca4c5e498fb18db51/strict_kwargs-2026.11.14-py3-none-manylinux_2_39_aarch64.whl", hash = "sha256:635dce381e6ce659d1223c2e06e800f2aa588c1012fbed007cad559b19d06213", size = 16155921, upload-time = "2026-11-14T23:00:00.661Z" },
+    { url = "https://files.pythonhosted.org/packages/78/53/e8cfd23256c6b255fe565fc0a9f1ab8c302a3e0d0a2dfad87dea504947a4/strict_kwargs-2026.11.14-py3-none-manylinux_2_39_x86_64.whl", hash = "sha256:db0f464c3918322fcca6886325206395579dbb61b41ee9bb643fcaf7ae33eeed", size = 15972033, upload-time = "2026-11-14T23:00:03.517Z" },
+    { url = "https://files.pythonhosted.org/packages/88/e3/51df1b5bd43a56c6783bbaf4d7281e55612d3539f0bc8d7f0bdb48810956/strict_kwargs-2026.11.14-py3-none-win_amd64.whl", hash = "sha256:93de24ffeedadd3d1a510f71dd1dbce6641fe49b76cce01fe57ef018334d49f8", size = 14342605, upload-time = "2026-11-14T23:00:06.567Z" },
 ]
 
 [[package]]
