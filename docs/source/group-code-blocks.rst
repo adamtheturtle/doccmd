@@ -4,7 +4,7 @@ Grouping code blocks
 Automatic file-level grouping
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The :option:`doccmd --group-file` option automatically groups all code blocks of the same language within each file, treating them as a single unit for execution.
+The :option:`doccmd --group-file` option runs the code blocks of each language in a file together.
 This is useful when code blocks are designed to be executed sequentially, such as in MyST notebooks or tutorial documents where later blocks depend on definitions from earlier ones.
 
 When this option is enabled, you don't need to add explicit ``group`` directives - all code blocks in a file are automatically combined.
@@ -64,7 +64,7 @@ Grouping by MDX attributes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The :option:`doccmd --group-mdx-by-attribute` option groups MDX code blocks by the value of a specified attribute.
-Code blocks with the same attribute value are grouped together and executed as a single unit.
+Code blocks with the same attribute value run together.
 This is useful for working with MDX files that follow conventions like Docusaurus, where code blocks are grouped using custom attributes.
 
 For example, with :option:`doccmd --group-mdx-by-attribute` set to ``"group"``, these blocks are grouped by their ``group`` attribute value:

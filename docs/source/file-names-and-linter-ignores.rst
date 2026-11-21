@@ -5,7 +5,8 @@ File names and linter ignores
 Each file is created in its own uniquely-named directory alongside the documentation file.
 This isolation means that examples running in parallel (see :option:`doccmd --example-workers`) cannot enumerate or race each other's temporary files.
 The directory name uses the same prefix as the temporary file (see below), so linter per-file-ignore patterns such as ``*doccmd_*`` continue to match the file's path.
-Each directory is made an importable package with an ``__init__.py``, and the generated file name is a valid module name, so linters do not flag it for living in its own directory.
+Each generated directory is a package with an ``__init__.py``.
+The generated file name is a valid module name for linters.
 
 By default, files are named using the pattern ``{prefix}_{source}_l{line}__{unique}_{suffix}``, where:
 
