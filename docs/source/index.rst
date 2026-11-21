@@ -66,7 +66,7 @@ Formatters and padding
 Running linters with ``doccmd`` gives you errors and warnings with line numbers that match the documentation file.
 It does this by adding padding to the code blocks before running the command.
 
-Some tools do not work well with this padding, and you can choose to obscure the line numbers in order to give the tool the original code block's content without padding, by using the :option:`doccmd --no-pad-file` and :option:`doccmd --no-pad-groups` flags.
+Some tools do not work well with this padding, and you can choose to obscure the line numbers in order to give the tool the original content of the code block without padding, by using the :option:`doccmd --no-pad-file` and :option:`doccmd --no-pad-groups` flags.
 See :ref:`using_groups_with_formatters` for more information.
 
 For example, to run ``ruff format`` against the code blocks in a Markdown file, use the following command:
@@ -81,7 +81,8 @@ pycon code blocks
 When :option:`doccmd --language` is set to ``pycon``, ``doccmd`` strips ``>>>`` and ``...`` prompts before passing the code to the tool, and restores them afterward, preserving output lines.
 This allows linters and formatters that expect plain Python source to work on ``pycon`` blocks.
 
-The recommended approach is to label interactive Python sessions in your documentation as ``pycon``, keeping them clearly distinct from plain ``python`` blocks.
+The recommended approach is to label interactive Python sessions in your documentation as ``pycon``.
+Use ``python`` for plain code blocks.
 
 If your existing documentation already uses ``python`` as the language for both plain code and interactive sessions, use :option:`doccmd --detect-pycon-language` (which defaults to ``python``) together with ``--language=python``.
 ``doccmd`` will automatically detect which ``python`` blocks are interactive (by checking whether the first non-empty line starts with ``>>>``), and apply pycon stripping only to those.
@@ -100,7 +101,7 @@ When ``doccmd`` is not writing formatter output back into your documentation fil
 Set either option to ``0`` to auto-detect a worker count based on the number of CPUs on your machine.
 
 For example, ``doccmd --no-write-to-file --example-workers 4 --document-workers 2`` spreads work across two documents, with up to four blocks active per document.
-This is handy for CPU-bound linters that only emit diagnostics.
+Use this setting for CPU-bound linters that only emit diagnostics.
 
 Parallel execution is intentionally disabled whenever :option:`doccmd --write-to-file` is in effect, since ``doccmd`` cannot safely merge formatter changes into the original documents out of order.
 Command output might interleave between example workers and document workers, so stick to the default sequential mode when deterministic ``stdout`` / ``stderr`` ordering is important.

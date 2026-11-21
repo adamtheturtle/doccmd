@@ -229,7 +229,7 @@ Formatters and padding
 Running linters with ``doccmd`` gives you errors and warnings with line numbers that match the documentation file.
 It does this by adding padding to the code blocks before running the command.
 
-Some tools do not work well with this padding, and you can choose to obscure the line numbers in order to give the tool the original code block's content without padding, by using the ``--no-pad-file`` and ``--no-pad-groups`` flag.
+Some tools do not work well with this padding, and you can choose to obscure the line numbers in order to give the tool the original content of the code block without padding, by using the ``--no-pad-file`` and ``--no-pad-groups`` flag.
 See using_groups_with_formatters_ for more information.
 
 pycon code blocks
@@ -238,7 +238,8 @@ pycon code blocks
 When ``--language=pycon`` is used, ``doccmd`` strips ``>>>`` and ``...`` prompts before passing the code to the tool, and restores them afterward, preserving output lines.
 This allows linters and formatters that expect plain Python source to work on ``pycon`` blocks.
 
-The recommended approach is to label interactive Python sessions in your documentation as ``pycon``, keeping them clearly distinct from plain ``python`` blocks.
+The recommended approach is to label interactive Python sessions in your documentation as ``pycon``.
+Use ``python`` for plain code blocks.
 
 If your existing documentation already uses ``python`` as the language for both plain code and interactive sessions, use ``--detect-pycon-language=python`` (the default) together with ``--language=python``.
 ``doccmd`` will automatically detect which ``python`` blocks are interactive (by checking whether the first non-empty line starts with ``>>>``), and apply pycon stripping only to those.
@@ -275,7 +276,7 @@ When ``doccmd`` is not writing formatter output back into your documentation fil
 Set either option to ``0`` to auto-detect a worker count based on the number of CPUs on your machine.
 
 For example, ``doccmd --no-write-to-file --example-workers 4 --document-workers 2`` spreads work across two documents, with up to four blocks active per document.
-This is handy for CPU-bound linters that only emit diagnostics.
+Use this setting for CPU-bound linters that only emit diagnostics.
 
 Parallel execution is intentionally disabled whenever ``--write-to-file`` is in effect, since ``doccmd`` cannot safely merge formatter changes into the original documents out of order.
 Command output might interleave between example workers and document workers, so stick to the default sequential mode when deterministic stdout/stderr ordering is important.
@@ -358,7 +359,7 @@ Grouping code blocks
 Automatic file-level grouping
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The ``--group-file`` option automatically groups all code blocks of the same language within each file, treating them as a single unit for execution.
+The ``--group-file`` option runs the code blocks of each language in a file together.
 This is useful when code blocks are designed to be executed sequentially, such as in MyST notebooks or tutorial documents where later blocks depend on definitions from earlier ones.
 
 When this option is enabled, you don't need to add explicit ``group`` directives - all code blocks in a file are automatically combined.
@@ -418,7 +419,7 @@ Grouping by MDX attributes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The ``--group-mdx-by-attribute`` option groups MDX code blocks by the value of a specified attribute.
-Code blocks with the same attribute value are grouped together and executed as a single unit.
+Code blocks with the same attribute value run together.
 This is useful for working with MDX files that follow conventions like Docusaurus, where code blocks are grouped using custom attributes.
 
 For example, with ``--group-mdx-by-attribute=group``, these blocks are grouped by their ``group`` attribute value:

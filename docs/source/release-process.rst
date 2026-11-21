@@ -21,7 +21,7 @@ Only new signatures need a renewed certificate.
 Signing certificate
 ^^^^^^^^^^^^^^^^^^^
 
-``DEVELOPER_ID_APP_CERT_P12_BASE64`` is a ``base64`` encoded PKCS#12 export of a Developer ID Application certificate and its private key.
+``DEVELOPER_ID_APP_CERT_P12_BASE64`` contains a PKCS#12 export of the Developer ID Application certificate and private key, encoded as ``base64``.
 The export must contain exactly one such identity: the workflow stops rather than guess which one to sign with.
 ``DEVELOPER_ID_APP_CERT_PASSWORD`` is the password that the export is encrypted with.
 
