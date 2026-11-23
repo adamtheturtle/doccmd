@@ -16,7 +16,7 @@ from enum import StrEnum, auto, unique
 from importlib.metadata import PackageNotFoundError, version
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from threading import Lock
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Protocol
 from uuid import uuid4
 
 import charset_normalizer
@@ -75,6 +75,20 @@ try:
 except PackageNotFoundError:  # pragma: no cover
     # Frozen applications may omit metadata but retain the generated file.
     from ._setuptools_scm_version import __version__
+
+
+class _ParsedExample(Protocol):
+    """The parsed value exposed by a Sybil example."""
+
+    @property
+    def parsed(self) -> object:
+        """Get the parsed result without assuming a specific type."""
+        ...
+
+
+def _example_source(*, example: _ParsedExample) -> str:
+    """Get the text of a parsed example."""
+    return str(object=example.parsed)
 
 
 @beartype
@@ -702,7 +716,7 @@ class _GroupModifiedError(Exception):
     def __str__(self) -> str:
         """Get the string representation of the error."""
         unified_diff = difflib.unified_diff(
-            a=str(object=self._example.parsed).lstrip().splitlines(),
+            a=_example_source(example=self._example).lstrip().splitlines(),
             b=self._modified_example_content.lstrip().splitlines(),
             fromfile="original",
             tofile="modified",
@@ -1043,7 +1057,7 @@ class _DetectingPyconEvaluator:
 
     def __call__(self, example: Example) -> str | None:
         """Run the appropriate evaluator based on content detection."""
-        source = str(object=example.parsed)
+        source = _example_source(example=example)
         if _is_pycon_source(source=source):
             return self._pycon_evaluator(example=example)
         return self._regular_evaluator(example=example)
