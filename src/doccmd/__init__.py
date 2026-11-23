@@ -82,7 +82,7 @@ class _ParsedExample(Protocol):
 
     @property
     def parsed(self) -> object:
-        """Get the parser's result without assuming a specific type."""
+        """Get the parsed result without assuming a specific type."""
         ...
 
 
