@@ -779,14 +779,14 @@ wheels = [
 
 [[package]]
 name = "dom-toml"
-version = "2.3.0"
+version = "2.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "domdf-python-tools" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/48/91/cdad3f64c5bbe7650fc617f2f756b28827dd5f30b9f7b78597ce3e96fcd2/dom_toml-2.3.0.tar.gz", hash = "sha256:04d1138a7588119ec37ffe59e6474739a7ce7fcfcdf76555a064878ad82e3ae0", size = 13041, upload-time = "2026-01-22T23:12:06.225Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e6/3a/d267ae1e026245eaf4332e94425c4e289ef044751159f5bdd2a8f284c154/dom_toml-2.4.0.tar.gz", hash = "sha256:b9127955144f0001e6cf83a79a48013d9f5336be3cda23426fd5dcbe812732ee", size = 13177, upload-time = "2026-11-20T20:32:38.241Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/43/cb/20465053f0f4854c261c038afce2703d71cc71d58035a53404128b1abfe7/dom_toml-2.3.0-py3-none-any.whl", hash = "sha256:bc2f985db6964de47b113783a6b18f1688693b2a47dec3c7451d3531ccab7029", size = 17505, upload-time = "2026-01-22T23:12:05.328Z" },
+    { url = "https://files.pythonhosted.org/packages/2a/f6/b736ad7176554267201ee5b902693186c3f7f1f167869d9471c49b6d4710/dom_toml-2.4.0-py3-none-any.whl", hash = "sha256:b7e896d29a5f432f3c05557778ef26897f454e36a845f0c21f83c97db5a481ce", size = 17550, upload-time = "2026-11-20T20:32:37.416Z" },
 ]
 
 [[package]]
